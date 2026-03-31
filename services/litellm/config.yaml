@@ -4,11 +4,23 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 model_list:
+  # ── Local Models (llama.cpp dual-GPU server — 28 GiB combined VRAM) ───────
+  # GPU 0: RX 9070 XT (15.9 GiB, gfx1201) + GPU 1: RX 6750 XT (12 GiB, gfx1031)
+  # tensor-split 57/43 across both GPUs — port 8080
+  #   Model: qwen2.5-coder:32b (Q4_K_M, 18.5 GiB) — best local coding model
+  - model_name: qwen2.5-coder:32b
+    litellm_params:
+      model: openai/qwen2.5-coder:32b
+      api_base: http://sven-ai:8080/v1
+      api_key: ignored
+
   # ── Local Models (Ollama — dual AMD GPU) ─────────────────────────────────
   # GPU 0: RX 9070 XT (15.9 GiB, gfx1201) — port 11434 — primary/large
   #   Models: qwen2.5:14b, deepseek-r1:14b, llama3.2:3b
-  # GPU 1: RX 6700  (12.0 GiB, gfx1031)  — port 11435 — fast/concurrent
+  # GPU 1: RX 6750 XT (12.0 GiB, gfx1031) — port 11435 — fast/concurrent
   #   Models: qwen2.5:7b, llama3.2:3b
+  # NOTE: Ollama containers are stopped when llama-server uses both GPUs.
+  #       Restart them with: docker start sven-ollama-9070 sven-ollama-6700
   #
   # Best all-round local model — qwen2.5:14b on 9070 XT
   - model_name: qwen2.5:14b
@@ -155,38 +167,45 @@ model_list:
       api_key: os.environ/MISTRAL_API_KEY
 
   # ── Routers ──────────────────────────────────────────────────────────────
-  # `coding` — best model for code generation / debugging.
-  # Local first: qwen2.5:14b on 9070 XT (9 GB, 176+ tok/s), then cloud.
+  # `coding` — best local model first; cloud fallbacks in router_settings below.
   - model_name: coding
     litellm_params:
-      model: qwen2.5:14b
-      fallbacks: ["copilot-claude-opus-4", "gemini-2.5-pro", "gpt-4.1"]
+      model: openai/qwen2.5-coder:32b
+      api_base: http://sven-ai:8080/v1
+      api_key: ignored
 
-  # `coding-fast` — speed-optimised for small coding tasks.
-  # Local first: qwen2.5:7b on 6700 (concurrent GPU), then cloud.
+  # `coding-fast` — cloud fast models; local 32b as last resort.
   - model_name: coding-fast
     litellm_params:
-      model: qwen2.5:7b
-      fallbacks: ["copilot-o3-mini", "gemini-2.5-flash", "gpt-4o-mini"]
+      model: openai/o3-mini
+      api_base: https://api.githubcopilot.com
+      api_key: os.environ/GITHUB_COPILOT_TOKEN
 
-  # `reasoning` — deep reasoning / multi-step planning.
-  # Local first: deepseek-r1:14b on 9070 XT (chain-of-thought native), then cloud.
+  # `reasoning` — local 32b first; cloud fallbacks in router_settings below.
   - model_name: reasoning
     litellm_params:
-      model: deepseek-r1:14b
-      fallbacks: ["copilot-o3-mini", "gemini-2.5-pro", "claude-sonnet-4-20250514"]
+      model: openai/qwen2.5-coder:32b
+      api_base: http://sven-ai:8080/v1
+      api_key: ignored
 
-  # `local` — always use best local GPU model, never cloud.
+  # `local` — always use best local GPU model (llama-server), never cloud.
   - model_name: local
     litellm_params:
-      model: qwen2.5:14b
-      api_base: http://sven-ollama-9070:11434
+      model: openai/qwen2.5-coder:32b
+      api_base: http://sven-ai:8080/v1
+      api_key: ignored
 
-  # `local-fast` — always use fast local GPU model, never cloud.
+  # `local-fast` — fast local 7b (Ollama 6750 XT), never cloud.
   - model_name: local-fast
     litellm_params:
-      model: qwen2.5:7b
+      model: ollama/qwen2.5:7b
       api_base: http://sven-ollama-6700:11434
+
+router_settings:
+  fallbacks:
+    - coding:      ["copilot-claude-opus-4", "gemini-2.5-pro", "gpt-4.1"]
+    - coding-fast: ["gemini-2.5-flash", "gpt-4o-mini", "coding"]
+    - reasoning:   ["copilot-o3-mini", "gemini-2.5-pro", "claude-sonnet-4-20250514"]
 
 litellm_settings:
   drop_params: true
