@@ -189,13 +189,16 @@ services:
       OPENSEARCH_URL: http://${VM6_INTERNAL_IP:-10.74.47.10}:9200
       OPENSEARCH_USER: ${OPENSEARCH_USER:-admin}
       OPENSEARCH_PASSWORD: ${OPENSEARCH_PASSWORD}
-      # Cross-VM: Ollama on VM5
-      OLLAMA_URL: http://${VM5_INTERNAL_IP:-10.74.47.9}:11434
+      # Cross-VM: Ollama on kaldorei (10.47.47.13) — RTX 3060, CUDA
+      # VM5 Ollama containers are stopped; llama-server (port 8080) owns both AMD GPUs.
+      # Embeddings and small-model inference route to kaldorei instead.
+      OLLAMA_URL: http://${KALDOREI_IP:-10.47.47.13}:11434
       EMBEDDINGS_ENABLED: ${EMBEDDINGS_ENABLED:-true}
       EMBEDDINGS_PROVIDER: ${EMBEDDINGS_PROVIDER:-ollama}
-      EMBEDDINGS_URL: http://${VM5_INTERNAL_IP:-10.74.47.9}:11434
+      EMBEDDINGS_URL: http://${KALDOREI_IP:-10.47.47.13}:11434
       EMBEDDINGS_MODEL: ${EMBEDDINGS_MODEL:-nomic-embed-text}
       EMBEDDINGS_DIM: ${EMBEDDINGS_DIM:-768}
+      WAKE_WORD_BASE_URL: http://${VM5_INTERNAL_IP:-10.74.47.9}:${WAKE_WORD_PORT:-4400}
       COOKIE_SECRET: ${COOKIE_SECRET:?COOKIE_SECRET is required}
       SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
       CORS_ORIGIN: ${CORS_ORIGIN:?CORS_ORIGIN is required}
@@ -266,8 +269,9 @@ services:
       SVEN_DEPLOYMENT_MODE: production
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=require
       NATS_URL: nats://nats:4222
-      # Cross-VM: Ollama on VM5
-      OLLAMA_URL: http://${VM5_INTERNAL_IP:-10.74.47.9}:11434
+      # Cross-VM: Ollama on kaldorei (10.47.47.13) — RTX 3060, CUDA
+      OLLAMA_URL: http://${KALDOREI_IP:-10.47.47.13}:11434
+      OLLAMA_DEFAULT_MODEL: ${OLLAMA_DEFAULT_MODEL:-llama3.2:3b}
       OTEL_EXPORTER_OTLP_ENDPOINT: http://${VM6_INTERNAL_IP:-10.74.47.10}:4318
       NODE_EXTRA_CA_CERTS: /etc/ssl/sven/ca.crt
     volumes:
