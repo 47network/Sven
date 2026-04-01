@@ -143,8 +143,10 @@ services:
       --jetstream --store_dir /data --http_port 8222
     ports:
       - "${VM4_INTERNAL_IP:-10.74.47.8}:4222:4222"
+      - "${VM4_SERVICE_IP:-10.74.47.8}:4222:4222"
       - "127.0.0.1:4222:4222"
       - "${VM4_INTERNAL_IP:-10.74.47.8}:8222:8222"
+      - "${VM4_SERVICE_IP:-10.74.47.8}:8222:8222"
     volumes:
       - natsdata:/data
     networks:
