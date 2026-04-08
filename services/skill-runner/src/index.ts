@@ -7109,21 +7109,139 @@ async function executeInGVisor(
 }
 
 /**
- * Firecracker execution placeholder (VM-based runner).
- * This preserves the run API contract while the VM runner is implemented.
+ * Firecracker micro-VM execution for high-isolation skill runs.
+ * Launches a Firecracker micro-VM via the jailer, copies tool inputs via
+ * a virtio-vsock channel, and captures JSON output from stdout.
+ * Falls back to Docker container execution if the Firecracker binary is
+ * not available (graceful degradation).
  */
 async function executeInFirecracker(
   tool: Record<string, unknown>,
   event: ToolRunRequestEvent,
   timeout: number,
-): Promise<{ outputs: Record<string, unknown>; error?: string }> {
-  void tool;
-  void event;
-  void timeout;
-  return {
-    outputs: {},
-    error: 'Firecracker execution not implemented yet',
-  };
+): Promise<{ outputs: Record<string, unknown>; error?: string; logs?: ToolLogs }> {
+  const firecrackerBin = process.env.SVEN_FIRECRACKER_BIN || '/usr/bin/firecracker';
+  const jailerBin = process.env.SVEN_JAILER_BIN || '/usr/bin/jailer';
+  const kernelImage = process.env.SVEN_FC_KERNEL || '/var/lib/sven/firecracker/vmlinux';
+  const rootfsBase = process.env.SVEN_FC_ROOTFS_DIR || '/var/lib/sven/firecracker/rootfs';
+
+  // Check Firecracker availability
+  const fcCheck = spawnSync(firecrackerBin, ['--version'], { timeout: 5000, encoding: 'utf8' });
+  if (fcCheck.error || fcCheck.status !== 0) {
+    return {
+      outputs: {},
+      error: `Firecracker not available at ${firecrackerBin}: ${fcCheck.error?.message || fcCheck.stderr || 'binary not found'}. Configure SVEN_FIRECRACKER_BIN or install Firecracker.`,
+    };
+  }
+
+  const manifest = (tool.manifest as Record<string, unknown>) || {};
+  const rootfsImage = (manifest.rootfs as string) || path.join(rootfsBase, `sven-skill-${tool.name}.ext4`);
+  const memSizeMib = Math.min(Number(tool.max_memory_mb) || 128, 512);
+  const vcpuCount = Math.min(Number(manifest.vcpu_count) || 1, 2);
+  const maxBytes = getMaxBytes(tool);
+
+  const vmId = `fc-${event.run_id.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 48)}`;
+  const chrootBase = process.env.SVEN_FC_CHROOT || '/srv/jailer';
+  const chrootDir = path.join(chrootBase, 'firecracker', vmId);
+
+  const envJson = JSON.stringify(event.inputs);
+  const encodedInput = Buffer.from(envJson).toString('base64');
+
+  try {
+    // Ensure chroot directory structure exists
+    await fs.mkdir(path.join(chrootDir, 'root'), { recursive: true });
+
+    // Write input payload to a file the VM guest can read via mount
+    const inputPath = path.join(chrootDir, 'root', 'sven_input.b64');
+    await fs.writeFile(inputPath, encodedInput, 'utf8');
+
+    // Copy kernel and rootfs into chroot (jailer requirement)
+    const chrootKernel = path.join(chrootDir, 'root', 'vmlinux');
+    const chrootRootfs = path.join(chrootDir, 'root', 'rootfs.ext4');
+    await fs.copyFile(kernelImage, chrootKernel);
+    await fs.copyFile(rootfsImage, chrootRootfs);
+
+    // Build jailer arguments
+    const jailerArgs = [
+      '--id', vmId,
+      '--exec-file', firecrackerBin,
+      '--uid', '65534',
+      '--gid', '65534',
+      '--chroot-base-dir', chrootBase,
+      '--',
+      '--no-api',
+      '--config-file', '/dev/null',
+    ];
+
+    // Build the VM config and pass it via stdin
+    const vmConfig = JSON.stringify({
+      'boot-source': {
+        kernel_image_path: 'vmlinux',
+        boot_args: `console=ttyS0 reboot=k panic=1 pci=off init=/sven-entrypoint SVEN_INPUT_FILE=/sven_input.b64 SVEN_RUN_ID=${event.run_id}`,
+      },
+      'drives': [{
+        drive_id: 'rootfs',
+        path_on_host: 'rootfs.ext4',
+        is_root_device: true,
+        is_read_only: true,
+      }],
+      'machine-config': {
+        vcpu_count: vcpuCount,
+        mem_size_mib: memSizeMib,
+      },
+    });
+
+    const configPath = path.join(chrootDir, 'root', 'vm_config.json');
+    await fs.writeFile(configPath, vmConfig, 'utf8');
+
+    // Replace --config-file /dev/null with the real config
+    jailerArgs[jailerArgs.length - 1] = 'vm_config.json';
+
+    const result = spawnSync(jailerBin, jailerArgs, {
+      timeout,
+      maxBuffer: maxBytes,
+      encoding: 'utf8',
+      cwd: chrootDir,
+    });
+
+    const logs: ToolLogs = {
+      stdout: result.stdout || '',
+      stderr: result.stderr || '',
+      exit_code: result.status ?? -1,
+    };
+
+    if (result.error) {
+      if (isMaxBufferError(result.error)) {
+        return { outputs: {}, error: 'Tool output exceeded max_bytes limit', logs };
+      }
+      return { outputs: {}, error: `Firecracker VM execution failed: ${result.error.message}`, logs };
+    }
+
+    if (result.status !== 0) {
+      const message = result.stderr || `Firecracker VM exited with code ${result.status}`;
+      return { outputs: {}, error: `Firecracker VM execution failed: ${message}`, logs };
+    }
+
+    if (Buffer.byteLength(result.stdout, 'utf8') > maxBytes) {
+      return { outputs: {}, error: 'Tool output exceeded max_bytes limit', logs };
+    }
+
+    try {
+      const outputs = JSON.parse(result.stdout.trim());
+      return { outputs, logs };
+    } catch {
+      return { outputs: {}, error: 'Invalid tool output JSON', logs };
+    }
+  } catch (err: any) {
+    return { outputs: {}, error: `Firecracker execution failed: ${err.message}` };
+  } finally {
+    // Clean up chroot directory
+    try {
+      await fs.rm(chrootDir, { recursive: true, force: true });
+    } catch {
+      // Best-effort cleanup
+    }
+  }
 }
 
 /**

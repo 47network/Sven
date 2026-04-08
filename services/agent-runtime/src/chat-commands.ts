@@ -4847,7 +4847,10 @@ function compileIssueFixProgram(issueSummary: string): CompiledProseProgram {
         config: {
           tool_name: patchToolName,
           params: {
-            command: "echo '[SVEN_OPENHANDS_W02_PATCH_PLACEHOLDER]'",
+            command: `set -euo pipefail; PLAN=$(cat <<'SVEN_PLAN_EOF'
+${issue_plan}
+SVEN_PLAN_EOF
+); echo "$PLAN" | head -n 200`,
           },
         },
         outputs: {
@@ -4860,7 +4863,7 @@ function compileIssueFixProgram(issueSummary: string): CompiledProseProgram {
         config: {
           tool_name: testToolName,
           params: {
-            command: "echo '[SVEN_OPENHANDS_W02_TEST_PLACEHOLDER]'",
+            command: 'set -euo pipefail; if [ -f package.json ]; then npm test -- --ci --bail 2>&1 | tail -n 100; elif [ -f Makefile ] && grep -q "^test:" Makefile; then make test 2>&1 | tail -n 100; elif [ -f pytest.ini ] || [ -f setup.py ]; then python -m pytest --tb=short -q 2>&1 | tail -n 100; else echo "No test runner detected"; fi',
           },
         },
         outputs: {
