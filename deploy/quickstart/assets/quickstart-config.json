@@ -2,5 +2,7 @@
   "deployment_label": "Production",
   "install_origin": "https://sven.systems",
   "runtime_origin": "https://app.sven.systems",
-  "proof_origin": "https://app.sven.systems"
+  "proof_origin": "https://app.sven.systems",
+  "webchat_widget_endpoint": "/webchat",
+  "webchat_widget_api_key": "sven-public-widget-2026"
 }
