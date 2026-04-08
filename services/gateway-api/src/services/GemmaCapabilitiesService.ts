@@ -83,21 +83,21 @@ export class GemmaCapabilitiesService {
     return result.rows.map((r) => this.mapCapability(r));
   }
 
-  /** Toggle a specific capability */
-  async toggleCapability(organizationId: string, modelProfileId: string, capability: CapabilityType, enabled: boolean): Promise<void> {
+  /** Toggle a specific capability by record id */
+  async toggleCapability(organizationId: string, capabilityId: string, enabled: boolean): Promise<void> {
     await this.pool.query(
-      `UPDATE gemma4_capability_maps SET enabled = $4, updated_at = NOW()
-       WHERE organization_id = $1 AND model_profile_id = $2 AND capability = $3`,
-      [organizationId, modelProfileId, capability, enabled],
+      `UPDATE gemma4_capability_maps SET enabled = $3, updated_at = NOW()
+       WHERE organization_id = $1 AND id = $2`,
+      [organizationId, capabilityId, enabled],
     );
   }
 
-  /** Update capability config (e.g., language list for multilingual) */
-  async updateCapabilityConfig(organizationId: string, modelProfileId: string, capability: CapabilityType, config: Record<string, unknown>): Promise<void> {
+  /** Update capability config by record id */
+  async updateCapabilityConfig(organizationId: string, capabilityId: string, config: Record<string, unknown>): Promise<void> {
     await this.pool.query(
-      `UPDATE gemma4_capability_maps SET config = $4, updated_at = NOW()
-       WHERE organization_id = $1 AND model_profile_id = $2 AND capability = $3`,
-      [organizationId, modelProfileId, capability, JSON.stringify(config)],
+      `UPDATE gemma4_capability_maps SET config = $3, updated_at = NOW()
+       WHERE organization_id = $1 AND id = $2`,
+      [organizationId, capabilityId, JSON.stringify(config)],
     );
   }
 
@@ -140,8 +140,8 @@ export class GemmaCapabilitiesService {
   }
 
   /** Deactivate a custom model slot */
-  async deactivateSlot(slotId: string): Promise<void> {
-    await this.pool.query(`UPDATE gemma4_custom_model_slots SET is_active = FALSE, updated_at = NOW() WHERE id = $1`, [slotId]);
+  async deactivateSlot(organizationId: string, slotId: string): Promise<void> {
+    await this.pool.query(`UPDATE gemma4_custom_model_slots SET is_active = FALSE, updated_at = NOW() WHERE id = $1 AND organization_id = $2`, [slotId, organizationId]);
   }
 
   /** Get native capabilities list */
