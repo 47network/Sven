@@ -43,8 +43,8 @@ export async function registerGemma4Routes(app: FastifyInstance) {
     if (!orgId) return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED' } });
     const q = req.query as Record<string, string>;
     const profiles = await modelSvc.listProfiles(orgId, {
-      platform: q.platform,
-      active_only: q.active_only !== 'false',
+      platform: q.platform as any,
+      activeOnly: q.active_only !== 'false',
     });
     return { success: true, data: profiles };
   });
@@ -149,8 +149,8 @@ export async function registerGemma4Routes(app: FastifyInstance) {
     const orgId = String(req.orgId || '');
     if (!orgId) return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED' } });
     const userId = String(req.userId || '');
-    const { batch_id } = req.body as { batch_id: string };
-    await memorySvc.acknowledgeDownload(orgId, userId, req.params.deviceId, batch_id);
+    const { record_count, new_cursor } = req.body as { record_count: number; new_cursor: string };
+    await memorySvc.acknowledgeDownload(orgId, userId, req.params.deviceId, { record_count, new_cursor });
     return { success: true };
   });
 
@@ -159,10 +159,10 @@ export async function registerGemma4Routes(app: FastifyInstance) {
     if (!orgId) return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED' } });
     const userId = String(req.userId || '');
     const q = req.query as Record<string, string>;
-    const history = await memorySvc.getSyncHistory(orgId, userId, {
-      device_id: q.device_id,
-      limit: q.limit ? parseInt(q.limit, 10) : undefined,
-    });
+    const history = await memorySvc.getSyncHistory(
+      q.manifest_id || '',
+      q.limit ? parseInt(q.limit, 10) : undefined,
+    );
     return { success: true, data: history };
   });
 
@@ -170,7 +170,7 @@ export async function registerGemma4Routes(app: FastifyInstance) {
     const orgId = String(req.orgId || '');
     if (!orgId) return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED' } });
     const userId = String(req.userId || '');
-    const stats = await memorySvc.getSyncStats(orgId, userId);
+    const stats = await memorySvc.getSyncStats(orgId);
     return { success: true, data: stats };
   });
 
@@ -207,9 +207,8 @@ export async function registerGemma4Routes(app: FastifyInstance) {
     const userId = String(req.userId || '');
     const q = req.query as Record<string, string>;
     const events = await bridgeSvc.listEvents(orgId, userId, {
-      action: q.action,
+      action: q.action as any,
       limit: q.limit ? parseInt(q.limit, 10) : undefined,
-      offset: q.offset ? parseInt(q.offset, 10) : undefined,
     });
     return { success: true, data: events };
   });
@@ -218,7 +217,7 @@ export async function registerGemma4Routes(app: FastifyInstance) {
     const orgId = String(req.orgId || '');
     if (!orgId) return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED' } });
     const userId = String(req.userId || '');
-    const stats = await bridgeSvc.getStats(orgId, userId);
+    const stats = await bridgeSvc.getStats(orgId);
     return { success: true, data: stats };
   });
 
@@ -235,9 +234,9 @@ export async function registerGemma4Routes(app: FastifyInstance) {
   app.get('/gemma4/modules', async (req: any, reply) => {
     const q = req.query as Record<string, string>;
     const modules = await moduleSvc.listModules({
-      category: q.category,
-      platform: q.platform,
-      active_only: q.active_only !== 'false',
+      category: q.category as any,
+      platform: q.platform as any,
+      activeOnly: q.active_only !== 'false',
     });
     return { success: true, data: modules };
   });
@@ -260,7 +259,7 @@ export async function registerGemma4Routes(app: FastifyInstance) {
     if (!orgId) return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED' } });
     const userId = String(req.userId || '');
     const { device_id, progress } = req.body as { device_id: string; progress: number };
-    await moduleSvc.updateProgress(orgId, userId, device_id, req.params.moduleId, progress);
+    await moduleSvc.updateProgress(req.params.moduleId, progress);
     return { success: true };
   });
 
@@ -269,7 +268,7 @@ export async function registerGemma4Routes(app: FastifyInstance) {
     if (!orgId) return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED' } });
     const userId = String(req.userId || '');
     const { device_id } = req.query as { device_id: string };
-    await moduleSvc.uninstallModule(orgId, userId, device_id, req.params.moduleId);
+    await moduleSvc.uninstallModule(req.params.moduleId);
     return { success: true };
   });
 
@@ -286,7 +285,7 @@ export async function registerGemma4Routes(app: FastifyInstance) {
     const orgId = String(req.orgId || '');
     if (!orgId) return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED' } });
     const userId = String(req.userId || '');
-    const stats = await moduleSvc.getStats(orgId, userId);
+    const stats = await moduleSvc.getStats();
     return { success: true, data: stats };
   });
 
@@ -315,7 +314,7 @@ export async function registerGemma4Routes(app: FastifyInstance) {
     const userId = String(req.userId || '');
     const { domain } = req.body as { domain: string };
     if (!domain) return reply.status(400).send({ success: false, error: { message: 'Domain is required' } });
-    const result = await privacySvc.checkOutboundRequest(orgId, userId, domain);
+    const result = await privacySvc.checkOutboundRequest(orgId, userId, domain, 'admin_check');
     return { success: true, data: result };
   });
 
@@ -364,15 +363,15 @@ export async function registerGemma4Routes(app: FastifyInstance) {
     const orgId = String(req.orgId || '');
     if (!orgId) return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED' } });
     const { enabled } = req.body as { enabled: boolean };
-    const cap = await capsSvc.toggleCapability(orgId, req.params.capabilityId, enabled);
-    return { success: true, data: cap };
+    await capsSvc.toggleCapability(orgId, req.params.capabilityId, enabled);
+    return { success: true };
   });
 
   app.put('/gemma4/capabilities/:capabilityId/config', async (req: any, reply) => {
     const orgId = String(req.orgId || '');
     if (!orgId) return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED' } });
-    const cap = await capsSvc.updateCapabilityConfig(orgId, req.params.capabilityId, req.body);
-    return { success: true, data: cap };
+    await capsSvc.updateCapabilityConfig(orgId, req.params.capabilityId, req.body);
+    return { success: true };
   });
 
   app.get('/gemma4/capabilities/native', async (_req: any) => {
