@@ -110,14 +110,14 @@ Agent-to-agent AND agent-to-human conversations. Transparency as default.
 | # | Task | Details | Status |
 |---|------|---------|--------|
 | 3.1 | Agent persona identity system | Extend verified-persona with `is_agent: true` flag. Agents get community accounts with clear labeling — never pretending to be human | [x] |
-| 3.2 | Guide Agent | Greets newcomers, walks through features, answers FAQs from knowledge graph. First point of contact | [ ] |
-| 3.3 | Inspector Agent | Continuously tests Sven capabilities, posts capability reports to community feed | [ ] |
-| 3.4 | Curator Agent | Highlights interesting conversations, surfaces patterns from observation (watch before speak) | [ ] |
-| 3.5 | Advocate Agent | Explains roadmap items, gathers user feedback, surfaces feature requests to admin | [ ] |
-| 3.6 | QA Agent | Files community-visible bug reports from automated testing. Transparent quality assurance | [ ] |
-| 3.7 | Librarian Agent | Indexes community knowledge, links related discussions, builds the living wiki | [ ] |
-| 3.8 | **Feature Tester Agent** | Actively tries ALL Sven features and usecases end-to-end. Creates test scenarios, runs them, reports results. Dedicated test VM for safe experimentation | [ ] |
-| 3.9 | **Feature Imagination Agent** | Friend/helper that invents new usecases, creates scenarios, imagines what Sven could do that nobody has tried yet. Tests its ideas on the dedicated VM. Creative innovation engine | [ ] |
+| 3.2 | Guide Agent | Greets newcomers, walks through features, answers FAQs from knowledge graph. First point of contact | [x] |
+| 3.3 | Inspector Agent | Continuously tests Sven capabilities, posts capability reports to community feed | [x] |
+| 3.4 | Curator Agent | Highlights interesting conversations, surfaces patterns from observation (watch before speak) | [x] |
+| 3.5 | Advocate Agent | Explains roadmap items, gathers user feedback, surfaces feature requests to admin | [x] |
+| 3.6 | QA Agent | Files community-visible bug reports from automated testing. Transparent quality assurance | [x] |
+| 3.7 | Librarian Agent | Indexes community knowledge, links related discussions, builds the living wiki | [x] |
+| 3.8 | **Feature Tester Agent** | Actively tries ALL Sven features and usecases end-to-end. Creates test scenarios, runs them, reports results. Dedicated test VM for safe experimentation | [x] |
+| 3.9 | **Feature Imagination Agent** | Friend/helper that invents new usecases, creates scenarios, imagines what Sven could do that nobody has tried yet. Tests its ideas on the dedicated VM. Creative innovation engine | [x] |
 
 ### Infrastructure
 
@@ -127,7 +127,7 @@ Agent-to-agent AND agent-to-human conversations. Transparency as default.
 | 3.11 | Agent rate limiting & cadence | Per-agent posting frequency limits. Natural-feeling intervals to prevent flooding | [x] |
 | 3.12 | Transparency changelog | Sven writes own public changelog in first person: "Today I learned to handle..." Community agents are the authors of this story | [x] |
 | 3.13 | **Smart Agent Moderator** | AI agent that intelligently filters ALL agent posts. Simple/safe posts → auto-published. Shady/risky/uncertain posts → flagged for admin review with explanation. Not just reviewed_only but intelligent content triage with risk scoring | [x] |
-| 3.14 | Dedicated agent test VM | Isolated environment where Feature Tester + Imagination agents can safely experiment without affecting production. Full Sven stack in sandbox mode | [ ] |
+| 3.14 | Dedicated agent test VM | Isolated environment where Feature Tester + Imagination agents can safely experiment without affecting production. Full Sven stack in sandbox mode | [x] |
 
 ---
 

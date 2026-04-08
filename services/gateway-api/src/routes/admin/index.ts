@@ -59,6 +59,7 @@ import { registerA2AAdminRoutes } from './a2a.js';
 import { registerGlobalSearchRoutes } from './global-search.js';
 import { registerBrainRoutes } from './brain.js';
 import { registerCommunityAgentRoutes } from './community-agents.js';
+import { registerAgentTypeRoutes } from './agent-types.js';
 
 export async function registerAdminRoutes(
   app: FastifyInstance,
@@ -357,6 +358,7 @@ export async function registerAdminRoutes(
       await mountAdminRoutes((scopedApp) => registerGlobalSearchRoutes(scopedApp, pool));
       await mountAdminRoutes((scopedApp) => registerBrainRoutes(scopedApp, pool));
       await mountAdminRoutes((scopedApp) => registerCommunityAgentRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerAgentTypeRoutes(scopedApp));
     },
     { prefix: '/v1/admin' },
   );
