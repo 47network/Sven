@@ -1,9 +1,10 @@
 // src/panels/SettingsPanel.tsx
 import { useState } from 'react';
-import { Link2, RefreshCw, LogOut, Smartphone } from 'lucide-react';
+import { Link2, RefreshCw, LogOut, Smartphone, Search } from 'lucide-react';
 import { PanelHeader } from '../components/PanelHeader';
 import { AccountSwitcher } from '../components/AccountSwitcher';
 import type { DesktopConfig, SavedAccount } from '../lib/api';
+import { discoverServer } from '../lib/api';
 
 interface SettingsPanelProps {
     config: DesktopConfig;
@@ -39,11 +40,34 @@ export function SettingsPanel({
     onUnlinkAccount,
 }: SettingsPanelProps) {
     const [saved, setSaved] = useState(false);
+    const [discovering, setDiscovering] = useState(false);
+    const [discoveryError, setDiscoveryError] = useState<string | null>(null);
+    const [discoverySuccess, setDiscoverySuccess] = useState<string | null>(null);
 
     async function handleSave() {
         onSaveConfig();
         setSaved(true);
         setTimeout(() => setSaved(false), 1500);
+    }
+
+    async function handleDiscover() {
+        const input = config.gateway_url.trim();
+        if (!input) return;
+        setDiscovering(true);
+        setDiscoveryError(null);
+        setDiscoverySuccess(null);
+        try {
+            const result = await discoverServer(input);
+            onConfigChange({ ...config, gateway_url: result.gatewayUrl });
+            const label = result.instanceName
+                ? `${result.instanceName}${result.version ? ` v${result.version}` : ''}`
+                : result.gatewayUrl;
+            setDiscoverySuccess(`Connected to ${label}`);
+        } catch (err) {
+            setDiscoveryError(err instanceof Error ? err.message : String(err));
+        } finally {
+            setDiscovering(false);
+        }
     }
 
     return (
@@ -57,12 +81,46 @@ export function SettingsPanel({
                 </h3>
                 <div className="field">
                     <label className="field-label">Gateway URL</label>
-                    <input
-                        className="field-input"
-                        value={config.gateway_url}
-                        onChange={(e) => onConfigChange({ ...config, gateway_url: e.target.value })}
-                        placeholder="https://app.sven.systems"
-                    />
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                        <input
+                            className="field-input"
+                            style={{ flex: 1 }}
+                            value={config.gateway_url}
+                            onChange={(e) => {
+                                onConfigChange({ ...config, gateway_url: e.target.value });
+                                setDiscoveryError(null);
+                                setDiscoverySuccess(null);
+                            }}
+                            onKeyDown={(e) => { if (e.key === 'Enter') handleDiscover(); }}
+                            placeholder="sven.systems or https://app.sven.systems"
+                        />
+                        <button
+                            className="btn-secondary"
+                            onClick={handleDiscover}
+                            disabled={discovering}
+                            title="Auto-discover Sven server"
+                            style={{ padding: '6px 10px', whiteSpace: 'nowrap' }}
+                        >
+                            {discovering ? (
+                                <><RefreshCw size={14} className="spin" /> Discovering…</>
+                            ) : (
+                                <><Search size={14} /> Discover</>
+                            )}
+                        </button>
+                    </div>
+                    <p className="field-hint" style={{ marginTop: '4px', fontSize: '11px', opacity: 0.55 }}>
+                        Enter a domain or URL — auto-discovery finds the gateway via .well-known
+                    </p>
+                    {discoveryError && (
+                        <p className="field-hint" style={{ marginTop: '4px', fontSize: '11px', color: 'var(--danger, #e53e3e)' }}>
+                            {discoveryError}
+                        </p>
+                    )}
+                    {discoverySuccess && (
+                        <p className="field-hint" style={{ marginTop: '4px', fontSize: '11px', color: 'var(--success, #38a169)' }}>
+                            ✓ {discoverySuccess}
+                        </p>
+                    )}
                 </div>
                 <div className="field">
                     <label className="field-label">Chat ID</label>

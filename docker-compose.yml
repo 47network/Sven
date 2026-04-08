@@ -394,6 +394,11 @@ services:
       - COMMUNITY_ACCOUNTS_CREATED_AT_COL=${COMMUNITY_ACCOUNTS_CREATED_AT_COL:-created_at}
       - COMMUNITY_ACCESS_REQUESTS_TABLE=${COMMUNITY_ACCESS_REQUESTS_TABLE:-community_access_requests}
       - SVEN_COMMUNITY_FEED_ROOT=${SVEN_COMMUNITY_FEED_ROOT:-/app}
+      - GATEWAY_URL=${GATEWAY_URL:-}
+      - SVEN_PUBLIC_URL=${SVEN_PUBLIC_URL:-}
+      - SVEN_INSTANCE_NAME=${SVEN_INSTANCE_NAME:-Sven}
+      - SVEN_DISABLE_REGISTRATION=${SVEN_DISABLE_REGISTRATION:-}
+      - SVEN_SSO_PROVIDERS=${SVEN_SSO_PROVIDERS:-}
     volumes:
       - tunnel-data:/var/run/sven-tunnel:ro
       - ./docs/community:/app/docs/community:ro

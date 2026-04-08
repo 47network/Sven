@@ -203,3 +203,91 @@ export async function getOrCreateDeviceId(): Promise<string> {
   await setSecret('sven_device_id', deviceId);
   return deviceId;
 }
+
+// ── Server discovery (.well-known) ──────────────────────────────────
+
+export type ServerDiscoveryResult = {
+  gatewayUrl: string;
+  instanceName?: string;
+  version?: string;
+  registrationEnabled?: boolean;
+  ssoProviders?: string[];
+};
+
+/**
+ * Discover a Sven gateway from a domain or URL, like Matrix .well-known.
+ *
+ * Flow:
+ * 1. Try `{baseUrl}/.well-known/sven/client`
+ * 2. Fall back to probing `{baseUrl}/v1/health`
+ * 3. Try `app.{domain}` subdomain variants
+ */
+export async function discoverServer(input: string): Promise<ServerDiscoveryResult> {
+  const trimmed = input.trim();
+  if (!trimmed) throw new Error('Server address cannot be empty');
+
+  const baseUrl = (trimmed.startsWith('http://') || trimmed.startsWith('https://'))
+    ? trimmed.replace(/\/+$/, '')
+    : `https://${trimmed.replace(/\/+$/, '')}`;
+
+  // Step 1: .well-known
+  const wk = await tryWellKnown(baseUrl);
+  if (wk) return wk;
+
+  // Step 2: direct health probe
+  if (await probeHealth(baseUrl)) {
+    return { gatewayUrl: baseUrl };
+  }
+
+  // Step 3: try app. subdomain
+  if (!trimmed.includes('/') && !trimmed.includes(':') && !trimmed.startsWith('http')) {
+    const appSub = `https://app.${trimmed}`;
+    const appWk = await tryWellKnown(appSub);
+    if (appWk) return appWk;
+    if (await probeHealth(appSub)) {
+      return { gatewayUrl: appSub };
+    }
+  }
+
+  throw new Error(
+    `Could not discover a Sven server at "${trimmed}". Please enter the full gateway URL.`
+  );
+}
+
+async function tryWellKnown(baseUrl: string): Promise<ServerDiscoveryResult | null> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    const res = await fetch(`${baseUrl}/.well-known/sven/client`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    const body = await res.json();
+    const sc = body?.['sven.client'];
+    if (!sc) return null;
+    return {
+      gatewayUrl: (sc.base_url || baseUrl).replace(/\/+$/, ''),
+      instanceName: sc.instance_name,
+      version: sc.version,
+      registrationEnabled: sc.registration_enabled,
+      ssoProviders: sc.sso_providers,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function probeHealth(baseUrl: string): Promise<boolean> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(`${baseUrl}/v1/health`, { signal: controller.signal });
+    clearTimeout(timer);
+    if (!res.ok) return false;
+    const body = await res.json();
+    return 'status' in body;
+  } catch {
+    return false;
+  }
+}

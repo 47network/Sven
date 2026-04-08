@@ -718,6 +718,24 @@ async function main() {
       });
   }, Math.max(60_000, retentionCleanupIntervalMs));
 
+  // ── .well-known discovery (unauthenticated, no prefix) ──
+  app.get('/.well-known/sven/client', async (_req, reply) => {
+    const publicUrl = process.env.GATEWAY_URL || process.env.SVEN_PUBLIC_URL || '';
+    const instanceName = process.env.SVEN_INSTANCE_NAME || 'Sven';
+    reply.header('Access-Control-Allow-Origin', '*');
+    reply.header('Cache-Control', 'public, max-age=86400');
+    return {
+      'm.server': { base_url: publicUrl || undefined },
+      'sven.client': {
+        base_url: publicUrl || undefined,
+        instance_name: instanceName,
+        version: process.env.npm_package_version || '0.1.0',
+        registration_enabled: !isTruthy(process.env.SVEN_DISABLE_REGISTRATION),
+        sso_providers: (process.env.SVEN_SSO_PROVIDERS || '').split(',').map(s => s.trim()).filter(Boolean),
+      },
+    };
+  });
+
   // Register routes
   await registerHealthRoutes(app, pool, nc);
   await registerAdapterRoutes(app, pool, nc);
