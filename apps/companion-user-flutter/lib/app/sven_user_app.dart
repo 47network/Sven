@@ -985,6 +985,10 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
             onSubmit: _login,
             onSsoSignIn: _loginWithSso,
             initialMessage: _state.authMessage,
+            onServerChanged: (_) {
+              // API base is already updated by ServerDiscoveryService;
+              // AuthService reads it dynamically via ApiBaseService.currentSync().
+            },
           ),
         ),
 

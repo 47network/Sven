@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../app/api_base_service.dart';
+import '../../app/server_discovery_service.dart';
 import '../../app/sven_app_icon.dart';
 import 'auth_errors.dart';
 
@@ -10,6 +12,7 @@ class LoginPage extends StatefulWidget {
     required this.onSubmit,
     this.initialMessage,
     this.onSsoSignIn,
+    this.onServerChanged,
   });
 
   final Future<void> Function(String username, String password) onSubmit;
@@ -20,6 +23,9 @@ class LoginPage extends StatefulWidget {
   /// Set to `null` to hide the SSO section entirely.
   final Future<void> Function(String provider)? onSsoSignIn;
 
+  /// Called after a successful server switch so the parent can re-initialise.
+  final void Function(String gatewayUrl)? onServerChanged;
+
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
@@ -29,6 +35,7 @@ class _LoginPageState extends State<LoginPage>
   final _formKey = GlobalKey<FormState>();
   final _username = TextEditingController();
   final _password = TextEditingController();
+  final _serverInput = TextEditingController();
   bool _submitting = false;
   bool _obscure = true;
   String? _error;
@@ -37,9 +44,17 @@ class _LoginPageState extends State<LoginPage>
   late final AnimationController _pulseCtrl;
   late final Animation<double> _pulseAnim;
 
+  // Server picker state
+  bool _serverExpanded = false;
+  bool _serverDiscovering = false;
+  String? _serverError;
+  ServerDiscoveryResult? _discoveryResult;
+  late String _currentServer;
+
   @override
   void initState() {
     super.initState();
+    _currentServer = ApiBaseService.currentSync();
     _pulseCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -54,6 +69,7 @@ class _LoginPageState extends State<LoginPage>
     _pulseCtrl.dispose();
     _username.dispose();
     _password.dispose();
+    _serverInput.dispose();
     super.dispose();
   }
 
@@ -94,6 +110,50 @@ class _LoginPageState extends State<LoginPage>
       }
     } finally {
       if (mounted) setState(() => _ssoLoading = false);
+    }
+  }
+
+  Future<void> _discoverServer() async {
+    final input = _serverInput.text.trim();
+    if (input.isEmpty) {
+      setState(() => _serverError = 'Please enter a server address');
+      return;
+    }
+    setState(() {
+      _serverDiscovering = true;
+      _serverError = null;
+      _discoveryResult = null;
+    });
+    try {
+      final result = await ServerDiscoveryService.discover(input);
+      final url = await ServerDiscoveryService.applyServer(result);
+      if (mounted) {
+        setState(() {
+          _discoveryResult = result;
+          _currentServer = url;
+          _serverExpanded = false;
+        });
+        widget.onServerChanged?.call(url);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _serverError = e is StateError ? e.message : e.toString());
+      }
+    } finally {
+      if (mounted) setState(() => _serverDiscovering = false);
+    }
+  }
+
+  Future<void> _resetServer() async {
+    await ServerDiscoveryService.resetToDefault();
+    if (mounted) {
+      setState(() {
+        _currentServer = ApiBaseService.currentSync();
+        _discoveryResult = null;
+        _serverInput.clear();
+        _serverError = null;
+      });
+      widget.onServerChanged?.call(_currentServer);
     }
   }
 
@@ -336,6 +396,20 @@ class _LoginPageState extends State<LoginPage>
                         ),
                         const SizedBox(height: 20),
                       ],
+
+                      // ── Server picker (Element-style) ──
+                      _ServerPickerSection(
+                        currentServer: _currentServer,
+                        expanded: _serverExpanded,
+                        discovering: _serverDiscovering,
+                        error: _serverError,
+                        discoveryResult: _discoveryResult,
+                        serverInput: _serverInput,
+                        isDark: isDark,
+                        onToggle: () => setState(() => _serverExpanded = !_serverExpanded),
+                        onDiscover: _discoverServer,
+                        onReset: _resetServer,
+                      ),
                     ],
                   ),
                 ),
@@ -600,6 +674,280 @@ class _ErrorPill extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ── Server picker section ──
+
+class _ServerPickerSection extends StatelessWidget {
+  const _ServerPickerSection({
+    required this.currentServer,
+    required this.expanded,
+    required this.discovering,
+    this.error,
+    this.discoveryResult,
+    required this.serverInput,
+    required this.isDark,
+    required this.onToggle,
+    required this.onDiscover,
+    required this.onReset,
+  });
+
+  final String currentServer;
+  final bool expanded;
+  final bool discovering;
+  final String? error;
+  final ServerDiscoveryResult? discoveryResult;
+  final TextEditingController serverInput;
+  final bool isDark;
+  final VoidCallback onToggle;
+  final VoidCallback onDiscover;
+  final VoidCallback onReset;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.45);
+    final serverHost = Uri.tryParse(currentServer)?.host ?? currentServer;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Tap to expand/collapse
+        GestureDetector(
+          onTap: onToggle,
+          behavior: HitTestBehavior.opaque,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.dns_outlined, size: 14, color: muted),
+                const SizedBox(width: 6),
+                Text(
+                  serverHost,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: muted,
+                        letterSpacing: 0.2,
+                      ),
+                ),
+                const SizedBox(width: 4),
+                Icon(
+                  expanded ? Icons.expand_less : Icons.expand_more,
+                  size: 16,
+                  color: muted,
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Expanded server entry
+        AnimatedCrossFade(
+          duration: const Duration(milliseconds: 200),
+          crossFadeState:
+              expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+          firstChild: const SizedBox.shrink(),
+          secondChild: _buildExpanded(context),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExpanded(BuildContext context) {
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.10)
+        : Colors.black.withValues(alpha: 0.10);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.03)
+                  : Colors.white.withValues(alpha: 0.7),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: borderColor),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Connect to a Sven server',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Enter a domain or server URL. Auto-discovery will find the gateway.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.5),
+                      ),
+                ),
+                const SizedBox(height: 14),
+
+                // Server URL input
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: serverInput,
+                        textInputAction: TextInputAction.go,
+                        onSubmitted: (_) => onDiscover(),
+                        autocorrect: false,
+                        keyboardType: TextInputType.url,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 14,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'sven.systems',
+                          hintStyle: TextStyle(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.3),
+                            fontSize: 14,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.language_rounded,
+                            size: 18,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.35),
+                          ),
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 12),
+                          filled: true,
+                          fillColor: isDark
+                              ? Colors.white.withValues(alpha: 0.04)
+                              : Colors.white.withValues(alpha: 0.8),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: borderColor),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: borderColor),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withValues(alpha: 0.5),
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    SizedBox(
+                      height: 42,
+                      child: FilledButton(
+                        onPressed: discovering ? null : onDiscover,
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: discovering
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text('Connect'),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Error
+                if (error != null) ...[
+                  const SizedBox(height: 10),
+                  _ErrorPill(text: error!),
+                ],
+
+                // Success info
+                if (discoveryResult != null) ...[
+                  const SizedBox(height: 10),
+                  _DiscoverySuccessChip(result: discoveryResult!),
+                ],
+
+                // Reset to default
+                const SizedBox(height: 10),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                    onPressed: onReset,
+                    icon: const Icon(Icons.restore_rounded, size: 16),
+                    label: const Text('Reset to default'),
+                    style: TextButton.styleFrom(
+                      textStyle: const TextStyle(fontSize: 12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Discovery success chip ──
+
+class _DiscoverySuccessChip extends StatelessWidget {
+  const _DiscoverySuccessChip({required this.result});
+
+  final ServerDiscoveryResult result;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.primary;
+    final name = result.instanceName ?? 'Sven Server';
+    final version = result.version != null ? ' v${result.version}' : '';
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.check_circle_rounded, size: 16, color: color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Connected to $name$version',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+          ),
+        ],
       ),
     );
   }
