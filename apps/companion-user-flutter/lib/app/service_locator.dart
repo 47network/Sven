@@ -2,9 +2,11 @@ import 'package:get_it/get_it.dart';
 
 import '../features/auth/auth_service.dart';
 import '../features/auth/token_store.dart';
+import '../features/brain/brain_service.dart';
 import '../features/chat/messages_repository.dart';
-import '../features/memory/memory_service.dart';
 import '../features/chat/voice_service.dart';
+import '../features/inference/on_device_inference_service.dart';
+import '../features/memory/memory_service.dart';
 import 'authenticated_client.dart';
 import 'database.dart';
 import 'db_encryption.dart';
@@ -146,6 +148,20 @@ Future<void> setupServiceLocator() async {
   // ── 7. Voice service ──────────────────────────────────────────────────────
   if (!sl.isRegistered<VoiceService>()) {
     sl.registerLazySingleton<VoiceService>(() => VoiceService());
+  }
+
+  // ── 8. Brain visualization service ────────────────────────────────────────
+  if (!sl.isRegistered<BrainService>()) {
+    sl.registerLazySingleton<BrainService>(
+      () => BrainService(client: sl<AuthenticatedClient>()),
+    );
+  }
+
+  // ── 9. On-device inference service ────────────────────────────────────────
+  if (!sl.isRegistered<OnDeviceInferenceService>()) {
+    sl.registerLazySingleton<OnDeviceInferenceService>(
+      () => OnDeviceInferenceService(client: sl<AuthenticatedClient>()),
+    );
   }
 }
 
