@@ -11,9 +11,21 @@
   <meta property="og:description"
     content="Deploy once. Run AI for family, teams, and operators across messaging, web, mobile, desktop, and voice. Private, self-hosted, production-ready." />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sven.systems/" />
+  <meta property="og:image" content="https://sven.systems/suite/assets/sven-logo.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Sven — AI Runtime, Community, and Control Surface." />
+  <meta name="twitter:description"
+    content="Deploy once. Run AI for family, teams, and operators across messaging, web, mobile, desktop, and voice. Private, self-hosted, production-ready." />
+  <meta name="twitter:image" content="https://sven.systems/suite/assets/sven-logo.png" />
+  <meta name="theme-color" content="#050814" />
+  <link rel="canonical" href="https://sven.systems/" />
+  <link rel="apple-touch-icon" href="/suite/assets/sven-logo.png" />
   <link rel="icon" href="/suite/assets/sven-logo.png" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
   <link
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
     rel="stylesheet" />
@@ -1782,8 +1794,9 @@
 </head>
 
 <body>
+  <a class="skip-link" href="#main-content" style="position:absolute;top:-100%;left:16px;z-index:200;padding:8px 16px;background:#4ed7ff;color:#050814;font-weight:700;font-size:14px;border-radius:0 0 8px 8px;text-decoration:none;transition:top .15s ease" onfocus="this.style.top='0'" onblur="this.style.top='-100%'">Skip to content</a>
   <div class="scroll-progress" id="scroll-progress"></div>
-  <nav>
+  <nav aria-label="Main navigation">
     <a class="nl" href="/"><img src="/suite/assets/sven-logo.png" alt="Sven logo" /><span>Sven</span></a>
     <div class="nr">
       <a href="/suite" class="nh">Suite</a>
@@ -1797,7 +1810,7 @@
     </div>
   </nav>
 
-  <section class="hero">
+  <section class="hero" id="main-content">
     <div class="ey"><span class="ed"></span>v0.1.0 &nbsp;&middot;&nbsp; Open Source &nbsp;&middot;&nbsp; Evidence-Backed Runtime</div>
     <h1>Self-hosted AI,<br><em>with real operational control.</em></h1>
     <p class="hs">Sven is a full AI runtime for operators, teams, and advanced home deployments: multi-agent execution,
@@ -2563,6 +2576,7 @@
         <a href="https://app.sven.systems/community" data-runtime-path="/community">Community</a>
         <a href="/suite/security">Security</a>
         <a href="https://app.sven.systems/terms" data-runtime-path="/terms">Terms</a>
+        <a href="https://app.sven.systems/privacy" data-runtime-path="/privacy">Privacy</a>
       </div>
       <p class="fc2">Built by 47network and community. Zero telemetry. No tracking. Your data &mdash; and your
         family&rsquo;s &mdash; stays yours.</p>
@@ -2570,6 +2584,26 @@
   </footer>
 
   <script src="/assets/quickstart.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Sven",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Linux",
+    "description": "Self-hosted AI platform with multi-agent runtime, memory/RAG, voice, mobile, desktop, admin control, and verified community ecosystem.",
+    "url": "https://sven.systems/",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "47network"
+    }
+  }
+  </script>
 </body>
 
 </html>

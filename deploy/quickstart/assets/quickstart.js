@@ -256,6 +256,27 @@ curl -fsSL ${base}/install.sh | sh`;
     }
   }
 
+  function loadWebchatWidget() {
+    const endpoint = typeof siteConfig?.webchat_widget_endpoint === 'string' ? siteConfig.webchat_widget_endpoint.trim() : '';
+    const apiKey = typeof siteConfig?.webchat_widget_api_key === 'string' ? siteConfig.webchat_widget_api_key.trim() : '';
+    if (!endpoint || !apiKey) return;
+
+    window.SvenWidgetConfig = {
+      endpoint: endpoint.replace(/\/+$/, ''),
+      apiKey,
+      title: 'Ask Sven',
+      position: 'bottom-right',
+      primaryColor: '#4ed7ff',
+      backgroundColor: '#050814',
+      welcomeText: 'Hi! I can help you learn about Sven, get started with deployment, or answer questions about the platform.',
+    };
+
+    const script = document.createElement('script');
+    script.src = endpoint.replace(/\/+$/, '') + '/widget.js';
+    script.async = true;
+    document.body.appendChild(script);
+  }
+
   async function init() {
     await loadSiteConfig();
     wireRuntimeLinks();
@@ -264,6 +285,7 @@ curl -fsSL ${base}/install.sh | sh`;
     wireSegmentControls();
     wireScrollProgress();
     wireReveal();
+    loadWebchatWidget();
     await loadEvidence();
   }
 

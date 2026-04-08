@@ -753,7 +753,8 @@ let ws;
 
 function connect(){
   const proto=location.protocol==='https:'?'wss:':'ws:';
-  ws=new WebSocket(proto+'//'+location.host);
+  const basePath=(location.pathname||'/').replace(/\/[^/]*$/,'')||'';
+  ws=new WebSocket(proto+'//'+location.host+basePath);
   ws.onopen=()=>{
     statusEl.textContent='Connected';
     dotEl.style.background='#22c55e';
