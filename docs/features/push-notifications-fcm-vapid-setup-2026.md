@@ -312,8 +312,27 @@ class PushNotificationManager {
 
   /// Handle incoming push message.
   void _handleMessage(RemoteMessage message) {
-    print('Push notification received: ${message.notification?.title}');
-    // TODO: Show in-app notification or update UI
+    final notification = message.notification;
+    if (notification == null) return;
+    final overlay = OverlayEntry(
+      builder: (_) => Positioned(
+        top: MediaQuery.of(_navigatorKey.currentContext!).padding.top + 8,
+        left: 16,
+        right: 16,
+        child: Material(
+          elevation: 4,
+          borderRadius: BorderRadius.circular(12),
+          child: ListTile(
+            leading: const Icon(Icons.notifications_active),
+            title: Text(notification.title ?? ''),
+            subtitle: notification.body != null ? Text(notification.body!) : null,
+            onTap: () => _onNotificationTapped(message.data),
+          ),
+        ),
+      ),
+    );
+    _navigatorKey.currentState?.overlay?.insert(overlay);
+    Future.delayed(const Duration(seconds: 4), overlay.remove);
   }
 
   /// Unregister current token and disable push notifications.
