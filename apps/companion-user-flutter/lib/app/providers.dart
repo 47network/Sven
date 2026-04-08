@@ -29,12 +29,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../features/auth/auth_service.dart';
+import '../features/brain/brain_service.dart';
 import '../features/chat/messages_repository.dart';
 import '../features/chat/prompt_templates_service.dart';
 import '../features/chat/sync_service.dart';
 import '../features/chat/voice_service.dart';
 import '../features/devices/device_service.dart';
 import '../features/home/feature_tooltip_service.dart';
+import '../features/inference/on_device_inference_service.dart';
 import '../features/memory/memory_service.dart';
 import '../features/onboarding/tutorial_service.dart';
 import '../features/projects/project_service.dart';
@@ -190,4 +192,26 @@ final syncServiceProvider = ChangeNotifierProvider<SyncService>(
     'syncServiceProvider must be overridden in the inner ProviderScope',
   ),
   name: 'syncServiceProvider',
+);
+
+// ── Sprint 71 — brain & inference providers ─────────────────────────────
+
+/// The [BrainService] (knowledge graph visualization).
+///
+/// Overridden in [_SvenUserAppState] with the live `_brainService` instance.
+final brainServiceProvider = ChangeNotifierProvider<BrainService>(
+  (ref) => throw StateError(
+    'brainServiceProvider must be overridden by the root ProviderScope.',
+  ),
+  name: 'brainServiceProvider',
+);
+
+/// The [OnDeviceInferenceService] (local Gemma 4 inference).
+///
+/// Overridden in [_SvenUserAppState] with the live `_inferenceService` instance.
+final inferenceServiceProvider = ChangeNotifierProvider<OnDeviceInferenceService>(
+  (ref) => throw StateError(
+    'inferenceServiceProvider must be overridden by the root ProviderScope.',
+  ),
+  name: 'inferenceServiceProvider',
 );

@@ -10,6 +10,10 @@ import '../features/auth/auth_errors.dart';
 import '../features/auth/auth_service.dart';
 import '../features/auth/login_page.dart';
 import '../features/approvals/approvals_page.dart';
+import '../features/brain/brain_page.dart';
+import '../features/brain/brain_service.dart';
+import '../features/inference/inference_page.dart';
+import '../features/inference/on_device_inference_service.dart';
 import '../features/deployment/deployment_service.dart';
 import '../features/devices/device_service.dart';
 import '../features/deployment/deployment_setup_page.dart';
@@ -92,6 +96,8 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
   final _projectService = ProjectService();
   late final DeviceService _deviceService;
   late final SyncService _syncService;
+  late final BrainService _brainService;
+  late final OnDeviceInferenceService _inferenceService;
   ScopedPreferences? _scopedPrefs;
   DeepLinkTarget? _pendingLink;
   StreamSubscription<dynamic>? _foregroundNotifSub;
@@ -116,6 +122,8 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
     _deviceService = DeviceService(client: _authClient);
     _syncService = SyncService(repository: sl<MessagesRepository>())
       ..setClient(_authClient);
+    _brainService = BrainService(client: _authClient);
+    _inferenceService = OnDeviceInferenceService(client: _authClient);
     _prefsService = UiPreferencesService(client: _authClient);
     _state = AppState(onPrefsChanged: _prefsService.update);
     _router = _buildRouter();
@@ -1007,6 +1015,18 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
               builder: (_, __) => ApprovalsPage(client: _authClient),
             ),
 
+            // Brain visualization (knowledge graph map)
+            GoRoute(
+              path: 'brain',
+              builder: (_, __) => const BrainPage(),
+            ),
+
+            // On-device inference (local model management)
+            GoRoute(
+              path: 'inference',
+              builder: (_, __) => const InferencePage(),
+            ),
+
             // Deep-link: sven://chat/<id>
             GoRoute(
               path: 'chat/:id',
@@ -1138,6 +1158,8 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
         deviceServiceProvider.overrideWithValue(_deviceService),
         featureTooltipServiceProvider.overrideWithValue(_tooltipService),
         syncServiceProvider.overrideWith((ref) => _syncService),
+        brainServiceProvider.overrideWith((ref) => _brainService),
+        inferenceServiceProvider.overrideWith((ref) => _inferenceService),
       ],
       // ListenableBuilder re-runs when _state notifies (theme, text scale, etc.).
       // Route-level changes (login / onboarding) are handled by GoRouter's

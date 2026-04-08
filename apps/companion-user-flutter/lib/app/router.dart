@@ -33,6 +33,12 @@ const appRouteHome = '/home';
 /// Approvals list (reachable via deep link: sven://approvals).
 const appRouteHomeApprovals = '/home/approvals';
 
+/// Brain visualization (knowledge graph map).
+const appRouteHomeBrain = '/home/brain';
+
+/// On-device inference (local AI model management).
+const appRouteHomeInference = '/home/inference';
+
 /// Chat thread deep-link helper.  Pass the thread id to get a pushable path.
 ///
 /// Example:
