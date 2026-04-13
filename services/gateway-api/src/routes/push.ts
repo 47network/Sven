@@ -139,4 +139,117 @@ export async function registerPushRoutes(app: FastifyInstance, pool: pg.Pool) {
     );
     reply.send({ success: true, acknowledged: res.rowCount ?? 0 });
   });
+
+  // ── Scheduled Messages ───────────────────────────────────────────────
+  // Sven can schedule messages to be delivered to a user at a future time.
+  // A periodic timer checks every 30 seconds and delivers due messages
+  // into push_pending so the companion app receives them.
+
+  app.post('/v1/messages/schedule', {
+    preHandler: requireAuth,
+    schema: {
+      body: {
+        type: 'object',
+        required: ['body', 'scheduled_at'],
+        additionalProperties: false,
+        properties: {
+          title: { type: 'string', maxLength: 200 },
+          body: { type: 'string', minLength: 1, maxLength: 4000 },
+          scheduled_at: { type: 'string', format: 'date-time' },
+        },
+      },
+    },
+    config: { rateLimit: { max: 20, timeWindow: '1 minute' } },
+  }, async (request: any, reply) => {
+    const { title, body: msgBody, scheduled_at } = request.body as {
+      title?: string;
+      body: string;
+      scheduled_at: string;
+    };
+    const scheduledAt = new Date(scheduled_at);
+    if (isNaN(scheduledAt.getTime())) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'VALIDATION', message: 'Invalid scheduled_at date' },
+      });
+    }
+    if (scheduledAt.getTime() < Date.now() - 60_000) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'VALIDATION', message: 'scheduled_at must be in the future' },
+      });
+    }
+
+    const res = await pool.query(
+      `INSERT INTO scheduled_messages (id, user_id, title, body, scheduled_at)
+       VALUES (gen_random_uuid()::text, $1, $2, $3, $4)
+       RETURNING id, scheduled_at`,
+      [request.userId, title ?? 'Message from Sven', msgBody, scheduledAt.toISOString()],
+    );
+    const row = res.rows[0];
+    reply.send({
+      success: true,
+      data: { id: row.id, scheduled_at: row.scheduled_at },
+    });
+  });
+
+  app.get('/v1/messages/scheduled', {
+    preHandler: requireAuth,
+    config: { rateLimit: { max: 30, timeWindow: '1 minute' } },
+  }, async (request: any, reply) => {
+    const res = await pool.query(
+      `SELECT id, title, body, scheduled_at, delivered, delivered_at, created_at
+       FROM scheduled_messages
+       WHERE user_id = $1
+       ORDER BY scheduled_at DESC
+       LIMIT 50`,
+      [request.userId],
+    );
+    reply.send({ success: true, data: res.rows });
+  });
+
+  app.delete('/v1/messages/scheduled/:id', {
+    preHandler: requireAuth,
+    config: { rateLimit: { max: 20, timeWindow: '1 minute' } },
+  }, async (request: any, reply) => {
+    const { id } = request.params as { id: string };
+    const res = await pool.query(
+      `DELETE FROM scheduled_messages WHERE id = $1 AND user_id = $2 AND NOT delivered`,
+      [id, request.userId],
+    );
+    if ((res.rowCount ?? 0) === 0) {
+      return reply.status(404).send({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Scheduled message not found or already delivered' },
+      });
+    }
+    reply.send({ success: true });
+  });
+
+  // ── Scheduled message delivery timer ─────────────────────────────────
+  const deliveryTimer = setInterval(async () => {
+    try {
+      // Fetch all due, undelivered messages
+      const due = await pool.query(
+        `UPDATE scheduled_messages
+         SET delivered = TRUE, delivered_at = NOW()
+         WHERE NOT delivered AND scheduled_at <= NOW()
+         RETURNING id, user_id, title, body`,
+      );
+      for (const msg of due.rows) {
+        // Insert into push_pending so the companion app receives them
+        await pool.query(
+          `INSERT INTO push_pending (id, user_id, title, body, channel, data, priority, expires_at)
+           VALUES (gen_random_uuid()::text, $1, $2, $3, 'scheduled', $4, 'high', NOW() + INTERVAL '7 days')`,
+          [msg.user_id, msg.title, msg.body, JSON.stringify({ scheduled_message_id: msg.id })],
+        );
+      }
+      if (due.rows.length > 0) {
+        app.log.info(`Delivered ${due.rows.length} scheduled message(s)`);
+      }
+    } catch (err) {
+      app.log.error(err, 'Scheduled message delivery error');
+    }
+  }, 30_000);
+  if (deliveryTimer.unref) deliveryTimer.unref();
 }

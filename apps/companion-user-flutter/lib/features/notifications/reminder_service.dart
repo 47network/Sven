@@ -47,11 +47,8 @@ class ReminderService {
   }) async {
     await init();
     try {
-      final appState = PushNotificationManager.instance.appState;
-      if (appState != null && appState.isDndActive()) {
-        debugPrint('[ReminderService] reminder suppressed (DND active): $title');
-        return;
-      }
+      // DND is checked by the OS notification channel at fire time, not here.
+      // Scheduling must always succeed regardless of current DND state.
 
       final tzTime = tz.TZDateTime.from(scheduledTime, tz.local);
       await _plugin.zonedSchedule(

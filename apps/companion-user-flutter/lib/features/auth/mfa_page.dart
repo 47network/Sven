@@ -41,7 +41,8 @@ class MfaPage extends StatefulWidget {
   State<MfaPage> createState() => _MfaPageState();
 }
 
-class _MfaPageState extends State<MfaPage> with SingleTickerProviderStateMixin {
+class _MfaPageState extends State<MfaPage>
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   bool _submitting = false;
@@ -54,6 +55,7 @@ class _MfaPageState extends State<MfaPage> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _shakeCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
@@ -73,10 +75,21 @@ class _MfaPageState extends State<MfaPage> with SingleTickerProviderStateMixin {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     _focusNode.dispose();
     _shakeCtrl.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      // Re-open keyboard after returning from authenticator app.
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) _focusNode.requestFocus();
+      });
+    }
   }
 
   Future<void> _submit() async {
@@ -98,6 +111,7 @@ class _MfaPageState extends State<MfaPage> with SingleTickerProviderStateMixin {
       setState(() => _error = message);
       _controller.clear();
       await _shakeCtrl.forward(from: 0);
+      if (mounted) _focusNode.requestFocus();
     } finally {
       if (mounted) setState(() => _submitting = false);
     }

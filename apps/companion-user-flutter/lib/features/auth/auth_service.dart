@@ -714,6 +714,97 @@ class AuthService {
   /// Get the stable device ID for this device.
   Future<String> getDeviceId() => _store.readOrCreateDeviceId();
 
+  /// Persist the current session locally so the account appears in the
+  /// account picker and can be restored with biometric authentication.
+  /// Unlike [linkCurrentAccount] this is purely local — no server call.
+  Future<void> saveCurrentAccountLocally() async {
+    final token = await _readAuthToken();
+    if (token == null) return;
+    final userId = await readUserId();
+    final username = await readUsername();
+    if (userId == null || userId.isEmpty) return;
+
+    final refreshToken = await readRefreshToken();
+    await _store.saveAccountTokens(
+      userId: userId,
+      accessToken: token,
+      refreshToken: refreshToken,
+      username: username,
+    );
+
+    final accounts = await _store.readLinkedAccounts();
+    final existing = accounts.indexWhere((a) => a.userId == userId);
+    final entry = LinkedAccount(
+      userId: userId,
+      username: username ?? '',
+      isActive: true,
+    );
+    if (existing >= 0) {
+      accounts[existing] = LinkedAccount(
+        userId: userId,
+        username: username ?? '',
+        displayName: accounts[existing].displayName,
+        avatarUrl: accounts[existing].avatarUrl,
+        hasPin: accounts[existing].hasPin,
+        isActive: true,
+      );
+    } else {
+      accounts.add(entry);
+    }
+    // Mark all others inactive
+    for (var i = 0; i < accounts.length; i++) {
+      if (accounts[i].userId != userId && accounts[i].isActive) {
+        final a = accounts[i];
+        accounts[i] = LinkedAccount(
+          userId: a.userId,
+          username: a.username,
+          displayName: a.displayName,
+          avatarUrl: a.avatarUrl,
+          hasPin: a.hasPin,
+          isActive: false,
+        );
+      }
+    }
+    await _store.writeLinkedAccounts(accounts);
+    await _store.writeActiveAccountId(userId);
+  }
+
+  /// Attempt to restore the most recently active account using its saved
+  /// refresh token.  Returns a [LoginResult] on success, `null` if no
+  /// saved session is usable.  The caller should gate this behind a
+  /// biometric or PIN check.
+  Future<LoginResult?> restoreSavedAccount(String userId) async {
+    final saved = await _store.readAccountTokens(userId);
+    if (saved.refreshToken == null || saved.refreshToken!.isEmpty) {
+      return null;
+    }
+
+    // Write the saved refresh token so [refresh()] can use it.
+    await _store.writeRefreshToken(saved.refreshToken!);
+    try {
+      final newToken = await refresh();
+      await _store.writeUserId(userId);
+      if (saved.username != null) await _store.writeUsername(saved.username!);
+      await _store.writeActiveAccountId(userId);
+      // Update saved tokens with the fresh access token.
+      await _store.saveAccountTokens(
+        userId: userId,
+        accessToken: newToken,
+        refreshToken: await readRefreshToken(),
+        username: saved.username,
+      );
+      return LoginResult(
+        token: newToken,
+        userId: userId,
+        username: saved.username,
+      );
+    } on AuthException {
+      // Refresh failed — session is dead.  Clear stale tokens.
+      await _store.clearAccountTokens(userId);
+      return null;
+    }
+  }
+
   /// Link the current authenticated user's account on this device.
   /// Stores credentials locally and registers with the server.
   Future<void> linkCurrentAccount({String? label, String? pin}) async {
