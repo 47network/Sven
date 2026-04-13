@@ -13,6 +13,8 @@ class LoginPage extends StatefulWidget {
     this.initialMessage,
     this.onSsoSignIn,
     this.onServerChanged,
+    this.savedAccountName,
+    this.onBiometricLogin,
   });
 
   final Future<void> Function(String username, String password) onSubmit;
@@ -25,6 +27,13 @@ class LoginPage extends StatefulWidget {
 
   /// Called after a successful server switch so the parent can re-initialise.
   final void Function(String gatewayUrl)? onServerChanged;
+
+  /// If a saved account exists on this device, show its name and a biometric
+  /// quick-login button.  `null` hides the button.
+  final String? savedAccountName;
+
+  /// Called when the user taps the biometric quick-login button.
+  final Future<void> Function()? onBiometricLogin;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -41,6 +50,7 @@ class _LoginPageState extends State<LoginPage>
   String? _error;
   bool _ssoLoading = false;
   String? _ssoError;
+  bool _bioLoading = false;
   late final AnimationController _pulseCtrl;
   late final Animation<double> _pulseAnim;
 
@@ -110,6 +120,27 @@ class _LoginPageState extends State<LoginPage>
       }
     } finally {
       if (mounted) setState(() => _ssoLoading = false);
+    }
+  }
+
+  Future<void> _handleBiometricLogin() async {
+    if (widget.onBiometricLogin == null) return;
+    setState(() {
+      _bioLoading = true;
+      _error = null;
+    });
+    try {
+      await widget.onBiometricLogin!();
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e is AuthException
+              ? e.userMessage
+              : 'Biometric login failed. Please sign in with your password.';
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _bioLoading = false);
     }
   }
 
@@ -361,6 +392,45 @@ class _LoginPageState extends State<LoginPage>
                         ),
                       ),
                       const SizedBox(height: 24),
+
+                      // ── Biometric quick-login ──
+                      if (widget.savedAccountName != null &&
+                          widget.onBiometricLogin != null) ...[
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: OutlinedButton.icon(
+                            icon: _bioLoading
+                                ? SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: primary,
+                                    ),
+                                  )
+                                : Icon(Icons.fingerprint, color: primary),
+                            label: Text(
+                              'Sign in as ${widget.savedAccountName}',
+                              style: TextStyle(
+                                color: isDark ? Colors.white70 : primary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(
+                                color: primary.withValues(alpha: 0.4),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            onPressed: _bioLoading ? null : _handleBiometricLogin,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
 
                       // ── SSO divider + buttons ──
                       if (widget.onSsoSignIn != null) ...[

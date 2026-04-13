@@ -140,6 +140,9 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
   bool _wakeWordUploadInFlight = false;
   final _androidWakeWordService = AndroidWakeWordService();
   late final WakeWordCaptureService _wakeWordCaptureService;
+  Timer? _tokenRefreshTimer;
+  String? _savedAccountName;
+  String? _savedAccountUserId;
 
   @override
   void initState() {
@@ -192,6 +195,7 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
 
   @override
   void dispose() {
+    _tokenRefreshTimer?.cancel();
     _foregroundNotifSub?.cancel();
     _batterySub?.cancel();
     _fcmOpenedAppSub?.cancel();
@@ -224,6 +228,10 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
       _lockService.onForeground();
       _showMissedNotificationSummary();
       unawaited(_syncWakeWordMonitor());
+      // Proactive refresh when returning from background to keep the session alive.
+      if ((_state.token ?? '').isNotEmpty) {
+        unawaited(_silentTokenRefresh());
+      }
     }
   }
 
@@ -439,6 +447,8 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
         final ok = await _tryAutoLogin();
         if (ok) return;
       }
+      // Check for a locally saved account to offer biometric quick-login.
+      await _loadSavedAccountHint();
       _state.setToken(null);
       return;
     }
@@ -531,6 +541,52 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
     }
   }
 
+  /// Load the most recently active linked account so the login page can
+  /// offer a biometric quick-login button.
+  Future<void> _loadSavedAccountHint() async {
+    try {
+      final accounts = await _auth.getLinkedAccounts();
+      if (accounts.isEmpty) return;
+      // Prefer the most recently active account.
+      final active = accounts.where((a) => a.isActive).firstOrNull ?? accounts.first;
+      _savedAccountUserId = active.userId;
+      _savedAccountName = active.username;
+    } catch (_) {
+      // Non-critical — fall through to manual login.
+    }
+  }
+
+  /// Biometric quick-login: authenticate via fingerprint/face then restore
+  /// the saved session using the refresh token.
+  Future<void> _biometricLogin() async {
+    if (_savedAccountUserId == null) {
+      throw AuthException(AuthFailure.unknown, detail: 'No saved account');
+    }
+    final ok = await _lockService.authenticate(
+      'Sign in as ${_savedAccountName ?? 'your account'}',
+    );
+    if (!ok) return;
+
+    final result = await _auth.restoreSavedAccount(_savedAccountUserId!);
+    if (result == null) {
+      throw AuthException(
+        AuthFailure.sessionExpired,
+        detail: 'Saved session expired. Please sign in with your password.',
+      );
+    }
+
+    await _bindUserServices(result.userId, username: result.username);
+    _state.setToken(result.token);
+    _state.setAuthMessage(null);
+    _consumePendingLink();
+    unawaited(_auth.saveCurrentAccountLocally());
+    unawaited(FeatureFlagService.instance.load(
+      apiBase: AuthService.apiBase,
+      token: result.token,
+    ));
+    await PushNotificationManager.instance.retryRegistration();
+  }
+
   /// Authenticate via a social SSO provider.
   ///
   /// 1. [SsoService] performs the native / web OAuth flow and returns a
@@ -582,6 +638,9 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
       _state.setAuthMessage(null);
       _consumePendingLink();
 
+      // Persist account locally so it can be restored via biometric login.
+      unawaited(_auth.saveCurrentAccountLocally());
+
       // Load feature flags now that we have a valid token
       unawaited(FeatureFlagService.instance.load(
         apiBase: AuthService.apiBase,
@@ -611,6 +670,7 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
       _state.setToken(result.token);
       _state.setAuthMessage(null);
       _consumePendingLink();
+      unawaited(_auth.saveCurrentAccountLocally());
       unawaited(FeatureFlagService.instance.load(
         apiBase: AuthService.apiBase,
         token: result.token,
@@ -641,6 +701,9 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
     if (_memoryService.userName.isEmpty && username != null && username.isNotEmpty) {
       await _memoryService.setUserName(username);
     }
+    // Proactive token refresh: refresh 10 minutes before the 1-hour access
+    // token expires so the user is never involuntarily logged out.
+    _startTokenRefreshTimer();
     await _promptTemplatesService.bindUser(_scopedPrefs!);
     await _promptHistoryService.bindUser(_scopedPrefs!);
     await sl<AbTestService>().bind(userId: userId);
@@ -649,8 +712,32 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
     PromptHistoryService.activeScope = _scopedPrefs;
   }
 
+  /// Schedules a periodic silent token refresh so the access token never
+  /// reaches its server-side expiry (currently 1 hour).  Fires every 50 min.
+  void _startTokenRefreshTimer() {
+    _tokenRefreshTimer?.cancel();
+    _tokenRefreshTimer = Timer.periodic(
+      const Duration(minutes: 50),
+      (_) => _silentTokenRefresh(),
+    );
+  }
+
+  Future<void> _silentTokenRefresh() async {
+    try {
+      final newToken = await _auth.refresh();
+      if (newToken.isNotEmpty) {
+        debugPrint('[auth] proactive token refresh succeeded');
+      }
+    } catch (_) {
+      // Refresh failed — the next API call will trigger the 401 → retry flow.
+      debugPrint('[auth] proactive token refresh failed (will retry on next API call)');
+    }
+  }
+
   /// Reset all services on logout / session expiry.
   void _resetUserServices() {
+    _tokenRefreshTimer?.cancel();
+    _tokenRefreshTimer = null;
     sl<AbTestService>().resetForLogout();
     PromptHistoryService.activeScope = null;
     _promptHistoryService.resetForLogout();
@@ -1030,6 +1117,8 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
             onSubmit: _login,
             onSsoSignIn: _loginWithSso,
             initialMessage: _state.authMessage,
+            savedAccountName: _savedAccountName,
+            onBiometricLogin: _savedAccountUserId != null ? _biometricLogin : null,
             onServerChanged: (_) {
               // API base is already updated by ServerDiscoveryService;
               // AuthService reads it dynamically via ApiBaseService.currentSync().
@@ -1295,6 +1384,7 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
 
   void _showSessionExpired() {
     _resetUserServices();
+    unawaited(_loadSavedAccountHint());
     _state.setAuthMessage(
       'Your session has expired. Please sign in again.',
     );
