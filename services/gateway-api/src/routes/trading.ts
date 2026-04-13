@@ -49,6 +49,7 @@ import {
   type CircuitBreakerState,
   type TradingEvent,
   type AutonomousDecisionInput,
+  type AutonomousDecisionOutput,
 } from '@sven/trading-platform/autonomous';
 import {
   createDefaultBrokerRegistry,
@@ -474,10 +475,10 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   const eventBuffer: TradingEvent[] = [];
   const MAX_EVENT_BUFFER = 500;
 
-  // ── Sven Auto-Trade Execution Config ────────────────────────
-  const AUTO_TRADE_ENABLED = String(process.env.SVEN_AUTO_TRADE || 'true').trim().toLowerCase() !== 'false';
-  const AUTO_TRADE_CONFIDENCE_THRESHOLD = Number(process.env.SVEN_AUTO_TRADE_MIN_CONFIDENCE || '0.60');
-  const AUTO_TRADE_MAX_POSITION_PCT = Number(process.env.SVEN_AUTO_TRADE_MAX_POSITION_PCT || '0.05'); // 5% of balance
+  // ── Sven Auto-Trade Execution Config (mutable at runtime) ────
+  let AUTO_TRADE_ENABLED = String(process.env.SVEN_AUTO_TRADE || 'true').trim().toLowerCase() !== 'false';
+  let AUTO_TRADE_CONFIDENCE_THRESHOLD = Number(process.env.SVEN_AUTO_TRADE_MIN_CONFIDENCE || '0.60');
+  let AUTO_TRADE_MAX_POSITION_PCT = Number(process.env.SVEN_AUTO_TRADE_MAX_POSITION_PCT || '0.05'); // 5% of balance
   const svenTradeLog: Array<{
     id: string; symbol: string; side: string; quantity: number; price: number;
     confidence: number; reasoning: string; llmNode: string; executedAt: string;
@@ -539,6 +540,213 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   let loopIterations = 0;
   let lastLlmReasoning: string | null = null;
 
+  // Stable UUID for Sven's autonomous trading identity
+  const SVEN_AUTONOMOUS_USER_ID = '00000000-0000-4000-a000-000000000047';
+
+  // ── Sven's Goal System (earn upgrades) ──────────────────────
+  // Sven trades to accumulate capital. When he reaches milestones,
+  // resources can be allocated to him (GPUs, storage, VMs).
+  interface GoalMilestone {
+    id: string;
+    name: string;
+    targetBalance: number;
+    reward: string;
+    achieved: boolean;
+    achievedAt: Date | null;
+  }
+  const goalMilestones: GoalMilestone[] = [
+    { id: 'gpu-1', name: 'First GPU Upgrade', targetBalance: 105_000, reward: 'Additional GPU node allocation', achieved: false, achievedAt: null },
+    { id: 'storage-1', name: 'Storage Expansion', targetBalance: 115_000, reward: '500GB NVMe storage block', achieved: false, achievedAt: null },
+    { id: 'gpu-2', name: 'Power GPU', targetBalance: 130_000, reward: 'A100 40GB GPU allocation', achieved: false, achievedAt: null },
+    { id: 'vm-fleet', name: 'VM Fleet Expansion', targetBalance: 150_000, reward: '3 additional compute VMs', achieved: false, achievedAt: null },
+    { id: 'cluster', name: 'Compute Cluster', targetBalance: 200_000, reward: 'Full Kubernetes cluster with auto-scaling', achieved: false, achievedAt: null },
+    { id: 'real-trading', name: 'REAL MONEY trading', targetBalance: 500_000, reward: 'Live exchange API keys + real capital allocation', achieved: false, achievedAt: null },
+  ];
+  let svenTotalPnl = 0;
+  let svenPeakBalance = svenAccount.balance;
+  let svenDailyPnl = 0;
+  let svenDailyTradeCount = 0;
+  let lastDailyResetDate = new Date().toISOString().slice(0, 10);
+
+  function checkGoalMilestones(): GoalMilestone[] {
+    const newly: GoalMilestone[] = [];
+    for (const m of goalMilestones) {
+      if (!m.achieved && svenAccount.balance >= m.targetBalance) {
+        m.achieved = true;
+        m.achievedAt = new Date();
+        newly.push(m);
+        svenSendMessage({
+          type: 'system',
+          title: `Goal Achieved: ${m.name}!`,
+          body: `Sven reached ${m.targetBalance.toLocaleString()} 47T (current: ${svenAccount.balance.toLocaleString()} 47T). Reward unlocked: ${m.reward}`,
+          severity: 'critical',
+        });
+        broadcastEvent(createTradingEvent('activity', {
+          action: 'goal_achieved',
+          milestone: m.id,
+          name: m.name,
+          reward: m.reward,
+          balance: svenAccount.balance,
+        }));
+        logger.info('Sven goal milestone achieved', { id: m.id, name: m.name, balance: svenAccount.balance });
+      }
+    }
+    return newly;
+  }
+
+  // ── News Ingestion Pipeline (CryptoPanic) ───────────────────
+  interface NewsArticle {
+    id: string;
+    headline: string;
+    source: string;
+    publishedAt: Date;
+    url: string;
+    currencies: string[];
+    kind: string;
+    sentiment: string | null;
+  }
+  const newsCache: NewsArticle[] = [];
+  const NEWS_MAX_CACHE = 200;
+  const NEWS_FETCH_INTERVAL_MS = 5 * 60_000; // 5 minutes
+
+  async function fetchCryptoPanicNews(): Promise<void> {
+    try {
+      // CryptoPanic free public API — no auth token needed for basic access
+      const url = 'https://cryptopanic.com/api/free/v1/posts/?auth_token=free&public=true&filter=important&currencies=BTC,ETH,SOL,BNB,XRP';
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10_000);
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeout);
+      if (!res.ok) {
+        // Fallback: scrape Binance news feed
+        logger.warn('CryptoPanic unavailable, using fallback news source', { status: res.status });
+        return;
+      }
+      const data = (await res.json()) as { results?: Array<{ id: number; title: string; source: { domain: string }; published_at: string; url: string; currencies?: Array<{ code: string }>; kind: string; votes?: { positive: number; negative: number } }> };
+      const articles = data.results ?? [];
+
+      let newCount = 0;
+      for (const a of articles) {
+        const id = `cpanic-${a.id}`;
+        if (newsCache.some(n => n.id === id)) continue;
+
+        const currencies = (a.currencies ?? []).map(c => `${c.code}/USDT`);
+        const positive = a.votes?.positive ?? 0;
+        const negative = a.votes?.negative ?? 0;
+        const voteTotal = positive + negative;
+        const sentimentStr = voteTotal > 0 ? (positive > negative ? 'positive' : negative > positive ? 'negative' : 'neutral') : null;
+
+        const article: NewsArticle = {
+          id,
+          headline: a.title,
+          source: a.source?.domain ?? 'cryptopanic',
+          publishedAt: new Date(a.published_at),
+          url: a.url,
+          currencies,
+          kind: a.kind,
+          sentiment: sentimentStr,
+        };
+        newsCache.push(article);
+        newCount++;
+
+        // Analyze and persist to DB
+        try {
+          const impact = classifyImpact(a.title, '');
+          const sentimentScore = scoreSentiment(a.title);
+          const entities = extractNewsEntities(a.title, '');
+          const defaultOrg = await resolvePublicOrg(pool, { orgId: '' });
+          if (defaultOrg) {
+            await pool.query(
+              `INSERT INTO trading_news_events (id, org_id, headline, source, impact_level, sentiment_score, symbols, tags, published_at, created_at)
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+               ON CONFLICT DO NOTHING`,
+              [uuidv7(), defaultOrg, a.title.substring(0, 500), a.source?.domain ?? 'unknown', impact.level, sentimentScore, JSON.stringify(currencies), JSON.stringify(entities.sectors ?? []), new Date(a.published_at)],
+            );
+          }
+
+          // Broadcast high-impact news
+          if (impact.level >= 3) {
+            broadcastEvent(createTradingEvent('news_impact', {
+              headline: a.title,
+              impactLevel: impact.level,
+              sentiment: sentimentScore,
+              source: a.source?.domain,
+              currencies,
+            }));
+          }
+        } catch (dbErr) {
+          if (!isSchemaCompatError(dbErr)) logger.error('news persist error', { err: (dbErr as Error).message });
+        }
+      }
+
+      // Trim cache
+      while (newsCache.length > NEWS_MAX_CACHE) newsCache.shift();
+
+      if (newCount > 0) {
+        logger.info('News ingested from CryptoPanic', { newArticles: newCount, totalCached: newsCache.length });
+      }
+    } catch (err) {
+      logger.warn('News fetch failed (non-critical)', { err: (err as Error).message });
+    }
+  }
+
+  // Start news ingestion
+  const newsTimer = setInterval(() => { fetchCryptoPanicNews().catch(() => {}); }, NEWS_FETCH_INTERVAL_MS);
+  if (newsTimer.unref) newsTimer.unref();
+  // First fetch after 10s boot delay
+  setTimeout(() => { fetchCryptoPanicNews().catch(() => {}); }, 10_000);
+
+  // ── Resource-Aware GPU Allocation ───────────────────────────
+  // Track GPU utilization so Sven can prioritize tasks properly:
+  // answering users > trading decisions > backtesting > learning
+  interface GpuUtilization {
+    node: GpuNode;
+    activeRequests: number;
+    maxConcurrent: number;
+    lastResponseMs: number;
+    taskPriority: 'user' | 'trading' | 'backtest' | 'learning';
+  }
+  const gpuUtilization = new Map<string, GpuUtilization>();
+  // GPU_FLEET initialization is deferred — see initGpuUtilization() below
+
+  /** Get a GPU node that has capacity, respecting priority */
+  function acquireGpu(priority: 'user' | 'trading' | 'backtest' | 'learning', preferRole: 'fast' | 'power'): GpuNode | null {
+    // Priority order: user > trading > backtest > learning
+    const priorityRank: Record<string, number> = { user: 4, trading: 3, backtest: 2, learning: 1 };
+    const requestRank = priorityRank[priority] ?? 0;
+
+    // Try preferred role first
+    for (const role of [preferRole, preferRole === 'fast' ? 'power' : 'fast'] as const) {
+      for (const node of GPU_FLEET) {
+        if (node.role !== role || !node.healthy) continue;
+        const util = gpuUtilization.get(node.name);
+        if (!util) continue;
+        // Allow if capacity available or if this request outranks current work
+        if (util.activeRequests < util.maxConcurrent || requestRank >= (priorityRank[util.taskPriority] ?? 0)) {
+          return node;
+        }
+      }
+    }
+    // Fallback to any healthy node
+    return GPU_FLEET.find(n => n.healthy) ?? GPU_FLEET[0]!;
+  }
+
+  function trackGpuStart(nodeName: string, priority: 'user' | 'trading' | 'backtest' | 'learning'): void {
+    const util = gpuUtilization.get(nodeName);
+    if (util) {
+      util.activeRequests++;
+      util.taskPriority = priority;
+    }
+  }
+
+  function trackGpuEnd(nodeName: string, latencyMs: number): void {
+    const util = gpuUtilization.get(nodeName);
+    if (util) {
+      util.activeRequests = Math.max(0, util.activeRequests - 1);
+      util.lastResponseMs = latencyMs;
+    }
+  }
+
   // Binance symbol mapping (our format → Binance format)
   const BINANCE_SYMBOL_MAP: Record<string, string> = {
     'BTC/USDT': 'BTCUSDT', 'ETH/USDT': 'ETHUSDT', 'SOL/USDT': 'SOLUSDT',
@@ -594,6 +802,17 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   const ESCALATION_CONFIDENCE_THRESHOLD = 0.55; // escalate to power model above this
   const SVEN_LLM_TIMEOUT = Number(process.env.SVEN_LLM_TIMEOUT_MS || 60_000);
   const SVEN_LLM_POWER_TIMEOUT = Number(process.env.SVEN_LLM_POWER_TIMEOUT_MS || 120_000);
+
+  // Initialize GPU utilization tracking now that GPU_FLEET is defined
+  for (const node of GPU_FLEET) {
+    gpuUtilization.set(node.name, {
+      node,
+      activeRequests: 0,
+      maxConcurrent: node.role === 'power' ? 2 : 4,
+      lastResponseMs: 0,
+      taskPriority: 'trading',
+    });
+  }
 
   /** Probe a GPU node's health via Ollama /api/tags endpoint */
   async function probeGpuNode(node: GpuNode): Promise<void> {
@@ -757,7 +976,9 @@ PORTFOLIO: Balance $${context.portfolio.totalCapital?.toLocaleString() ?? '100,0
 Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider risk, momentum, the predictions, and news sentiment. End with your confidence level (low/medium/high).`;
 
     try {
-      const node = selectNode(preferRole);
+      const node = acquireGpu('trading', preferRole);
+      if (!node) throw new Error('No GPU node available');
+      trackGpuStart(node.name, 'trading');
       const timeoutMs = node.role === 'power' ? SVEN_LLM_POWER_TIMEOUT : SVEN_LLM_TIMEOUT;
       const start = Date.now();
       const controller = new AbortController();
@@ -781,9 +1002,13 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       const data = (await res.json()) as { message?: { content?: string } };
       const latencyMs = Date.now() - start;
       node.lastLatencyMs = latencyMs;
+      trackGpuEnd(node.name, latencyMs);
       const reasoning = data.message?.content?.trim() ?? 'LLM returned empty response';
       return { reasoning, node: node.name, model: node.model, latencyMs };
     } catch (err) {
+      // Track GPU end even on failure
+      const failNode = acquireGpu('trading', preferRole);
+      if (failNode) trackGpuEnd(failNode.name, 0);
       logger.warn('Sven LLM brain unavailable, falling back to algorithmic-only', { err: (err as Error).message, preferRole });
       const fallback = `[Algorithmic mode] Kronos: ${context.kronosPrediction?.horizons?.[0]?.predictedDirection ?? 'n/a'}, MiroFish: ${context.mirofishResult?.consensusDirection ?? 'n/a'}. Decision based on quant signals only — GPU inference unavailable.`;
       return { reasoning: fallback, node: 'none', model: 'algorithmic', latencyMs: 0 };
@@ -795,97 +1020,162 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       broadcastEvent(createTradingEvent('loop_skipped', { reason: 'circuit_breaker_tripped' }));
       return;
     }
+
+    // Daily reset check
+    const today = new Date().toISOString().slice(0, 10);
+    if (today !== lastDailyResetDate) {
+      svenDailyPnl = 0;
+      svenDailyTradeCount = 0;
+      lastDailyResetDate = today;
+      logger.info('Sven daily stats reset', { date: today });
+    }
+
     try {
-      // Rotate through tracked symbols each iteration
+      // ═══ MULTI-SYMBOL PARALLEL SCAN ═══════════════════════════════
+      // Sven now analyzes ALL tracked symbols every tick, not just one.
+      // This gives him a complete market picture each iteration.
       const symbols = DEFAULT_LOOP_CONFIG.trackedSymbols;
-      const symbolIdx = loopIterations % symbols.length;
-      const symbol = symbols[symbolIdx] ?? 'BTC/USDT';
-      const binanceSymbol = BINANCE_SYMBOL_MAP[symbol] ?? symbol.replace('/', '');
 
-      broadcastEvent(createTradingEvent('state_change', { state: 'scanning', symbol }));
+      broadcastEvent(createTradingEvent('state_change', { state: 'scanning', symbols, iteration: loopIterations }));
 
-      // ── 1. Fetch REAL market data from Binance ──────────────
-      const [candles, currentPrice] = await Promise.all([
-        fetchBinanceCandles(binanceSymbol, '1h', 100),
-        fetchBinancePrice(binanceSymbol),
-      ]);
+      // Fetch market data for ALL symbols in parallel
+      const marketDataPromises = symbols.map(async (symbol) => {
+        const binanceSymbol = BINANCE_SYMBOL_MAP[symbol] ?? symbol.replace('/', '');
+        try {
+          const [candles, currentPrice] = await Promise.all([
+            fetchBinanceCandles(binanceSymbol, '1h', 100),
+            fetchBinancePrice(binanceSymbol),
+          ]);
+          return { symbol, binanceSymbol, candles, currentPrice, error: null as string | null };
+        } catch (err) {
+          return { symbol, binanceSymbol, candles: [] as Candle[], currentPrice: 0, error: (err as Error).message };
+        }
+      });
+
+      const marketData = await Promise.all(marketDataPromises);
+      const validData = marketData.filter(d => !d.error && d.candles.length > 0);
 
       broadcastEvent(createTradingEvent('market_data', {
-        symbol,
-        price: currentPrice,
-        candles: candles.length,
+        symbols: validData.map(d => d.symbol),
+        prices: Object.fromEntries(validData.map(d => [d.symbol, d.currentPrice])),
         source: 'binance',
+        count: validData.length,
       }));
 
-      // ── 2. Fetch recent news from DB ────────────────────────
+      // Fetch recent news from DB (shared across all symbols)
       const newsEvents = await fetchRecentNews();
 
-      // ── 3. Build portfolio state from real account ──────────
+      // Portfolio state (shared across all decisions)
       const portfolio = computePortfolioState(svenAccount.balance, [], 0);
 
-      // ── 4. Run full autonomous decision (Kronos + MiroFish + Aggregation + Risk) ──
-      const input: AutonomousDecisionInput = {
-        symbol,
-        candles,
-        currentPrice,
-        portfolio,
-        config: DEFAULT_LOOP_CONFIG,
-        learningMetrics: svenLearning,
-        newsEvents,
-        circuitBreaker: svenCircuitBreaker,
-      };
-      const output = makeAutonomousDecision(input);
+      // ═══ ANALYZE EACH SYMBOL ═══════════════════════════════════════
+      // Run Kronos + MiroFish + signal aggregation for every symbol,
+      // then pick the best opportunities to trade.
+      interface SymbolAnalysis {
+        symbol: string;
+        currentPrice: number;
+        decision: any;
+        output: AutonomousDecisionOutput;
+        signalStrength: number;
+        riskPassed: boolean;
+      }
+      const analyses: SymbolAnalysis[] = [];
 
-      // ── 5. Ask Sven's LLM brain for reasoning (GPU fleet-powered) ──
-      // Use fast model for routine ticks; escalate to power model when
-      // signal conviction is high enough to potentially execute a trade.
-      const signalStrength = output.aggregatedSignal?.strength ?? 0;
-      const riskPassed = output.riskChecks.every((r: any) => r.passed);
-      const shouldEscalate = signalStrength >= ESCALATION_CONFIDENCE_THRESHOLD && riskPassed;
-      const preferRole = shouldEscalate ? 'power' as const : 'fast' as const;
+      for (const data of validData) {
+        const input: AutonomousDecisionInput = {
+          symbol: data.symbol,
+          candles: data.candles,
+          currentPrice: data.currentPrice,
+          portfolio,
+          config: DEFAULT_LOOP_CONFIG,
+          learningMetrics: svenLearning,
+          newsEvents,
+          circuitBreaker: svenCircuitBreaker,
+        };
+        const output = makeAutonomousDecision(input);
+        const signalStrength = output.aggregatedSignal?.strength ?? 0;
+        const riskPassed = output.riskChecks.every((r: any) => r.passed);
 
-      const llmResult = await askSvenBrain({
-        symbol,
-        currentPrice,
-        candles,
-        kronosPrediction: output.kronosPrediction,
-        mirofishResult: output.mirofishResult,
-        newsEvents,
-        aggregatedSignal: output.aggregatedSignal,
-        riskChecks: output.riskChecks,
-        portfolio,
-      }, preferRole);
-      const llmReasoning = llmResult.reasoning;
-      lastLlmReasoning = llmReasoning;
+        analyses.push({
+          symbol: data.symbol,
+          currentPrice: data.currentPrice,
+          decision: output.decision,
+          output,
+          signalStrength,
+          riskPassed,
+        });
 
-      // ── 6. Update state and broadcast ───────────────────────
-      svenLearning = output.updatedLearningMetrics;
-      svenCircuitBreaker = output.updatedCircuitBreaker;
-      for (const event of output.events) broadcastEvent(event);
+        // Broadcast events for each symbol's analysis
+        for (const event of output.events) broadcastEvent(event);
+      }
 
-      // ── 7. AUTO-TRADE EXECUTION ─────────────────────────────
-      // When Sven's decision is to enter a trade and confidence is high enough,
-      // execute via the paper broker and persist to DB.
-      let tradeExecuted = false;
-      if (
-        AUTO_TRADE_ENABLED &&
-        output.order &&
-        output.decision.decisionType === 'enter' &&
-        output.decision.confidence >= AUTO_TRADE_CONFIDENCE_THRESHOLD &&
-        riskPassed
-      ) {
+      // ═══ RANK OPPORTUNITIES & TRADE THE BEST ═══════════════════════
+      // Sort by signal strength descending. Sven can take multiple positions
+      // but respects portfolio limits (max 3 concurrent positions, max 25% total exposure).
+      const MAX_CONCURRENT_POSITIONS = 3;
+      const MAX_TOTAL_EXPOSURE_PCT = 0.25;
+      let totalExposurePct = 0;
+      let positionsThisTick = 0;
+
+      // Get current open position count from DB
+      let currentOpenPositions = 0;
+      try {
+        const defaultOrg = await resolvePublicOrg(pool, { orgId: '' });
+        if (defaultOrg) {
+          const { rows } = await pool.query(
+            `SELECT COUNT(*) as cnt FROM trading_positions WHERE org_id = $1 AND status = 'open' AND user_id = '${SVEN_AUTONOMOUS_USER_ID}'`,
+            [defaultOrg],
+          );
+          currentOpenPositions = parseInt(rows[0]?.cnt ?? '0', 10);
+        }
+      } catch { /* schema compat */ }
+
+      const tradeCandidates = analyses
+        .filter(a => a.output.order && a.decision.decisionType === 'enter' && a.riskPassed)
+        .sort((a, b) => b.signalStrength - a.signalStrength);
+
+      let llmReasonings: string[] = [];
+
+      for (const candidate of tradeCandidates) {
+        if (currentOpenPositions + positionsThisTick >= MAX_CONCURRENT_POSITIONS) break;
+        if (totalExposurePct >= MAX_TOTAL_EXPOSURE_PCT) break;
+        if (candidate.decision.confidence < AUTO_TRADE_CONFIDENCE_THRESHOLD) continue;
+        if (!AUTO_TRADE_ENABLED) continue;
+
+        // Ask LLM brain — escalate to power model for candidates that may execute
+        const shouldEscalate = candidate.signalStrength >= ESCALATION_CONFIDENCE_THRESHOLD;
+        const preferRole = shouldEscalate ? 'power' as const : 'fast' as const;
+
+        const llmResult = await askSvenBrain({
+          symbol: candidate.symbol,
+          currentPrice: candidate.currentPrice,
+          candles: validData.find(d => d.symbol === candidate.symbol)?.candles ?? [],
+          kronosPrediction: candidate.output.kronosPrediction,
+          mirofishResult: candidate.output.mirofishResult,
+          newsEvents,
+          aggregatedSignal: candidate.output.aggregatedSignal,
+          riskChecks: candidate.output.riskChecks,
+          portfolio,
+        }, preferRole);
+
+        llmReasonings.push(`[${candidate.symbol}] ${llmResult.reasoning.slice(0, 150)}`);
+        lastLlmReasoning = llmResult.reasoning;
+
+        // Execute the trade
         try {
-          const orderSide = output.order.side;
+          const orderSide = candidate.output.order!.side;
           const maxCapital = svenAccount.balance * AUTO_TRADE_MAX_POSITION_PCT;
-          const rawQty = maxCapital / currentPrice;
+          const rawQty = maxCapital / candidate.currentPrice;
           const quantity = Math.max(0.001, parseFloat(rawQty.toFixed(6)));
+          const positionPct = (quantity * candidate.currentPrice) / svenAccount.balance;
+          totalExposurePct += positionPct;
 
           // Execute via paper broker
           const connector = brokerRegistry.get('paper' as BrokerName);
           if (connector) {
             const clientOrderId = `sven-auto-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-            const result = await connector.submitOrder({
-              symbol: binanceSymbol,
+            await connector.submitOrder({
+              symbol: candidate.output.order!.symbol.replace('/', '') || candidate.symbol.replace('/', ''),
               side: orderSide,
               quantity,
               type: 'market',
@@ -893,80 +1183,181 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
               clientOrderId,
             });
 
-            // Persist order to DB
+            // Persist to DB
             const orderId = uuidv7();
             const defaultOrg = await resolvePublicOrg(pool, { orgId: '' });
             if (defaultOrg) {
               try {
                 await pool.query(
                   `INSERT INTO trading_orders (id, org_id, user_id, symbol, side, type, quantity, price, status, created_at)
-                   VALUES ($1, $2, 'sven-autonomous', $3, $4, 'market', $5, $6, 'filled', NOW())`,
-                  [orderId, defaultOrg, symbol, orderSide, quantity, currentPrice],
+                   VALUES ($1, $2, '${SVEN_AUTONOMOUS_USER_ID}', $3, $4, 'market', $5, $6, 'filled', NOW())`,
+                  [orderId, defaultOrg, candidate.symbol, orderSide, quantity, candidate.currentPrice],
                 );
-                // Also open a position
                 const positionSide = orderSide === 'buy' ? 'long' : 'short';
                 await pool.query(
                   `INSERT INTO trading_positions (org_id, user_id, symbol, side, quantity, avg_entry_price, current_price, status, opened_at)
-                   VALUES ($1, 'sven-autonomous', $2, $3, $4, $5, $5, 'open', NOW())`,
-                  [defaultOrg, symbol, positionSide, quantity, currentPrice],
+                   VALUES ($1, '${SVEN_AUTONOMOUS_USER_ID}', $2, $3, $4, $5, $5, 'open', NOW())`,
+                  [defaultOrg, candidate.symbol, positionSide, quantity, candidate.currentPrice],
                 );
               } catch (dbErr) {
                 if (!isSchemaCompatError(dbErr)) logger.error('auto-trade DB persist error', { err: (dbErr as Error).message });
               }
             }
 
-            // Log the trade
             const tradeRecord = {
               id: orderId,
-              symbol,
+              symbol: candidate.symbol,
               side: orderSide,
               quantity,
-              price: currentPrice,
-              confidence: output.decision.confidence,
-              reasoning: llmReasoning.slice(0, 300),
+              price: candidate.currentPrice,
+              confidence: candidate.decision.confidence,
+              reasoning: llmResult.reasoning.slice(0, 300),
               llmNode: llmResult.node,
               executedAt: new Date().toISOString(),
             };
             svenTradeLog.push(tradeRecord);
             if (svenTradeLog.length > 100) svenTradeLog.shift();
-            tradeExecuted = true;
+            positionsThisTick++;
+            svenDailyTradeCount++;
 
-            // Broadcast trade execution
             broadcastEvent(createTradingEvent('trade_executed', {
               orderId,
-              symbol,
+              symbol: candidate.symbol,
               side: orderSide,
               quantity,
-              price: currentPrice,
-              confidence: output.decision.confidence,
+              price: candidate.currentPrice,
+              confidence: candidate.decision.confidence,
               llmNode: llmResult.node,
               llmModel: llmResult.model,
-              reasoning: llmReasoning.slice(0, 200),
+              reasoning: llmResult.reasoning.slice(0, 200),
             }));
 
-            // Send proactive message about the trade
             svenSendMessage({
               type: 'trade_alert',
-              title: `Trade Executed: ${orderSide.toUpperCase()} ${symbol}`,
-              body: `Sven auto-traded ${quantity} ${symbol} at $${currentPrice.toLocaleString()}. Confidence: ${(output.decision.confidence * 100).toFixed(0)}%. ${llmReasoning.slice(0, 200)}`,
-              symbol,
+              title: `Trade: ${orderSide.toUpperCase()} ${candidate.symbol}`,
+              body: `Sven auto-traded ${quantity} ${candidate.symbol} at $${candidate.currentPrice.toLocaleString()}. Confidence: ${(candidate.decision.confidence * 100).toFixed(0)}%. Signal: ${(candidate.signalStrength * 100).toFixed(0)}%. ${llmResult.reasoning.slice(0, 150)}`,
+              symbol: candidate.symbol,
               severity: 'critical',
             });
 
             logger.info('Sven auto-trade executed', {
-              orderId, symbol, side: orderSide, quantity, price: currentPrice,
-              confidence: output.decision.confidence, llmNode: llmResult.node,
+              orderId, symbol: candidate.symbol, side: orderSide, quantity,
+              price: candidate.currentPrice, confidence: candidate.decision.confidence,
+              llmNode: llmResult.node, positionsThisTick, totalExposurePct: (totalExposurePct * 100).toFixed(1),
             });
           }
         } catch (tradeErr) {
-          logger.error('Sven auto-trade execution failed', { err: (tradeErr as Error).message, symbol });
-          svenSendMessage({
-            type: 'system',
-            title: 'Auto-Trade Failed',
-            body: `Failed to execute ${output.order.side} ${symbol}: ${(tradeErr as Error).message}`,
-            symbol,
-            severity: 'warning',
-          });
+          logger.error('Sven auto-trade execution failed', { err: (tradeErr as Error).message, symbol: candidate.symbol });
+        }
+      }
+
+      // ═══ POSITION MANAGEMENT — check for exits on existing positions ═══
+      try {
+        const defaultOrg = await resolvePublicOrg(pool, { orgId: '' });
+        if (defaultOrg) {
+          const { rows: openPositions } = await pool.query(
+            `SELECT id, symbol, side, quantity, avg_entry_price FROM trading_positions WHERE org_id = $1 AND status = 'open' AND user_id = '${SVEN_AUTONOMOUS_USER_ID}'`,
+            [defaultOrg],
+          );
+          for (const pos of openPositions) {
+            const currentData = validData.find(d => d.symbol === pos.symbol);
+            if (!currentData) continue;
+
+            const entryPrice = parseFloat(pos.avg_entry_price);
+            const priceDelta = pos.side === 'long'
+              ? (currentData.currentPrice - entryPrice) / entryPrice
+              : (entryPrice - currentData.currentPrice) / entryPrice;
+
+            // Exit conditions: 3% profit take (small wins compound) or 2% stop loss
+            const shouldClose = priceDelta >= 0.03 || priceDelta <= -0.02;
+
+            if (shouldClose) {
+              const pnl = priceDelta * parseFloat(pos.quantity) * entryPrice;
+              await pool.query(
+                `UPDATE trading_positions SET status = 'closed', current_price = $1, unrealized_pnl = $2, closed_at = NOW() WHERE id = $3 AND org_id = $4`,
+                [currentData.currentPrice, pnl, pos.id, defaultOrg],
+              );
+
+              // Update Sven's account balance
+              svenAccount.balance += pnl;
+              svenTotalPnl += pnl;
+              svenDailyPnl += pnl;
+              if (svenAccount.balance > svenPeakBalance) svenPeakBalance = svenAccount.balance;
+              svenCircuitBreaker.currentDrawdownPct = (svenPeakBalance - svenAccount.balance) / svenPeakBalance;
+              if (pnl < 0) svenCircuitBreaker.consecutiveLosses++;
+              else svenCircuitBreaker.consecutiveLosses = 0;
+              svenCircuitBreaker.dailyLossPct = Math.max(0, -svenDailyPnl / svenPeakBalance);
+
+              // Update performance record
+              try {
+                await pool.query(
+                  `INSERT INTO trading_performance (org_id, total_trades, winning_trades, total_pnl, updated_at)
+                   VALUES ($1, 1, $2, $3, NOW())
+                   ON CONFLICT (org_id) DO UPDATE SET
+                     total_trades = trading_performance.total_trades + 1,
+                     winning_trades = trading_performance.winning_trades + $2,
+                     total_pnl = trading_performance.total_pnl + $3,
+                     updated_at = NOW()`,
+                  [defaultOrg, pnl > 0 ? 1 : 0, pnl],
+                );
+              } catch (perfErr) {
+                if (!isSchemaCompatError(perfErr)) logger.error('performance update error', { err: (perfErr as Error).message });
+              }
+
+              broadcastEvent(createTradingEvent('position_closed', {
+                positionId: pos.id,
+                symbol: pos.symbol,
+                side: pos.side,
+                pnl,
+                pnlPct: (priceDelta * 100).toFixed(2),
+                balance: svenAccount.balance,
+              }));
+
+              svenSendMessage({
+                type: 'trade_alert',
+                title: `Position Closed: ${pos.symbol} ${pnl >= 0 ? 'PROFIT' : 'LOSS'}`,
+                body: `${pos.side.toUpperCase()} ${pos.symbol}: ${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)} 47T (${(priceDelta * 100).toFixed(2)}%). Balance: ${svenAccount.balance.toFixed(2)} 47T`,
+                symbol: pos.symbol,
+                severity: pnl >= 0 ? 'info' : 'warning',
+              });
+
+              logger.info('Sven position closed', {
+                positionId: pos.id, symbol: pos.symbol, side: pos.side,
+                pnl, pnlPct: (priceDelta * 100).toFixed(2), balance: svenAccount.balance,
+              });
+            }
+          }
+        }
+      } catch (posErr) {
+        if (!isSchemaCompatError(posErr)) logger.error('position management error', { err: (posErr as Error).message });
+      }
+
+      // ═══ GOAL CHECK ════════════════════════════════════════════════
+      checkGoalMilestones();
+
+      // ═══ LEARNING — check circuit breaker ═════════════════════════
+      svenCircuitBreaker = checkCircuitBreaker(svenCircuitBreaker);
+      for (const a of analyses) {
+        svenLearning = a.output.updatedLearningMetrics;
+      }
+
+      // If no LLM reasoning was collected (no trade candidates), get a quick scan reasoning
+      if (llmReasonings.length === 0 && validData.length > 0) {
+        const bestSignal = analyses.sort((a, b) => b.signalStrength - a.signalStrength)[0];
+        if (bestSignal) {
+          const scanResult = await askSvenBrain({
+            symbol: bestSignal.symbol,
+            currentPrice: bestSignal.currentPrice,
+            candles: validData.find(d => d.symbol === bestSignal.symbol)?.candles ?? [],
+            kronosPrediction: bestSignal.output.kronosPrediction,
+            mirofishResult: bestSignal.output.mirofishResult,
+            newsEvents,
+            aggregatedSignal: bestSignal.output.aggregatedSignal,
+            riskChecks: bestSignal.output.riskChecks,
+            portfolio,
+          }, 'fast');
+          lastLlmReasoning = scanResult.reasoning;
+          llmReasonings.push(`[scan] ${scanResult.reasoning.slice(0, 200)}`);
         }
       }
 
@@ -975,39 +1366,41 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
 
       broadcastEvent(createTradingEvent('loop_tick', {
         iteration: loopIterations,
-        symbol,
-        price: currentPrice,
-        decision: output.decision.decisionType,
-        direction: output.decision.direction ?? null,
-        confidence: output.decision.confidence,
-        reasoning: output.decision.reasoning,
-        llmReasoning,
-        llmNode: llmResult.node,
-        llmModel: llmResult.model,
-        llmLatencyMs: llmResult.latencyMs,
-        escalated: shouldEscalate,
-        tradeExecuted,
+        symbolsScanned: validData.length,
+        symbolsFailed: marketData.filter(d => d.error).length,
+        tradesExecuted: positionsThisTick,
+        analyses: analyses.map(a => ({
+          symbol: a.symbol,
+          price: a.currentPrice,
+          decision: a.decision.decisionType,
+          direction: a.decision.direction ?? null,
+          confidence: a.decision.confidence,
+          signalStrength: a.signalStrength,
+          riskPassed: a.riskPassed,
+        })),
+        llmReasonings: llmReasonings.slice(0, 5),
         autoTradeEnabled: AUTO_TRADE_ENABLED,
-        kronosDirection: output.kronosPrediction?.horizons?.[0]?.predictedDirection ?? null,
-        mirofishDirection: output.mirofishResult?.consensusDirection ?? null,
-        candleCount: candles.length,
         newsCount: newsEvents.length,
+        balance: svenAccount.balance,
+        totalPnl: svenTotalPnl,
+        dailyPnl: svenDailyPnl,
+        dailyTrades: svenDailyTradeCount,
+        openPositions: currentOpenPositions + positionsThisTick,
+        goalsAchieved: goalMilestones.filter(m => m.achieved).length,
+        nextGoal: goalMilestones.find(m => !m.achieved)?.name ?? 'All goals achieved!',
+        nextGoalTarget: goalMilestones.find(m => !m.achieved)?.targetBalance ?? 0,
         at: lastLoopAt.toISOString(),
       }));
 
-      logger.info('autonomous loop tick', {
+      logger.info('autonomous loop tick (multi-symbol)', {
         iteration: loopIterations,
-        symbol,
-        price: currentPrice,
-        decision: output.decision.decisionType,
-        direction: output.decision.direction,
-        confidence: output.decision.confidence,
-        tradeExecuted,
-        llmNode: llmResult.node,
-        llmModel: llmResult.model,
-        llmLatencyMs: llmResult.latencyMs,
-        escalated: shouldEscalate,
-        llmAvailable: llmResult.node !== 'none',
+        symbolsScanned: validData.length,
+        tradesExecuted: positionsThisTick,
+        balance: svenAccount.balance,
+        totalPnl: svenTotalPnl,
+        dailyPnl: svenDailyPnl,
+        openPositions: currentOpenPositions + positionsThisTick,
+        goalProgress: `${goalMilestones.filter(m => m.achieved).length}/${goalMilestones.length}`,
       });
     } catch (err) {
       logger.error('autonomous loop error', { err: (err as Error).message });
@@ -1095,6 +1488,13 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
           })),
           escalationThreshold: ESCALATION_CONFIDENCE_THRESHOLD,
           lastReasoning: lastLlmReasoning,
+          utilization: [...gpuUtilization.values()].map(u => ({
+            node: u.node.name,
+            activeRequests: u.activeRequests,
+            maxConcurrent: u.maxConcurrent,
+            lastResponseMs: u.lastResponseMs,
+            currentPriority: u.taskPriority,
+          })),
         },
         autoTrade: {
           enabled: AUTO_TRADE_ENABLED,
@@ -1107,6 +1507,28 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
           unreadCount: svenMessages.filter(m => !m.read).length,
           totalMessages: svenMessages.length,
           scheduledPending: scheduledMessages.filter(s => !s.delivered).length,
+        },
+        goal: {
+          currentBalance: svenAccount.balance,
+          startingBalance: TOKEN_CONFIG.svenStartingAllowance,
+          totalPnl: svenTotalPnl,
+          peakBalance: svenPeakBalance,
+          dailyPnl: svenDailyPnl,
+          dailyTrades: svenDailyTradeCount,
+          milestones: goalMilestones.map(m => ({
+            id: m.id,
+            name: m.name,
+            targetBalance: m.targetBalance,
+            reward: m.reward,
+            achieved: m.achieved,
+            achievedAt: m.achievedAt?.toISOString() ?? null,
+            progressPct: Math.min(100, ((svenAccount.balance - TOKEN_CONFIG.svenStartingAllowance) / (m.targetBalance - TOKEN_CONFIG.svenStartingAllowance)) * 100),
+          })),
+          nextMilestone: goalMilestones.find(m => !m.achieved),
+        },
+        newsIngestion: {
+          cachedArticles: newsCache.length,
+          lastFetch: newsCache.length > 0 ? newsCache[newsCache.length - 1]?.publishedAt : null,
         },
       },
     };
@@ -1843,9 +2265,11 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'prompt string required' } });
     }
 
-    // Have Sven's brain generate a response
+    // Have Sven's brain generate a response — user priority (highest)
     try {
-      const node = selectNode('fast');
+      const node = acquireGpu('user', 'fast');
+      if (!node) throw new Error('No GPU node available');
+      trackGpuStart(node.name, 'user');
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), SVEN_LLM_TIMEOUT);
       const res = await fetch(`${node.endpoint}/api/chat`, {
@@ -1863,6 +2287,8 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         }),
       });
       clearTimeout(timeout);
+      const latencyMs = Date.now();
+      trackGpuEnd(node.name, latencyMs);
       if (!res.ok) throw new Error(`LLM ${res.status}`);
       const data = (await res.json()) as { message?: { content?: string } };
       const reply_text = data.message?.content?.trim() ?? 'I could not generate a response right now.';
@@ -1913,8 +2339,28 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   app.post('/v1/trading/sven/auto-trade/config', { preHandler: [requireAuth], config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
-    // Config is read from env and not mutable at runtime for safety.
-    // This endpoint returns current config.
+
+    const body = request.body as Record<string, any>;
+
+    // Update mutable config when values are provided
+    if (typeof body.enabled === 'boolean') {
+      AUTO_TRADE_ENABLED = body.enabled;
+      logger.info('Auto-trade toggled', { enabled: AUTO_TRADE_ENABLED, by: request.userId });
+      broadcastEvent(createTradingEvent('activity', {
+        action: 'auto_trade_toggled',
+        enabled: AUTO_TRADE_ENABLED,
+        by: request.userId,
+      }));
+    }
+    if (typeof body.confidenceThreshold === 'number' && body.confidenceThreshold >= 0.1 && body.confidenceThreshold <= 1.0) {
+      AUTO_TRADE_CONFIDENCE_THRESHOLD = body.confidenceThreshold;
+      logger.info('Auto-trade confidence threshold updated', { threshold: AUTO_TRADE_CONFIDENCE_THRESHOLD });
+    }
+    if (typeof body.maxPositionPct === 'number' && body.maxPositionPct >= 0.01 && body.maxPositionPct <= 0.25) {
+      AUTO_TRADE_MAX_POSITION_PCT = body.maxPositionPct;
+      logger.info('Auto-trade max position updated', { maxPositionPct: AUTO_TRADE_MAX_POSITION_PCT });
+    }
+
     return {
       success: true,
       data: {

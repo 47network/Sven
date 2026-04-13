@@ -103,7 +103,7 @@ class TradingService extends ChangeNotifier {
   Future<void> fetchStatus() async {
     _setLoading(true);
     try {
-      final resp = await _get('/api/sven/status');
+      final resp = await _get('/v1/trading/sven/status');
       if (resp != null) {
         final body = jsonDecode(resp.body) as Map<String, dynamic>;
         if (body['success'] == true && body['data'] != null) {
@@ -126,7 +126,7 @@ class TradingService extends ChangeNotifier {
   /// Fetch Sven's proactive messages (public — no auth).
   Future<void> fetchMessages() async {
     try {
-      final resp = await _get('/api/sven/messages');
+      final resp = await _get('/v1/trading/sven/messages');
       if (resp != null) {
         final body = jsonDecode(resp.body) as Map<String, dynamic>;
         if (body['success'] == true && body['data'] != null) {
@@ -148,7 +148,7 @@ class TradingService extends ChangeNotifier {
   /// Fetch Sven's executed trades (public — no auth).
   Future<void> fetchTrades() async {
     try {
-      final resp = await _get('/api/sven/trades');
+      final resp = await _get('/v1/trading/sven/trades');
       if (resp != null) {
         final body = jsonDecode(resp.body) as Map<String, dynamic>;
         if (body['success'] == true && body['data'] != null) {
@@ -171,7 +171,7 @@ class TradingService extends ChangeNotifier {
   /// Fetch open positions (public — no auth).
   Future<void> fetchPositions() async {
     try {
-      final resp = await _get('/api/sven/positions');
+      final resp = await _get('/v1/trading/positions');
       if (resp != null) {
         final body = jsonDecode(resp.body) as Map<String, dynamic>;
         if (body['success'] == true && body['data'] != null) {
@@ -189,7 +189,7 @@ class TradingService extends ChangeNotifier {
   /// Fetch price alerts (requires auth).
   Future<void> fetchAlerts() async {
     try {
-      final resp = await _get('/api/sven/alerts');
+      final resp = await _get('/v1/trading/alerts');
       if (resp != null) {
         final body = jsonDecode(resp.body) as Map<String, dynamic>;
         if (body['success'] == true && body['data'] != null) {
@@ -230,7 +230,7 @@ class TradingService extends ChangeNotifier {
       }
       if (maxPositionPct != null) body['maxPositionPct'] = maxPositionPct;
 
-      final resp = await _postJson('/api/sven/auto-trade/configure', body);
+      final resp = await _postJson('/v1/trading/sven/auto-trade/config', body);
       if (resp != null && resp.statusCode == 200) {
         await fetchStatus();
         return true;
@@ -259,7 +259,7 @@ class TradingService extends ChangeNotifier {
         'severity': severity,
         if (symbol != null) 'symbol': symbol,
       };
-      final resp = await _postJson('/api/sven/messages/send', payload);
+      final resp = await _postJson('/v1/trading/sven/messages/send', payload);
       if (resp != null && resp.statusCode == 200) {
         await fetchMessages();
         return true;
@@ -290,7 +290,7 @@ class TradingService extends ChangeNotifier {
         'scheduledAt': scheduledAt.toUtc().toIso8601String(),
         if (symbol != null) 'symbol': symbol,
       };
-      final resp = await _postJson('/api/sven/messages/schedule', payload);
+      final resp = await _postJson('/v1/trading/sven/messages/schedule', payload);
       if (resp != null && resp.statusCode == 200) {
         await fetchMessages();
         return true;
@@ -315,7 +315,7 @@ class TradingService extends ChangeNotifier {
         'targetPrice': targetPrice,
         'direction': direction,
       };
-      final resp = await _postJson('/api/sven/alerts', payload);
+      final resp = await _postJson('/v1/trading/alerts', payload);
       if (resp != null && resp.statusCode == 200) {
         await fetchAlerts();
         return true;
@@ -331,7 +331,7 @@ class TradingService extends ChangeNotifier {
   /// Delete a price alert (requires auth).
   Future<bool> deleteAlert(String id) async {
     try {
-      final uri = Uri.parse('$_tradingBase/api/sven/alerts/$id');
+      final uri = Uri.parse('$_tradingBase/v1/trading/alerts/$id');
       final resp = await _client.delete(uri);
       if (resp.statusCode == 200) {
         _alerts.removeWhere((a) => a.id == id);
