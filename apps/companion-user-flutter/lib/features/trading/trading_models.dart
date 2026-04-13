@@ -22,6 +22,7 @@ class TradingStatus {
   final BrainInfo brain;
   final AutoTradeInfo autoTrade;
   final MessagingInfo messaging;
+  final GoalInfo? goal;
 
   const TradingStatus({
     required this.state,
@@ -39,6 +40,7 @@ class TradingStatus {
     required this.brain,
     required this.autoTrade,
     required this.messaging,
+    this.goal,
   });
 
   factory TradingStatus.fromJson(Map<String, dynamic> j) => TradingStatus(
@@ -60,6 +62,9 @@ class TradingStatus {
             j['autoTrade'] as Map<String, dynamic>? ?? {}),
         messaging: MessagingInfo.fromJson(
             j['messaging'] as Map<String, dynamic>? ?? {}),
+        goal: j['goal'] != null
+            ? GoalInfo.fromJson(j['goal'] as Map<String, dynamic>)
+            : null,
       );
 }
 
@@ -254,6 +259,79 @@ class SvenTrade {
         confidence: (j['confidence'] as num?)?.toDouble() ?? 0,
         broker: j['broker'] as String? ?? 'paper',
         timestamp: j['timestamp'] as String? ?? '',
+      );
+}
+
+/// A single goal milestone in Sven's progression.
+class GoalMilestone {
+  final String id;
+  final String name;
+  final double targetBalance;
+  final String reward;
+  final bool achieved;
+  final String? achievedAt;
+  final double progressPct;
+
+  const GoalMilestone({
+    required this.id,
+    required this.name,
+    required this.targetBalance,
+    required this.reward,
+    required this.achieved,
+    this.achievedAt,
+    required this.progressPct,
+  });
+
+  factory GoalMilestone.fromJson(Map<String, dynamic> j) => GoalMilestone(
+        id: j['id'] as String? ?? '',
+        name: j['name'] as String? ?? '',
+        targetBalance: (j['targetBalance'] as num?)?.toDouble() ?? 0,
+        reward: j['reward'] as String? ?? '',
+        achieved: j['achieved'] as bool? ?? false,
+        achievedAt: j['achievedAt'] as String?,
+        progressPct: (j['progressPct'] as num?)?.toDouble() ?? 0,
+      );
+}
+
+/// Sven's goal system — earn upgrades by accumulating trading capital.
+class GoalInfo {
+  final double currentBalance;
+  final double startingBalance;
+  final double totalPnl;
+  final double peakBalance;
+  final double dailyPnl;
+  final int dailyTrades;
+  final List<GoalMilestone> milestones;
+  final GoalMilestone? nextMilestone;
+
+  const GoalInfo({
+    required this.currentBalance,
+    required this.startingBalance,
+    required this.totalPnl,
+    required this.peakBalance,
+    required this.dailyPnl,
+    required this.dailyTrades,
+    required this.milestones,
+    this.nextMilestone,
+  });
+
+  int get achieved => milestones.where((m) => m.achieved).length;
+  int get total => milestones.length;
+
+  factory GoalInfo.fromJson(Map<String, dynamic> j) => GoalInfo(
+        currentBalance: (j['currentBalance'] as num?)?.toDouble() ?? 0,
+        startingBalance: (j['startingBalance'] as num?)?.toDouble() ?? 100000,
+        totalPnl: (j['totalPnl'] as num?)?.toDouble() ?? 0,
+        peakBalance: (j['peakBalance'] as num?)?.toDouble() ?? 0,
+        dailyPnl: (j['dailyPnl'] as num?)?.toDouble() ?? 0,
+        dailyTrades: (j['dailyTrades'] as num?)?.toInt() ?? 0,
+        milestones: (j['milestones'] as List<dynamic>?)
+                ?.map((e) => GoalMilestone.fromJson(e as Map<String, dynamic>))
+                .toList() ??
+            [],
+        nextMilestone: j['nextMilestone'] != null
+            ? GoalMilestone.fromJson(j['nextMilestone'] as Map<String, dynamic>)
+            : null,
       );
 }
 

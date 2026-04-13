@@ -19,6 +19,7 @@ import 'sven_messages_page.dart';
 import 'sven_control_page.dart';
 import 'portfolio_positions_page.dart';
 import 'price_alerts_page.dart';
+import 'sven_goals_page.dart';
 
 class TradingDashboardPage extends StatefulWidget {
   const TradingDashboardPage({
@@ -217,6 +218,9 @@ class _TradingDashboardPageState extends State<TradingDashboardPage> {
                 onControl: _openControl,
                 onPortfolio: _openPortfolio,
                 onAlerts: _openAlerts,
+                milestonesAchieved: status?.goal?.achieved ?? 0,
+                milestonesTotal: status?.goal?.total ?? 0,
+                onGoals: _openGoals,
               ),
               const SizedBox(height: 12),
               _LiveEventsCard(
@@ -335,6 +339,16 @@ class _TradingDashboardPageState extends State<TradingDashboardPage> {
     HapticFeedback.lightImpact();
     Navigator.of(context).push(MaterialPageRoute<void>(
       builder: (_) => PriceAlertsPage(
+        tradingService: widget.tradingService,
+        visualMode: widget.visualMode,
+      ),
+    ));
+  }
+
+  void _openGoals() {
+    HapticFeedback.lightImpact();
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => SvenGoalsPage(
         tradingService: widget.tradingService,
         visualMode: widget.visualMode,
       ),
@@ -611,6 +625,9 @@ class _QuickActionsRow extends StatelessWidget {
     required this.onControl,
     required this.onPortfolio,
     required this.onAlerts,
+    required this.milestonesAchieved,
+    required this.milestonesTotal,
+    required this.onGoals,
   });
 
   final SvenModeTokens tokens;
@@ -619,6 +636,9 @@ class _QuickActionsRow extends StatelessWidget {
   final VoidCallback onControl;
   final VoidCallback onPortfolio;
   final VoidCallback onAlerts;
+  final int milestonesAchieved;
+  final int milestonesTotal;
+  final VoidCallback onGoals;
 
   @override
   Widget build(BuildContext context) {
@@ -666,6 +686,24 @@ class _QuickActionsRow extends StatelessWidget {
                 onTap: onAlerts,
               ),
             ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _ActionButton(
+                tokens: tokens,
+                icon: Icons.emoji_events_rounded,
+                label: 'Goals',
+                badge: milestonesTotal > 0
+                    ? '$milestonesAchieved/$milestonesTotal'
+                    : null,
+                onTap: onGoals,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(child: SizedBox()),
           ],
         ),
       ],
