@@ -3,6 +3,7 @@
 import { PageHeader } from '@/components/PageHeader';
 import { EmptyState } from '@/components/EmptyState';
 import { PageSpinner } from '@/components/Spinner';
+import { useConfirm } from '@/components/ConfirmDialog';
 import {
   useBackups,
   useBackupConfigs,
@@ -109,6 +110,7 @@ export default function BackupRestorePage() {
   const startRestore = useStartRestore();
   const updateConfig = useUpdateBackupConfig();
   const uploadBackup = useUploadBackup();
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   const configsPayload = unwrapData<{ configs?: BackupConfig[] }>(configsData);
   const backupsPayload = unwrapData<{ backups?: unknown[] }>(backupsData);
@@ -168,9 +170,15 @@ export default function BackupRestorePage() {
     );
   }
 
-  function handleRestore(backupId: string) {
-    const confirm = window.prompt('Type RESTORE to confirm destructive restore.');
-    if (confirm !== 'RESTORE') {
+  async function handleRestore(backupId: string) {
+    const result = await confirm({
+      title: 'Destructive restore',
+      description: 'This will overwrite current data with the selected backup. This action cannot be undone.',
+      confirmPhrase: 'RESTORE',
+      confirmLabel: 'Restore',
+      variant: 'danger',
+    });
+    if (result === false) {
       toast.error('Restore cancelled');
       return;
     }
@@ -247,6 +255,7 @@ export default function BackupRestorePage() {
 
   return (
     <>
+      {confirmDialog}
       <PageHeader title="Backup & Restore" description="One-click backups, restores, and schedules">
         <div className="flex flex-wrap items-center gap-2">
           <select

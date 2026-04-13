@@ -4848,7 +4848,7 @@ function compileIssueFixProgram(issueSummary: string): CompiledProseProgram {
           tool_name: patchToolName,
           params: {
             command: `set -euo pipefail; PLAN=$(cat <<'SVEN_PLAN_EOF'
-${issue_plan}
+\${issue_plan}
 SVEN_PLAN_EOF
 ); echo "$PLAN" | head -n 200`,
           },

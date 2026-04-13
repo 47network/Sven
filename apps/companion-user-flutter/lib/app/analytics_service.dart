@@ -1,4 +1,5 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/foundation.dart';
 
 /// Thin wrapper around [FirebaseAnalytics] that provides typed event methods
 /// and silently no-ops when analytics are unavailable (e.g., in tests or when
@@ -75,7 +76,9 @@ class SvenAnalytics {
     if (!_enabled) return;
     try {
       await _fa.setUserId(id: uid);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[SvenAnalytics] setUserId failed: $e');
+    }
   }
 
   Future<void> _log(

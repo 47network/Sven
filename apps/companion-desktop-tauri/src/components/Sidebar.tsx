@@ -7,10 +7,17 @@ import {
     Terminal,
     Activity,
     Cpu,
+    BrainCircuit,
+    Bot,
+    Globe,
+    UserCircle,
+    Palette,
+    Building2,
+    Search,
 } from 'lucide-react';
 import svenIconUrl from '../../src-tauri/icons/icon.png';
 
-export type NavTab = 'chat' | 'approvals' | 'inference' | 'settings' | 'log';
+export type NavTab = 'chat' | 'approvals' | 'inference' | 'ai-dashboard' | 'brain' | 'community-agents' | 'federation' | 'profile' | 'theme' | 'workspaces' | 'activity' | 'search' | 'settings' | 'log';
 
 interface SidebarProps {
     active: NavTab;
@@ -31,6 +38,15 @@ export function Sidebar({ active, onNavigate, pendingApprovals, status }: Sideba
         { id: 'chat', label: 'Chat', icon: <MessageSquare size={18} /> },
         { id: 'approvals', label: 'Approvals', icon: <ShieldCheck size={18} />, badge: pendingApprovals },
         { id: 'inference', label: 'Local AI', icon: <Cpu size={18} /> },
+        { id: 'ai-dashboard', label: 'AI Hub', icon: <BrainCircuit size={18} /> },
+        { id: 'brain', label: 'Brain', icon: <BrainCircuit size={18} /> },
+        { id: 'community-agents', label: 'Agents', icon: <Bot size={18} /> },
+        { id: 'federation', label: 'Federation', icon: <Globe size={18} /> },
+        { id: 'profile', label: 'Profile', icon: <UserCircle size={18} /> },
+        { id: 'theme', label: 'Theme', icon: <Palette size={18} /> },
+        { id: 'workspaces', label: 'Workspaces', icon: <Building2 size={18} /> },
+        { id: 'activity', label: 'Activity', icon: <Activity size={18} /> },
+        { id: 'search', label: 'Search', icon: <Search size={18} /> },
         { id: 'settings', label: 'Settings', icon: <Settings size={18} /> },
         { id: 'log', label: 'Log', icon: <Terminal size={18} /> },
     ];

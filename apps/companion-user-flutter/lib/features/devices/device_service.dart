@@ -7,8 +7,8 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
+import '../../app/api_base_service.dart';
 import '../../app/authenticated_client.dart';
-import '../../config/env_config.dart';
 
 /// Device status.
 enum DeviceStatus {
@@ -194,7 +194,7 @@ class DeviceService extends ChangeNotifier {
 
   final AuthenticatedClient _client;
 
-  static final _apiBase = EnvConfig.apiBase;
+  static String get _apiBase => ApiBaseService.currentSync();
 
   List<Device> _devices = [];
   List<Device> get devices => _devices;
@@ -251,7 +251,9 @@ class DeviceService extends ChangeNotifier {
           recentCommands: commands,
         );
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[DeviceService] fetchDevice($deviceId) failed: $e');
+    }
     return null;
   }
 
@@ -278,7 +280,9 @@ class DeviceService extends ChangeNotifier {
         notifyListeners();
         return device;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[DeviceService] registerDevice failed: $e');
+    }
     return null;
   }
 
@@ -299,7 +303,9 @@ class DeviceService extends ChangeNotifier {
         _error = _extractError(resp.body);
         notifyListeners();
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[DeviceService] confirmPairing($deviceId) failed: $e');
+    }
     return null;
   }
 
@@ -376,7 +382,9 @@ class DeviceService extends ChangeNotifier {
         await fetchDevices();
         return true;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[DeviceService] updateDevice($deviceId) failed: $e');
+    }
     return false;
   }
 
@@ -391,7 +399,9 @@ class DeviceService extends ChangeNotifier {
         notifyListeners();
         return true;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[DeviceService] deleteDevice($deviceId) failed: $e');
+    }
     return false;
   }
 

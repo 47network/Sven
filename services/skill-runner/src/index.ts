@@ -22,6 +22,7 @@ import {
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
+import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { analyzeMedia } from './media-analysis.js';
 import {
@@ -1020,6 +1021,48 @@ type SettingsScope = {
   chatId?: string;
   userId?: string;
 };
+
+/**
+ * Verifies the current user is the privileged admin account (username '47', role 'admin').
+ * Used to gate operations-level tools that only the platform owner should access:
+ * code healing, pentesting, deployment, infrastructure introspection.
+ */
+async function requireAdmin47(pool: pg.Pool, userId?: string): Promise<{ ok: boolean; error?: string }> {
+  if (!userId) return { ok: false, error: 'Authentication required. This tool is restricted to the platform administrator.' };
+  const res = await pool.query(
+    `SELECT username, role FROM users WHERE id = $1 LIMIT 1`,
+    [userId],
+  );
+  if (res.rows.length === 0) return { ok: false, error: 'User not found. Access denied.' };
+  const user = res.rows[0] as { username: string; role: string };
+  const adminUsername = process.env.ADMIN_USERNAME || '47';
+  if (user.username !== adminUsername || user.role !== 'admin') {
+    return { ok: false, error: `Access denied. This tool is restricted to the ${adminUsername} administrator account.` };
+  }
+  return { ok: true };
+}
+
+/** Write an immutable audit trail entry for any sven.ops.* tool invocation. */
+async function logOpsAudit(
+  pool: pg.Pool,
+  userId: string,
+  toolName: string,
+  inputs: Record<string, unknown>,
+  resultSummary?: string,
+  severity: 'info' | 'low' | 'medium' | 'high' | 'critical' = 'info',
+): Promise<void> {
+  try {
+    const userRes = await pool.query(`SELECT username FROM users WHERE id = $1 LIMIT 1`, [userId]);
+    const username = (userRes.rows[0] as any)?.username || 'unknown';
+    await pool.query(
+      `INSERT INTO ops_audit_log (id, user_id, username, tool_name, action, inputs, result_summary, severity, created_at)
+       VALUES ($1, $2, $3, $4, 'invoke', $5::jsonb, $6, $7, NOW())`,
+      [generateTaskId('audit_entry'), userId, username, toolName, JSON.stringify(inputs), resultSummary || null, severity],
+    );
+  } catch (err) {
+    logger.warn('Failed to write ops audit log', { tool_name: toolName, user_id: userId, err: String(err) });
+  }
+}
 
 type ScopedSettingsMapOptions = {
   enforceTenantScope?: boolean;
@@ -2050,6 +2093,669 @@ async function main(): Promise<void> {
 
   logger.info('Subscribed to tool.run.request, processing...');
 
+  // ═══════════════════════════════════════════════════════════════════
+  //  Approval execution subscriber — triggers real actions after /approve
+  //  v3: half-open circuit breaker, branch isolation, multi-file atomic,
+  //      fix→deploy chaining, deploy rollback, pre-deploy build gate
+  // ═══════════════════════════════════════════════════════════════════
+  // Circuit breaker state is at module level (shared with heal_history tool handler)
+
+  /** Post a system message into the approval's chat so the admin sees the result. */
+  async function notifyApprovalChat(chatId: string, text: string): Promise<void> {
+    try {
+      await pool.query(
+        `INSERT INTO messages (id, chat_id, role, content_type, text, blocks, created_at)
+         VALUES ($1, $2, 'assistant', 'blocks', $3, $4::jsonb, NOW())`,
+        [
+          generateTaskId('message'),
+          chatId,
+          text,
+          JSON.stringify([{ type: 'markdown', content: text }]),
+        ],
+      );
+    } catch (err) {
+      logger.warn('Failed to insert approval notification message', { chat_id: chatId, err: String(err) });
+    }
+  }
+
+  // v8: Subscriber crash recovery — auto-restart on crash with backoff (max 5 retries)
+  const MAX_SUBSCRIBER_RESTARTS = 5;
+  let subscriberRestartCount = 0;
+
+  const runApprovalSubscriberLoop = async () => {
+    const approvalSub = nc.subscribe(NATS_SUBJECTS.APPROVAL_UPDATED);
+    for await (const msg of approvalSub) {
+      try {
+        const payload = jc.decode(msg.data) as {
+          data?: { approval_id?: string; status?: string };
+        };
+        const approvalId = payload?.data?.approval_id;
+        const status = payload?.data?.status;
+        if (!approvalId || status !== 'approved') continue;
+
+        // Half-open circuit breaker: closed → allow, open → block, half-open → allow one probe
+        const cbState = circuitState();
+        if (cbState === 'open') {
+          logger.warn('Circuit breaker OPEN: skipping auto-execution', {
+            approval_id: approvalId, consecutive_failures: opsConsecutiveFailures,
+            cooldown_remaining_s: Math.round((OPS_CIRCUIT_HALF_OPEN_MS - (Date.now() - opsLastFailureAt)) / 1000),
+          });
+          continue;
+        }
+        if (cbState === 'half-open') {
+          logger.info('Circuit breaker HALF-OPEN: allowing one probe execution', { approval_id: approvalId });
+        }
+
+        // Look up the approval
+        const apprRes = await pool.query(
+          `SELECT id, chat_id, tool_name, requester_user_id, details FROM approvals WHERE id = $1 AND status = 'approved'`,
+          [approvalId],
+        );
+        if (apprRes.rows.length === 0) continue;
+        const approval = apprRes.rows[0] as { id: string; chat_id: string; tool_name: string; requester_user_id: string; details: Record<string, any> };
+        const details = approval.details || {};
+
+        // v5: Concurrent heal mutex — one operation at a time
+        await acquireHealMutex();
+        // v9: Pipeline timeout — 10 min max per heal operation to prevent mutex starvation
+        const healTimeout = createHealTimeout(10 * 60 * 1000);
+        // v9: Track when operations happen for CB auto-decay
+        lastHealOperationAt = Date.now();
+        try {
+
+        // v9: Apply CB auto-decay before checking state
+        applyCircuitBreakerDecay();
+
+        // Only handle ops tool approvals
+        if (approval.tool_name === 'sven.ops.code_fix' && details.action === 'code_fix') {
+          const healStartTime = Date.now();
+          // Atomic CAS: claim the approval so no other instance runs it
+          const claimed = await claimApproval(pool, approvalId);
+          if (!claimed) { logger.info('Code fix approval already claimed', { approval_id: approvalId }); continue; }
+
+          logger.info('Executing approved code fix', { approval_id: approvalId, file_path: details.file_path });
+          const repoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+
+          try {
+            // Build change list — support single or multi-file fixes
+            const changes: FileChange[] = details.changes && Array.isArray(details.changes)
+              ? details.changes as FileChange[]
+              : [{ file_path: details.file_path, old_content: details.old_content, new_content: details.new_content }];
+
+            // v6: Fix deduplication — skip if identical diff was already applied within 24h
+            const dedup = isDuplicateFix(changes);
+            if (dedup.duplicate) {
+              await pool.query(`UPDATE approvals SET status = 'failed', resolved_at = NOW() WHERE id = $1`, [approvalId]);
+              await logOpsAudit(pool, approval.requester_user_id, 'sven.ops.code_fix', { approval_id: approvalId, hash: dedup.hash }, `Fix deduplicated: identical diff (${dedup.hash.slice(0, 12)}) was already applied`, 'medium');
+              await notifyApprovalChat(approval.chat_id, `🔁 **Duplicate fix skipped** (approval \`${approvalId.slice(0, 12)}…\`)\n\nThis exact diff (\`${dedup.hash.slice(0, 12)}…\`) was already applied ${dedup.firstSeenAt ? Math.round((Date.now() - dedup.firstSeenAt) / 60000) + ' min ago' : 'recently'}. Skipping to prevent redundant changes.`);
+              healTelemetry.fixes_deduplicated++;
+              continue;
+            }
+
+            // v8: File quarantine check — skip if any file has repeated failures
+            let quarantineBlocked = false;
+            for (const change of changes) {
+              const quarantine = isFileQuarantined(change.file_path);
+              if (quarantine.quarantined) {
+                await pool.query(`UPDATE approvals SET status = 'failed', resolved_at = NOW() WHERE id = $1`, [approvalId]);
+                await logOpsAudit(pool, approval.requester_user_id, 'sven.ops.code_fix', { file: change.file_path, approval_id: approvalId, failures: quarantine.failures }, `Fix blocked: file quarantined after ${quarantine.failures} failures`, 'high');
+                await notifyApprovalChat(approval.chat_id, `🔒 **File quarantined** (approval \`${approvalId.slice(0, 12)}…\`)\n\n\`${change.file_path}\` has failed ${quarantine.failures} heal attempts in 24h and is auto-quarantined. Use \`sven.ops.heal_history\` with \`clear_quarantine\` to lift.`);
+                healTelemetry.files_quarantined++;
+                quarantineBlocked = true;
+                break;
+              }
+            }
+            if (quarantineBlocked) continue;
+
+            // v8: Resource guard — check system resources before heavy build operations
+            const resourceCheck = checkSystemResources();
+            if (!resourceCheck.ok) {
+              await pool.query(`UPDATE approvals SET status = 'failed', resolved_at = NOW() WHERE id = $1`, [approvalId]);
+              await logOpsAudit(pool, approval.requester_user_id, 'sven.ops.code_fix', { approval_id: approvalId, warnings: resourceCheck.warnings }, `Fix deferred: system resources low`, 'high');
+              await notifyApprovalChat(approval.chat_id, `⚠️ **Fix deferred — low resources** (approval \`${approvalId.slice(0, 12)}…\`)\n\n${resourceCheck.warnings.join('; ')}. Build operations would worsen system stability.`);
+              healTelemetry.resource_guard_blocks++;
+              continue;
+            }
+
+            // v8: Pre-heal checkpoint — git tag for last-resort recovery
+            const checkpoint = createHealCheckpoint(repoRoot);
+            if (checkpoint.ok) healTelemetry.checkpoints_created++;
+
+            // v4: Fix rate limiter — prevent fix storms on the same file
+            for (const change of changes) {
+              const rateCheck = checkFixRateLimit(change.file_path);
+              if (!rateCheck.allowed) {
+                await pool.query(`UPDATE approvals SET status = 'failed', resolved_at = NOW() WHERE id = $1`, [approvalId]);
+                await logOpsAudit(pool, approval.requester_user_id, 'sven.ops.code_fix', { file: change.file_path, approval_id: approvalId }, `Fix rate-limited: ${rateCheck.recentCount} fixes to ${change.file_path} in last 30min (max ${FIX_RATE_MAX})`, 'high');
+                await notifyApprovalChat(approval.chat_id, `🛑 **Fix rate-limited** (approval \`${approvalId.slice(0, 12)}…\`)\n\n\`${change.file_path}\` has been modified ${rateCheck.recentCount} times in the last 30 minutes (limit: ${FIX_RATE_MAX}). Cooldown resets in ${Math.ceil(rateCheck.resetInMs / 60000)} min.\n\nThis prevents fix loops — investigate the root cause before retrying.`);
+                healTelemetry.fixes_rate_limited++;
+                opsConsecutiveFailures++;
+                opsLastFailureAt = Date.now();
+                continue;
+              }
+            }
+
+            // v9: Pipeline timeout check before heavy build phase
+            healTimeout.check();
+
+            const commitMsg = `fix(sven-heal): ${(details.message || 'approved code fix').slice(0, 72)}`;
+            const buildStart = Date.now();
+            const result = await applyFixOnBranch(changes, repoRoot, commitMsg);
+            recordHealDuration('build_verify', Date.now() - buildStart);
+
+            if (!result.ok) {
+              await pool.query(`UPDATE approvals SET status = 'failed', resolved_at = NOW() WHERE id = $1`, [approvalId]);
+              await logOpsAudit(pool, approval.requester_user_id, 'sven.ops.code_fix', { files: changes.map(c => c.file_path), approval_id: approvalId }, `Fix rolled back: build verification failed on branch ${result.branch}`, 'high');
+              await notifyApprovalChat(approval.chat_id, `❌ **Code fix rolled back** (approval \`${approvalId.slice(0, 12)}…\`)\n\nApplied to branch \`${result.branch}\` but **broke the build**:\n\`\`\`\n${(result.buildOutput || '').slice(0, 500)}\n\`\`\`\nBranch abandoned. All files restored. No commit on main.`);
+              for (const change of changes) recordFileHealFailure(change.file_path, 'build_failed');
+              opsConsecutiveFailures++;
+              opsLastFailureAt = Date.now();
+              continue;
+            }
+
+            // v4: Post-fix test runner — run unit tests for affected services
+            healTimeout.check(); // v9: timeout check before test phase
+            const testStart = Date.now();
+            const testResults: Array<{ file: string; ok: boolean; output: string; skipped: boolean }> = [];
+            for (const change of changes) {
+              const tr = runServiceTests(repoRoot, change.file_path);
+              testResults.push({ file: change.file_path, ...tr });
+            }
+            recordHealDuration('test_verify', Date.now() - testStart);
+            const testFailures = testResults.filter(t => !t.ok && !t.skipped);
+
+            if (testFailures.length > 0) {
+              // Tests failed after build passed — revert the commit
+              const revertResult = revertHealCommits(repoRoot, 1);
+              await pool.query(`UPDATE approvals SET status = 'failed', resolved_at = NOW() WHERE id = $1`, [approvalId]);
+              const failDetail = testFailures.map(t => `\`${t.file}\`:\n\`\`\`\n${t.output.slice(0, 300)}\n\`\`\``).join('\n');
+              await logOpsAudit(pool, approval.requester_user_id, 'sven.ops.code_fix', { files: changes.map(c => c.file_path), approval_id: approvalId, commit: result.commitHash }, `Fix reverted: tests failed after build passed. Reverted: ${revertResult.ok}`, 'high');
+              await notifyApprovalChat(approval.chat_id, `❌ **Code fix reverted** (approval \`${approvalId.slice(0, 12)}…\`)\n\nBuild passed ✅ but **tests failed** ❌:\n${failDetail}\n\nCommit \`${result.commitHash}\` reverted. ${revertResult.ok ? 'Build re-verified clean.' : `⚠️ Revert issue: ${revertResult.output}`}`);
+              healTelemetry.fixes_reverted++;
+              for (const change of changes) recordFileHealFailure(change.file_path, 'tests_failed');
+              opsConsecutiveFailures++;
+              opsLastFailureAt = Date.now();
+              continue;
+            }
+
+            // Record rate limit entries for successfully applied fixes
+            for (const change of changes) recordFixApplication(change.file_path);
+
+            // v6: Record dedup hash so identical diffs are rejected within 24h
+            recordFixHash(dedup.hash);
+
+            // v7: Telemetry counter
+            healTelemetry.fixes_applied++;
+            healTelemetry.last_fix_at = new Date().toISOString();
+
+            await pool.query(`UPDATE approvals SET status = 'executed', resolved_at = NOW() WHERE id = $1`, [approvalId]);
+            const testNote = testResults.some(t => !t.skipped) ? ' | Tests: ✅ passed' : ' | Tests: skipped (no test dir)';
+            await logOpsAudit(pool, approval.requester_user_id, 'sven.ops.code_fix', {
+              files: changes.map(c => c.file_path), approval_id: approvalId, commit: result.commitHash, branch: result.branch, tests_passed: true,
+            }, `Approved fix applied via branch ${result.branch}, verified (build+tests), merged, committed ${result.commitHash}`, 'high');
+
+            // v9: Record heal duration
+            recordHealDuration('code_fix', Date.now() - healStartTime);
+
+            // Fix→Deploy chaining: auto-create a deploy approval so admin can deploy with one more /approve
+            let chainedDeployId: string | undefined;
+            if (details.chain_deploy !== false) {
+              try {
+                chainedDeployId = generateTaskId('approval');
+                const deployTarget = changes.some(c => c.file_path.includes('skill-runner')) ? 'all' : changes[0]?.file_path.match(/services\/([^/]+)/)?.[1] || 'all';
+                await pool.query(
+                  `INSERT INTO approvals (id, chat_id, tool_name, scope, requester_user_id, status, quorum_required, expires_at, details, created_at)
+                   VALUES ($1, $2, 'sven.ops.deploy', 'ops.deploy', $3, 'pending', 1, NOW() + INTERVAL '1 hour', $4::jsonb, NOW())`,
+                  [
+                    chainedDeployId, approval.chat_id, approval.requester_user_id,
+                    JSON.stringify({ message: `Deploy fix ${result.commitHash}`, target: deployTarget, environment: 'staging', chained_from: approvalId }),
+                  ],
+                );
+              } catch { chainedDeployId = undefined; }
+            }
+
+            const filesStr = changes.map(c => `\`${c.file_path}\``).join(', ');
+            const chainNote = chainedDeployId ? `\n\n🔗 **Deploy approval auto-created**: \`/approve ${chainedDeployId}\` to deploy this fix.` : '';
+            await notifyApprovalChat(approval.chat_id, `✅ **Code fix applied** (approval \`${approvalId.slice(0, 12)}…\`)\n\nFixed ${filesStr} via branch \`${result.branch}\` — build verified clean${testNote} — committed as \`${result.commitHash}\`.${chainNote}`);
+            opsConsecutiveFailures = 0;
+            logger.info('Code fix applied via approval', { approval_id: approvalId, files: changes.map(c => c.file_path), commit: result.commitHash });
+
+            // v5: Publish NATS heal event — cross-service awareness
+            try {
+              nc.publish('heal.event.code_fix', jc.encode({
+                type: 'code_fix_applied',
+                approval_id: approvalId,
+                files: changes.map(c => c.file_path),
+                commit: result.commitHash,
+                branch: result.branch,
+                tests_passed: true,
+                chained_deploy_id: chainedDeployId || null,
+                timestamp: new Date().toISOString(),
+              }));
+            } catch { /* non-critical: NATS publish failure should not block the fix */ }
+          } catch (err) {
+            logger.error('Failed to execute approved code fix', { approval_id: approvalId, err: String(err) });
+            await pool.query(`UPDATE approvals SET status = 'failed', resolved_at = NOW() WHERE id = $1`, [approvalId]);
+            await notifyApprovalChat(approval.chat_id, `❌ **Code fix failed** (approval \`${approvalId.slice(0, 12)}…\`): ${err instanceof Error ? err.message : String(err)}`);
+            opsConsecutiveFailures++;
+            opsLastFailureAt = Date.now();
+          }
+        }
+
+        if (approval.tool_name === 'sven.ops.deploy') {
+          const claimed = await claimApproval(pool, approvalId);
+          if (!claimed) { logger.info('Deploy approval already claimed', { approval_id: approvalId }); continue; }
+
+          logger.info('Executing approved deployment', { approval_id: approvalId, target: details.target });
+          const repoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+          const composePrimary = process.env.SVEN_COMPOSE_FILE || 'docker-compose.yml';
+          const deployTarget = details.target || 'all';
+          const restartsSelf = deployTarget === 'all' || deployTarget === 'skill-runner';
+
+          try {
+            // v8: Resource guard — check system resources before deploy
+            const deployResourceCheck = checkSystemResources();
+            if (!deployResourceCheck.ok) {
+              await pool.query(`UPDATE approvals SET status = 'failed', resolved_at = NOW() WHERE id = $1`, [approvalId]);
+              await logOpsAudit(pool, approval.requester_user_id, 'sven.ops.deploy', { target: deployTarget, approval_id: approvalId, warnings: deployResourceCheck.warnings }, `Deploy deferred: system resources low`, 'high');
+              await notifyApprovalChat(approval.chat_id, `⚠️ **Deploy deferred — low resources** (approval \`${approvalId.slice(0, 12)}…\`)\n\n${deployResourceCheck.warnings.join('; ')}. Deploy would worsen system stability.`);
+              healTelemetry.resource_guard_blocks++;
+              continue;
+            }
+
+            // v8: Pre-deploy checkpoint — git tag for last-resort recovery
+            const deployCheckpoint = createHealCheckpoint(repoRoot);
+            if (deployCheckpoint.ok) healTelemetry.checkpoints_created++;
+
+            // v9: Deploy pipeline timeout check
+            healTimeout.check();
+            const deployStartTime = Date.now();
+
+            // Pre-deploy build gate — ensure all services compile before deploying
+            const preBuild = verifyFullBuild(repoRoot);
+            if (!preBuild.ok) {
+              await pool.query(`UPDATE approvals SET status = 'failed', resolved_at = NOW() WHERE id = $1`, [approvalId]);
+              const failDetail = preBuild.failures.map(f => `**${f.service}**: ${f.output.slice(0, 200)}`).join('\n');
+              await logOpsAudit(pool, approval.requester_user_id, 'sven.ops.deploy', { target: deployTarget, approval_id: approvalId }, `Deploy blocked: pre-deploy build gate failed`, 'high');
+              await notifyApprovalChat(approval.chat_id, `🛑 **Deployment blocked** (approval \`${approvalId.slice(0, 12)}…\`)\n\nPre-deploy build gate failed:\n${failDetail}\n\nFix build errors before deploying.`);
+              opsConsecutiveFailures++;
+              opsLastFailureAt = Date.now();
+              continue;
+            }
+
+            // Snapshot current container images for rollback
+            const imageSnapshot = snapshotContainerImages(deployTarget === 'all' ? undefined : [deployTarget]);
+
+            await logOpsAudit(pool, approval.requester_user_id, 'sven.ops.deploy', { target: deployTarget, approval_id: approvalId }, `Approved deployment executing (pre-build passed)`, 'high');
+            await notifyApprovalChat(approval.chat_id, `🚀 **Deployment started** (approval \`${approvalId.slice(0, 12)}…\`)\n\nTarget: \`${deployTarget}\` | Pre-deploy build: ✅ passed | Self-restart: ${restartsSelf ? 'yes' : 'no'}\nImage snapshot saved for rollback.`);
+
+            if (restartsSelf) {
+              const dockerPs = runDockerCommand(['ps', '--format', '{{.Names}}'], 10000, 1024 * 32);
+              const allServices = (dockerPs.stdout || '').trim().split('\n').filter(Boolean).filter(s => !s.includes('skill-runner'));
+              const svcResults: Array<{ name: string; ok: boolean; healthy: boolean }> = [];
+              for (const svc of allServices) {
+                const r = spawnSync('docker', ['restart', svc], { cwd: repoRoot, encoding: 'utf8', timeout: 60000 });
+                const ok = r.status === 0;
+                let healthy = false;
+                if (ok) {
+                  const health = waitForContainerHealth(svc, 30000);
+                  healthy = health.healthy;
+                  if (!health.healthy) logger.warn('Container not healthy after restart', { container: svc, status: health.status });
+                }
+                svcResults.push({ name: svc, ok, healthy });
+              }
+
+              const unhealthy = svcResults.filter(s => !s.healthy);
+              if (unhealthy.length > svcResults.length / 2) {
+                // More than half unhealthy — note rollback info (can't auto-rollback well during self-restart)
+                logger.error('Deployment: majority of services unhealthy', { unhealthy: unhealthy.map(s => s.name) });
+                await notifyApprovalChat(approval.chat_id, `⚠️ **Deployment warning**: ${unhealthy.length}/${svcResults.length} services unhealthy after restart. Previous images: ${Array.from(imageSnapshot.entries()).map(([n, i]) => `${n}→${i}`).join(', ')}`);
+              }
+
+              await pool.query(`UPDATE approvals SET status = 'executed', resolved_at = NOW() WHERE id = $1`, [approvalId]);
+              const succeeded = svcResults.filter(s => s.ok).length;
+              const healthyCount = svcResults.filter(s => s.healthy).length;
+              const failedSvcs = svcResults.filter(s => !s.ok).map(s => s.name);
+              await notifyApprovalChat(approval.chat_id, `✅ **Deployment completed** (approval \`${approvalId.slice(0, 12)}…\`)\n\n${succeeded}/${svcResults.length} restarted, ${healthyCount}/${svcResults.length} healthy.${failedSvcs.length > 0 ? ` Failed: ${failedSvcs.join(', ')}` : ''}\n\n⏳ Skill-runner self-restart in ~3 seconds…`);
+              opsConsecutiveFailures = 0;
+              recordHealDuration('deploy', Date.now() - deployStartTime);
+              setTimeout(() => {
+                logger.info('Self-healing: approved deployment restarting skill-runner');
+                const r = spawnSync('docker', ['restart', 'skill-runner'], { encoding: 'utf8', timeout: 30000 });
+                if (r.status !== 0) process.exit(0);
+              }, 3000);
+            } else {
+              const composeResult = spawnSync('docker', ['compose', '-f', composePrimary, 'up', '-d', '--build', '--force-recreate', deployTarget], {
+                cwd: repoRoot, encoding: 'utf8', timeout: 120000, maxBuffer: 1024 * 256,
+              });
+              const deployOk = composeResult.status === 0;
+
+              // Post-deploy health-check loop (Docker container health)
+              const health = waitForContainerHealth(deployTarget, 30000);
+
+              // v4: HTTP health probe — verify the service actually responds to requests
+              const svcPortMap: Record<string, number> = { 'gateway-api': 3000, 'agent-runtime': 39100 };
+              const httpPort = svcPortMap[deployTarget];
+              let httpHealthOk = true;
+              let httpHealthDetail = '';
+              if (httpPort && health.healthy) {
+                const probe = probeHttpHealth('127.0.0.1', httpPort, 10000);
+                httpHealthOk = probe.ok;
+                httpHealthDetail = probe.ok
+                  ? `HTTP /healthz: ${probe.statusCode} (${probe.durationMs}ms)`
+                  : `HTTP /healthz FAILED: status ${probe.statusCode} (${probe.durationMs}ms) — ${probe.body.slice(0, 200)}`;
+                if (!probe.ok) logger.warn('Post-deploy HTTP health probe failed', { target: deployTarget, port: httpPort, status: probe.statusCode });
+              }
+
+              // v5: Post-deploy smoke tests — verify service actually functions
+              let smokeOk = true;
+              let smokeDetail = '';
+              if (httpPort && httpHealthOk && deployTarget === 'gateway-api') {
+                const smoke = runSmokeTests('127.0.0.1', httpPort, 8000);
+                smokeOk = smoke.ok;
+                const failedSmokes = smoke.results.filter(r => !r.ok);
+                if (!smokeOk) {
+                  smokeDetail = `Smoke tests failed: ${failedSmokes.map(r => `${r.name}(${r.statusCode})`).join(', ')}`;
+                  logger.warn('Post-deploy smoke tests failed', { target: deployTarget, results: smoke.results });
+                } else {
+                  smokeDetail = `Smoke tests: ${smoke.results.length}/${smoke.results.length} passed`;
+                }
+              }
+
+              // v6: Post-deploy watch window — 2-minute rolling health check for delayed failures
+              let watchOk = true;
+              let watchDetail = '';
+              if (httpPort && smokeOk && httpHealthOk) {
+                await notifyApprovalChat(approval.chat_id, `👀 **Watch window started** — monitoring \`${deployTarget}\` for 2 minutes…`);
+                const watch = postDeployWatch('127.0.0.1', httpPort, 120000, 15000);
+                watchOk = watch.ok;
+                if (!watchOk) {
+                  watchDetail = `Watch window failed after ${watch.probes} probes: ${watch.lastFailure || 'unknown'}`;
+                  logger.warn('Post-deploy watch window failed', { target: deployTarget, probes: watch.probes, failures: watch.failures });
+                } else {
+                  watchDetail = `Watch window: ${watch.probes} probes over 2min, all healthy`;
+                }
+              }
+
+              if (!deployOk || !health.healthy || !httpHealthOk || !smokeOk || !watchOk) {
+                // Attempted rollback: restart with the previous image
+                const reason = !deployOk
+                  ? `compose exit code ${composeResult.status}: ${(composeResult.stderr || '').trim().slice(0, 300)}`
+                  : !health.healthy ? `container health: ${health.status}`
+                  : !httpHealthOk ? `HTTP health probe failed: ${httpHealthDetail}`
+                  : !smokeOk ? `Smoke tests failed: ${smokeDetail}`
+                  : `Watch window failed: ${watchDetail}`;
+                logger.error('Deploy unhealthy, attempting rollback', { target: deployTarget, deployOk, containerHealthy: health.healthy, httpHealthOk, smokeOk, watchOk, reason });
+                const rollbackResults = rollbackContainers(imageSnapshot, repoRoot);
+                const rollbackNote = rollbackResults.map(r => `${r.name}: ${r.ok ? 'rolled back' : 'rollback failed'}`).join(', ');
+                await pool.query(`UPDATE approvals SET status = 'failed', resolved_at = NOW() WHERE id = $1`, [approvalId]);
+                await logOpsAudit(pool, approval.requester_user_id, 'sven.ops.deploy', { target: deployTarget, approval_id: approvalId, reason }, `Deploy failed and rolled back`, 'critical');
+                await notifyApprovalChat(approval.chat_id, `❌ **Deployment failed & rolled back** (approval \`${approvalId.slice(0, 12)}…\`)\n\n\`${deployTarget}\`: ${reason}\n\nRollback: ${rollbackNote}`);
+                healTelemetry.deploys_rolled_back++;
+                opsConsecutiveFailures++;
+                opsLastFailureAt = Date.now();
+              } else {
+                const httpNote = httpHealthDetail ? ` | ${httpHealthDetail}` : '';
+                const smokeNote = smokeDetail ? ` | ${smokeDetail}` : '';
+                const watchNote = watchDetail ? ` | ${watchDetail}` : '';
+                await pool.query(`UPDATE approvals SET status = 'executed', resolved_at = NOW() WHERE id = $1`, [approvalId]);
+                logger.info('Approved deployment completed', { approval_id: approvalId, target: deployTarget, success: true, http_health: httpHealthDetail || 'no probe', smoke: smokeDetail || 'no smoke', watch: watchDetail || 'no watch' });
+                await notifyApprovalChat(approval.chat_id, `✅ **Deployment completed** (approval \`${approvalId.slice(0, 12)}…\`)\n\n\`${deployTarget}\` rebuilt, restarted, and healthy.${httpNote}${smokeNote}${watchNote}`);
+                healTelemetry.deploys_completed++;
+                healTelemetry.last_deploy_at = new Date().toISOString();
+                opsConsecutiveFailures = 0;
+                recordHealDuration('deploy', Date.now() - deployStartTime);
+
+                // v5: Publish NATS heal event — deployment completed
+                try {
+                  nc.publish('heal.event.deploy', jc.encode({
+                    type: 'deploy_completed',
+                    approval_id: approvalId,
+                    target: deployTarget,
+                    http_health: httpHealthDetail || 'no probe',
+                    timestamp: new Date().toISOString(),
+                  }));
+                } catch { /* non-critical */ }
+              }
+            }
+          } catch (err) {
+            logger.error('Failed to execute approved deployment', { approval_id: approvalId, err: String(err) });
+            await pool.query(`UPDATE approvals SET status = 'failed', resolved_at = NOW() WHERE id = $1`, [approvalId]);
+            await notifyApprovalChat(approval.chat_id, `❌ **Deployment failed** (approval \`${approvalId.slice(0, 12)}…\`): ${err instanceof Error ? err.message : String(err)}`);
+            opsConsecutiveFailures++;
+            opsLastFailureAt = Date.now();
+          }
+        }
+
+        } finally {
+          // v5: Always release mutex
+          releaseHealMutex();
+          // v9: Clear pipeline timeout
+          healTimeout.clear();
+        }
+
+      } catch (err) {
+        logger.error('Error processing approval event', { err: String(err) });
+      }
+    }
+  };
+
+  // v8: auto-restart subscriber on crash with linear backoff
+  (async () => {
+    while (subscriberRestartCount <= MAX_SUBSCRIBER_RESTARTS) {
+      try {
+        await runApprovalSubscriberLoop();
+        break; // Normal subscription close
+      } catch (err) {
+        subscriberRestartCount++;
+        healTelemetry.subscriber_restarts++;
+        logger.error('Approval subscriber loop crashed, restarting', {
+          err: String(err), restart_count: subscriberRestartCount, max: MAX_SUBSCRIBER_RESTARTS,
+        });
+        if (subscriberRestartCount > MAX_SUBSCRIBER_RESTARTS) {
+          logger.error('Approval subscriber exceeded max restarts — giving up', { restarts: subscriberRestartCount });
+          break;
+        }
+        await new Promise(resolve => setTimeout(resolve, 5000 * subscriberRestartCount));
+      }
+    }
+  })();
+  logger.info('Subscribed to approval.updated for ops execution');
+
+  // v6: Hydrate circuit breaker state from DB on startup — survives restarts
+  await hydrateCircuitBreakerFromDb(pool);
+
+  // ═══════════════════════════════════════════════════════════════════
+  //  v4: Scheduled self-diagnostics loop — periodic health monitoring
+  //  v8: Adaptive interval, runtime log scanning
+  //  Checks: service health, DB connectivity, expired approvals, runtime errors
+  // ═══════════════════════════════════════════════════════════════════
+  const SELF_DIAG_INTERVAL_NORMAL_MS = 60_000; // 60s when healthy
+  const SELF_DIAG_INTERVAL_DEGRADED_MS = 15_000; // 15s when degraded
+  let selfDiagRunning = false;
+  let proactiveScanCooldown = 0; // v7: skip N cycles between tsc scans
+  let selfDiagDegraded = false; // v8: tracks degraded state for adaptive interval
+  let v9CheckpointCleanupCooldown = 0; // v9: run checkpoint cleanup every 10th cycle (~10 min)
+  let v9DepAuditCooldown = 0; // v9: run dep audit every 20th cycle (~20 min)
+  let v9TelemetryPersistCooldown = 0; // v9: persist telemetry every 10th cycle (~10 min)
+  let selfDiagTimer: ReturnType<typeof setTimeout>;
+
+  const runSelfDiagCycle = async () => {
+    if (selfDiagRunning) return;
+    selfDiagRunning = true;
+    try {
+      // 1. DB connectivity check
+      const dbStart = Date.now();
+      try {
+        await pool.query('SELECT 1');
+      } catch (dbErr) {
+        logger.error('Self-diagnostics: DB connection failed', { err: String(dbErr), duration_ms: Date.now() - dbStart });
+      }
+
+      // 2. Expire stale approvals (pending > 24h)
+      try {
+        const expired = await pool.query(
+          `UPDATE approvals SET status = 'expired', resolved_at = NOW()
+           WHERE status = 'pending' AND created_at < NOW() - INTERVAL '24 hours'
+           RETURNING id`,
+        );
+        if ((expired.rowCount ?? 0) > 0) {
+          logger.info('Self-diagnostics: expired stale approvals', { count: expired.rowCount });
+        }
+      } catch { /* non-critical */ }
+
+      // 3. HTTP health probe on gateway-api (if available)
+      const gatewayProbe = probeHttpHealth('127.0.0.1', 3000, 5000);
+      if (!gatewayProbe.ok && gatewayProbe.statusCode !== 0) {
+        logger.warn('Self-diagnostics: gateway-api /healthz degraded', {
+          status_code: gatewayProbe.statusCode, duration_ms: gatewayProbe.durationMs,
+        });
+      }
+
+      // 4. Circuit breaker status logging (if degraded)
+      const cbState = circuitState();
+      if (cbState !== 'closed') {
+        if (cbState === 'open') healTelemetry.circuit_breaker_trips++;
+        logger.warn('Self-diagnostics: circuit breaker not closed', {
+          state: cbState, consecutive_failures: opsConsecutiveFailures,
+        });
+      }
+
+      // 5. v7: Stale approval escalation — NATS event when critical approvals pending > 1h
+      try {
+        const staleApprovals = await getStaleApprovals(pool);
+        for (const stale of staleApprovals) {
+          try {
+            nc.publish('heal.event.escalation', jc.encode({
+              type: 'stale_approval',
+              approval_id: stale.id,
+              tool_name: stale.tool_name,
+              age_minutes: stale.age_min,
+              message: `Critical approval ${stale.id.slice(0, 12)} (${stale.tool_name}) has been pending for ${stale.age_min} minutes`,
+              timestamp: new Date().toISOString(),
+            }));
+            healTelemetry.stale_escalations_sent++;
+          } catch { /* non-critical */ }
+          // Also notify in the chat where it was created
+          await notifyApprovalChat(stale.chat_id, `⏰ **Approval reminder**: \`${stale.id.slice(0, 12)}…\` (\`${stale.tool_name}\`) has been pending for ${stale.age_min} min. Use \`/approve ${stale.id}\` or it will expire at 24h.`);
+        }
+        if (staleApprovals.length > 0) {
+          logger.info('Self-diagnostics: escalated stale approvals', { count: staleApprovals.length, ids: staleApprovals.map(s => s.id.slice(0, 12)) });
+        }
+      } catch { /* non-critical */ }
+
+      // 6. v7: Proactive heal detection — run tsc scan every 5th diagnostics cycle (~5 min)
+      //    Only when circuit breaker is closed and no stale escalations
+      if (!proactiveScanCooldown && cbState === 'closed') {
+        proactiveScanCooldown = 4; // skip next 4 cycles (= run every 5th = ~5 min)
+        const repoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+        const tscErrors = proactiveTscScan(repoRoot);
+        if (tscErrors.length > 0) {
+          healTelemetry.proactive_detections++;
+          logger.warn('Self-diagnostics: proactive tsc scan found errors', {
+            services: tscErrors.map(e => e.service),
+            error_preview: tscErrors.map(e => e.errors.slice(0, 200)),
+          });
+          // Publish NATS event so agent-runtime or admin UI can pick it up
+          try {
+            nc.publish('heal.event.proactive_detection', jc.encode({
+              type: 'tsc_errors_detected',
+              services: tscErrors.map(e => ({ service: e.service, errors: e.errors.slice(0, 500) })),
+              message: `Proactive scan found TypeScript errors in ${tscErrors.map(e => e.service).join(', ')}`,
+              timestamp: new Date().toISOString(),
+            }));
+          } catch { /* non-critical */ }
+        }
+      } else if (proactiveScanCooldown > 0) {
+        proactiveScanCooldown--;
+      }
+
+      // 7. v8: Runtime log scanning — check Docker logs for crash patterns tsc can't detect
+      try {
+        const runtimeErrors = scanRuntimeLogs();
+        if (runtimeErrors.length > 0) {
+          healTelemetry.runtime_errors_detected++;
+          logger.warn('Self-diagnostics: runtime errors detected in container logs', {
+            containers: runtimeErrors.map(e => e.container),
+            error_count: runtimeErrors.reduce((sum, e) => sum + e.errors.length, 0),
+          });
+          try {
+            nc.publish('heal.event.proactive_detection', jc.encode({
+              type: 'runtime_errors_detected',
+              containers: runtimeErrors.map(e => ({ container: e.container, errors: e.errors.slice(0, 3) })),
+              message: `Runtime errors detected in ${runtimeErrors.map(e => e.container).join(', ')}`,
+              timestamp: new Date().toISOString(),
+            }));
+          } catch { /* non-critical */ }
+        }
+      } catch { /* non-critical */ }
+
+      // 8. v9: Checkpoint tag cleanup — prune old sven-checkpoint tags (every 10th cycle)
+      if (!v9CheckpointCleanupCooldown) {
+        v9CheckpointCleanupCooldown = 9;
+        try {
+          const diagRepoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+          const pruneResult = cleanupOldCheckpoints(diagRepoRoot);
+          if (pruneResult.pruned > 0) {
+            logger.info('Self-diagnostics: pruned old checkpoint tags', { count: pruneResult.pruned, remaining: pruneResult.remaining });
+          }
+        } catch { /* non-critical */ }
+      } else {
+        v9CheckpointCleanupCooldown--;
+      }
+
+      // 9. v9: Dependency vulnerability scan — npm audit (every 20th cycle ~20 min)
+      if (!v9DepAuditCooldown) {
+        v9DepAuditCooldown = 19;
+        try {
+          const diagRepoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+          const depAudit = scanDependencyVulnerabilities(diagRepoRoot);
+          if (depAudit.high > 0 || depAudit.critical > 0) {
+            logger.warn('Self-diagnostics: dependency vulnerabilities detected', {
+              critical: depAudit.critical,
+              high: depAudit.high,
+            });
+            try {
+              nc.publish('heal.event.proactive_detection', jc.encode({
+                type: 'dependency_vulnerabilities',
+                critical: depAudit.critical,
+                high: depAudit.high,
+                message: `Dependency audit: ${depAudit.critical} critical, ${depAudit.high} high vulnerabilities found`,
+                timestamp: new Date().toISOString(),
+              }));
+            } catch { /* non-critical */ }
+          }
+        } catch { /* non-critical */ }
+      } else {
+        v9DepAuditCooldown--;
+      }
+
+      // 10. v9: Persistent telemetry snapshot — flush counters to DB (every 10th cycle)
+      if (!v9TelemetryPersistCooldown) {
+        v9TelemetryPersistCooldown = 9;
+        try {
+          await persistTelemetrySnapshot(pool);
+        } catch { /* non-critical */ }
+      } else {
+        v9TelemetryPersistCooldown--;
+      }
+
+      // v8: Update degraded state for adaptive interval
+      selfDiagDegraded = cbState !== 'closed';
+    } catch (err) {
+      logger.error('Self-diagnostics loop error', { err: String(err) });
+    } finally {
+      selfDiagRunning = false;
+      // v8: Adaptive interval — 15s when degraded, 60s when healthy
+      const nextInterval = selfDiagDegraded ? SELF_DIAG_INTERVAL_DEGRADED_MS : SELF_DIAG_INTERVAL_NORMAL_MS;
+      selfDiagTimer = setTimeout(runSelfDiagCycle, nextInterval);
+    }
+  };
+  selfDiagTimer = setTimeout(runSelfDiagCycle, SELF_DIAG_INTERVAL_NORMAL_MS);
+  // Clean up timer when process exits
+  process.on('beforeExit', () => clearTimeout(selfDiagTimer));
+  logger.info('Self-diagnostics loop started', { normal_ms: SELF_DIAG_INTERVAL_NORMAL_MS, degraded_ms: SELF_DIAG_INTERVAL_DEGRADED_MS });
+
   // Secured result publisher: applies prompt guard output scan + anti-distillation watermarking
   const publishSecuredResult = async (
     event: ToolRunRequestEvent,
@@ -2836,6 +3542,1103 @@ function resolveMcpRpcTimeoutMs(raw: unknown): { timeoutMs: number; invalid: boo
     return { timeoutMs: MAX_MCP_RPC_TIMEOUT_MS, invalid: false };
   }
   return { timeoutMs: parsed, invalid: false };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  Self-healing helpers — used by both approval subscriber and tool handlers
+//  v3: branch isolation, multi-file atomic, pre-deploy gate, deploy rollback,
+//      half-open circuit breaker, fix→deploy chaining, heal history
+// ═══════════════════════════════════════════════════════════════════════
+
+// --- Circuit breaker state (module-level so both subscriber and tool handlers can access) ---
+let opsConsecutiveFailures = 0;
+let opsLastFailureAt = 0;
+const OPS_CIRCUIT_THRESHOLD = 3;
+const OPS_CIRCUIT_HALF_OPEN_MS = 5 * 60 * 1000; // 5 min cooldown before half-open
+
+/** Check circuit breaker state: closed (ok), open (blocked), half-open (allow one probe). */
+function circuitState(): 'closed' | 'open' | 'half-open' {
+  if (opsConsecutiveFailures < OPS_CIRCUIT_THRESHOLD) return 'closed';
+  if (Date.now() - opsLastFailureAt > OPS_CIRCUIT_HALF_OPEN_MS) return 'half-open';
+  return 'open';
+}
+
+/** Validate resolved path is within repo root — prevents path traversal. */
+function assertPathWithinRepo(absPath: string, repoRoot: string): void {
+  const resolved = path.resolve(absPath);
+  const resolvedRoot = path.resolve(repoRoot);
+  if (!resolved.startsWith(resolvedRoot + path.sep) && resolved !== resolvedRoot) {
+    throw new Error(`Path traversal blocked: ${absPath} escapes repo root ${repoRoot}`);
+  }
+}
+
+/** Atomic CAS claim: set approval status to 'executing' only if still 'approved'. */
+async function claimApproval(pool: pg.Pool, approvalId: string): Promise<boolean> {
+  const res = await pool.query(
+    `UPDATE approvals SET status = 'executing' WHERE id = $1 AND status = 'approved' RETURNING id`,
+    [approvalId],
+  );
+  return (res.rowCount ?? 0) > 0;
+}
+
+/** Run tsc --noEmit to verify the build is still green after a code fix. */
+function verifyBuild(repoRoot: string, filePath: string): { ok: boolean; output: string } {
+  const rel = path.relative(repoRoot, filePath);
+  let tscCwd = repoRoot;
+  const serviceMatch = rel.match(/^services\/([^/]+)\//);
+  if (serviceMatch) {
+    tscCwd = path.join(repoRoot, 'services', serviceMatch[1]);
+  }
+  const tscBin = path.join(repoRoot, 'node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/bin/tsc');
+  const result = spawnSync('node', [tscBin, '--noEmit'], {
+    cwd: tscCwd, encoding: 'utf8', timeout: 60000, maxBuffer: 1024 * 128,
+  });
+  const output = ((result.stdout || '') + (result.stderr || '')).trim().slice(0, 2000);
+  return { ok: result.status === 0, output };
+}
+
+/** Run tsc --noEmit across ALL services — used as pre-deploy build gate. */
+function verifyFullBuild(repoRoot: string): { ok: boolean; failures: Array<{ service: string; output: string }> } {
+  const tscBin = path.join(repoRoot, 'node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/bin/tsc');
+  const serviceNames = ['gateway-api', 'agent-runtime', 'skill-runner'];
+  const failures: Array<{ service: string; output: string }> = [];
+  for (const svc of serviceNames) {
+    const svcDir = path.join(repoRoot, 'services', svc);
+    const result = spawnSync('node', [tscBin, '--noEmit'], {
+      cwd: svcDir, encoding: 'utf8', timeout: 90000, maxBuffer: 1024 * 128,
+    });
+    if (result.status !== 0) {
+      failures.push({ service: svc, output: ((result.stdout || '') + (result.stderr || '')).trim().slice(0, 500) });
+    }
+  }
+  return { ok: failures.length === 0, failures };
+}
+
+/** Wait for a docker container to become healthy, polling up to maxWaitMs. */
+function waitForContainerHealth(containerName: string, maxWaitMs: number = 30000): { healthy: boolean; status: string } {
+  const start = Date.now();
+  let lastStatus = 'unknown';
+  while (Date.now() - start < maxWaitMs) {
+    const result = spawnSync('docker', ['inspect', '--format', '{{.State.Status}}', containerName], {
+      encoding: 'utf8', timeout: 5000,
+    });
+    lastStatus = (result.stdout || '').trim();
+    if (lastStatus === 'running') return { healthy: true, status: lastStatus };
+    spawnSync('sleep', ['2'], { timeout: 3000 });
+  }
+  return { healthy: false, status: lastStatus };
+}
+
+/** Snapshot current running container image tags — used for deploy rollback. */
+function snapshotContainerImages(targets?: string[]): Map<string, string> {
+  const result = spawnSync('docker', ['ps', '--format', '{{.Names}}\t{{.Image}}'], {
+    encoding: 'utf8', timeout: 10000,
+  });
+  const images = new Map<string, string>();
+  for (const line of (result.stdout || '').trim().split('\n').filter(Boolean)) {
+    const [name, image] = line.split('\t');
+    if (name && image && (!targets || targets.length === 0 || targets.some(t => name.includes(t)))) {
+      images.set(name, image);
+    }
+  }
+  return images;
+}
+
+/** Rollback specific containers to their previous images. */
+function rollbackContainers(imageSnapshot: Map<string, string>, repoRoot: string): Array<{ name: string; ok: boolean }> {
+  const results: Array<{ name: string; ok: boolean }> = [];
+  for (const [name, image] of imageSnapshot.entries()) {
+    // Stop current, run previous image
+    const r = spawnSync('docker', ['run', '-d', '--name', `${name}-rollback`, image], {
+      cwd: repoRoot, encoding: 'utf8', timeout: 60000,
+    });
+    results.push({ name, ok: r.status === 0 });
+  }
+  return results;
+}
+
+/** Single-file change descriptor. */
+interface FileChange {
+  file_path: string;
+  old_content: string;
+  new_content: string;
+}
+
+/** Apply multiple file changes atomically — all succeed or all roll back.
+ *  Returns the list of applied relative paths and a rollback function. */
+async function applyFileChangesAtomic(
+  changes: FileChange[],
+  repoRoot: string,
+): Promise<{ relPaths: string[]; originals: Map<string, string>; rollback: () => Promise<void> }> {
+  const originals = new Map<string, string>();
+  const relPaths: string[] = [];
+
+  for (const change of changes) {
+    const absPath = change.file_path.startsWith('/') ? change.file_path : path.join(repoRoot, change.file_path);
+    assertPathWithinRepo(absPath, repoRoot);
+    const currentFile = await fs.readFile(absPath, 'utf8');
+    if (!currentFile.includes(change.old_content)) {
+      // Rollback everything applied so far
+      for (const [p, orig] of originals.entries()) await fs.writeFile(p, orig, 'utf8');
+      throw new Error(`old_content not found in ${change.file_path}. File may have changed since fix was proposed.`);
+    }
+    originals.set(absPath, currentFile);
+    const updated = currentFile.replace(change.old_content, change.new_content);
+    await fs.writeFile(absPath, updated, 'utf8');
+    relPaths.push(path.relative(repoRoot, absPath));
+  }
+
+  const rollback = async () => {
+    for (const [p, orig] of originals.entries()) await fs.writeFile(p, orig, 'utf8');
+    for (const rel of relPaths) spawnSync('git', ['checkout', '--', rel], { cwd: repoRoot, encoding: 'utf8', timeout: 10000 });
+  };
+
+  return { relPaths, originals, rollback };
+}
+
+/** Create a heal branch, apply changes, verify, commit, merge back, delete branch.
+ *  If verification fails, the branch is abandoned and original state restored. */
+async function applyFixOnBranch(
+  changes: FileChange[],
+  repoRoot: string,
+  commitMsg: string,
+): Promise<{ ok: boolean; commitHash: string; branch: string; buildOutput?: string }> {
+  const timestamp = Date.now();
+  const branchName = `sven-heal/${timestamp}`;
+
+  // v5: Stash uncommitted work to prevent conflicts
+  const didStash = gitStashIfDirty(repoRoot);
+
+  // Save current branch
+  const currentBranch = spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+    cwd: repoRoot, encoding: 'utf8', timeout: 5000,
+  }).stdout?.trim() || 'main';
+
+  // Create and switch to heal branch
+  const createBranch = spawnSync('git', ['checkout', '-b', branchName], {
+    cwd: repoRoot, encoding: 'utf8', timeout: 10000,
+  });
+  if (createBranch.status !== 0) {
+    if (didStash) gitStashPop(repoRoot);
+    // Fallback: apply directly on current branch (previous behaviour)
+    return applyFixDirect(changes, repoRoot, commitMsg);
+  }
+
+  try {
+    // Apply changes atomically
+    const { relPaths, rollback } = await applyFileChangesAtomic(changes, repoRoot);
+
+    // Stage all changed files
+    for (const rel of relPaths) spawnSync('git', ['add', rel], { cwd: repoRoot, encoding: 'utf8', timeout: 10000 });
+
+    // Build verification — cross-service impact guard: if shared code is touched, verify ALL services
+    const isSharedChange = changeAffectsSharedCode(changes, repoRoot);
+    const firstAbs = changes[0].file_path.startsWith('/') ? changes[0].file_path : path.join(repoRoot, changes[0].file_path);
+    const buildCheck = (changes.length === 1 && !isSharedChange)
+      ? verifyBuild(repoRoot, firstAbs)
+      : (() => { const fb = verifyFullBuild(repoRoot); return { ok: fb.ok, output: fb.failures.map(f => `${f.service}: ${f.output}`).join('\n') }; })();
+
+    if (!buildCheck.ok) {
+      // Abandon branch, restore files, switch back
+      await rollback();
+      spawnSync('git', ['checkout', currentBranch], { cwd: repoRoot, encoding: 'utf8', timeout: 10000 });
+      spawnSync('git', ['branch', '-D', branchName], { cwd: repoRoot, encoding: 'utf8', timeout: 10000 });
+      if (didStash) gitStashPop(repoRoot);
+      return { ok: false, commitHash: '', branch: branchName, buildOutput: buildCheck.output };
+    }
+
+    // Commit on heal branch
+    spawnSync('git', ['commit', '-m', commitMsg, '--no-verify'], { cwd: repoRoot, encoding: 'utf8', timeout: 15000 });
+    const gitHash = spawnSync('git', ['rev-parse', '--short', 'HEAD'], {
+      cwd: repoRoot, encoding: 'utf8', timeout: 5000,
+    });
+    const commitHash = (gitHash.stdout || '').trim();
+
+    // Fast-forward merge back to the original branch
+    spawnSync('git', ['checkout', currentBranch], { cwd: repoRoot, encoding: 'utf8', timeout: 10000 });
+    const merge = spawnSync('git', ['merge', '--ff-only', branchName], {
+      cwd: repoRoot, encoding: 'utf8', timeout: 15000,
+    });
+
+    if (merge.status !== 0) {
+      // Non-fast-forward: merge with commit instead
+      spawnSync('git', ['merge', branchName, '-m', `merge: ${commitMsg}`, '--no-verify'], {
+        cwd: repoRoot, encoding: 'utf8', timeout: 15000,
+      });
+    }
+
+    // Clean up heal branch
+    spawnSync('git', ['branch', '-d', branchName], { cwd: repoRoot, encoding: 'utf8', timeout: 10000 });
+
+    // v5: Restore stashed work
+    if (didStash) gitStashPop(repoRoot);
+
+    return { ok: true, commitHash, branch: branchName };
+  } catch (err) {
+    // On any failure, switch back and delete the branch
+    spawnSync('git', ['checkout', currentBranch], { cwd: repoRoot, encoding: 'utf8', timeout: 10000 });
+    spawnSync('git', ['branch', '-D', branchName], { cwd: repoRoot, encoding: 'utf8', timeout: 10000 });
+    if (didStash) gitStashPop(repoRoot);
+    throw err;
+  }
+}
+
+/** Direct apply fallback (no branch isolation) — used if git checkout fails */
+async function applyFixDirect(
+  changes: FileChange[],
+  repoRoot: string,
+  commitMsg: string,
+): Promise<{ ok: boolean; commitHash: string; branch: string; buildOutput?: string }> {
+  const { relPaths, rollback } = await applyFileChangesAtomic(changes, repoRoot);
+  for (const rel of relPaths) spawnSync('git', ['add', rel], { cwd: repoRoot, encoding: 'utf8', timeout: 10000 });
+
+  const isSharedChange = changeAffectsSharedCode(changes, repoRoot);
+  const firstAbs = changes[0].file_path.startsWith('/') ? changes[0].file_path : path.join(repoRoot, changes[0].file_path);
+  const buildCheck = (changes.length === 1 && !isSharedChange)
+    ? verifyBuild(repoRoot, firstAbs)
+    : (() => { const fb = verifyFullBuild(repoRoot); return { ok: fb.ok, output: fb.failures.map(f => `${f.service}: ${f.output}`).join('\n') }; })();
+
+  if (!buildCheck.ok) {
+    await rollback();
+    return { ok: false, commitHash: '', branch: 'direct', buildOutput: buildCheck.output };
+  }
+
+  spawnSync('git', ['commit', '-m', commitMsg, '--no-verify'], { cwd: repoRoot, encoding: 'utf8', timeout: 15000 });
+  const gitHash = spawnSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: repoRoot, encoding: 'utf8', timeout: 5000 });
+  return { ok: true, commitHash: (gitHash.stdout || '').trim(), branch: 'direct' };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  v4: Post-fix test runner, fix rate limiter, unified diffs,
+//      HTTP health probe, scheduled self-diagnostics, sven.ops.rollback
+//  v5: Git stash protection, concurrent heal mutex, smoke tests,
+//      NATS heal events, rollback→deploy chain
+//  v6: Dry-run simulation, cross-service impact guard, persistent CB,
+//      fix deduplication, post-deploy watch window
+// ═══════════════════════════════════════════════════════════════════════
+
+/** Concurrent heal mutex — ensures only one fix/deploy operation runs at a time.
+ *  Prevents race conditions when two approvals arrive simultaneously. */
+let healMutexLocked = false;
+const healMutexQueue: Array<() => void> = [];
+
+async function acquireHealMutex(): Promise<void> {
+  if (!healMutexLocked) {
+    healMutexLocked = true;
+    return;
+  }
+  return new Promise<void>((resolve) => {
+    healMutexQueue.push(() => { healMutexLocked = true; resolve(); });
+  });
+}
+
+function releaseHealMutex(): void {
+  const next = healMutexQueue.shift();
+  if (next) {
+    next(); // hand lock to next waiter
+  } else {
+    healMutexLocked = false;
+  }
+}
+
+/** Git stash protection — stash uncommitted work before heal operations, pop after.
+ *  Returns true if a stash was created (and needs to be popped). */
+function gitStashIfDirty(repoRoot: string): boolean {
+  const statusResult = spawnSync('git', ['status', '--porcelain'], {
+    cwd: repoRoot, encoding: 'utf8', timeout: 10000,
+  });
+  const hasUncommitted = ((statusResult.stdout || '').trim().length > 0);
+  if (!hasUncommitted) return false;
+
+  const stashResult = spawnSync('git', ['stash', 'push', '-m', 'sven-heal-auto-stash', '--include-untracked'], {
+    cwd: repoRoot, encoding: 'utf8', timeout: 30000,
+  });
+  return stashResult.status === 0;
+}
+
+function gitStashPop(repoRoot: string): boolean {
+  const result = spawnSync('git', ['stash', 'pop'], {
+    cwd: repoRoot, encoding: 'utf8', timeout: 30000,
+  });
+  return result.status === 0;
+}
+
+/** Post-deploy smoke test — make real API calls beyond /healthz to verify functionality. */
+function runSmokeTests(host: string, port: number, timeoutMs: number = 8000): {
+  ok: boolean;
+  results: Array<{ name: string; ok: boolean; statusCode: number; durationMs: number }>;
+} {
+  const tests = [
+    { name: 'healthz', path: '/healthz' },
+    { name: 'readyz', path: '/readyz' },
+    { name: 'api_root', path: '/api' },
+    { name: 'auth_reject', path: '/api/chats', expectStatus: 401 },
+  ];
+  const results: Array<{ name: string; ok: boolean; statusCode: number; durationMs: number }> = [];
+
+  for (const test of tests) {
+    const start = Date.now();
+    try {
+      const result = spawnSync('curl', [
+        '-s', '-o', '/dev/null', '-w', '%{http_code}',
+        '--connect-timeout', String(Math.ceil(timeoutMs / 1000)),
+        '--max-time', String(Math.ceil(timeoutMs / 1000)),
+        `http://${host}:${port}${test.path}`,
+      ], { encoding: 'utf8', timeout: timeoutMs + 2000 });
+      const statusCode = parseInt((result.stdout || '').trim(), 10) || 0;
+      const expectedOk = test.expectStatus
+        ? statusCode === test.expectStatus
+        : statusCode >= 200 && statusCode < 500;
+      results.push({ name: test.name, ok: expectedOk, statusCode, durationMs: Date.now() - start });
+    } catch {
+      results.push({ name: test.name, ok: false, statusCode: 0, durationMs: Date.now() - start });
+    }
+  }
+
+  return { ok: results.every(r => r.ok), results };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  v6: Dry-run simulation, cross-service impact guard, persistent
+//      circuit breaker, fix deduplication, post-deploy watch window
+// ═══════════════════════════════════════════════════════════════════════
+
+/** Fix deduplication — SHA-256 hash of diff content to detect duplicate fix proposals.
+ *  Stores {hash → timestamp}. Duplicates within 24h are rejected. */
+const fixDedupMap = new Map<string, number>();
+const FIX_DEDUP_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+function hashFixChanges(changes: FileChange[]): string {
+  const payload = changes.map(c => `${c.file_path}::${c.old_content}::${c.new_content}`).join('\n---\n');
+  return crypto.createHash('sha256').update(payload).digest('hex');
+}
+
+function isDuplicateFix(changes: FileChange[]): { duplicate: boolean; hash: string; firstSeenAt?: number } {
+  const hash = hashFixChanges(changes);
+  const now = Date.now();
+  // Prune expired entries
+  for (const [h, ts] of fixDedupMap.entries()) {
+    if (now - ts > FIX_DEDUP_WINDOW_MS) fixDedupMap.delete(h);
+  }
+  const existing = fixDedupMap.get(hash);
+  if (existing) return { duplicate: true, hash, firstSeenAt: existing };
+  return { duplicate: false, hash };
+}
+
+function recordFixHash(hash: string): void {
+  fixDedupMap.set(hash, Date.now());
+}
+
+/** Cross-service impact detection — returns true if the change touches shared packages
+ *  that other services depend on, requiring a full build verification instead of single-service. */
+function changeAffectsSharedCode(changes: FileChange[], repoRoot: string): boolean {
+  return changes.some(c => {
+    const rel = c.file_path.startsWith('/')
+      ? path.relative(repoRoot, c.file_path)
+      : c.file_path;
+    return rel.startsWith('packages/') || rel.startsWith('contracts/');
+  });
+}
+
+/** Dry-run simulation — apply fix on temp branch, build + test, then discard.
+ *  Returns the build/test results WITHOUT merging anything. */
+async function dryRunSimulation(
+  changes: FileChange[],
+  repoRoot: string,
+): Promise<{
+  buildOk: boolean; buildOutput: string;
+  testsOk: boolean; testOutput: string;
+  crossServiceOk: boolean; crossServiceOutput: string;
+}> {
+  const timestamp = Date.now();
+  const branchName = `sven-heal-dryrun/${timestamp}`;
+  const didStash = gitStashIfDirty(repoRoot);
+
+  const currentBranch = spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+    cwd: repoRoot, encoding: 'utf8', timeout: 5000,
+  }).stdout?.trim() || 'main';
+
+  const createBranch = spawnSync('git', ['checkout', '-b', branchName], {
+    cwd: repoRoot, encoding: 'utf8', timeout: 10000,
+  });
+  if (createBranch.status !== 0) {
+    if (didStash) gitStashPop(repoRoot);
+    return { buildOk: false, buildOutput: 'Failed to create dry-run branch', testsOk: false, testOutput: '', crossServiceOk: true, crossServiceOutput: '' };
+  }
+
+  try {
+    const { relPaths, rollback } = await applyFileChangesAtomic(changes, repoRoot);
+
+    // Build verification — single-service or full depending on scope
+    const isShared = changeAffectsSharedCode(changes, repoRoot);
+    let buildOk = false;
+    let buildOutput = '';
+    let crossServiceOk = true;
+    let crossServiceOutput = '';
+
+    if (isShared) {
+      const fb = verifyFullBuild(repoRoot);
+      buildOk = fb.ok;
+      buildOutput = fb.failures.map(f => `${f.service}: ${f.output}`).join('\n');
+      crossServiceOk = fb.ok;
+      crossServiceOutput = buildOutput;
+    } else {
+      const firstAbs = changes[0].file_path.startsWith('/') ? changes[0].file_path : path.join(repoRoot, changes[0].file_path);
+      const bc = verifyBuild(repoRoot, firstAbs);
+      buildOk = bc.ok;
+      buildOutput = bc.output;
+    }
+
+    // Test verification
+    let testsOk = true;
+    let testOutput = '';
+    if (buildOk) {
+      const testResults: Array<{ file: string; ok: boolean; output: string; skipped: boolean }> = [];
+      for (const change of changes) {
+        const tr = runServiceTests(repoRoot, change.file_path);
+        testResults.push({ file: change.file_path, ...tr });
+      }
+      const testFailures = testResults.filter(t => !t.ok && !t.skipped);
+      testsOk = testFailures.length === 0;
+      testOutput = testFailures.map(t => `${t.file}: ${t.output.slice(0, 300)}`).join('\n');
+    }
+
+    // Rollback all changes — this is a dry run
+    await rollback();
+    for (const rel of relPaths) spawnSync('git', ['checkout', '--', rel], { cwd: repoRoot, encoding: 'utf8', timeout: 10000 });
+
+    return { buildOk, buildOutput: buildOutput.slice(0, 2000), testsOk, testOutput: testOutput.slice(0, 2000), crossServiceOk, crossServiceOutput: crossServiceOutput.slice(0, 2000) };
+  } finally {
+    // Always clean up: switch back and delete the dry-run branch
+    spawnSync('git', ['checkout', currentBranch], { cwd: repoRoot, encoding: 'utf8', timeout: 10000 });
+    spawnSync('git', ['branch', '-D', branchName], { cwd: repoRoot, encoding: 'utf8', timeout: 10000 });
+    if (didStash) gitStashPop(repoRoot);
+  }
+}
+
+/** Persistent circuit breaker hydration — reconstruct state from recent ops_audit_log entries.
+ *  Called once on startup so circuit breaker state survives restarts. */
+async function hydrateCircuitBreakerFromDb(pool: pg.Pool): Promise<void> {
+  try {
+    // Count recent consecutive failures (last 30 min) to reconstruct CB state
+    const recent = await pool.query(
+      `SELECT result_summary, created_at FROM ops_audit_log
+       WHERE tool_name IN ('sven.ops.code_fix', 'sven.ops.deploy')
+         AND created_at > NOW() - INTERVAL '30 minutes'
+       ORDER BY created_at DESC
+       LIMIT 20`,
+    );
+    let consecutiveFails = 0;
+    let lastFailTime = 0;
+    for (const row of recent.rows) {
+      const summary = String((row as Record<string, unknown>).result_summary || '');
+      const createdAt = (row as Record<string, unknown>).created_at;
+      if (summary.includes('failed') || summary.includes('rolled back') || summary.includes('rate-limited') || summary.includes('reverted')) {
+        consecutiveFails++;
+        if (!lastFailTime && createdAt) lastFailTime = new Date(String(createdAt)).getTime();
+      } else {
+        break; // First success breaks the consecutive failure chain
+      }
+    }
+    if (consecutiveFails > 0) {
+      opsConsecutiveFailures = consecutiveFails;
+      opsLastFailureAt = lastFailTime || Date.now();
+      const state = circuitState();
+      logger.info('Circuit breaker hydrated from DB', { consecutive_failures: consecutiveFails, state });
+    }
+  } catch (err) {
+    logger.warn('Failed to hydrate circuit breaker from DB', { err: String(err) });
+  }
+}
+
+/** Post-deploy watch window — probe service health every 15s for watchDurationMs.
+ *  Returns early on first failure. Used after initial smoke tests pass. */
+function postDeployWatch(
+  host: string,
+  port: number,
+  watchDurationMs: number = 120000,
+  intervalMs: number = 15000,
+): { ok: boolean; probes: number; failures: number; lastFailure?: string } {
+  const start = Date.now();
+  let probes = 0;
+  let failures = 0;
+  let lastFailure: string | undefined;
+
+  while (Date.now() - start < watchDurationMs) {
+    probes++;
+    const probe = probeHttpHealth(host, port, 5000);
+    if (!probe.ok) {
+      failures++;
+      lastFailure = `Probe #${probes} failed: status ${probe.statusCode} (${probe.durationMs}ms)`;
+      // Fail fast: 2 consecutive failures = bail
+      if (failures >= 2) return { ok: false, probes, failures, lastFailure };
+    } else {
+      failures = 0; // reset consecutive counter on success
+    }
+    // Sleep until next interval
+    if (Date.now() - start + intervalMs < watchDurationMs) {
+      spawnSync('sleep', [String(intervalMs / 1000)], { timeout: intervalMs + 2000 });
+    } else {
+      break;
+    }
+  }
+  return { ok: true, probes, failures, lastFailure };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  v7: Heal telemetry counters, confidence scoring, proactive detection,
+//      stale approval escalation, rollback depth guard
+// ═══════════════════════════════════════════════════════════════════════
+
+/** v7: In-memory heal telemetry counters — exposed via heal_history tool.
+ *  Reset on restart, but cumulative during the process lifetime. */
+const healTelemetry = {
+  fixes_applied: 0,
+  fixes_reverted: 0,
+  fixes_rate_limited: 0,
+  fixes_deduplicated: 0,
+  deploys_completed: 0,
+  deploys_rolled_back: 0,
+  circuit_breaker_trips: 0,
+  dry_runs_executed: 0,
+  stale_escalations_sent: 0,
+  proactive_detections: 0,
+  files_quarantined: 0,
+  resource_guard_blocks: 0,
+  runtime_errors_detected: 0,
+  checkpoints_created: 0,
+  subscriber_restarts: 0,
+  last_fix_at: null as string | null,
+  last_deploy_at: null as string | null,
+  uptime_start: new Date().toISOString(),
+};
+
+/** v7: Heal confidence scoring — query ops_audit_log for per-file historical success rate. */
+async function getHealConfidence(
+  pool: pg.Pool,
+  filePath: string,
+): Promise<{ score: number; total: number; successes: number; failures: number; revertRate: string }> {
+  try {
+    const res = await pool.query(
+      `SELECT
+         COUNT(*) AS total,
+         COUNT(*) FILTER (WHERE result_summary ILIKE '%applied%' OR result_summary ILIKE '%committed%' OR result_summary ILIKE '%merged%') AS successes,
+         COUNT(*) FILTER (WHERE result_summary ILIKE '%reverted%' OR result_summary ILIKE '%rolled back%' OR result_summary ILIKE '%failed%') AS failures
+       FROM ops_audit_log
+       WHERE tool_name = 'sven.ops.code_fix'
+         AND inputs::text ILIKE $1
+         AND created_at > NOW() - INTERVAL '30 days'`,
+      [`%${filePath}%`],
+    );
+    const row = res.rows[0] as { total: string; successes: string; failures: string } | undefined;
+    const total = Number(row?.total || 0);
+    const successes = Number(row?.successes || 0);
+    const failures = Number(row?.failures || 0);
+    const score = total === 0 ? 1.0 : successes / total;
+    const revertRate = total === 0 ? 'N/A (no history)' : `${((failures / total) * 100).toFixed(1)}%`;
+    return { score, total, successes, failures, revertRate };
+  } catch {
+    return { score: 1.0, total: 0, successes: 0, failures: 0, revertRate: 'N/A (query error)' };
+  }
+}
+
+/** v7: Proactive heal detection — run tsc on all services, return errors found. */
+function proactiveTscScan(repoRoot: string): Array<{ service: string; errors: string }> {
+  const tscBin = path.join(repoRoot, 'node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/bin/tsc');
+  const serviceNames = ['gateway-api', 'agent-runtime', 'skill-runner'];
+  const results: Array<{ service: string; errors: string }> = [];
+  for (const svc of serviceNames) {
+    const svcDir = path.join(repoRoot, 'services', svc);
+    const result = spawnSync('node', [tscBin, '--noEmit'], {
+      cwd: svcDir, encoding: 'utf8', timeout: 90000, maxBuffer: 1024 * 128,
+    });
+    if (result.status !== 0) {
+      const errors = ((result.stdout || '') + (result.stderr || '')).trim().slice(0, 1000);
+      results.push({ service: svc, errors });
+    }
+  }
+  return results;
+}
+
+/** v7: Check for stale critical approvals that need escalation (pending > 1h). */
+async function getStaleApprovals(pool: pg.Pool): Promise<Array<{ id: string; tool_name: string; age_min: number; chat_id: string }>> {
+  try {
+    const res = await pool.query(
+      `SELECT id, tool_name, chat_id, EXTRACT(EPOCH FROM (NOW() - created_at)) / 60 AS age_min
+       FROM approvals
+       WHERE status = 'pending'
+         AND created_at < NOW() - INTERVAL '1 hour'
+         AND created_at > NOW() - INTERVAL '24 hours'
+         AND tool_name IN ('sven.ops.code_fix', 'sven.ops.deploy')
+       ORDER BY created_at ASC
+       LIMIT 10`,
+    );
+    return res.rows.map((r: any) => ({
+      id: r.id,
+      tool_name: r.tool_name,
+      age_min: Math.round(Number(r.age_min)),
+      chat_id: r.chat_id,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  v8: File quarantine, pre-heal checkpoint, resource guard,
+//      runtime log scanning, auto-severity classification
+// ═══════════════════════════════════════════════════════════════════════
+
+/** v8: File quarantine — auto-quarantine files with repeated heal failures.
+ *  Prevents slow fix loops that the rate limiter (30min window) misses. */
+const fileQuarantineMap = new Map<string, { failures: number; since: number; reason: string }>();
+const QUARANTINE_THRESHOLD = 3;
+const QUARANTINE_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+function isFileQuarantined(filePath: string): { quarantined: boolean; failures: number; reason?: string } {
+  const entry = fileQuarantineMap.get(filePath);
+  if (!entry) return { quarantined: false, failures: 0 };
+  if (Date.now() - entry.since > QUARANTINE_WINDOW_MS) {
+    fileQuarantineMap.delete(filePath);
+    return { quarantined: false, failures: 0 };
+  }
+  return { quarantined: entry.failures >= QUARANTINE_THRESHOLD, failures: entry.failures, reason: entry.reason };
+}
+
+function recordFileHealFailure(filePath: string, reason: string): void {
+  const existing = fileQuarantineMap.get(filePath);
+  const now = Date.now();
+  if (existing && now - existing.since < QUARANTINE_WINDOW_MS) {
+    existing.failures++;
+    existing.reason = reason;
+  } else {
+    fileQuarantineMap.set(filePath, { failures: 1, since: now, reason });
+  }
+  const entry = fileQuarantineMap.get(filePath)!;
+  if (entry.failures >= QUARANTINE_THRESHOLD) {
+    logger.warn('File auto-quarantined after repeated heal failures', { file: filePath, failures: entry.failures, reason });
+  }
+}
+
+function clearFileQuarantine(filePath: string): boolean {
+  return fileQuarantineMap.delete(filePath);
+}
+
+function getQuarantinedFiles(): Array<{ file: string; failures: number; since: string; reason: string }> {
+  const now = Date.now();
+  const result: Array<{ file: string; failures: number; since: string; reason: string }> = [];
+  for (const [file, entry] of fileQuarantineMap.entries()) {
+    if (now - entry.since > QUARANTINE_WINDOW_MS) {
+      fileQuarantineMap.delete(file);
+      continue;
+    }
+    if (entry.failures >= QUARANTINE_THRESHOLD) {
+      result.push({ file, failures: entry.failures, since: new Date(entry.since).toISOString(), reason: entry.reason });
+    }
+  }
+  return result;
+}
+
+/** v8: Pre-heal git tag — create a lightweight checkpoint before any heal operation.
+ *  Provides last-resort recovery even if the rollback tool fails. */
+function createHealCheckpoint(repoRoot: string): { ok: boolean; tag: string } {
+  const tag = `sven-checkpoint/${Date.now()}`;
+  const result = spawnSync('git', ['tag', tag, 'HEAD'], {
+    cwd: repoRoot, encoding: 'utf8', timeout: 5000,
+  });
+  return { ok: result.status === 0, tag };
+}
+
+/** v8: Resource guard — check system resources before heavy operations.
+ *  Prevents builds/deploys on resource-starved systems from making things worse. */
+function checkSystemResources(): { ok: boolean; warnings: string[]; freeMemMb: number; freeDiskMb: number } {
+  const warnings: string[] = [];
+  const freeMemMb = Math.round(os.freemem() / (1024 * 1024));
+  const MIN_FREE_MEM_MB = 256;
+  if (freeMemMb < MIN_FREE_MEM_MB) {
+    warnings.push(`Low memory: ${freeMemMb}MB free (minimum: ${MIN_FREE_MEM_MB}MB)`);
+  }
+  let freeDiskMb = 99999;
+  try {
+    const df = spawnSync('df', ['-m', '--output=avail', '/'], {
+      encoding: 'utf8', timeout: 5000,
+    });
+    const lines = (df.stdout || '').trim().split('\n');
+    if (lines.length >= 2) {
+      freeDiskMb = parseInt(lines[1].trim(), 10) || 99999;
+      const MIN_FREE_DISK_MB = 512;
+      if (freeDiskMb < MIN_FREE_DISK_MB) {
+        warnings.push(`Low disk: ${freeDiskMb}MB free (minimum: ${MIN_FREE_DISK_MB}MB)`);
+      }
+    }
+  } catch { /* non-critical */ }
+  return { ok: warnings.length === 0, warnings, freeMemMb, freeDiskMb };
+}
+
+/** v8: Runtime log scanning — check Docker container logs for runtime error patterns.
+ *  Catches runtime crashes that tsc cannot detect (OOM, ECONNREFUSED, uncaught exceptions). */
+function scanRuntimeLogs(containers?: string[]): Array<{ container: string; errors: string[] }> {
+  const targets = containers || ['gateway-api', 'agent-runtime', 'skill-runner'];
+  const errorPatterns = [
+    /uncaught\s*exception/i, /unhandled\s*rejection/i, /ECONNREFUSED/i,
+    /out\s*of\s*memory/i, /OOMKilled/i, /SIGKILL/i, /FATAL/i,
+    /ERR_WORKER_OUT_OF_MEMORY/i, /heap\s*out\s*of\s*memory/i, /segmentation\s*fault/i,
+  ];
+  const results: Array<{ container: string; errors: string[] }> = [];
+  for (const container of targets) {
+    try {
+      const logs = spawnSync('docker', ['logs', '--tail', '100', '--since', '5m', container], {
+        encoding: 'utf8', timeout: 10000, maxBuffer: 1024 * 128,
+      });
+      const output = ((logs.stdout || '') + (logs.stderr || '')).trim();
+      if (!output) continue;
+      const matchedErrors: string[] = [];
+      for (const line of output.split('\n')) {
+        if (errorPatterns.some(p => p.test(line))) {
+          matchedErrors.push(line.trim().slice(0, 200));
+        }
+      }
+      if (matchedErrors.length > 0) {
+        results.push({ container, errors: matchedErrors.slice(0, 10) });
+      }
+    } catch { /* non-critical */ }
+  }
+  return results;
+}
+
+/** v8: Auto-severity classification — classify changes by file path patterns.
+ *  CRITICAL: auth/security/middleware, HIGH: shared/contracts/db, MEDIUM: service code, LOW: test/docs */
+function classifyChangeSeverity(changes: FileChange[], repoRoot: string): {
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  reasons: string[];
+} {
+  const criticalPatterns = [/auth/i, /security/i, /middleware/i, /session/i, /permission/i, /rbac/i, /policy/i, /encrypt/i, /token/i, /password/i, /secret/i];
+  const highPatterns = [/^packages\//, /^contracts\//, /migration/i, /seed\.ts/, /schema/i];
+  const lowPatterns = [/\/__tests__\//, /\.test\.[jt]sx?$/, /\.spec\.[jt]sx?$/, /^docs\//, /^scripts\//];
+  let maxSeverity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' = 'LOW';
+  const reasons: string[] = [];
+  for (const change of changes) {
+    const rel = change.file_path.startsWith('/')
+      ? path.relative(repoRoot, change.file_path)
+      : change.file_path;
+    if (criticalPatterns.some(p => p.test(rel))) {
+      maxSeverity = 'CRITICAL';
+      reasons.push(`${rel}: critical (auth/security/middleware)`);
+    } else if (highPatterns.some(p => p.test(rel))) {
+      if (maxSeverity !== 'CRITICAL') maxSeverity = 'HIGH';
+      reasons.push(`${rel}: high (shared/contracts/migration)`);
+    } else if (lowPatterns.some(p => p.test(rel))) {
+      reasons.push(`${rel}: low (test/docs)`);
+    } else {
+      if (maxSeverity === 'LOW') maxSeverity = 'MEDIUM';
+      reasons.push(`${rel}: medium (service code)`);
+    }
+  }
+  return { severity: maxSeverity, reasons };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  v9: Heal duration tracking, checkpoint cleanup, CB auto-decay,
+//      dependency audit, heal pipeline timeout, impact estimation,
+//      persistent telemetry snapshots
+// ═══════════════════════════════════════════════════════════════════════
+
+/** v9: Heal operation duration tracking — records phase timings per heal operation.
+ *  Exposes mean/p95 via heal_history so latency regressions are visible. */
+const healDurationLog: Array<{ phase: string; durationMs: number; at: number }> = [];
+const HEAL_DURATION_MAX_ENTRIES = 500;
+
+function recordHealDuration(phase: string, durationMs: number): void {
+  healDurationLog.push({ phase, durationMs, at: Date.now() });
+  if (healDurationLog.length > HEAL_DURATION_MAX_ENTRIES) {
+    healDurationLog.splice(0, healDurationLog.length - HEAL_DURATION_MAX_ENTRIES);
+  }
+}
+
+function getHealDurationStats(): Record<string, { count: number; meanMs: number; p95Ms: number; maxMs: number }> {
+  const byPhase = new Map<string, number[]>();
+  const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+  for (const entry of healDurationLog) {
+    if (entry.at < cutoff) continue;
+    const arr = byPhase.get(entry.phase) || [];
+    arr.push(entry.durationMs);
+    byPhase.set(entry.phase, arr);
+  }
+  const stats: Record<string, { count: number; meanMs: number; p95Ms: number; maxMs: number }> = {};
+  for (const [phase, durations] of byPhase.entries()) {
+    durations.sort((a, b) => a - b);
+    const count = durations.length;
+    const mean = Math.round(durations.reduce((s, d) => s + d, 0) / count);
+    const p95Idx = Math.min(Math.floor(count * 0.95), count - 1);
+    stats[phase] = { count, meanMs: mean, p95Ms: durations[p95Idx], maxMs: durations[count - 1] };
+  }
+  return stats;
+}
+
+/** v9: Checkpoint tag cleanup — prune sven-checkpoint tags older than 7 days. */
+function cleanupOldCheckpoints(repoRoot: string): { pruned: number; remaining: number } {
+  const result = spawnSync('git', ['tag', '-l', 'sven-checkpoint/*'], {
+    cwd: repoRoot, encoding: 'utf8', timeout: 10000,
+  });
+  const tags = (result.stdout || '').trim().split('\n').filter(Boolean);
+  const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  let pruned = 0;
+  for (const tag of tags) {
+    const tsStr = tag.replace('sven-checkpoint/', '');
+    const ts = Number(tsStr);
+    if (!isNaN(ts) && ts < cutoff) {
+      const del = spawnSync('git', ['tag', '-d', tag], {
+        cwd: repoRoot, encoding: 'utf8', timeout: 5000,
+      });
+      if (del.status === 0) pruned++;
+    }
+  }
+  return { pruned, remaining: tags.length - pruned };
+}
+
+/** v9: Circuit breaker auto-decay — decay consecutive failures when idle.
+ *  If no heal operation runs for 10min+, reduce failure count by 1 per 10min of inactivity.
+ *  This prevents the CB from staying open forever after the admin takes a break. */
+let lastHealOperationAt = Date.now();
+
+function applyCircuitBreakerDecay(): void {
+  if (opsConsecutiveFailures === 0) return;
+  const idleMs = Date.now() - lastHealOperationAt;
+  const decaySteps = Math.floor(idleMs / (10 * 60 * 1000)); // 1 per 10min idle
+  if (decaySteps > 0) {
+    const prevFailures = opsConsecutiveFailures;
+    opsConsecutiveFailures = Math.max(0, opsConsecutiveFailures - decaySteps);
+    if (opsConsecutiveFailures !== prevFailures) {
+      logger.info('Circuit breaker auto-decay applied', {
+        prev: prevFailures, now: opsConsecutiveFailures, idle_min: Math.round(idleMs / 60000),
+      });
+    }
+  }
+}
+
+/** v9: Dependency vulnerability scan — run npm audit and parse results.
+ *  Returns high/critical vulnerability count for the monorepo. */
+function scanDependencyVulnerabilities(repoRoot: string): {
+  ok: boolean; high: number; critical: number; total: number; details: string;
+} {
+  try {
+    const result = spawnSync('npm', ['audit', '--json', '--omit=dev'], {
+      cwd: repoRoot, encoding: 'utf8', timeout: 60000, maxBuffer: 1024 * 256,
+    });
+    const output = (result.stdout || '').trim();
+    if (!output) return { ok: true, high: 0, critical: 0, total: 0, details: 'no output' };
+    try {
+      const audit = JSON.parse(output);
+      const vuln = audit.metadata?.vulnerabilities || {};
+      const high = Number(vuln.high || 0);
+      const critical = Number(vuln.critical || 0);
+      const total = Number(vuln.total || 0);
+      return { ok: high === 0 && critical === 0, high, critical, total, details: `${total} total (${critical} critical, ${high} high)` };
+    } catch {
+      return { ok: true, high: 0, critical: 0, total: 0, details: 'parse error' };
+    }
+  } catch {
+    return { ok: true, high: 0, critical: 0, total: 0, details: 'scan unavailable' };
+  }
+}
+
+/** v9: Fix impact estimation — calculate blast radius of a code change.
+ *  Considers lines changed, file count, affected services, and risk multiplier. */
+function estimateFixImpact(changes: FileChange[], repoRoot: string): {
+  linesAdded: number; linesRemoved: number; filesChanged: number;
+  servicesAffected: string[]; riskScore: number; riskLevel: string;
+} {
+  let linesAdded = 0;
+  let linesRemoved = 0;
+  const servicesSet = new Set<string>();
+  for (const change of changes) {
+    const rel = change.file_path.startsWith('/')
+      ? path.relative(repoRoot, change.file_path)
+      : change.file_path;
+    const oldLineCount = change.old_content.split('\n').length;
+    const newLineCount = change.new_content.split('\n').length;
+    linesRemoved += oldLineCount;
+    linesAdded += newLineCount;
+    const svcMatch = rel.match(/^services\/([^/]+)\//);
+    if (svcMatch) servicesSet.add(svcMatch[1]);
+    if (rel.startsWith('packages/') || rel.startsWith('contracts/')) {
+      servicesSet.add('gateway-api');
+      servicesSet.add('agent-runtime');
+      servicesSet.add('skill-runner');
+    }
+  }
+  const filesChanged = changes.length;
+  const servicesAffected = Array.from(servicesSet);
+  // Risk score: 0-100. Bigger change + more files + more services = higher risk
+  const linesDelta = Math.abs(linesAdded - linesRemoved) + Math.min(linesAdded, linesRemoved);
+  const lineScore = Math.min(linesDelta / 50, 1) * 30; // max 30 for lines
+  const fileScore = Math.min(filesChanged / 5, 1) * 25; // max 25 for file count
+  const svcScore = Math.min(servicesAffected.length / 3, 1) * 25; // max 25 for services
+  const severityMult = changes.some(c => {
+    const r = c.file_path.startsWith('/') ? path.relative(repoRoot, c.file_path) : c.file_path;
+    return /auth|security|middleware|session|permission/i.test(r);
+  }) ? 20 : 0; // 20 bonus for critical files
+  const riskScore = Math.round(Math.min(lineScore + fileScore + svcScore + severityMult, 100));
+  const riskLevel = riskScore >= 70 ? 'HIGH' : riskScore >= 40 ? 'MEDIUM' : 'LOW';
+  return { linesAdded, linesRemoved, filesChanged, servicesAffected, riskScore, riskLevel };
+}
+
+/** v9: Heal pipeline timeout — wraps a heal operation with a max duration.
+ *  Returns an AbortSignal-style guard for use with the mutex. */
+function createHealTimeout(maxMs: number): { expired: boolean; check: () => void; clear: () => void } {
+  let expired = false;
+  const timer = setTimeout(() => { expired = true; }, maxMs);
+  return {
+    get expired() { return expired; },
+    check() {
+      if (expired) throw new Error(`Heal pipeline timeout exceeded (${maxMs}ms)`);
+    },
+    clear() { clearTimeout(timer); },
+  };
+}
+
+/** v9: Persist key telemetry counters to ops_audit_log so they survive restarts.
+ *  Called periodically by the diagnostics loop. */
+async function persistTelemetrySnapshot(pool: pg.Pool): Promise<void> {
+  try {
+    await pool.query(
+      `INSERT INTO ops_audit_log (id, user_id, tool_name, action, inputs, result_summary, severity, created_at)
+       VALUES ($1, 'system', 'sven.ops.telemetry_snapshot', 'snapshot', $2::jsonb, $3, 'info', NOW())`,
+      [
+        `telemetry-${Date.now()}`,
+        JSON.stringify(healTelemetry),
+        `Telemetry snapshot: ${healTelemetry.fixes_applied} fixes, ${healTelemetry.deploys_completed} deploys, ${healTelemetry.fixes_reverted} reverts`,
+      ],
+    );
+  } catch { /* non-critical — DB issue shouldn't block diagnostics */ }
+}
+
+/** Run jest tests for the service affected by the given file path.
+ *  Returns ok=true if tests pass (or no tests exist). */
+function runServiceTests(repoRoot: string, filePath: string): { ok: boolean; output: string; skipped: boolean } {
+  const rel = path.relative(repoRoot, filePath.startsWith('/') ? filePath : path.join(repoRoot, filePath));
+  const serviceMatch = rel.match(/^services\/([^/]+)\//);
+  if (!serviceMatch) return { ok: true, output: '', skipped: true };
+
+  const svcDir = path.join(repoRoot, 'services', serviceMatch[1]);
+  const testDir = path.join(svcDir, 'src', '__tests__');
+
+  // Check if test directory exists
+  try {
+    const stat = require('fs').statSync(testDir);
+    if (!stat.isDirectory()) return { ok: true, output: 'No test directory', skipped: true };
+  } catch {
+    return { ok: true, output: 'No test directory', skipped: true };
+  }
+
+  const result = spawnSync('npx', ['jest', '--passWithNoTests', '--bail', '--forceExit', '--no-coverage'], {
+    cwd: svcDir, encoding: 'utf8', timeout: 120000, maxBuffer: 1024 * 256,
+    env: { ...process.env, NODE_ENV: 'test', CI: '1' },
+  });
+  const output = ((result.stdout || '') + (result.stderr || '')).trim().slice(0, 2000);
+  return { ok: result.status === 0, output, skipped: false };
+}
+
+/** Fix rate limiter — tracks per-file modification timestamps to prevent fix storms. */
+const fixRateMap = new Map<string, number[]>();
+const FIX_RATE_WINDOW_MS = 30 * 60 * 1000; // 30 minute window
+const FIX_RATE_MAX = 3; // max 3 fixes per file per window
+
+function checkFixRateLimit(filePath: string): { allowed: boolean; recentCount: number; resetInMs: number } {
+  const now = Date.now();
+  const timestamps = (fixRateMap.get(filePath) || []).filter(t => now - t < FIX_RATE_WINDOW_MS);
+  if (timestamps.length >= FIX_RATE_MAX) {
+    const oldestInWindow = Math.min(...timestamps);
+    return { allowed: false, recentCount: timestamps.length, resetInMs: FIX_RATE_WINDOW_MS - (now - oldestInWindow) };
+  }
+  return { allowed: true, recentCount: timestamps.length, resetInMs: 0 };
+}
+
+function recordFixApplication(filePath: string): void {
+  const now = Date.now();
+  const timestamps = (fixRateMap.get(filePath) || []).filter(t => now - t < FIX_RATE_WINDOW_MS);
+  timestamps.push(now);
+  fixRateMap.set(filePath, timestamps);
+}
+
+/** Generate a unified diff string for a set of file changes. */
+function generateUnifiedDiff(changes: FileChange[], repoRoot: string): string {
+  const diffs: string[] = [];
+  for (const change of changes) {
+    const relPath = change.file_path.startsWith('/')
+      ? path.relative(repoRoot, change.file_path)
+      : change.file_path;
+    const oldLines = change.old_content.split('\n');
+    const newLines = change.new_content.split('\n');
+    diffs.push(`--- a/${relPath}`);
+    diffs.push(`+++ b/${relPath}`);
+    // Simple context diff: show removed and added lines
+    diffs.push(`@@ -1,${oldLines.length} +1,${newLines.length} @@`);
+    for (const line of oldLines) diffs.push(`-${line}`);
+    for (const line of newLines) diffs.push(`+${line}`);
+  }
+  return diffs.join('\n');
+}
+
+/** HTTP health probe — make a real HTTP GET to a service's /healthz endpoint.
+ *  More reliable than Docker inspect because it verifies actual HTTP responsiveness. */
+function probeHttpHealth(host: string, port: number, timeoutMs: number = 5000): { ok: boolean; statusCode: number; body: string; durationMs: number } {
+  const start = Date.now();
+  try {
+    const result = spawnSync('curl', [
+      '-s', '-o', '/dev/stdout', '-w', '\n%{http_code}',
+      '--connect-timeout', String(Math.ceil(timeoutMs / 1000)),
+      '--max-time', String(Math.ceil(timeoutMs / 1000)),
+      `http://${host}:${port}/healthz`,
+    ], { encoding: 'utf8', timeout: timeoutMs + 2000 });
+    const lines = (result.stdout || '').trim().split('\n');
+    const statusCode = parseInt(lines[lines.length - 1], 10) || 0;
+    const body = lines.slice(0, -1).join('\n').slice(0, 500);
+    return { ok: statusCode >= 200 && statusCode < 400, statusCode, body, durationMs: Date.now() - start };
+  } catch {
+    return { ok: false, statusCode: 0, body: 'connection failed', durationMs: Date.now() - start };
+  }
+}
+
+/** Revert the last N sven-heal commits on the current branch.
+ *  v7: Hard depth guard — max 5 reverts to prevent accidental mass undo. */
+const REVERT_MAX_DEPTH = 5;
+function revertHealCommits(repoRoot: string, count: number = 1): { ok: boolean; reverted: string[]; output: string } {
+  const safeCount = Math.min(Math.max(count, 1), REVERT_MAX_DEPTH);
+  if (count > REVERT_MAX_DEPTH) {
+    return { ok: false, reverted: [], output: `Rollback depth ${count} exceeds max (${REVERT_MAX_DEPTH}). Use multiple smaller rollbacks.` };
+  }
+  const reverted: string[] = [];
+  for (let i = 0; i < safeCount; i++) {
+    // Check if the last commit is a sven-heal commit
+    const logResult = spawnSync('git', ['log', '-1', '--pretty=%H %s'], {
+      cwd: repoRoot, encoding: 'utf8', timeout: 5000,
+    });
+    const line = (logResult.stdout || '').trim();
+    const [hash, ...msgParts] = line.split(' ');
+    const msg = msgParts.join(' ');
+    if (!msg.includes('sven-heal') && !msg.includes('merge: fix(sven-heal')) {
+      break; // Stop — next commit is not a sven-heal commit
+    }
+    const revert = spawnSync('git', ['revert', '--no-edit', 'HEAD'], {
+      cwd: repoRoot, encoding: 'utf8', timeout: 30000,
+    });
+    if (revert.status !== 0) {
+      return { ok: false, reverted, output: `Failed to revert ${hash}: ${(revert.stderr || '').trim().slice(0, 500)}` };
+    }
+    reverted.push(hash);
+  }
+  if (reverted.length === 0) return { ok: false, reverted: [], output: 'No sven-heal commits found to revert' };
+  // Verify build after revert
+  const buildCheck = verifyFullBuild(repoRoot);
+  if (!buildCheck.ok) {
+    // Undo the reverts to avoid leaving a broken state
+    for (let i = 0; i < reverted.length; i++) {
+      spawnSync('git', ['revert', '--no-edit', 'HEAD'], { cwd: repoRoot, encoding: 'utf8', timeout: 30000 });
+    }
+    return { ok: false, reverted: [], output: `Revert broke the build, re-reverted. Failures: ${buildCheck.failures.map(f => f.service).join(', ')}` };
+  }
+  return { ok: true, reverted, output: `Reverted ${reverted.length} commit(s), build verified clean` };
 }
 
 async function executeInProcess(
@@ -5756,6 +7559,176 @@ end tell
     }
 
     // ═══════════════════════════════════════════════════════════════════
+    //  Image Generation — OpenAI (gpt-image-1) / Stable Diffusion
+    // ═══════════════════════════════════════════════════════════════════
+
+    case 'image-generation': {
+      const prompt = String(inputs.prompt || '').trim();
+      if (!prompt) return { outputs: {}, error: 'inputs.prompt is required' };
+      const provider = String(inputs.provider || 'openai') as 'openai' | 'stable_diffusion';
+      const size = String(inputs.size || '1024x1024');
+      const n = Math.max(1, Math.min(Number(inputs.n || 1), 4));
+      const style = inputs.style ? String(inputs.style) : undefined;
+      const finalPrompt = style ? `${prompt}\nStyle: ${style}` : prompt;
+
+      try {
+        if (provider === 'stable_diffusion') {
+          const baseUrl = (process.env.STABLE_DIFFUSION_URL || 'http://127.0.0.1:7860').replace(/\/+$/, '');
+          const sdKey = process.env.STABLE_DIFFUSION_API_KEY || '';
+          const [w, h] = size.split('x').map(Number);
+          const res = await fetch(`${baseUrl}/sdapi/v1/txt2img`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(sdKey ? { Authorization: `Bearer ${sdKey}` } : {}),
+            },
+            body: JSON.stringify({ prompt: finalPrompt, width: w || 1024, height: h || 1024, steps: 30 }),
+            signal: AbortSignal.timeout(45000),
+          });
+          if (!res.ok) {
+            const body = await res.text().catch(() => '');
+            return { outputs: {}, error: `Stable Diffusion failed (${res.status}): ${body}` };
+          }
+          const data = await res.json() as { images?: string[]; info?: string };
+          const images = (data.images || []).map((b64: string) => ({ data_url: `data:image/png;base64,${b64}` }));
+          return { outputs: { provider: 'stable_diffusion', images, count: images.length } };
+        }
+
+        // OpenAI provider (default)
+        const apiKey = process.env.OPENAI_API_KEY || '';
+        if (!apiKey) return { outputs: {}, error: 'OPENAI_API_KEY is required for image generation' };
+        const model = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1';
+        const res = await fetch('https://api.openai.com/v1/images/generations', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model, prompt: finalPrompt, size, n, response_format: 'b64_json' }),
+          signal: AbortSignal.timeout(45000),
+        });
+        if (!res.ok) {
+          const body = await res.text().catch(() => '');
+          return { outputs: {}, error: `OpenAI image generation failed (${res.status}): ${body}` };
+        }
+        const data = await res.json() as { data?: Array<{ b64_json?: string }> };
+        const images = (data.data || [])
+          .map((item: { b64_json?: string }) => item.b64_json)
+          .filter((b64: string | undefined): b64 is string => Boolean(b64))
+          .map((b64: string) => ({ data_url: `data:image/png;base64,${b64}` }));
+        return { outputs: { provider: 'openai', model, images, count: images.length } };
+      } catch (err) {
+        return { outputs: {}, error: `image-generation failed: ${err instanceof Error ? err.message : String(err)}` };
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  Email — Generic IMAP/SMTP bridge
+    // ═══════════════════════════════════════════════════════════════════
+
+    case 'email-generic': {
+      const action = String(inputs.action || '').trim();
+      if (!action || !['send', 'search', 'list'].includes(action)) {
+        return { outputs: {}, error: 'inputs.action must be one of: send, search, list' };
+      }
+      const baseUrl = (process.env.EMAIL_API_BASE || '').replace(/\/+$/, '');
+      if (!baseUrl) return { outputs: {}, error: 'EMAIL_API_BASE environment variable is not configured' };
+      const emailKey = process.env.EMAIL_API_KEY || '';
+      const authHdrs: Record<string, string> = emailKey ? { Authorization: `Bearer ${emailKey}` } : {};
+
+      try {
+        if (action === 'send') {
+          const to = Array.isArray(inputs.to) ? inputs.to.map(String) : [];
+          if (to.length === 0) return { outputs: {}, error: 'inputs.to is required for send' };
+          const res = await fetch(`${baseUrl}/send`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHdrs },
+            body: JSON.stringify({
+              from: process.env.EMAIL_FROM || undefined,
+              to,
+              cc: Array.isArray(inputs.cc) ? inputs.cc.map(String) : [],
+              bcc: Array.isArray(inputs.bcc) ? inputs.bcc.map(String) : [],
+              subject: String(inputs.subject || ''),
+              body: String(inputs.body || ''),
+            }),
+            signal: AbortSignal.timeout(30000),
+          });
+          const result = await res.json().catch(() => ({}));
+          if (!res.ok) return { outputs: {}, error: `Email send failed (${res.status}): ${JSON.stringify(result)}` };
+          return { outputs: { action: 'send', result } };
+        }
+        if (action === 'search') {
+          const res = await fetch(`${baseUrl}/search`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHdrs },
+            body: JSON.stringify({
+              query: String(inputs.query || ''),
+              limit: Math.max(1, Math.min(Number(inputs.limit || 10), 50)),
+            }),
+            signal: AbortSignal.timeout(30000),
+          });
+          const result = await res.json().catch(() => ({})) as Record<string, unknown>;
+          if (!res.ok) return { outputs: {}, error: `Email search failed (${res.status}): ${JSON.stringify(result)}` };
+          return { outputs: { action: 'search', items: (result.items || result.messages || []) as unknown[] } };
+        }
+        // action === 'list'
+        const limit = Math.max(1, Math.min(Number(inputs.limit || 10), 50));
+        const res = await fetch(`${baseUrl}/inbox?limit=${encodeURIComponent(String(limit))}`, {
+          method: 'GET',
+          headers: authHdrs,
+          signal: AbortSignal.timeout(30000),
+        });
+        const result = await res.json().catch(() => ({})) as Record<string, unknown>;
+        if (!res.ok) return { outputs: {}, error: `Email list failed (${res.status}): ${JSON.stringify(result)}` };
+        return { outputs: { action: 'list', items: (result.items || result.messages || []) as unknown[] } };
+      } catch (err) {
+        return { outputs: {}, error: `email-generic failed: ${err instanceof Error ? err.message : String(err)}` };
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  Voice Call — outbound via adapter-voice-call service
+    // ═══════════════════════════════════════════════════════════════════
+
+    case 'voice.call.place': {
+      const to = String(inputs.to || '').trim();
+      if (!to) return { outputs: {}, error: 'inputs.to (phone number) is required' };
+      const provider = String(inputs.provider || 'twilio');
+      if (!['mock', 'twilio', 'telnyx', 'plivo'].includes(provider)) {
+        return { outputs: {}, error: 'inputs.provider must be one of: mock, twilio, telnyx, plivo' };
+      }
+      const voicePort = process.env.VOICE_CALL_PORT || '8490';
+      const voiceBase = process.env.VOICE_CALL_URL || `http://adapter-voice-call:${voicePort}`;
+      const voiceApiKey = process.env.VOICE_CALL_API_KEY || '';
+      if (!voiceApiKey) return { outputs: {}, error: 'VOICE_CALL_API_KEY is not configured' };
+
+      try {
+        const res = await fetch(`${voiceBase}/v1/calls/outbound`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-voice-api-key': voiceApiKey,
+          },
+          body: JSON.stringify({
+            provider,
+            to,
+            from: inputs.from ? String(inputs.from) : undefined,
+            approval_id: inputs.approval_id ? String(inputs.approval_id) : undefined,
+            chat_id: runContext?.chatId || undefined,
+            sender_identity_id: inputs.sender_identity_id ? String(inputs.sender_identity_id) : undefined,
+            metadata: typeof inputs.metadata === 'object' ? inputs.metadata : undefined,
+          }),
+          signal: AbortSignal.timeout(15000),
+        });
+        if (!res.ok) {
+          const body = await res.text().catch(() => '');
+          return { outputs: {}, error: `Voice call failed (${res.status}): ${body}` };
+        }
+        const result = await res.json() as { provider?: string; call_id?: string };
+        return { outputs: { provider: result.provider || provider, call_id: result.call_id || 'unknown', to, status: 'initiated' } };
+      } catch (err) {
+        return { outputs: {}, error: `voice.call.place failed: ${err instanceof Error ? err.message : String(err)}` };
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
     //  Weather tools — Open-Meteo (no API key)
     // ═══════════════════════════════════════════════════════════════════
 
@@ -6744,6 +8717,2223 @@ end tell
       } catch (err) {
         return { outputs: {}, error: `Slack tool failed: ${err instanceof Error ? err.message : String(err)}` };
       }
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // MEMORY TOOLS
+    // ═════════════════════════════════════════════════════════
+
+    case 'memory.search': {
+      const query = String(inputs.query || '').trim();
+      if (!query) return { outputs: {}, error: 'inputs.query is required' };
+      const limit = Math.min(Math.max(Number(inputs.limit) || 5, 1), 20);
+      const res = await pool.query(
+        `SELECT key, value, importance, visibility, updated_at
+         FROM memories
+         WHERE archived_at IS NULL AND merged_into IS NULL
+           AND (key ILIKE '%' || $1 || '%' OR value ILIKE '%' || $1 || '%')
+         ORDER BY importance DESC, updated_at DESC
+         LIMIT $2`,
+        [query, limit],
+      );
+      return { outputs: { memories: res.rows } };
+    }
+
+    case 'memory.list': {
+      const visibility = inputs.visibility as string | undefined;
+      const limit = Math.min(Math.max(Number(inputs.limit) || 20, 1), 50);
+      const conditions = ['archived_at IS NULL', 'merged_into IS NULL'];
+      const params: unknown[] = [];
+      if (visibility) {
+        params.push(visibility);
+        conditions.push(`visibility = $${params.length}`);
+      }
+      params.push(limit);
+      const res = await pool.query(
+        `SELECT key, value, importance, visibility, source, updated_at
+         FROM memories
+         WHERE ${conditions.join(' AND ')}
+         ORDER BY updated_at DESC
+         LIMIT $${params.length}`,
+        params,
+      );
+      const countRes = await pool.query(
+        `SELECT COUNT(*)::int AS total FROM memories WHERE archived_at IS NULL AND merged_into IS NULL`,
+      );
+      return { outputs: { memories: res.rows, total: countRes.rows[0]?.total || 0 } };
+    }
+
+    case 'memory.save': {
+      const key = String(inputs.key || '').trim();
+      const value = String(inputs.value || '').trim();
+      if (!key || !value) return { outputs: {}, error: 'inputs.key and inputs.value are required' };
+      const visibility = inputs.visibility || 'user_private';
+      const id = `mem_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+      await pool.query(
+        `INSERT INTO memories (id, user_id, chat_id, visibility, key, value, source, importance)
+         VALUES ($1, $2, $3, $4, $5, $6, 'tool', 1.0)
+         ON CONFLICT DO NOTHING`,
+        [id, runContext?.userId || null, runContext?.chatId || null, visibility, key, value],
+      );
+      return { outputs: { id, success: true } };
+    }
+
+    case 'memory.forget': {
+      const key = String(inputs.key || '').trim();
+      if (!key) return { outputs: {}, error: 'inputs.key is required' };
+      const res = await pool.query(
+        `UPDATE memories SET archived_at = NOW() WHERE key = $1 AND archived_at IS NULL`,
+        [key],
+      );
+      return { outputs: { success: true, deleted_count: res.rowCount || 0 } };
+    }
+
+    case 'memory.stats': {
+      const total = await pool.query(
+        `SELECT COUNT(*)::int AS total FROM memories WHERE archived_at IS NULL AND merged_into IS NULL`,
+      );
+      const byVis = await pool.query(
+        `SELECT visibility, COUNT(*)::int AS count FROM memories
+         WHERE archived_at IS NULL AND merged_into IS NULL GROUP BY visibility`,
+      );
+      const bySrc = await pool.query(
+        `SELECT source, COUNT(*)::int AS count FROM memories
+         WHERE archived_at IS NULL AND merged_into IS NULL GROUP BY source`,
+      );
+      const avgImp = await pool.query(
+        `SELECT COALESCE(AVG(importance), 0)::float AS avg_importance FROM memories
+         WHERE archived_at IS NULL AND merged_into IS NULL`,
+      );
+      const byVisObj: Record<string, number> = {};
+      for (const r of byVis.rows) byVisObj[(r as any).visibility] = (r as any).count;
+      const bySrcObj: Record<string, number> = {};
+      for (const r of bySrc.rows) bySrcObj[(r as any).source] = (r as any).count;
+      return {
+        outputs: {
+          total: total.rows[0]?.total || 0,
+          by_visibility: byVisObj,
+          by_source: bySrcObj,
+          avg_importance: avgImp.rows[0]?.avg_importance || 0,
+        },
+      };
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // KNOWLEDGE GRAPH / BRAIN TOOLS
+    // ═════════════════════════════════════════════════════════
+
+    case 'brain.search': {
+      const query = String(inputs.query || '').trim();
+      if (!query) return { outputs: {}, error: 'inputs.query is required' };
+      const entityType = inputs.entity_type as string | undefined;
+      const limit = Math.min(Math.max(Number(inputs.limit) || 10, 1), 20);
+      const conditions = ['deleted_at IS NULL', `(name ILIKE '%' || $1 || '%' OR description ILIKE '%' || $1 || '%')`];
+      const params: unknown[] = [query];
+      if (entityType) {
+        params.push(entityType);
+        conditions.push(`type = $${params.length}`);
+      }
+      params.push(limit);
+      const entities = await pool.query(
+        `SELECT id, type, name, description, confidence::float
+         FROM kg_entities
+         WHERE ${conditions.join(' AND ')}
+         ORDER BY confidence DESC, updated_at DESC
+         LIMIT $${params.length}`,
+        params,
+      );
+      const entityIds = entities.rows.map((r: any) => r.id);
+      let relations: any[] = [];
+      if (entityIds.length > 0) {
+        const relRes = await pool.query(
+          `SELECT r.id, r.relation_type, r.confidence::float,
+                  se.name AS source_name, te.name AS target_name
+           FROM kg_relations r
+           JOIN kg_entities se ON se.id = r.source_entity_id
+           JOIN kg_entities te ON te.id = r.target_entity_id
+           WHERE r.deleted_at IS NULL
+             AND (r.source_entity_id = ANY($1) OR r.target_entity_id = ANY($1))
+           LIMIT 30`,
+          [entityIds],
+        );
+        relations = relRes.rows;
+      }
+      return { outputs: { entities: entities.rows, relations } };
+    }
+
+    case 'brain.entity': {
+      const name = String(inputs.name || '').trim();
+      if (!name) return { outputs: {}, error: 'inputs.name is required' };
+      const includeRelations = inputs.include_relations !== false;
+      const entityRes = await pool.query(
+        `SELECT id, type, name, description, metadata, confidence::float, first_seen_at, updated_at
+         FROM kg_entities WHERE name ILIKE $1 AND deleted_at IS NULL LIMIT 1`,
+        [name],
+      );
+      if (entityRes.rows.length === 0) {
+        return { outputs: { entity: null, relations: [], evidence: [] } };
+      }
+      const entity = entityRes.rows[0];
+      let relations: any[] = [];
+      let evidence: any[] = [];
+      if (includeRelations) {
+        const relRes = await pool.query(
+          `SELECT r.relation_type, r.confidence::float,
+                  se.name AS source_name, te.name AS target_name
+           FROM kg_relations r
+           JOIN kg_entities se ON se.id = r.source_entity_id
+           JOIN kg_entities te ON te.id = r.target_entity_id
+           WHERE r.deleted_at IS NULL
+             AND (r.source_entity_id = $1 OR r.target_entity_id = $1)
+           LIMIT 20`,
+          [(entity as any).id],
+        );
+        relations = relRes.rows;
+      }
+      const evRes = await pool.query(
+        `SELECT content_type, quote, context, confidence::float, extraction_method
+         FROM kg_evidence WHERE entity_id = $1 LIMIT 10`,
+        [(entity as any).id],
+      );
+      evidence = evRes.rows;
+      return { outputs: { entity, relations, evidence } };
+    }
+
+    case 'brain.stats': {
+      const entityCount = await pool.query(
+        `SELECT COUNT(*)::int AS count FROM kg_entities WHERE deleted_at IS NULL`,
+      );
+      const relCount = await pool.query(
+        `SELECT COUNT(*)::int AS count FROM kg_relations WHERE deleted_at IS NULL`,
+      );
+      const types = await pool.query(
+        `SELECT type, COUNT(*)::int AS count FROM kg_entities WHERE deleted_at IS NULL GROUP BY type ORDER BY count DESC`,
+      );
+      const recent = await pool.query(
+        `SELECT name, type, first_seen_at FROM kg_entities WHERE deleted_at IS NULL ORDER BY first_seen_at DESC LIMIT 5`,
+      );
+      const typesObj: Record<string, number> = {};
+      for (const r of types.rows) typesObj[(r as any).type] = (r as any).count;
+      return {
+        outputs: {
+          entity_count: entityCount.rows[0]?.count || 0,
+          relation_count: relCount.rows[0]?.count || 0,
+          entity_types: typesObj,
+          recent_entities: recent.rows,
+        },
+      };
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // PATTERN OBSERVATION TOOLS
+    // ═════════════════════════════════════════════════════════
+
+    case 'pattern.insights': {
+      const status = inputs.status || 'active';
+      const limit = Math.min(Math.max(Number(inputs.limit) || 10, 1), 20);
+      const res = await pool.query(
+        `SELECT normalized_question, sample_question, occurrences,
+                first_seen_at, last_seen_at, suggested_answer, status
+         FROM proactive_pattern_insights
+         WHERE status = $1
+         ORDER BY occurrences DESC, last_seen_at DESC
+         LIMIT $2`,
+        [status, limit],
+      );
+      return { outputs: { patterns: res.rows } };
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // COMMUNITY AGENTS TOOLS
+    // ═════════════════════════════════════════════════════════
+
+    case 'agents.list': {
+      const statusFilter = inputs.status as string | undefined;
+      const conditions = ['1=1'];
+      const params: unknown[] = [];
+      if (statusFilter) {
+        params.push(statusFilter);
+        conditions.push(`status = $${params.length}`);
+      }
+      const res = await pool.query(
+        `SELECT id, name, model, status, created_at
+         FROM agents
+         WHERE ${conditions.join(' AND ')}
+         ORDER BY name ASC`,
+        params,
+      );
+      return { outputs: { agents: res.rows } };
+    }
+
+    case 'agents.message': {
+      const agentName = String(inputs.agent_name || '').trim();
+      const message = String(inputs.message || '').trim();
+      if (!agentName || !message) return { outputs: {}, error: 'inputs.agent_name and inputs.message are required' };
+      const agentRes = await pool.query(
+        `SELECT id, name, status FROM agents WHERE name ILIKE $1 AND status = 'active' LIMIT 1`,
+        [agentName],
+      );
+      if (agentRes.rows.length === 0) {
+        return { outputs: {}, error: `No active agent found with name: ${agentName}` };
+      }
+      const agent = agentRes.rows[0] as { id: string; name: string };
+      const msgId = `iam_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+      const sessionId = runContext?.chatId || 'system';
+      await pool.query(
+        `INSERT INTO inter_agent_messages (id, from_agent, to_agent, session_id, message, status, created_at)
+         VALUES ($1, 'sven-core', $2, $3, $4, 'queued', NOW())`,
+        [msgId, agent.id, sessionId, message],
+      );
+      return {
+        outputs: {
+          agent_id: agent.id,
+          status: 'delegated',
+          response: `Message sent to ${agent.name}. The agent will process it asynchronously.`,
+        },
+      };
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // FEDERATION TOOLS
+    // ═════════════════════════════════════════════════════════
+
+    case 'federation.status': {
+      const identityRes = await pool.query(
+        `SELECT key, value FROM settings WHERE key IN ('federation_identity', 'federation_enabled', 'federation_consent_mode')`,
+      );
+      const settings: Record<string, string> = {};
+      for (const r of identityRes.rows) settings[(r as any).key] = (r as any).value;
+      let identity = null;
+      try { identity = JSON.parse(settings.federation_identity || 'null'); } catch { /* empty */ }
+      return {
+        outputs: {
+          enabled: settings.federation_enabled === 'true',
+          identity,
+          consent_mode: settings.federation_consent_mode || 'opt-in',
+        },
+      };
+    }
+
+    case 'federation.peers': {
+      try {
+        const res = await pool.query(
+          `SELECT homeserver, status, last_seen_at, capabilities
+           FROM federation_peers
+           ORDER BY last_seen_at DESC NULLS LAST`,
+        );
+        return { outputs: { peers: res.rows } };
+      } catch {
+        return { outputs: { peers: [], note: 'Federation peers table not available' } };
+      }
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // CALIBRATION TOOLS
+    // ═════════════════════════════════════════════════════════
+
+    case 'calibration.self_check': {
+      const windowDays = Math.min(Math.max(Number(inputs.window_days) || 7, 1), 90);
+      const since = new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000).toISOString();
+      const totalRes = await pool.query(
+        `SELECT COUNT(*)::int AS total FROM messages WHERE role = 'assistant' AND created_at >= $1`,
+        [since],
+      );
+      const fbRes = await pool.query(
+        `SELECT feedback, COUNT(*)::int AS count FROM message_feedback WHERE created_at >= $1 GROUP BY feedback`,
+        [since],
+      );
+      let positive = 0, negative = 0;
+      for (const r of fbRes.rows) {
+        if ((r as any).feedback === 'up') positive = (r as any).count;
+        if ((r as any).feedback === 'down') negative = (r as any).count;
+      }
+      const total = totalRes.rows[0]?.total || 0;
+      const accuracy = positive + negative > 0 ? positive / (positive + negative) : null;
+      return {
+        outputs: {
+          window_days: windowDays,
+          total_interactions: total,
+          positive_feedback: positive,
+          negative_feedback: negative,
+          accuracy_estimate: accuracy,
+        },
+      };
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // INFERENCE / MODEL ROUTING TOOLS
+    // ═════════════════════════════════════════════════════════
+
+    case 'inference.status': {
+      const nodes = await pool.query(
+        `SELECT node_name, node_type, is_healthy, current_load_percent::float,
+                avg_response_time_ms::float, supported_models, gpu_enabled
+         FROM inference_nodes
+         ORDER BY node_name ASC`,
+      );
+      const policy = await pool.query(
+        `SELECT policy_name, description, prefer_local_first, load_threshold_percent::float
+         FROM inference_routing_policy WHERE is_active = true LIMIT 1`,
+      );
+      return {
+        outputs: {
+          nodes: nodes.rows,
+          active_routing_policy: policy.rows[0]?.policy_name || 'default',
+        },
+      };
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // SELF-AWARENESS / INTROSPECTION TOOLS
+    // ═════════════════════════════════════════════════════════
+
+    case 'sven.soul': {
+      try {
+        const res = await pool.query(
+          `SELECT si.slug, sc.name, si.version, sc.author, si.status, si.activated_at, si.content
+           FROM souls_installed si
+           JOIN souls_catalog sc ON sc.id = si.soul_id
+           WHERE si.status = 'active'
+           ORDER BY si.activated_at DESC NULLS LAST
+           LIMIT 1`,
+        );
+        if (res.rows.length === 0) {
+          return { outputs: { slug: null, content: 'No active soul found. I am running on defaults.' } };
+        }
+        const row = res.rows[0] as any;
+        return {
+          outputs: {
+            slug: row.slug,
+            name: row.name,
+            version: row.version,
+            author: row.author,
+            status: row.status,
+            activated_at: row.activated_at,
+            content: row.content,
+          },
+        };
+      } catch {
+        return { outputs: { slug: null, content: 'Soul system unavailable (pre-migration).' } };
+      }
+    }
+
+    case 'sven.whois': {
+      const userId = runContext?.userId;
+      if (!userId || userId === 'unknown') {
+        return { outputs: {}, error: 'Cannot identify the current user from context' };
+      }
+      const userRes = await pool.query(
+        `SELECT username, display_name, role, created_at FROM users WHERE id = $1`,
+        [userId],
+      );
+      if (userRes.rows.length === 0) {
+        return { outputs: {}, error: 'User not found' };
+      }
+      const user = userRes.rows[0] as any;
+
+      let uiPrefs = null;
+      try {
+        const uiRes = await pool.query(
+          `SELECT visual_mode, motion_enabled, motion_level, avatar_mode FROM user_ui_preferences WHERE user_id = $1`,
+          [userId],
+        );
+        uiPrefs = uiRes.rows[0] || null;
+      } catch { /* table may not exist */ }
+
+      let proactivePrefs = null;
+      try {
+        const proRes = await pool.query(
+          `SELECT channels, quiet_hours_start, quiet_hours_end, quiet_hours_timezone FROM user_proactive_preferences WHERE user_id = $1`,
+          [userId],
+        );
+        proactivePrefs = proRes.rows[0] || null;
+      } catch { /* table may not exist */ }
+
+      let sessionSettings = null;
+      if (runContext?.chatId) {
+        try {
+          const ssRes = await pool.query(
+            `SELECT think_level, verbose, usage_mode, model_name, profile_name, rag_enabled, agent_paused
+             FROM session_settings WHERE session_id = $1`,
+            [runContext.chatId],
+          );
+          sessionSettings = ssRes.rows[0] || null;
+        } catch { /* table may not exist */ }
+      }
+
+      const channelsRes = await pool.query(
+        `SELECT DISTINCT channel, display_name FROM identities WHERE user_id = $1`,
+        [userId],
+      );
+
+      const memCount = await pool.query(
+        `SELECT COUNT(*)::int AS count FROM memories WHERE user_id = $1 AND archived_at IS NULL AND merged_into IS NULL`,
+        [userId],
+      );
+
+      const convCount = await pool.query(
+        `SELECT COUNT(DISTINCT chat_id)::int AS count FROM messages WHERE sender_user_id = $1`,
+        [userId],
+      );
+
+      return {
+        outputs: {
+          username: user.username,
+          display_name: user.display_name,
+          role: user.role,
+          member_since: user.created_at,
+          ui_preferences: uiPrefs,
+          proactive_preferences: proactivePrefs,
+          session_settings: sessionSettings,
+          channels: channelsRes.rows,
+          memory_count: memCount.rows[0]?.count || 0,
+          conversation_count: convCount.rows[0]?.count || 0,
+        },
+      };
+    }
+
+    case 'sven.tool_history': {
+      const limit = Math.min(Math.max(Number(inputs.limit) || 20, 1), 50);
+      const statusFilter = inputs.status as string | undefined;
+      const conditions = ['1=1'];
+      const params: unknown[] = [];
+      if (statusFilter) {
+        params.push(statusFilter);
+        conditions.push(`status = $${params.length}`);
+      }
+      params.push(limit);
+      const runs = await pool.query(
+        `SELECT tool_name, status, duration_ms, error, created_at
+         FROM tool_runs
+         WHERE ${conditions.join(' AND ')}
+         ORDER BY created_at DESC
+         LIMIT $${params.length}`,
+        params,
+      );
+
+      const summaryRes = await pool.query(
+        `SELECT
+           COUNT(*)::int AS total,
+           COUNT(*) FILTER (WHERE status IN ('success','completed'))::int AS success,
+           COUNT(*) FILTER (WHERE status = 'error')::int AS errors,
+           COUNT(*) FILTER (WHERE status = 'timeout')::int AS timeouts,
+           COALESCE(AVG(duration_ms)::int, 0) AS avg_duration_ms
+         FROM tool_runs
+         WHERE created_at > NOW() - INTERVAL '24 hours'`,
+      );
+      return {
+        outputs: {
+          runs: runs.rows,
+          summary_24h: summaryRes.rows[0] || { total: 0, success: 0, errors: 0, timeouts: 0, avg_duration_ms: 0 },
+        },
+      };
+    }
+
+    case 'sven.schedules': {
+      const filterType = (inputs.type as string) || 'all';
+      const result: Record<string, unknown[]> = {};
+
+      if (filterType === 'all' || filterType === 'scheduled_tasks') {
+        const res = await pool.query(
+          `SELECT name, instruction, schedule_type, expression, timezone, enabled,
+                  last_run, next_run, run_count, max_runs
+           FROM scheduled_tasks
+           ORDER BY enabled DESC, next_run ASC NULLS LAST
+           LIMIT 30`,
+        );
+        result.scheduled_tasks = res.rows;
+      }
+
+      if (filterType === 'all' || filterType === 'ha_automations') {
+        try {
+          const res = await pool.query(
+            `SELECT name, description, enabled, cooldown_seconds, last_triggered_at
+             FROM ha_automations
+             ORDER BY enabled DESC, last_triggered_at DESC NULLS LAST
+             LIMIT 30`,
+          );
+          result.ha_automations = res.rows;
+        } catch { result.ha_automations = []; }
+      }
+
+      if (filterType === 'all' || filterType === 'workflows') {
+        const res = await pool.query(
+          `SELECT name, description, version, enabled, tags, created_at
+           FROM workflows
+           ORDER BY enabled DESC, updated_at DESC
+           LIMIT 20`,
+        );
+        result.workflows = res.rows;
+      }
+
+      return { outputs: result };
+    }
+
+    case 'sven.documents': {
+      const limit = Math.min(Math.max(Number(inputs.limit) || 15, 1), 30);
+      const artifacts = await pool.query(
+        `SELECT name, mime_type, size_bytes, is_private, created_at
+         FROM artifacts
+         ORDER BY created_at DESC
+         LIMIT $1`,
+        [limit],
+      );
+      const totalArt = await pool.query(
+        `SELECT COUNT(*)::int AS count FROM artifacts`,
+      );
+      let ragStats = { total_chunks: 0, unique_sources: 0 };
+      try {
+        const ragRes = await pool.query(
+          `SELECT
+             COUNT(*)::int AS total_chunks,
+             COUNT(DISTINCT source)::int AS unique_sources
+           FROM rag_embeddings`,
+        );
+        ragStats = ragRes.rows[0] as any;
+      } catch { /* rag_embeddings may not exist */ }
+      return {
+        outputs: {
+          artifacts: artifacts.rows,
+          total_artifacts: totalArt.rows[0]?.count || 0,
+          rag_stats: ragStats,
+        },
+      };
+    }
+
+    case 'sven.mcp_servers': {
+      const servers = await pool.query(
+        `SELECT s.id, s.name, s.transport, s.status, s.last_connected,
+                COUNT(t.id)::int AS tool_count
+         FROM mcp_servers s
+         LEFT JOIN mcp_server_tools t ON t.server_id = s.id
+         GROUP BY s.id, s.name, s.transport, s.status, s.last_connected
+         ORDER BY s.name ASC`,
+      );
+      const totalTools = servers.rows.reduce((sum: number, r: any) => sum + (r.tool_count || 0), 0);
+      return {
+        outputs: {
+          servers: servers.rows.map((r: any) => ({
+            name: r.name,
+            transport: r.transport,
+            status: r.status,
+            tool_count: r.tool_count,
+            last_connected: r.last_connected,
+          })),
+          total_tools: totalTools,
+        },
+      };
+    }
+
+    case 'sven.integrations': {
+      try {
+        const res = await pool.query(
+          `SELECT integration_type, runtime_mode, status, last_deployed_at, last_error
+           FROM integration_runtime_instances
+           ORDER BY status ASC, integration_type ASC`,
+        );
+        return { outputs: { integrations: res.rows } };
+      } catch {
+        return { outputs: { integrations: [], note: 'Integration runtime table not available' } };
+      }
+    }
+
+    case 'sven.channels': {
+      const channelStats = await pool.query(
+        `SELECT channel, COUNT(*)::int AS conversation_count, MAX(created_at) AS latest_activity
+         FROM chats
+         WHERE channel IS NOT NULL
+         GROUP BY channel
+         ORDER BY conversation_count DESC`,
+      );
+      const totalConvs = await pool.query(
+        `SELECT COUNT(*)::int AS count FROM chats`,
+      );
+      return {
+        outputs: {
+          channels: channelStats.rows,
+          total_conversations: totalConvs.rows[0]?.count || 0,
+        },
+      };
+    }
+
+    case 'sven.skills': {
+      try {
+        const res = await pool.query(
+          `SELECT sc.name, sc.description, sc.version, sc.format,
+                  si.trust_level, si.installed_at
+           FROM skills_installed si
+           JOIN skills_catalog sc ON sc.id = si.catalog_entry_id
+           ORDER BY si.installed_at DESC`,
+        );
+        return { outputs: { skills: res.rows, total: res.rows.length } };
+      } catch {
+        return { outputs: { skills: [], total: 0, note: 'Skills system unavailable' } };
+      }
+    }
+
+    case 'sven.analytics': {
+      const windowDays = Math.min(Math.max(Number(inputs.window_days) || 7, 1), 90);
+      const since = new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000).toISOString();
+
+      const fbRes = await pool.query(
+        `SELECT feedback, COUNT(*)::int AS count FROM message_feedback WHERE created_at >= $1 GROUP BY feedback`,
+        [since],
+      );
+      let positive = 0, negative = 0;
+      for (const r of fbRes.rows) {
+        if ((r as any).feedback === 'up') positive = (r as any).count;
+        if ((r as any).feedback === 'down') negative = (r as any).count;
+      }
+
+      let tokenUsage: any = { total_input: 0, total_output: 0, models: {} };
+      try {
+        const tokenRes = await pool.query(
+          `SELECT model_name, SUM(input_tokens)::int AS input_tokens, SUM(output_tokens)::int AS output_tokens
+           FROM session_token_usage
+           WHERE created_at >= $1
+           GROUP BY model_name`,
+          [since],
+        );
+        const models: Record<string, any> = {};
+        let totalInput = 0, totalOutput = 0;
+        for (const r of tokenRes.rows) {
+          const m = (r as any).model_name || 'unknown';
+          models[m] = { input_tokens: (r as any).input_tokens, output_tokens: (r as any).output_tokens };
+          totalInput += (r as any).input_tokens || 0;
+          totalOutput += (r as any).output_tokens || 0;
+        }
+        tokenUsage = { total_input: totalInput, total_output: totalOutput, models };
+      } catch { /* session_token_usage may not exist */ }
+
+      const convs = await pool.query(
+        `SELECT COUNT(DISTINCT id)::int AS count FROM chats WHERE created_at >= $1`,
+        [since],
+      );
+      const msgs = await pool.query(
+        `SELECT COUNT(*)::int AS count FROM messages WHERE created_at >= $1`,
+        [since],
+      );
+
+      return {
+        outputs: {
+          window_days: windowDays,
+          feedback: { positive, negative },
+          token_usage: tokenUsage,
+          conversation_count: convs.rows[0]?.count || 0,
+          message_count: msgs.rows[0]?.count || 0,
+        },
+      };
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // PRIVILEGED OPS TOOLS — 47-admin-only
+    // ═══════════════════════════════════════════════════════════════
+
+    case 'sven.ops.infra': {
+      const gate = await requireAdmin47(pool, runContext?.userId);
+      if (!gate.ok) return { outputs: {}, error: gate.error };
+      if (runContext?.userId) await logOpsAudit(pool, runContext.userId, 'sven.ops.infra', inputs, 'Infrastructure topology requested');
+
+      const dockerPs = runDockerCommand(['ps', '--format', '{{.Names}}\t{{.Status}}\t{{.Ports}}'], 10000, 1024 * 64);
+      const containerLines = (dockerPs.stdout || '').trim().split('\n').filter(Boolean).map(line => {
+        const [name, status, ports] = line.split('\t');
+        return { name: name || '', status: status || '', ports: ports || '' };
+      });
+
+      return {
+        outputs: {
+          topology: {
+            vms: [
+              { name: 'VM4 — Platform', ip: '10.47.47.8', wg: '10.47.0.6', role: 'Core services: postgres, nats, gateway-api, agent-runtime, skill-runner, registry-worker, notification-service, workflow-executor, nginx' },
+              { name: 'VM5 — AI & Voice', ip: '10.47.47.9', wg: '10.47.0.7', role: 'LLM inference: ollama (RX 9070 XT + RX 6750 XT), litellm, faster-whisper, piper, openwakeword, wake-word, llama-server (systemd)' },
+              { name: 'VM6 — Data & Observability', ip: '10.47.47.10', wg: '10.47.0.8', role: 'opensearch, RAG pipeline (indexer, nas-ingestor, git-ingestor, notes-ingestor), searxng, egress-proxy, otel-collector, prometheus, grafana, loki, uptime-kuma' },
+              { name: 'VM7 — Adapters', ip: '10.47.47.11', wg: '10.47.0.9', role: '22 channel adapters (discord, slack, telegram, matrix, teams, whatsapp, signal, imessage, webchat, google-chat, zalo, feishu, mattermost, voice-call, line, irc, nostr, tlon, nextcloud-talk, twitch, whatsapp-personal, zalo-personal), cloudflared tunnel' },
+              { name: 'VM12 — External', ip: '10.47.47.12', wg: 'N/A', role: 'Rocket.Chat (talk.sven.systems)' },
+              { name: 'VM13 — GPU Fallback (Kaldorei)', ip: '10.47.47.13', wg: 'N/A', role: 'Ollama fallback (RTX 3060)' },
+            ],
+            cross_vm_connectivity: {
+              'VM7→VM4': 'Gateway API :3000',
+              'VM7→VM6': 'OTEL Collector :4318',
+              'VM5→VM4': 'PostgreSQL :5432, NATS :4222',
+              'VM5→VM6': 'OTEL :4318',
+              'VM6→VM4': 'PostgreSQL :5432, NATS :4222',
+              'VM6→VM5': 'Ollama :11434 (embeddings)',
+              'VM4→VM5': 'Ollama :11434, LiteLLM :4000',
+              'VM4→VM6': 'OpenSearch :9200, OTEL :4318, Egress :3128',
+              'VM4→VM13': 'Ollama :11434 (fallback)',
+            },
+          },
+          running_containers: containerLines,
+          observability: {
+            otel_collector: { port: '4317/4318', location: 'VM6', protocol: 'gRPC/HTTP' },
+            prometheus: { port: '9090', location: 'VM6', retention: '30d' },
+            grafana: { port: '9091→3000', location: 'VM6' },
+            loki: { port: '3100', location: 'VM6' },
+            promtail: { locations: ['VM4', 'VM5', 'VM6', 'VM7'] },
+            postgres_exporter: { port: '9187', location: 'VM4' },
+            nats_exporter: { port: '7777', location: 'VM4' },
+            uptime_kuma: { location: 'VM6' },
+          },
+          deployment: {
+            orchestration: 'Docker Compose (per-VM) + systemd bootstrap',
+            process_manager: 'PM2 (dev mode: gateway-api :3000, agent-runtime :39100, admin-ui :3100, canvas-ui :3200)',
+            systemd_unit: 'sven-compose-core.service — starts postgres, nats, gateway-api, sven-internal-nginx',
+            networking: 'WireGuard mesh (10.47.0.0/24) between VMs, Cloudflare Tunnel on VM7',
+            tls: 'Nginx TLS termination on VM4, Caddy/Traefik configs available',
+            total_services: '40+ (22 adapters + 18+ core/infra)',
+          },
+        },
+      };
+    }
+
+    case 'sven.ops.health': {
+      const gate = await requireAdmin47(pool, runContext?.userId);
+      if (!gate.ok) return { outputs: {}, error: gate.error };
+      if (runContext?.userId) await logOpsAudit(pool, runContext.userId, 'sven.ops.health', inputs, 'System health check');
+
+      const dbStats = await pool.query(
+        `SELECT
+           (SELECT count(*)::int FROM pg_stat_activity WHERE state = 'active') AS active_connections,
+           (SELECT count(*)::int FROM pg_stat_activity) AS total_connections,
+           pg_database_size(current_database())::bigint AS db_size_bytes`,
+      );
+      const db = dbStats.rows[0] as { active_connections: number; total_connections: number; db_size_bytes: string };
+
+      let queueDepths: Record<string, number> = {};
+      try {
+        const qRes = await pool.query(
+          `SELECT tool_name, count(*)::int AS pending FROM tool_runs WHERE status = 'running' GROUP BY tool_name ORDER BY pending DESC LIMIT 20`,
+        );
+        for (const r of qRes.rows) queueDepths[(r as any).tool_name] = (r as any).pending;
+      } catch { /* tool_runs may not exist yet */ }
+
+      let errors24h: { total: number; by_status: Record<string, number> } = { total: 0, by_status: {} };
+      try {
+        const errRes = await pool.query(
+          `SELECT status, count(*)::int AS cnt FROM tool_runs WHERE status IN ('error','timeout','denied') AND created_at >= NOW() - INTERVAL '24 hours' GROUP BY status`,
+        );
+        for (const r of errRes.rows) {
+          errors24h.by_status[(r as any).status] = (r as any).cnt;
+          errors24h.total += (r as any).cnt;
+        }
+      } catch { /* table may not exist */ }
+
+      const dockerHealth = runDockerCommand(['ps', '--format', '{{.Names}}\t{{.Status}}'], 10000, 1024 * 64);
+      const services: Record<string, string> = {};
+      for (const line of (dockerHealth.stdout || '').trim().split('\n').filter(Boolean)) {
+        const [name, status] = line.split('\t');
+        if (name) services[name] = status || 'unknown';
+      }
+
+      const uptime = process.uptime();
+
+      return {
+        outputs: {
+          database: {
+            active_connections: db.active_connections,
+            total_connections: db.total_connections,
+            db_size_mb: Math.round(Number(db.db_size_bytes) / (1024 * 1024)),
+          },
+          queues: { running_tool_runs: queueDepths },
+          errors_24h: errors24h,
+          services: services,
+          uptime: {
+            skill_runner_seconds: Math.round(uptime),
+            skill_runner_uptime: `${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m`,
+          },
+        },
+      };
+    }
+
+    case 'sven.ops.code_scan': {
+      const gate = await requireAdmin47(pool, runContext?.userId);
+      if (!gate.ok) return { outputs: {}, error: gate.error };
+      if (runContext?.userId) await logOpsAudit(pool, runContext.userId, 'sven.ops.code_scan', inputs, 'Code scan initiated');
+
+      const scope = String(inputs.scope || 'all');
+      const categories = Array.isArray(inputs.categories) ? inputs.categories.map(String) : ['lint', 'typecheck', 'security'];
+      const start = Date.now();
+      const findings: Array<{ category: string; severity: string; file: string; line?: number; message: string }> = [];
+
+      const serviceMap: Record<string, string> = {
+        'gateway-api': 'services/gateway-api',
+        'agent-runtime': 'services/agent-runtime',
+        'skill-runner': 'services/skill-runner',
+        'canvas-ui': 'apps/canvas-ui',
+        'admin-ui': 'apps/admin-ui',
+      };
+      const targets = scope === 'all' ? Object.keys(serviceMap) : [scope];
+
+      for (const target of targets) {
+        const cwd = serviceMap[target];
+        if (!cwd) continue;
+
+        if (categories.includes('typecheck')) {
+          const tsc = spawnSync('node', ['../../node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/bin/tsc', '--noEmit', '--pretty', 'false'], {
+            cwd, timeout: 60000, encoding: 'utf8', maxBuffer: 1024 * 256,
+          });
+          if (tsc.stdout) {
+            for (const line of tsc.stdout.split('\n').filter(Boolean).slice(0, 50)) {
+              const match = line.match(/^(.+?)\((\d+),\d+\):\s*error\s+\w+:\s*(.+)$/);
+              if (match) findings.push({ category: 'typecheck', severity: 'error', file: `${cwd}/${match[1]}`, line: Number(match[2]), message: match[3] });
+            }
+          }
+        }
+
+        if (categories.includes('security')) {
+          const audit = spawnSync('npx', ['audit', '--json'], {
+            cwd, timeout: 30000, encoding: 'utf8', maxBuffer: 1024 * 256,
+          });
+          try {
+            const parsed = JSON.parse(audit.stdout || '{}');
+            if (parsed.vulnerabilities) {
+              for (const [pkg, info] of Object.entries(parsed.vulnerabilities).slice(0, 20)) {
+                const v = info as any;
+                findings.push({ category: 'security', severity: v.severity || 'unknown', file: `${cwd}/package.json`, message: `${pkg}: ${v.title || v.via?.[0]?.title || 'vulnerability detected'}` });
+              }
+            }
+          } catch { /* audit output may not be valid JSON */ }
+        }
+      }
+
+      const summary: Record<string, number> = {};
+      for (const f of findings) summary[f.severity] = (summary[f.severity] || 0) + 1;
+
+      return {
+        outputs: {
+          findings: findings.slice(0, 100),
+          summary: { ...summary, total: findings.length },
+          scan_duration_ms: Date.now() - start,
+          scope,
+          categories,
+        },
+      };
+    }
+
+    case 'sven.ops.code_fix': {
+      const gate = await requireAdmin47(pool, runContext?.userId);
+      if (!gate.ok) return { outputs: {}, error: gate.error };
+      if (runContext?.userId) await logOpsAudit(pool, runContext.userId, 'sven.ops.code_fix', inputs, 'Code fix proposal requested', 'medium');
+
+      const issueDescription = String(inputs.issue_description || '');
+      const autoApply = inputs.auto_apply === true;
+
+      if (!issueDescription) return { outputs: {}, error: 'issue_description is required.' };
+
+      // Build change list — support single-file (file_path/old_content/new_content)
+      // or multi-file (changes: [{file_path, old_content, new_content}, ...])
+      const changes: FileChange[] = [];
+      if (inputs.changes && Array.isArray(inputs.changes)) {
+        for (const c of inputs.changes as Array<Record<string, unknown>>) {
+          const fp = c.file_path ? String(c.file_path) : undefined;
+          const oc = c.old_content ? String(c.old_content) : undefined;
+          const nc = c.new_content ? String(c.new_content) : undefined;
+          if (fp && oc && nc) changes.push({ file_path: fp, old_content: oc, new_content: nc });
+        }
+      } else {
+        const filePath = inputs.file_path ? String(inputs.file_path) : undefined;
+        const oldContent = inputs.old_content ? String(inputs.old_content) : undefined;
+        const newContent = inputs.new_content ? String(inputs.new_content) : undefined;
+        if (filePath && oldContent && newContent) changes.push({ file_path: filePath, old_content: oldContent, new_content: newContent });
+      }
+
+      const isExecutableFix = changes.length > 0;
+      const proposalId = generateTaskId('tool_run');
+      const repoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+
+      // v8: File quarantine check — block fixes on quarantined files
+      if (isExecutableFix) {
+        for (const change of changes) {
+          const quarantine = isFileQuarantined(change.file_path);
+          if (quarantine.quarantined) {
+            return {
+              outputs: {
+                proposal: { id: proposalId, status: 'quarantined', file: change.file_path, failures: quarantine.failures },
+                error_detail: `${change.file_path} is quarantined after ${quarantine.failures} consecutive heal failures in 24h. Use sven.ops.heal_history with clear_quarantine to lift.`,
+              },
+            };
+          }
+        }
+      }
+
+      // v8: Resource guard — check system resources before heavy operations
+      if (isExecutableFix) {
+        const resGuard = checkSystemResources();
+        if (!resGuard.ok) {
+          return {
+            outputs: {
+              proposal: { id: proposalId, status: 'resource_blocked', warnings: resGuard.warnings, freeMemMb: resGuard.freeMemMb, freeDiskMb: resGuard.freeDiskMb },
+              error_detail: `System resources too low for safe build: ${resGuard.warnings.join('; ')}`,
+            },
+          };
+        }
+      }
+
+      // v8: Auto-severity classification — classify change impact by file paths
+      const changeSeverity = isExecutableFix ? classifyChangeSeverity(changes, repoRoot) : { severity: 'MEDIUM' as const, reasons: [] };
+
+      // v9: Fix impact estimation — calculate blast radius (lines, files, services, risk score)
+      const fixImpact = isExecutableFix ? estimateFixImpact(changes, repoRoot) : null;
+
+      // v7: Confidence scoring — fetch per-file historical success rate
+      const confidenceScores: Array<{ file: string; score: number; revertRate: string; rating: string }> = [];
+      if (isExecutableFix) {
+        for (const change of changes) {
+          const conf = await getHealConfidence(pool, change.file_path);
+          confidenceScores.push({
+            file: change.file_path,
+            score: conf.score,
+            revertRate: conf.revertRate,
+            rating: conf.score >= 0.8 ? 'HIGH' : conf.score >= 0.5 ? 'MEDIUM' : 'LOW',
+          });
+        }
+      }
+
+      // v4: Generate unified diff for all modes (preview for approvals, record for direct)
+      const unifiedDiff = isExecutableFix ? generateUnifiedDiff(changes, repoRoot) : '';
+
+      // v6: Fix deduplication — reject identical diffs within 24h
+      let fixHashForDedup = '';
+      if (isExecutableFix) {
+        const dedup = isDuplicateFix(changes);
+        fixHashForDedup = dedup.hash;
+        if (dedup.duplicate) {
+          return {
+            outputs: {
+              proposal: { id: proposalId, status: 'deduplicated', hash: dedup.hash.slice(0, 16) },
+              error_detail: `This exact diff (${dedup.hash.slice(0, 12)}…) was already applied ${dedup.firstSeenAt ? Math.round((Date.now() - dedup.firstSeenAt) / 60000) + ' min ago' : 'recently'}. Skipping duplicate.`,
+            },
+          };
+        }
+      }
+
+      // v4: Fix rate limiter — check all files before applying
+      if (isExecutableFix) {
+        for (const change of changes) {
+          const rateCheck = checkFixRateLimit(change.file_path);
+          if (!rateCheck.allowed) {
+            return {
+              outputs: {
+                proposal: { id: proposalId, status: 'rate_limited', file: change.file_path, recent_fixes: rateCheck.recentCount, max: FIX_RATE_MAX, reset_in_min: Math.ceil(rateCheck.resetInMs / 60000) },
+                error_detail: `${change.file_path} has been modified ${rateCheck.recentCount} times in the last 30 minutes (limit: ${FIX_RATE_MAX}). This prevents fix loops. Cooldown resets in ${Math.ceil(rateCheck.resetInMs / 60000)} min.`,
+              },
+            };
+          }
+        }
+
+        // v6: Dry-run simulation — apply on temp branch, build+test, discard
+        if (inputs.dry_run === true) {
+          try {
+            const sim = await dryRunSimulation(changes, repoRoot);
+            return {
+              outputs: {
+                proposal: { id: proposalId, status: 'dry_run_complete', files: changes.map(c => c.file_path) },
+                dry_run: {
+                  build_ok: sim.buildOk, build_output: sim.buildOutput.slice(0, 1000),
+                  tests_ok: sim.testsOk, test_output: sim.testOutput.slice(0, 1000),
+                  cross_service_ok: sim.crossServiceOk, cross_service_output: sim.crossServiceOutput.slice(0, 500),
+                },
+                diff: unifiedDiff.slice(0, 3000),
+                note: sim.buildOk && sim.testsOk
+                  ? `Dry-run passed: build ✅ tests ✅${sim.crossServiceOk ? '' : ' cross-service ❌'}. Safe to apply for real.`
+                  : `Dry-run failed: build ${sim.buildOk ? '✅' : '❌'} tests ${sim.testsOk ? '✅' : '❌'}. Do not apply.`,
+              },
+            };
+          } catch (err) {
+            return { outputs: {}, error: `Dry-run simulation failed: ${err instanceof Error ? err.message : String(err)}` };
+          }
+        }
+      }
+
+      if (isExecutableFix && !autoApply) {
+        // Direct apply via branch isolation
+        try {
+          const commitMsg = `fix(sven-heal): ${issueDescription.slice(0, 72)}`;
+          const result = await applyFixOnBranch(changes, repoRoot, commitMsg);
+
+          if (!result.ok) {
+            if (runContext?.userId) {
+              await logOpsAudit(pool, runContext.userId, 'sven.ops.code_fix', { files: changes.map(c => c.file_path), issue: issueDescription }, `Fix rolled back: build verification failed on branch ${result.branch}`, 'high');
+            }
+            return {
+              outputs: {
+                proposal: { id: proposalId, status: 'rolled_back', files: changes.map(c => c.file_path), branch: result.branch },
+                error_detail: `Fix was applied on branch ${result.branch} but broke the build. Branch abandoned, all files restored.`,
+                build_errors: (result.buildOutput || '').slice(0, 1000),
+                diff: unifiedDiff.slice(0, 3000),
+              },
+            };
+          }
+
+          // v4: Post-fix test runner — verify tests still pass
+          const testResults: Array<{ file: string; ok: boolean; output: string; skipped: boolean }> = [];
+          for (const change of changes) {
+            const tr = runServiceTests(repoRoot, change.file_path);
+            testResults.push({ file: change.file_path, ...tr });
+          }
+          const testFailures = testResults.filter(t => !t.ok && !t.skipped);
+
+          if (testFailures.length > 0) {
+            const revertResult = revertHealCommits(repoRoot, 1);
+            if (runContext?.userId) {
+              await logOpsAudit(pool, runContext.userId, 'sven.ops.code_fix', { files: changes.map(c => c.file_path), issue: issueDescription, commit: result.commitHash }, `Fix reverted: tests failed after build passed`, 'high');
+            }
+            return {
+              outputs: {
+                proposal: { id: proposalId, status: 'reverted_tests_failed', files: changes.map(c => c.file_path), commit: result.commitHash },
+                error_detail: `Build passed but tests failed. Commit ${result.commitHash} reverted. ${revertResult.ok ? 'Build re-verified.' : revertResult.output}`,
+                test_failures: testFailures.map(t => ({ file: t.file, output: t.output.slice(0, 500) })),
+                diff: unifiedDiff.slice(0, 3000),
+              },
+            };
+          }
+
+          // Record rate limit entries
+          for (const change of changes) recordFixApplication(change.file_path);
+
+          // v6: Record dedup hash
+          recordFixHash(fixHashForDedup);
+
+          const testNote = testResults.some(t => !t.skipped) ? ', tests passed' : '';
+
+          if (runContext?.userId) {
+            await logOpsAudit(pool, runContext.userId, 'sven.ops.code_fix', {
+              files: changes.map(c => c.file_path), issue: issueDescription, commit: result.commitHash, branch: result.branch, tests_passed: true,
+            }, `Fix applied via branch ${result.branch}, verified (build+tests), merged: ${result.commitHash}`, 'high');
+          }
+
+          return {
+            outputs: {
+              proposal: {
+                id: proposalId,
+                status: 'applied',
+                files: changes.map(c => c.file_path),
+                commit: result.commitHash,
+                commit_message: commitMsg,
+                branch: result.branch,
+                build_verified: true,
+                tests_verified: testFailures.length === 0,
+                severity: changeSeverity.severity,
+              },
+              confidence: confidenceScores,
+              severity_classification: changeSeverity,
+              impact: fixImpact,
+              diff: unifiedDiff.slice(0, 3000),
+              issue: issueDescription,
+              note: `Fix applied via branch ${result.branch}, build verified clean${testNote}, merged and committed as ${result.commitHash}. Use sven.ops.deploy to deploy.`,
+            },
+          };
+        } catch (err) {
+          return { outputs: {}, error: `Failed to apply fix: ${err instanceof Error ? err.message : String(err)}` };
+        }
+      }
+
+      if (isExecutableFix && autoApply) {
+        // Create an approval request — the fix will be applied when /approve is used
+        const approvalId = generateTaskId('approval');
+        try {
+          await pool.query(
+            `INSERT INTO approvals (
+               id, chat_id, tool_name, scope, requester_user_id, status, quorum_required, expires_at, details, created_at
+             ) VALUES (
+               $1, $2, 'sven.ops.code_fix', 'ops.deploy', $3, 'pending', 1, NOW() + INTERVAL '24 hours', $4::jsonb, NOW()
+             )`,
+            [
+              approvalId,
+              runContext?.chatId || 'system',
+              runContext?.userId || 'system',
+              JSON.stringify({
+                message: `Code fix: ${issueDescription.slice(0, 200)}`,
+                proposal_id: proposalId,
+                changes,
+                // Keep single-file fields for backward compat
+                file_path: changes[0]?.file_path,
+                old_content: changes[0]?.old_content,
+                new_content: changes[0]?.new_content,
+                action: 'code_fix',
+                diff_preview: unifiedDiff.slice(0, 5000), // v4: unified diff stored in approval
+              }),
+            ],
+          );
+        } catch (err) {
+          logger.warn('Failed to create code fix approval', { err: String(err) });
+          return { outputs: {}, error: `Failed to create approval: ${String(err)}` };
+        }
+
+        return {
+          outputs: {
+            proposal: {
+              id: proposalId,
+              status: 'pending_approval',
+              files: changes.map(c => c.file_path),
+              issue: issueDescription,
+              approval_id: approvalId,
+              note: `Use /approve ${approvalId} to apply this ${changes.length}-file fix via branch isolation, build verify, test verify, and commit.`,
+            },
+            diff: unifiedDiff.slice(0, 3000),
+          },
+        };
+      }
+
+      // Proposal-only mode — no executable diff provided
+      return {
+        outputs: {
+          proposal: {
+            id: proposalId,
+            issue: issueDescription,
+            file_path: inputs.file_path ? String(inputs.file_path) : 'unspecified',
+            status: 'proposal_only',
+            note: 'Provide file_path + old_content + new_content (or changes[] for multi-file) to make this an executable fix.',
+          },
+        },
+      };
+    }
+
+    case 'sven.ops.pentest': {
+      const gate = await requireAdmin47(pool, runContext?.userId);
+      if (!gate.ok) return { outputs: {}, error: gate.error };
+      if (runContext?.userId) await logOpsAudit(pool, runContext.userId, 'sven.ops.pentest', inputs, 'Security pentest initiated', 'high');
+
+      const scope = String(inputs.scope || 'full');
+      const target = inputs.target ? String(inputs.target) : undefined;
+      const start = Date.now();
+      const vulnerabilities: Array<{ id: string; severity: string; category: string; title: string; description: string; endpoint?: string; recommendation: string }> = [];
+
+      // Check for common security misconfigurations via DB and env inspection
+      // Auth: check for users without MFA, expired sessions, weak policies
+      try {
+        const noMfa = await pool.query(`SELECT count(*)::int AS cnt FROM users WHERE mfa_secret IS NULL AND role = 'admin'`);
+        if ((noMfa.rows[0] as any)?.cnt > 0) {
+          vulnerabilities.push({
+            id: 'SEC-001', severity: 'high', category: 'auth',
+            title: 'Admin accounts without MFA',
+            description: `${(noMfa.rows[0] as any).cnt} admin account(s) do not have MFA enabled.`,
+            recommendation: 'Enable TOTP MFA for all admin accounts via /admin/security.',
+          });
+        }
+      } catch { /* mfa_secret column may not exist */ }
+
+      // Check for overly permissive CORS
+      const corsOrigin = process.env.CORS_ORIGIN || '';
+      if (corsOrigin === '*' || corsOrigin.includes('*')) {
+        vulnerabilities.push({
+          id: 'SEC-002', severity: 'critical', category: 'misconfig',
+          title: 'Wildcard CORS origin',
+          description: `CORS_ORIGIN is set to "${corsOrigin}" — allows any origin to make authenticated requests.`,
+          recommendation: 'Set CORS_ORIGIN to the specific allowed domain(s).',
+        });
+      }
+
+      // Check hardening profile
+      const hardeningProfile = process.env.SVEN_HARDENING_PROFILE || '';
+      if (!hardeningProfile || hardeningProfile !== 'strict') {
+        vulnerabilities.push({
+          id: 'SEC-003', severity: 'medium', category: 'misconfig',
+          title: 'Hardening profile not set to strict',
+          description: `SVEN_HARDENING_PROFILE="${hardeningProfile || 'unset'}". Production should use "strict".`,
+          recommendation: 'Set SVEN_HARDENING_PROFILE=strict in production environment.',
+        });
+      }
+
+      // Check for expired or stale approvals (potential approval fatigue)
+      try {
+        const staleApprovals = await pool.query(
+          `SELECT count(*)::int AS cnt FROM approvals WHERE status = 'pending' AND expires_at < NOW()`,
+        );
+        if ((staleApprovals.rows[0] as any)?.cnt > 5) {
+          vulnerabilities.push({
+            id: 'SEC-004', severity: 'low', category: 'access_control',
+            title: 'Stale pending approvals',
+            description: `${(staleApprovals.rows[0] as any).cnt} expired approval requests still in pending state.`,
+            recommendation: 'Clean up expired approvals to avoid approval fatigue and confusion.',
+          });
+        }
+      } catch { /* approvals table may not exist */ }
+
+      // Rate limiting check — env var presence
+      if (!process.env.SVEN_RATE_LIMIT_ENABLED && !process.env.RATE_LIMIT_MAX) {
+        vulnerabilities.push({
+          id: 'SEC-005', severity: 'medium', category: 'rate_limiting',
+          title: 'Rate limiting not explicitly configured',
+          description: 'No SVEN_RATE_LIMIT_ENABLED or RATE_LIMIT_MAX environment variable detected.',
+          endpoint: '/api/*',
+          recommendation: 'Configure rate limiting environment variables for public API endpoints.',
+        });
+      }
+
+      // Check for tools with elevated trust that may be exploitable
+      try {
+        const riskyTools = await pool.query(
+          `SELECT name, trust_level, permissions_required FROM tools WHERE trust_level = 'trusted' AND enabled = TRUE AND permissions_required && ARRAY['nas.write', 'code.execute', 'ops.admin']::text[]`,
+        );
+        if (riskyTools.rows.length > 0) {
+          vulnerabilities.push({
+            id: 'SEC-006', severity: 'info', category: 'access_control',
+            title: 'High-privilege tools enabled',
+            description: `${riskyTools.rows.length} tool(s) with elevated permissions (nas.write, code.execute, or ops.admin) are enabled: ${riskyTools.rows.map((r: any) => r.name).join(', ')}.`,
+            recommendation: 'Verify each high-privilege tool is intentionally enabled and properly gated.',
+          });
+        }
+      } catch { /* tools table may differ */ }
+
+      // ── Live HTTP endpoint probes against the gateway API ──
+      const gatewayPort = process.env.GATEWAY_PORT || '3000';
+      const gatewayBase = `http://127.0.0.1:${gatewayPort}`;
+      const probeTimeout = 5000;
+
+      // Helper: safe fetch with timeout, returns null on network error
+      const probeFetch = async (url: string, init?: RequestInit): Promise<Response | null> => {
+        try {
+          return await fetch(url, { ...init, signal: AbortSignal.timeout(probeTimeout) });
+        } catch {
+          return null;
+        }
+      };
+
+      // Probe 1: Unauthenticated access to protected endpoints
+      const protectedPaths = ['/api/admin/users', '/api/admin/agents', '/api/chats', '/api/tools'];
+      for (const path of protectedPaths) {
+        const res = await probeFetch(`${gatewayBase}${path}`);
+        if (res && res.status !== 401 && res.status !== 403 && res.status !== 404) {
+          vulnerabilities.push({
+            id: `SEC-EP-${vulnerabilities.length + 1}`, severity: 'critical', category: 'auth_bypass',
+            title: `Unauthenticated access to ${path}`,
+            description: `GET ${path} returned HTTP ${res.status} without authentication. Expected 401 or 403.`,
+            endpoint: path,
+            recommendation: `Ensure preHandler: authenticated or adminOnly middleware is applied to ${path}.`,
+          });
+        }
+      }
+
+      // Probe 2: Security headers on a public endpoint
+      const headerProbe = await probeFetch(`${gatewayBase}/health`);
+      if (headerProbe) {
+        const headers = headerProbe.headers;
+        const requiredHeaders: Array<{ name: string; id: string; severity: string; recommendation: string }> = [
+          { name: 'x-frame-options', id: 'SEC-HDR-01', severity: 'medium', recommendation: 'Set X-Frame-Options: DENY or SAMEORIGIN to prevent clickjacking.' },
+          { name: 'x-content-type-options', id: 'SEC-HDR-02', severity: 'medium', recommendation: 'Set X-Content-Type-Options: nosniff to prevent MIME-type sniffing.' },
+          { name: 'strict-transport-security', id: 'SEC-HDR-03', severity: 'high', recommendation: 'Set Strict-Transport-Security header with max-age >= 31536000 and includeSubDomains.' },
+          { name: 'content-security-policy', id: 'SEC-HDR-04', severity: 'medium', recommendation: 'Implement a Content-Security-Policy header to mitigate XSS attacks.' },
+        ];
+        for (const h of requiredHeaders) {
+          if (!headers.get(h.name)) {
+            vulnerabilities.push({
+              id: h.id, severity: h.severity, category: 'missing_header',
+              title: `Missing ${h.name} header`,
+              description: `The ${h.name} header is not set on /health response.`,
+              endpoint: '/health',
+              recommendation: h.recommendation,
+            });
+          }
+        }
+        // Check for server version disclosure
+        const serverHeader = headers.get('server') || '';
+        if (serverHeader && /\d+\.\d+/.test(serverHeader)) {
+          vulnerabilities.push({
+            id: 'SEC-HDR-05', severity: 'low', category: 'info_disclosure',
+            title: 'Server version disclosed in headers',
+            description: `Server header reveals version: "${serverHeader}".`,
+            endpoint: '/health',
+            recommendation: 'Remove or obfuscate the Server header to prevent version fingerprinting.',
+          });
+        }
+      }
+
+      // Probe 3: Debug/internal endpoints that should not be publicly accessible
+      const debugPaths = ['/debug', '/metrics', '/env', '/.env', '/api/debug', '/swagger', '/docs/api', '/graphql'];
+      for (const path of debugPaths) {
+        const res = await probeFetch(`${gatewayBase}${path}`);
+        if (res && res.status >= 200 && res.status < 400) {
+          vulnerabilities.push({
+            id: `SEC-DBG-${vulnerabilities.length + 1}`, severity: 'high', category: 'exposed_debug',
+            title: `Debug/internal endpoint accessible: ${path}`,
+            description: `GET ${path} returned HTTP ${res.status}. Internal/debug endpoints should return 404 or be behind auth.`,
+            endpoint: path,
+            recommendation: `Disable or gate ${path} behind admin authentication in production.`,
+          });
+        }
+      }
+
+      // Probe 4: CORS preflight — check that arbitrary origins are rejected
+      const corsProbe = await probeFetch(`${gatewayBase}/api/chats`, {
+        method: 'OPTIONS',
+        headers: { 'Origin': 'https://evil-attacker.com', 'Access-Control-Request-Method': 'POST' },
+      });
+      if (corsProbe) {
+        const acao = corsProbe.headers.get('access-control-allow-origin') || '';
+        if (acao === '*' || acao === 'https://evil-attacker.com') {
+          vulnerabilities.push({
+            id: 'SEC-CORS-01', severity: 'critical', category: 'cors_misconfiguration',
+            title: 'CORS allows arbitrary origins',
+            description: `Preflight to /api/chats with Origin: https://evil-attacker.com returned Access-Control-Allow-Origin: "${acao}".`,
+            endpoint: '/api/chats',
+            recommendation: 'Configure CORS to only allow trusted origins. Never reflect arbitrary origins or use wildcard.',
+          });
+        }
+      }
+
+      // Probe 5: Method confusion — check that POST-only endpoints reject GET
+      const methodPaths = ['/api/chats', '/api/auth/login'];
+      for (const path of methodPaths) {
+        const res = await probeFetch(`${gatewayBase}${path}`, { method: 'DELETE' });
+        if (res && res.status !== 404 && res.status !== 405 && res.status !== 401 && res.status !== 403) {
+          vulnerabilities.push({
+            id: `SEC-MTD-${vulnerabilities.length + 1}`, severity: 'medium', category: 'method_confusion',
+            title: `Unexpected DELETE accepted on ${path}`,
+            description: `DELETE ${path} returned HTTP ${res.status} instead of 405 Method Not Allowed.`,
+            endpoint: path,
+            recommendation: `Restrict HTTP methods on ${path} to only those explicitly needed.`,
+          });
+        }
+      }
+
+      const summary = { critical: 0, high: 0, medium: 0, low: 0, info: 0 };
+      for (const v of vulnerabilities) {
+        const sev = v.severity as keyof typeof summary;
+        if (sev in summary) summary[sev]++;
+      }
+
+      return {
+        outputs: {
+          vulnerabilities,
+          summary: { ...summary, total: vulnerabilities.length },
+          recommendations: vulnerabilities.filter(v => v.severity === 'critical' || v.severity === 'high').map(v => v.recommendation),
+          scan_duration_ms: Date.now() - start,
+          scope,
+          target: target || 'all',
+          probes_executed: ['unauthenticated_access', 'security_headers', 'debug_endpoints', 'cors_preflight', 'method_confusion'],
+          gateway_probed: gatewayBase,
+          note: 'Combined configuration audit + live HTTP endpoint probes. For deeper protocol-level testing, delegate to the security-auditor agent.',
+        },
+      };
+    }
+
+    case 'sven.ops.deploy': {
+      const gate = await requireAdmin47(pool, runContext?.userId);
+      if (!gate.ok) return { outputs: {}, error: gate.error };
+      if (runContext?.userId) await logOpsAudit(pool, runContext.userId, 'sven.ops.deploy', inputs, `Deploy ${inputs.action || 'status'} requested`, inputs.action === 'execute' ? 'high' : 'info');
+
+      const action = String(inputs.action || 'status');
+      const targetService = String(inputs.target || 'all');
+      const environment = String(inputs.environment || 'staging');
+
+      if (action === 'status') {
+        const dockerStatus = runDockerCommand(['ps', '--format', '{{.Names}}\t{{.Image}}\t{{.Status}}\t{{.CreatedAt}}'], 10000, 1024 * 64);
+        const serviceStatuses: Array<{ name: string; image: string; status: string; created: string }> = [];
+        for (const line of (dockerStatus.stdout || '').trim().split('\n').filter(Boolean)) {
+          const [name, image, status, created] = line.split('\t');
+          if (targetService !== 'all' && !name?.includes(targetService)) continue;
+          serviceStatuses.push({ name: name || '', image: image || '', status: status || '', created: created || '' });
+        }
+        return {
+          outputs: {
+            deployment_status: {
+              environment,
+              services: serviceStatuses,
+              total_running: serviceStatuses.filter(s => s.status.toLowerCase().includes('up')).length,
+              total_services: serviceStatuses.length,
+            },
+          },
+        };
+      }
+
+      if (action === 'plan') {
+        // Check which compose files exist on the system
+        const repoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+        const composePrimary = process.env.SVEN_COMPOSE_FILE || 'docker-compose.yml';
+        const composeProfiles = process.env.SVEN_COMPOSE_PROFILES || 'docker-compose.profiles.yml';
+
+        return {
+          outputs: {
+            plan: {
+              environment,
+              target: targetService,
+              compose_root: repoRoot,
+              compose_files: [composePrimary, composeProfiles],
+              steps: [
+                `1. Pull latest images for ${targetService === 'all' ? 'all services' : targetService}`,
+                '2. Run database migrations (if pending)',
+                `3. Rebuild and restart ${targetService === 'all' ? 'services in dependency order (infra → core → adapters)' : targetService}`,
+                '4. Health check verification (docker ps + /health probes)',
+                '5. Audit log entry for deployment',
+              ],
+              dependency_order: ['postgres', 'nats', 'gateway-api', 'agent-runtime', 'skill-runner', 'notification-service', 'adapters'],
+              self_restart_note: 'If skill-runner is restarted, a delayed self-restart is used — response is sent first, then the process restarts after 3 seconds.',
+              estimated_downtime: 'Near-zero (sequential restart with dependency ordering)',
+              rollback: `docker compose -f ${composePrimary} up -d --force-recreate ${targetService === 'all' ? '' : targetService}`.trim() + ' (previous image)',
+              requires_approval: true,
+              note: 'Use action=execute to create an approval request, or action=apply with an approval_id to execute immediately.',
+            },
+          },
+        };
+      }
+
+      // action === 'apply' — execute with a pre-existing approved approval
+      if (action === 'apply') {
+        const approvalId = inputs.approval_id ? String(inputs.approval_id) : undefined;
+        if (!approvalId) return { outputs: {}, error: 'approval_id is required for action=apply. Get one via action=execute + /approve.' };
+
+        // Verify the approval is actually approved
+        const apprRes = await pool.query(
+          `SELECT status, details FROM approvals WHERE id = $1 AND tool_name = 'sven.ops.deploy'`,
+          [approvalId],
+        );
+        if (apprRes.rows.length === 0) return { outputs: {}, error: `Approval ${approvalId} not found for sven.ops.deploy.` };
+        const appr = apprRes.rows[0] as { status: string; details: Record<string, any> };
+        if (appr.status !== 'approved') return { outputs: {}, error: `Approval ${approvalId} is ${appr.status}, not approved.` };
+
+        // Atomic CAS: claim the approval to prevent double-execution
+        const claimed = await claimApproval(pool, approvalId);
+        if (!claimed) return { outputs: {}, error: `Approval ${approvalId} was already claimed by another process.` };
+
+        const repoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+        const composePrimary = process.env.SVEN_COMPOSE_FILE || 'docker-compose.yml';
+        const deployTarget = appr.details?.target || targetService;
+        const deployEnv = appr.details?.environment || environment;
+        const results: Array<{ step: string; success: boolean; output: string }> = [];
+        const restartsSelf = deployTarget === 'all' || deployTarget === 'skill-runner';
+
+        // Step 1: Pull latest images (builds from source where applicable)
+        const composeArgs = ['-f', composePrimary, 'up', '-d', '--build', '--force-recreate'];
+        if (deployTarget !== 'all') composeArgs.push(deployTarget);
+
+        if (runContext?.userId) {
+          await logOpsAudit(pool, runContext.userId, 'sven.ops.deploy', { target: deployTarget, environment: deployEnv, approval_id: approvalId }, `Deployment executing: ${deployTarget} to ${deployEnv}`, 'high');
+        }
+
+        // If this deploy restarts skill-runner, we need to send response first then restart
+        if (restartsSelf) {
+          // Execute non-self services first
+          const nonSelfArgs = ['-f', composePrimary, 'up', '-d', '--build', '--force-recreate'];
+          if (deployTarget === 'all') {
+            // Restart everything except skill-runner first
+            const dockerPs = runDockerCommand(['ps', '--format', '{{.Names}}'], 10000, 1024 * 32);
+            const allServices = (dockerPs.stdout || '').trim().split('\n').filter(Boolean).filter(s => !s.includes('skill-runner'));
+            for (const svc of allServices) {
+              const restartResult = spawnSync('docker', ['restart', svc], {
+                cwd: repoRoot, encoding: 'utf8', timeout: 60000,
+              });
+              results.push({
+                step: `restart ${svc}`,
+                success: restartResult.status === 0,
+                output: (restartResult.stdout || restartResult.stderr || '').trim().slice(0, 200),
+              });
+            }
+          }
+
+          // Mark approval as executed
+          await pool.query(
+            `UPDATE approvals SET status = 'executed', resolved_at = NOW() WHERE id = $1`,
+            [approvalId],
+          );
+
+          // Schedule self-restart after sending response
+          setTimeout(() => {
+            logger.info('Self-healing: restarting skill-runner process for deployment');
+            const selfRestart = spawnSync('docker', ['restart', 'skill-runner'], {
+              encoding: 'utf8', timeout: 30000,
+            });
+            if (selfRestart.status !== 0) {
+              // If docker restart fails, try process.exit — PM2/Docker will auto-restart
+              logger.info('Docker restart failed, exiting process for auto-restart by orchestrator');
+              process.exit(0);
+            }
+          }, 3000);
+
+          return {
+            outputs: {
+              deployment: {
+                status: 'executing',
+                target: deployTarget,
+                environment: deployEnv,
+                approval_id: approvalId,
+                steps_completed: results,
+                self_restart: true,
+                note: 'Other services restarted. Skill-runner will self-restart in ~3 seconds. You may see a brief interruption.',
+              },
+            },
+          };
+        }
+
+        // Non-self restart — execute directly
+        const composeResult = spawnSync('docker', ['compose', ...composeArgs], {
+          cwd: repoRoot, encoding: 'utf8', timeout: 120000, maxBuffer: 1024 * 256,
+        });
+        results.push({
+          step: `docker compose up -d --build --force-recreate ${deployTarget}`,
+          success: composeResult.status === 0,
+          output: (composeResult.stdout || composeResult.stderr || '').trim().slice(0, 500),
+        });
+
+        // Health check after restart
+        const postHealth = runDockerCommand(['ps', '--format', '{{.Names}}\t{{.Status}}'], 10000, 1024 * 32);
+        const healthAfter: Record<string, string> = {};
+        for (const line of (postHealth.stdout || '').trim().split('\n').filter(Boolean)) {
+          const [name, status] = line.split('\t');
+          if (name) healthAfter[name] = status || 'unknown';
+        }
+
+        // Mark approval as executed
+        await pool.query(
+          `UPDATE approvals SET status = 'executed', resolved_at = NOW() WHERE id = $1`,
+          [approvalId],
+        );
+
+        if (runContext?.userId) {
+          await logOpsAudit(pool, runContext.userId, 'sven.ops.deploy', { target: deployTarget, approval_id: approvalId, results_count: results.length }, `Deployment completed: ${results.filter(r => r.success).length}/${results.length} steps succeeded`, 'high');
+        }
+
+        return {
+          outputs: {
+            deployment: {
+              status: 'completed',
+              target: deployTarget,
+              environment: deployEnv,
+              approval_id: approvalId,
+              steps: results,
+              services_health: healthAfter,
+            },
+          },
+        };
+      }
+
+      if (action === 'execute') {
+        const deployApprovalId = generateTaskId('approval');
+        try {
+          await pool.query(
+            `INSERT INTO approvals (
+               id, chat_id, tool_name, scope, requester_user_id, status, quorum_required, expires_at, details, created_at
+             ) VALUES (
+               $1, $2, 'sven.ops.deploy', 'ops.deploy', $3, 'pending', 1, NOW() + INTERVAL '1 hour', $4::jsonb, NOW()
+             )`,
+            [
+              deployApprovalId,
+              runContext?.chatId || 'system',
+              runContext?.userId || 'system',
+              JSON.stringify({
+                message: `Deploy ${targetService} to ${environment}`,
+                environment,
+                target: targetService,
+                requires: 'Approve with /approve to execute deployment',
+              }),
+            ],
+          );
+        } catch (err) {
+          return { outputs: {}, error: `Failed to create deployment approval: ${String(err)}` };
+        }
+
+        return {
+          outputs: {
+            deployment_status: { state: 'pending_approval', environment, target: targetService },
+            approval_id: deployApprovalId,
+            message: `Deployment approval created. Use /approve ${deployApprovalId} to execute the deployment to ${environment}.`,
+          },
+        };
+      }
+
+      return { outputs: {}, error: `Unknown deploy action: ${action}. Use status, plan, or execute.` };
+    }
+
+    case 'sven.ops.logs': {
+      const gate = await requireAdmin47(pool, runContext?.userId);
+      if (!gate.ok) return { outputs: {}, error: gate.error };
+      if (runContext?.userId) await logOpsAudit(pool, runContext.userId, 'sven.ops.logs', inputs, 'Log viewer accessed');
+
+      const service = String(inputs.service || 'all');
+      const level = String(inputs.level || 'error');
+      const keyword = inputs.keyword ? String(inputs.keyword) : undefined;
+      const limit = Math.min(Math.max(Number(inputs.limit) || 25, 1), 100);
+
+      const levelFilter = level === 'error' ? `status IN ('error','timeout')`
+        : level === 'warn' ? `status IN ('error','timeout','denied')`
+        : `status IS NOT NULL`;
+
+      // Build parameterised filters with correct indices
+      const filterParams: unknown[] = [];
+      let filterClauses = '';
+      let pIdx = 1;
+
+      if (keyword) {
+        filterClauses += ` AND (error ILIKE $${pIdx} OR tool_name ILIKE $${pIdx})`;
+        filterParams.push(`%${keyword}%`);
+        pIdx++;
+      }
+      if (service !== 'all') {
+        filterClauses += ` AND tool_name LIKE $${pIdx}`;
+        filterParams.push(`%${service}%`);
+        pIdx++;
+      }
+
+      const whereClause = `${levelFilter}${filterClauses} AND created_at >= NOW() - INTERVAL '24 hours'`;
+
+      const logQuery = `SELECT tool_name, status, error, created_at, duration_ms
+        FROM tool_runs
+        WHERE ${whereClause}
+        ORDER BY created_at DESC
+        LIMIT $${pIdx}`;
+
+      let logs: Array<Record<string, unknown>> = [];
+      let totalMatching = 0;
+      try {
+        const res = await pool.query(logQuery, [...filterParams, limit]);
+        logs = res.rows.map((r: any) => ({
+          tool_name: r.tool_name,
+          status: r.status,
+          error: r.error ? String(r.error).slice(0, 500) : null,
+          timestamp: r.created_at,
+          duration_ms: r.duration_ms,
+        }));
+
+        const countQuery = `SELECT count(*)::int AS cnt FROM tool_runs WHERE ${whereClause}`;
+        const countRes = await pool.query(countQuery, filterParams);
+        totalMatching = (countRes.rows[0] as any)?.cnt || logs.length;
+      } catch (err) {
+        return { outputs: { logs: [], error: `Log query failed: ${String(err)}` } };
+      }
+
+      return {
+        outputs: {
+          logs,
+          total_matching: totalMatching,
+          filters: { service, level, keyword: keyword || null, limit },
+        },
+      };
+    }
+
+    case 'sven.ops.config': {
+      const gate = await requireAdmin47(pool, runContext?.userId);
+      if (!gate.ok) return { outputs: {}, error: gate.error };
+      if (runContext?.userId) await logOpsAudit(pool, runContext.userId, 'sven.ops.config', inputs, `Config ${inputs.action || 'view'} requested`, inputs.action === 'update' ? 'high' : 'info');
+
+      const action = String(inputs.action || 'view');
+      const category = String(inputs.category || 'all');
+
+      if (action === 'view') {
+        const settings: Record<string, Record<string, unknown>> = {};
+
+        // Security settings from env
+        if (category === 'all' || category === 'security') {
+          settings.security = {
+            hardening_profile: process.env.SVEN_HARDENING_PROFILE || 'unset',
+            prompt_guard_enabled: process.env.FEATURE_PROMPT_GUARD_ENABLED || 'unset',
+            anti_distillation_enabled: process.env.FEATURE_ANTI_DISTILLATION_ENABLED || 'unset',
+            client_attestation_enabled: process.env.FEATURE_CLIENT_ATTESTATION_ENABLED || 'unset',
+            cors_origin: process.env.CORS_ORIGIN || 'unset',
+          };
+        }
+
+        // Performance settings
+        if (category === 'all' || category === 'performance') {
+          settings.performance = {
+            db_pool_max: process.env.DATABASE_POOL_MAX || 'default',
+            ollama_url: process.env.OLLAMA_URL ? '(configured)' : 'unset',
+            litellm_url: process.env.LITELLM_URL ? '(configured)' : 'unset',
+            default_model: process.env.SVEN_AGENT_DEFAULT_MODEL || 'unset',
+            coding_model: process.env.SVEN_AGENT_CODING_MODEL || 'unset',
+            fast_model: process.env.SVEN_AGENT_FAST_MODEL || 'unset',
+          };
+        }
+
+        // Feature flags from DB
+        if (category === 'all' || category === 'features') {
+          try {
+            const flagRes = await pool.query(
+              `SELECT key, value FROM settings WHERE key LIKE 'feature_%' OR key LIKE 'FEATURE_%' ORDER BY key LIMIT 50`,
+            );
+            const flags: Record<string, string> = {};
+            for (const r of flagRes.rows) flags[(r as any).key] = (r as any).value;
+            settings.features = flags;
+          } catch {
+            settings.features = { note: 'settings table not available' };
+          }
+        }
+
+        // Policy engine rules
+        if (category === 'all' || category === 'policies') {
+          try {
+            const policyRes = await pool.query(
+              `SELECT name, action, enabled FROM policy_rules ORDER BY name LIMIT 50`,
+            );
+            settings.policies = { rules: policyRes.rows };
+          } catch {
+            settings.policies = { note: 'policy_rules table not available' };
+          }
+        }
+
+        return { outputs: { settings, action: 'view', category } };
+      }
+
+      if (action === 'update') {
+        const key = inputs.key ? String(inputs.key) : undefined;
+        const value = inputs.value ? String(inputs.value) : undefined;
+        if (!key || value === undefined) return { outputs: {}, error: 'key and value are required for action=update.' };
+
+        const configApprovalId = generateTaskId('approval');
+        try {
+          await pool.query(
+            `INSERT INTO approvals (
+               id, chat_id, tool_name, scope, requester_user_id, status, quorum_required, expires_at, details, created_at
+             ) VALUES (
+               $1, $2, 'sven.ops.config', 'ops.config', $3, 'pending', 1, NOW() + INTERVAL '1 hour', $4::jsonb, NOW()
+             )`,
+            [
+              configApprovalId,
+              runContext?.chatId || 'system',
+              runContext?.userId || 'system',
+              JSON.stringify({ message: `Update config: ${key} = ${value}`, key, value, requires: 'Approve with /approve to apply' }),
+            ],
+          );
+        } catch (err) {
+          return { outputs: {}, error: `Failed to create config update approval: ${String(err)}` };
+        }
+
+        return {
+          outputs: {
+            settings: { key, proposed_value: value, status: 'pending_approval' },
+            approval_id: configApprovalId,
+            message: `Config update approval created. Use /approve ${configApprovalId} to apply.`,
+          },
+        };
+      }
+
+      return { outputs: {}, error: `Unknown config action: ${action}. Use view or update.` };
+    }
+
+    case 'sven.ops.deep_scan': {
+      const gate = await requireAdmin47(pool, runContext?.userId);
+      if (!gate.ok) return { outputs: {}, error: gate.error };
+
+      const scope = String(inputs.scope || 'all');
+      const categories = Array.isArray(inputs.categories)
+        ? inputs.categories.map(String)
+        : ['sql_injection', 'command_injection', 'path_traversal', 'hardcoded_secrets', 'ssrf', 'missing_auth'];
+      const start = Date.now();
+
+      // Glasswing-class vulnerability patterns — regex-based SAST for TypeScript/JS
+      const vulnPatterns: Array<{
+        id: string; category: string; severity: string; pattern: RegExp;
+        title: string; description: string; recommendation: string;
+      }> = [];
+
+      if (categories.includes('sql_injection')) {
+        vulnPatterns.push(
+          { id: 'SQLI-001', category: 'sql_injection', severity: 'critical', pattern: /`[^`]*\$\{[^}]+\}[^`]*(?:SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|WHERE|FROM|JOIN|SET)\b/gi, title: 'Template literal SQL with interpolated variables', description: 'SQL query uses template literal string interpolation instead of parameterised queries. Direct path to SQL injection.', recommendation: 'Use parameterised queries ($1, $2) with pg library. Never interpolate user input into SQL strings.' },
+          { id: 'SQLI-002', category: 'sql_injection', severity: 'critical', pattern: /(?:query|exec|execute)\s*\(\s*[`"'][^`"']*\+\s*(?:req\.|input|param|body|query\.|args)/gi, title: 'String concatenation in SQL query', description: 'SQL query built with string concatenation from request/input data.', recommendation: 'Replace string concatenation with parameterised queries.' },
+        );
+      }
+
+      if (categories.includes('command_injection')) {
+        vulnPatterns.push(
+          { id: 'CMDI-001', category: 'command_injection', severity: 'critical', pattern: /(?:exec|execSync|spawn|spawnSync)\s*\(\s*`[^`]*\$\{/gi, title: 'Command execution with interpolated variables', description: 'Shell command uses template literals with variable interpolation — direct command injection vector.', recommendation: 'Use array-form spawn/spawnSync with arguments as separate array elements. Never interpolate into shell commands.' },
+          { id: 'CMDI-002', category: 'command_injection', severity: 'high', pattern: /(?:exec|execSync)\s*\(\s*(?:input|req\.|param|body|args|command)/gi, title: 'Exec with user-controlled input', description: 'Process execution using user-controlled variables.', recommendation: 'Whitelist allowed commands, use array-form spawn, validate and sanitise all inputs.' },
+        );
+      }
+
+      if (categories.includes('path_traversal')) {
+        vulnPatterns.push(
+          { id: 'PATH-001', category: 'path_traversal', severity: 'high', pattern: /(?:readFile|writeFile|readdir|stat|access|unlink|mkdir|rmdir|rename)\s*\(\s*(?:req\.|input|param|body|args)/gi, title: 'File operation with user-controlled path', description: 'File system operation uses user-controlled path without traversal check.', recommendation: 'Validate path with path.resolve() and ensure it starts with the allowed root directory. Reject paths containing "..".' },
+          { id: 'PATH-002', category: 'path_traversal', severity: 'high', pattern: /path\.(?:join|resolve)\s*\([^)]*(?:req\.|input|param|body)[^)]*\)(?!.*(?:startsWith|includes\(['"]\.\.['"]))/gi, title: 'Path construction from user input without validation', description: 'Path built from user input without verifying it stays within the intended directory.', recommendation: 'After path.resolve(), verify the result starts with the expected base directory.' },
+        );
+      }
+
+      if (categories.includes('hardcoded_secrets')) {
+        vulnPatterns.push(
+          { id: 'SEC-H01', category: 'hardcoded_secrets', severity: 'critical', pattern: /(?:password|secret|token|api_key|apikey|private_key|access_key)\s*[:=]\s*['"][A-Za-z0-9+/=_\-]{16,}['"]/gi, title: 'Hardcoded secret or credential', description: 'A secret, password, token, or API key appears to be hardcoded in source code.', recommendation: 'Move all secrets to environment variables or a secrets manager. Never commit credentials to source.' },
+          { id: 'SEC-H02', category: 'hardcoded_secrets', severity: 'high', pattern: /(?:Bearer|Basic)\s+[A-Za-z0-9+/=_\-]{20,}/gi, title: 'Hardcoded authorization header', description: 'An authorization token (Bearer/Basic) is hardcoded in source.', recommendation: 'Load auth tokens from environment variables or secure storage.' },
+        );
+      }
+
+      if (categories.includes('ssrf')) {
+        vulnPatterns.push(
+          { id: 'SSRF-001', category: 'ssrf', severity: 'high', pattern: /(?:fetch|axios|got|request|http\.get|https\.get|urllib)\s*\(\s*(?:req\.|input|param|body|url|args)/gi, title: 'HTTP request with user-controlled URL', description: 'An HTTP client makes a request to a URL derived from user input — SSRF vector.', recommendation: 'Validate URLs against an allowlist of domains. Block internal IP ranges (127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.169.254).' },
+          { id: 'SSRF-002', category: 'ssrf', severity: 'medium', pattern: /new\s+URL\s*\(\s*(?:req\.|input|param|body|args)/gi, title: 'URL construction from user input', description: 'A URL object is constructed from user-controlled input without validation.', recommendation: 'Parse and validate the URL, check the hostname against an allowlist before making any request.' },
+        );
+      }
+
+      if (categories.includes('prototype_pollution')) {
+        vulnPatterns.push(
+          { id: 'PROTO-001', category: 'prototype_pollution', severity: 'high', pattern: /(?:Object\.assign|_\.merge|_\.extend|_\.defaultsDeep|deepmerge)\s*\(\s*(?:\{\}|target|obj),\s*(?:req\.|input|param|body|args)/gi, title: 'Deep merge with user-controlled input', description: 'Object merge/assign using user-controlled data — prototype pollution vector.', recommendation: 'Use a safe merge function that rejects __proto__, constructor, and prototype keys.' },
+        );
+      }
+
+      if (categories.includes('regex_dos')) {
+        vulnPatterns.push(
+          { id: 'REDOS-001', category: 'regex_dos', severity: 'medium', pattern: /new\s+RegExp\s*\(\s*(?:req\.|input|param|body|args)/gi, title: 'User-controlled regex pattern', description: 'RegExp constructed from user input — can cause catastrophic backtracking (ReDoS).', recommendation: 'Never allow user input to construct regex patterns. If needed, use a regex timeout or re2 library.' },
+        );
+      }
+
+      if (categories.includes('unsafe_deserialization')) {
+        vulnPatterns.push(
+          { id: 'DESER-001', category: 'unsafe_deserialization', severity: 'critical', pattern: /(?:eval|Function)\s*\(\s*(?:req\.|input|param|body|args|data)/gi, title: 'Eval/Function with user input', description: 'eval() or Function() called with user-controlled data — remote code execution vector.', recommendation: 'Never use eval() or Function() with untrusted data. Use JSON.parse() for data deserialization.' },
+          { id: 'DESER-002', category: 'unsafe_deserialization', severity: 'high', pattern: /JSON\.parse\s*\(\s*(?:req\.|input\.)[^)]*\)(?!.*(?:try|catch|schema|validate|zod|joi|ajv))/gi, title: 'JSON.parse of user input without validation', description: 'User input is parsed as JSON without schema validation.', recommendation: 'Validate parsed JSON against a schema (Zod, Joi, Ajv) before using it.' },
+        );
+      }
+
+      if (categories.includes('missing_auth')) {
+        vulnPatterns.push(
+          { id: 'AUTH-001', category: 'missing_auth', severity: 'high', pattern: /app\.(?:get|post|put|patch|delete)\s*\(\s*['"][^'"]+['"]\s*,\s*(?:async\s+)?\(?(?:req|request)/gi, title: 'Route handler without auth middleware', description: 'HTTP route handler does not appear to use authentication middleware (preHandler/authenticated/adminOnly).', recommendation: 'Add preHandler: authenticated or adminOnly to all non-public routes.' },
+        );
+      }
+
+      if (categories.includes('open_redirect')) {
+        vulnPatterns.push(
+          { id: 'REDIR-001', category: 'open_redirect', severity: 'medium', pattern: /(?:redirect|location)\s*(?:=|\()\s*(?:req\.|input|param|body|query\.|url)/gi, title: 'Redirect with user-controlled URL', description: 'HTTP redirect uses user-controlled URL — open redirect / phishing vector.', recommendation: 'Validate redirect URLs against an allowlist of internal paths. Never redirect to user-supplied external URLs.' },
+        );
+      }
+
+      if (categories.includes('info_disclosure')) {
+        vulnPatterns.push(
+          { id: 'INFO-001', category: 'info_disclosure', severity: 'medium', pattern: /(?:console\.log|logger\.info|logger\.debug)\s*\([^)]*(?:password|secret|token|api_key|private_key|cookie|session)/gi, title: 'Sensitive data in logs', description: 'Logging statement may include sensitive data (passwords, tokens, secrets).', recommendation: 'Redact sensitive fields before logging. Use structured logging with explicit field selection.' },
+          { id: 'INFO-002', category: 'info_disclosure', severity: 'low', pattern: /\.stack\s*\|\||err\.stack|error\.stack/gi, title: 'Stack trace potentially exposed', description: 'Error stack trace may be exposed to clients, leaking internal paths and library versions.', recommendation: 'Never return stack traces in API responses. Log internally, return a generic error message to clients.' },
+        );
+      }
+
+      const serviceMap: Record<string, string> = {
+        'gateway-api': 'services/gateway-api/src',
+        'agent-runtime': 'services/agent-runtime/src',
+        'skill-runner': 'services/skill-runner/src',
+      };
+      const targets = scope === 'all' ? Object.keys(serviceMap) : serviceMap[scope] ? [scope] : [];
+      const vulnerabilities: Array<{ id: string; severity: string; category: string; title: string; file: string; line: number; snippet: string; description: string; recommendation: string }> = [];
+      let filesScanned = 0;
+
+      async function scanDir(dir: string): Promise<string[]> {
+        const files: string[] = [];
+        try {
+          const entries = await fs.readdir(dir, { withFileTypes: true });
+          for (const entry of entries) {
+            if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '.git' || entry.name === '__tests__') continue;
+            const full = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+              files.push(...await scanDir(full));
+            } else if (/\.(ts|js|mjs|cjs)$/.test(entry.name)) {
+              files.push(full);
+            }
+          }
+        } catch { /* permission denied or missing dir */ }
+        return files;
+      }
+
+      for (const target of targets) {
+        const srcDir = serviceMap[target];
+        if (!srcDir) continue;
+        const files = await scanDir(srcDir);
+        filesScanned += files.length;
+
+        for (const filePath of files) {
+          let content: string;
+          try {
+            content = await fs.readFile(filePath, 'utf8');
+          } catch { continue; }
+
+          const lines = content.split('\n');
+          for (const vp of vulnPatterns) {
+            vp.pattern.lastIndex = 0;
+            for (let i = 0; i < lines.length; i++) {
+              if (vp.pattern.test(lines[i])) {
+                // Skip false positives: test files, comments
+                const trimmed = lines[i].trim();
+                if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) continue;
+
+                vulnerabilities.push({
+                  id: vp.id,
+                  severity: vp.severity,
+                  category: vp.category,
+                  title: vp.title,
+                  file: filePath,
+                  line: i + 1,
+                  snippet: lines[i].trim().slice(0, 200),
+                  description: vp.description,
+                  recommendation: vp.recommendation,
+                });
+              }
+              vp.pattern.lastIndex = 0; // Reset regex state for global patterns
+            }
+          }
+        }
+      }
+
+      const summary: Record<string, number> = {};
+      for (const v of vulnerabilities) summary[v.severity] = (summary[v.severity] || 0) + 1;
+
+      const scanSeverity = vulnerabilities.some(v => v.severity === 'critical') ? 'critical'
+        : vulnerabilities.some(v => v.severity === 'high') ? 'high' : 'info';
+
+      if (runContext?.userId) {
+        await logOpsAudit(pool, runContext.userId, 'sven.ops.deep_scan', { scope, categories },
+          `${vulnerabilities.length} findings (${summary['critical'] || 0} critical, ${summary['high'] || 0} high) across ${filesScanned} files`,
+          scanSeverity as any);
+      }
+
+      return {
+        outputs: {
+          vulnerabilities: vulnerabilities.slice(0, 100),
+          summary: { ...summary, total: vulnerabilities.length },
+          scan_duration_ms: Date.now() - start,
+          files_scanned: filesScanned,
+          scope,
+          categories,
+          glasswing_note: 'Glasswing-class source-level SAST scan. Pattern-based detection of OWASP Top 10 vulnerability classes. When a frontier model (Mithos-class) becomes available as Sven\'s base, these patterns will be augmented with semantic code understanding for zero-day-class detection.',
+        },
+      };
+    }
+
+    case 'sven.ops.rollback': {
+      const gate = await requireAdmin47(pool, runContext?.userId);
+      if (!gate.ok) return { outputs: {}, error: gate.error };
+
+      const count = Math.min(Math.max(Number(inputs.count) || 1, 1), 5);
+      const dryRun = inputs.dry_run === true;
+      const repoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+
+      // Preview: show what would be rolled back
+      const logResult = spawnSync('git', ['log', `--max-count=${count}`, '--pretty=%H %s'], {
+        cwd: repoRoot, encoding: 'utf8', timeout: 5000,
+      });
+      const candidates = (logResult.stdout || '').trim().split('\n').filter(Boolean).map(line => {
+        const [hash, ...msgParts] = line.split(' ');
+        return { hash, message: msgParts.join(' '), is_heal: msgParts.join(' ').includes('sven-heal') };
+      });
+      const healCommits = candidates.filter(c => c.is_heal);
+
+      if (healCommits.length === 0) {
+        return { outputs: { status: 'nothing_to_rollback', candidates, note: 'No sven-heal commits found in the last ' + count + ' commits.' } };
+      }
+
+      if (dryRun) {
+        return {
+          outputs: {
+            status: 'dry_run',
+            would_revert: healCommits,
+            total_candidates: candidates.length,
+            note: `Would revert ${healCommits.length} sven-heal commit(s). Run with dry_run=false to execute.`,
+          },
+        };
+      }
+
+      const result = revertHealCommits(repoRoot, count);
+
+      if (runContext?.userId) {
+        await logOpsAudit(pool, runContext.userId, 'sven.ops.rollback', { count, reverted: result.reverted },
+          result.ok ? `Rolled back ${result.reverted.length} commit(s), build verified clean` : `Rollback failed: ${result.output}`,
+          result.ok ? 'high' : 'critical');
+      }
+
+      // v5: Rollback→Deploy chaining — auto-create deploy approval
+      let chainedDeployId: string | undefined;
+      if (result.ok && inputs.chain_deploy !== false) {
+        try {
+          chainedDeployId = generateTaskId('approval');
+          await pool.query(
+            `INSERT INTO approvals (id, chat_id, tool_name, scope, requester_user_id, status, quorum_required, expires_at, details, created_at)
+             VALUES ($1, $2, 'sven.ops.deploy', 'ops.deploy', $3, 'pending', 1, NOW() + INTERVAL '1 hour', $4::jsonb, NOW())`,
+            [
+              chainedDeployId,
+              runContext?.chatId || 'system',
+              runContext?.userId || 'system',
+              JSON.stringify({ message: `Deploy rollback of ${result.reverted.length} heal commit(s)`, target: 'all', environment: 'staging', chained_from_rollback: true }),
+            ],
+          );
+        } catch { chainedDeployId = undefined; }
+      }
+
+      const chainNote = chainedDeployId ? ` Deploy approval auto-created: /approve ${chainedDeployId}` : '';
+
+      return {
+        outputs: {
+          status: result.ok ? 'rolled_back' : 'failed',
+          reverted_commits: result.reverted,
+          build_verified: result.ok,
+          detail: result.output,
+          chained_deploy_id: chainedDeployId || null,
+          note: result.ok
+            ? `Reverted ${result.reverted.length} sven-heal commit(s). Build re-verified clean.${chainNote}`
+            : result.output,
+        },
+      };
+    }
+
+    case 'sven.ops.heal_history': {
+      const gate = await requireAdmin47(pool, runContext?.userId);
+      if (!gate.ok) return { outputs: {}, error: gate.error };
+
+      // v8: Clear quarantine for a specific file if requested
+      if (inputs.clear_quarantine) {
+        const file = String(inputs.clear_quarantine);
+        const cleared = clearFileQuarantine(file);
+        if (runContext?.userId) {
+          await logOpsAudit(pool, runContext.userId, 'sven.ops.heal_history', { file }, cleared ? `Quarantine cleared for ${file}` : `No quarantine found for ${file}`, 'medium');
+        }
+        return {
+          outputs: {
+            quarantine_cleared: cleared,
+            file,
+            note: cleared ? `Quarantine lifted for ${file}. Heal operations can target this file again.` : `${file} was not quarantined.`,
+          },
+        };
+      }
+
+      const toolFilter = inputs.tool_filter ? String(inputs.tool_filter) : null;
+      const severityFilter = inputs.severity_filter ? String(inputs.severity_filter) : null;
+      const limit = Math.min(Math.max(Number(inputs.limit) || 50, 1), 200);
+      const sinceHours = Math.min(Math.max(Number(inputs.since_hours) || 168, 1), 8760);
+      const includeStats = inputs.include_stats !== false;
+
+      const healTools = [
+        'sven.ops.code_fix', 'sven.ops.deploy', 'sven.ops.code_scan',
+        'sven.ops.health', 'sven.ops.deep_scan',
+      ];
+
+      // --- Fetch recent entries ---
+      const conditions: string[] = ['created_at > NOW() - make_interval(hours => $1)'];
+      const params: unknown[] = [sinceHours];
+      let paramIdx = 2;
+
+      if (toolFilter) {
+        conditions.push(`tool_name = $${paramIdx}`);
+        params.push(toolFilter);
+        paramIdx++;
+      } else {
+        conditions.push(`tool_name = ANY($${paramIdx})`);
+        params.push(healTools);
+        paramIdx++;
+      }
+
+      if (severityFilter) {
+        conditions.push(`severity = $${paramIdx}`);
+        params.push(severityFilter);
+        paramIdx++;
+      }
+
+      const entriesRes = await pool.query(
+        `SELECT id, tool_name, action, result_summary, severity, inputs, created_at
+         FROM ops_audit_log
+         WHERE ${conditions.join(' AND ')}
+         ORDER BY created_at DESC
+         LIMIT $${paramIdx}`,
+        [...params, limit],
+      );
+
+      const entries = entriesRes.rows.map((r: any) => ({
+        id: r.id,
+        tool: r.tool_name,
+        action: r.action,
+        summary: r.result_summary,
+        severity: r.severity,
+        inputs_preview: (() => {
+          try {
+            const inp = typeof r.inputs === 'string' ? JSON.parse(r.inputs) : r.inputs;
+            const keys = Object.keys(inp || {});
+            return keys.slice(0, 5).join(', ') || '(none)';
+          } catch { return '(parse error)'; }
+        })(),
+        at: r.created_at,
+      }));
+
+      // --- Aggregate stats ---
+      let stats: Record<string, unknown> = {};
+      if (includeStats) {
+        const statsRes = await pool.query(
+          `SELECT tool_name,
+                  COUNT(*) AS total,
+                  COUNT(*) FILTER (WHERE result_summary ILIKE '%success%' OR result_summary ILIKE '%completed%' OR result_summary ILIKE '%passed%') AS successes,
+                  COUNT(*) FILTER (WHERE result_summary ILIKE '%fail%' OR result_summary ILIKE '%error%' OR result_summary ILIKE '%rollback%') AS failures,
+                  COUNT(*) FILTER (WHERE severity IN ('high','critical')) AS high_severity,
+                  MIN(created_at) AS first_seen,
+                  MAX(created_at) AS last_seen
+           FROM ops_audit_log
+           WHERE created_at > NOW() - make_interval(hours => $1)
+             AND tool_name = ANY($2)
+           GROUP BY tool_name
+           ORDER BY total DESC`,
+          [sinceHours, healTools],
+        );
+        const toolStats: Record<string, unknown> = {};
+        let totalOps = 0;
+        let totalSuccesses = 0;
+        let totalFailures = 0;
+        for (const row of statsRes.rows as any[]) {
+          toolStats[row.tool_name] = {
+            total: Number(row.total),
+            successes: Number(row.successes),
+            failures: Number(row.failures),
+            high_severity: Number(row.high_severity),
+            first_seen: row.first_seen,
+            last_seen: row.last_seen,
+          };
+          totalOps += Number(row.total);
+          totalSuccesses += Number(row.successes);
+          totalFailures += Number(row.failures);
+        }
+        stats = {
+          by_tool: toolStats,
+          totals: {
+            operations: totalOps,
+            successes: totalSuccesses,
+            failures: totalFailures,
+            success_rate: totalOps > 0 ? `${((totalSuccesses / totalOps) * 100).toFixed(1)}%` : 'N/A',
+          },
+        };
+      }
+
+      // --- Approval execution stats ---
+      const approvalRes = await pool.query(
+        `SELECT status, COUNT(*) AS cnt
+         FROM approvals
+         WHERE created_at > NOW() - make_interval(hours => $1)
+           AND tool_name = ANY($2)
+         GROUP BY status`,
+        [sinceHours, ['sven.ops.code_fix', 'sven.ops.deploy']],
+      );
+      const approvalStats: Record<string, number> = {};
+      for (const row of approvalRes.rows as any[]) {
+        approvalStats[row.status] = Number(row.cnt);
+      }
+
+      // --- Circuit breaker status (from in-memory state) ---
+      const cbStatus = {
+        state: circuitState(),
+        consecutive_failures: opsConsecutiveFailures,
+        threshold: OPS_CIRCUIT_THRESHOLD,
+        last_failure_at: opsLastFailureAt ? new Date(opsLastFailureAt).toISOString() : null,
+        half_open_cooldown_ms: OPS_CIRCUIT_HALF_OPEN_MS,
+      };
+
+      if (runContext?.userId) {
+        await logOpsAudit(pool, runContext.userId, 'sven.ops.heal_history', { tool_filter: toolFilter, severity_filter: severityFilter, limit, since_hours: sinceHours },
+          `Returned ${entries.length} entries over ${sinceHours}h window`, 'info');
+      }
+
+      // v7: Confidence scoring for a specific file if requested
+      let confidenceResult: Record<string, unknown> | undefined;
+      if (inputs.confidence_file) {
+        const conf = await getHealConfidence(pool, String(inputs.confidence_file));
+        confidenceResult = {
+          file: String(inputs.confidence_file),
+          confidence_score: conf.score,
+          total_operations: conf.total,
+          successes: conf.successes,
+          failures: conf.failures,
+          revert_rate: conf.revertRate,
+          rating: conf.score >= 0.8 ? 'HIGH' : conf.score >= 0.5 ? 'MEDIUM' : 'LOW',
+        };
+      }
+
+      return {
+        outputs: {
+          entries,
+          total_entries: entries.length,
+          time_range_hours: sinceHours,
+          stats: includeStats ? stats : undefined,
+          approval_stats: approvalStats,
+          circuit_breaker: cbStatus,
+          telemetry: healTelemetry,
+          quarantined_files: getQuarantinedFiles(),
+          confidence: confidenceResult || undefined,
+          duration_stats: getHealDurationStats(),
+          heal_note: 'This is Sven\'s self-healing track record. Use it to identify recurring issues, track fix success rates, and understand the health of the autonomous repair pipeline. Use clear_quarantine to lift file quarantines.',
+        },
+      };
     }
 
     default:

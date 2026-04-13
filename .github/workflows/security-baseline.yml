@@ -42,26 +42,30 @@ jobs:
           git diff --no-index --exit-code .secrets.baseline .secrets.baseline.ci
           rm -f .secrets.baseline.ci
 
+      - name: Enable corepack
+        run: corepack enable
+
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Plaintext secret heuristic scan
-        run: npm run security:plaintext:check
+        run: pnpm run security:plaintext:check
 
       - name: Transport/CSP policy check
-        run: npm run security:transport:csp:check
+        run: pnpm run security:transport:csp:check
 
       - name: Auth surface policy check
-        run: npm run security:auth-surface:check
+        run: pnpm run security:auth-surface:check
 
       - name: Dependency vulnerability threshold gate
-        run: npm run security:deps:check:strict
+        run: pnpm run security:deps:check:strict
 
       - name: Upload security status artifacts
         uses: actions/upload-artifact@v4

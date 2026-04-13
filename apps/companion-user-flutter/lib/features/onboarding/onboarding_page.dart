@@ -13,13 +13,14 @@ class OnboardingPage extends StatefulWidget {
     super.key,
     required this.onComplete,
     required this.onSetVisualMode,
+    this.userName = '',
   });
 
   final VoidCallback onComplete;
   final ValueChanged<VisualMode> onSetVisualMode;
 
-  // Exposed so the app can read the entered name after onComplete.
-  static String? capturedName;
+  /// Display name from the authenticated account.
+  final String userName;
 
   @override
   State<OnboardingPage> createState() => _OnboardingPageState();
@@ -31,7 +32,6 @@ class _OnboardingPageState extends State<OnboardingPage>
   int _currentPage = 0;
   late final AnimationController _orbPulse;
   late final AnimationController _fadeIn;
-  String _capturedName = '';
 
   static const _totalPages = 4;
 
@@ -64,7 +64,6 @@ class _OnboardingPageState extends State<OnboardingPage>
         curve: Curves.easeInOutCubic,
       );
     } else {
-      OnboardingPage.capturedName = _capturedName.isNotEmpty ? _capturedName : null;
       widget.onComplete();
     }
   }
@@ -142,12 +141,8 @@ class _OnboardingPageState extends State<OnboardingPage>
                         ),
                         _LetsGoPage(
                           tokens: tokens,
-                          onNameChanged: (name) {
-                            _capturedName = name;
-                          },
+                          userName: widget.userName,
                           onGetStarted: () {
-                            OnboardingPage.capturedName =
-                                _capturedName.isNotEmpty ? _capturedName : null;
                             widget.onComplete();
                           },
                         ),
@@ -241,8 +236,8 @@ class _MeetSvenPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  child: Center(
-                    child: const SvenAppIcon(size: 104, borderRadius: 32),
+                  child: const Center(
+                    child: SvenAppIcon(size: 104, borderRadius: 32),
                   ),
                 ),
               );
@@ -651,12 +646,12 @@ class _GradientButtonState extends State<_GradientButton>
 class _LetsGoPage extends StatefulWidget {
   const _LetsGoPage({
     required this.tokens,
-    required this.onNameChanged,
     required this.onGetStarted,
+    this.userName = '',
   });
 
   final SvenModeTokens tokens;
-  final ValueChanged<String> onNameChanged;
+  final String userName;
   final VoidCallback onGetStarted;
 
   @override
@@ -664,7 +659,6 @@ class _LetsGoPage extends StatefulWidget {
 }
 
 class _LetsGoPageState extends State<_LetsGoPage> {
-  final _nameCtrl = TextEditingController();
   int _selectedPrompt = -1;
 
   static const _prompts = [
@@ -675,20 +669,9 @@ class _LetsGoPageState extends State<_LetsGoPage> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _nameCtrl.addListener(() => widget.onNameChanged(_nameCtrl.text.trim()));
-  }
-
-  @override
-  void dispose() {
-    _nameCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final tokens = widget.tokens;
+    final hasName = widget.userName.isNotEmpty;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -697,7 +680,7 @@ class _LetsGoPageState extends State<_LetsGoPage> {
         children: [
           const SizedBox(height: 24),
           Text(
-            'One last thing',
+            hasName ? 'Hey ${widget.userName}!' : 'You\u2019re all set',
             style: TextStyle(
               color: tokens.onSurface,
               fontSize: 28,
@@ -707,27 +690,19 @@ class _LetsGoPageState extends State<_LetsGoPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Let Sven know what to call you.',
+            hasName
+                ? 'Sven is ready when you are.'
+                : 'Let\u2019s get started.',
             style: TextStyle(
               color: tokens.onSurface.withValues(alpha: 0.55),
               fontSize: 15,
               height: 1.4,
             ),
           ),
-          const SizedBox(height: 28),
-
-          // Name input
-          _OnboardingTextField(
-            controller: _nameCtrl,
-            hint: 'Your name (optional)',
-            icon: Icons.person_outline_rounded,
-            tokens: tokens,
-          ),
-
           const SizedBox(height: 36),
 
           Text(
-            'Or start with a question:',
+            'Start with a question:',
             style: TextStyle(
               color: tokens.onSurface.withValues(alpha: 0.5),
               fontSize: 13,
@@ -798,63 +773,6 @@ class _LetsGoPageState extends State<_LetsGoPage> {
           }),
 
           const SizedBox(height: 32),
-        ],
-      ),
-    );
-  }
-}
-
-class _OnboardingTextField extends StatelessWidget {
-  const _OnboardingTextField({
-    required this.controller,
-    required this.hint,
-    required this.icon,
-    required this.tokens,
-  });
-
-  final TextEditingController controller;
-  final String hint;
-  final IconData icon;
-  final SvenModeTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: tokens.onSurface.withValues(alpha: 0.12),
-        ),
-        color: tokens.onSurface.withValues(alpha: 0.04),
-      ),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 10),
-            child: Icon(icon,
-                size: 20, color: tokens.onSurface.withValues(alpha: 0.4)),
-          ),
-          Expanded(
-            child: TextField(
-              controller: controller,
-              style: TextStyle(
-                color: tokens.onSurface,
-                fontSize: 16,
-              ),
-              decoration: InputDecoration(
-                hintText: hint,
-                hintStyle: TextStyle(
-                  color: tokens.onSurface.withValues(alpha: 0.35),
-                  fontSize: 16,
-                ),
-                border: InputBorder.none,
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 14),
-              ),
-              textCapitalization: TextCapitalization.words,
-            ),
-          ),
-          const SizedBox(width: 12),
         ],
       ),
     );

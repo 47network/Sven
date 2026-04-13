@@ -4,7 +4,7 @@ import type { LucideIcon } from 'lucide-react';
 
 type Item = { href: string; label: string; icon: LucideIcon };
 
-export default function NavItem({ item, active, collapsed, onClick, badge }: { item: Item; active: boolean; collapsed: boolean; onClick: () => void; badge?: number; }) {
+export default function NavItem({ item, active, collapsed, onClick, badge, kbd }: { item: Item; active: boolean; collapsed: boolean; onClick: () => void; badge?: number; kbd?: string; }) {
     const Icon = item.icon;
     return (
         <Link
@@ -18,11 +18,18 @@ export default function NavItem({ item, active, collapsed, onClick, badge }: { i
             {!collapsed && (
                 <span className="flex flex-1 items-center justify-between truncate">
                     {item.label}
-                    {badge !== undefined && badge > 0 && (
-                        <span className="ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[11px] font-semibold leading-none text-white">
-                            {badge}
-                        </span>
-                    )}
+                    <span className="flex items-center gap-1.5">
+                        {badge !== undefined && badge > 0 && (
+                            <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[11px] font-semibold leading-none text-white">
+                                {badge}
+                            </span>
+                        )}
+                        {kbd && (
+                            <kbd className="hidden rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-[10px] font-mono text-slate-500 lg:inline-block">
+                                {kbd}
+                            </kbd>
+                        )}
+                    </span>
                 </span>
             )}
         </Link>

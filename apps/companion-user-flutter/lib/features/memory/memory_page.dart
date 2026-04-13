@@ -88,7 +88,7 @@ class _MemoryPageState extends ConsumerState<MemoryPage>
                 Switch.adaptive(
                   value: memoryService.memoryEnabled,
                   onChanged: (v) => memoryService.setMemoryEnabled(v),
-                  activeColor: tokens.primary,
+                  activeThumbColor: tokens.primary,
                   activeTrackColor: tokens.primary.withValues(alpha: 0.3),
                 ),
               ],

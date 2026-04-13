@@ -2719,6 +2719,11 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
          u.id,
          u.username,
          u.display_name,
+         u.bio,
+         u.avatar_url,
+         u.timezone,
+         u.status_emoji,
+         u.status_text,
          u.role,
          u.created_at,
          u.active_organization_id,
@@ -2735,6 +2740,412 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
     }
     await touchSsoSessionLinks(pool, [sessionId]);
     reply.send({ success: true, data: result.rows[0] });
+  });
+
+  // ─── GET /v1/users/me/profile ───
+  app.get('/v1/users/me/profile', { preHandler: requireAuth }, async (request: any, reply) => {
+    const res = await pool.query(
+      `SELECT
+         u.id,
+         u.username,
+         u.display_name,
+         u.bio,
+         u.avatar_url,
+         u.timezone,
+         u.status_emoji,
+         u.status_text,
+         u.role,
+         u.created_at,
+         u.active_organization_id,
+         o.name AS active_organization_name
+       FROM users u
+       LEFT JOIN organizations o ON o.id = u.active_organization_id
+       WHERE u.id = $1`,
+      [request.userId],
+    );
+    if (res.rows.length === 0) {
+      return reply.status(404).send({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } });
+    }
+    reply.send({ success: true, data: res.rows[0] });
+  });
+
+  // ─── PATCH /v1/users/me ───
+  app.patch('/v1/users/me', {
+    preHandler: requireAuth,
+    schema: {
+      body: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          display_name: { type: 'string', minLength: 1, maxLength: 256 },
+          bio: { type: 'string', maxLength: 500 },
+          avatar_url: { type: 'string', maxLength: 2048 },
+          timezone: { type: 'string', maxLength: 64 },
+          status_emoji: { type: 'string', maxLength: 8 },
+          status_text: { type: 'string', maxLength: 128 },
+        },
+      },
+    },
+  }, async (request: any, reply) => {
+    const body = (request.body || {}) as Record<string, unknown>;
+    const sets: string[] = [];
+    const params: unknown[] = [];
+
+    const allowedFields = ['display_name', 'bio', 'avatar_url', 'timezone', 'status_emoji', 'status_text'];
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        params.push(String(body[field]));
+        sets.push(`${field} = $${params.length}`);
+      }
+    }
+
+    if (sets.length === 0) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'VALIDATION', message: 'At least one field required' },
+      });
+    }
+
+    params.push(request.userId);
+    const res = await pool.query(
+      `UPDATE users
+       SET ${sets.join(', ')}, updated_at = NOW()
+       WHERE id = $${params.length}
+       RETURNING id, username, display_name, bio, avatar_url, timezone, status_emoji, status_text, role, created_at`,
+      params,
+    );
+    if (res.rows.length === 0) {
+      return reply.status(404).send({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } });
+    }
+    reply.send({ success: true, data: res.rows[0] });
+  });
+
+  // ─── GET /v1/users/me/notification-preferences ───
+  const NOTIF_CHANNELS = ['messages', 'approvals', 'reminders', 'agents', 'calls', 'memory'];
+
+  app.get('/v1/users/me/notification-preferences', {
+    preHandler: requireAuth,
+  }, async (request: any, reply) => {
+    const userId = request.userId;
+
+    // Per-channel preferences
+    const channelsRes = await pool.query(
+      `SELECT channel, enabled, sound, vibrate
+       FROM notification_preferences
+       WHERE user_id = $1
+       ORDER BY channel`,
+      [userId],
+    );
+    const channelMap: Record<string, { enabled: boolean; sound: string; vibrate: boolean }> = {};
+    for (const row of channelsRes.rows) {
+      channelMap[row.channel] = { enabled: row.enabled, sound: row.sound, vibrate: row.vibrate };
+    }
+    // Fill defaults for any missing channels
+    const channels = NOTIF_CHANNELS.map((ch) => ({
+      channel: ch,
+      enabled: channelMap[ch]?.enabled ?? true,
+      sound: channelMap[ch]?.sound ?? 'default',
+      vibrate: channelMap[ch]?.vibrate ?? true,
+    }));
+
+    // Global DND settings from users table
+    const userRes = await pool.query(
+      `SELECT dnd_enabled, dnd_start_hour, dnd_start_minute, dnd_end_hour, dnd_end_minute, notif_sound
+       FROM users WHERE id = $1`,
+      [userId],
+    );
+    const u = userRes.rows[0] || {};
+
+    reply.send({
+      success: true,
+      data: {
+        channels,
+        dnd: {
+          enabled: u.dnd_enabled ?? false,
+          start_hour: u.dnd_start_hour ?? 22,
+          start_minute: u.dnd_start_minute ?? 0,
+          end_hour: u.dnd_end_hour ?? 7,
+          end_minute: u.dnd_end_minute ?? 0,
+        },
+        global_sound: u.notif_sound ?? 'default',
+      },
+    });
+  });
+
+  // ─── PUT /v1/users/me/notification-preferences ───
+  app.put('/v1/users/me/notification-preferences', {
+    preHandler: requireAuth,
+    schema: {
+      body: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          channels: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['channel', 'enabled'],
+              properties: {
+                channel: { type: 'string', maxLength: 64 },
+                enabled: { type: 'boolean' },
+                sound: { type: 'string', maxLength: 32 },
+                vibrate: { type: 'boolean' },
+              },
+            },
+          },
+          dnd: {
+            type: 'object',
+            properties: {
+              enabled: { type: 'boolean' },
+              start_hour: { type: 'integer', minimum: 0, maximum: 23 },
+              start_minute: { type: 'integer', minimum: 0, maximum: 59 },
+              end_hour: { type: 'integer', minimum: 0, maximum: 23 },
+              end_minute: { type: 'integer', minimum: 0, maximum: 59 },
+            },
+          },
+          global_sound: { type: 'string', maxLength: 32 },
+        },
+      },
+    },
+  }, async (request: any, reply) => {
+    const userId = request.userId;
+    const body = (request.body || {}) as {
+      channels?: Array<{ channel: string; enabled: boolean; sound?: string; vibrate?: boolean }>;
+      dnd?: { enabled?: boolean; start_hour?: number; start_minute?: number; end_hour?: number; end_minute?: number };
+      global_sound?: string;
+    };
+
+    // Upsert per-channel prefs
+    if (body.channels && Array.isArray(body.channels)) {
+      for (const ch of body.channels) {
+        if (!NOTIF_CHANNELS.includes(ch.channel)) continue;
+        await pool.query(
+          `INSERT INTO notification_preferences (user_id, channel, enabled, sound, vibrate)
+           VALUES ($1, $2, $3, $4, $5)
+           ON CONFLICT (user_id, channel)
+           DO UPDATE SET enabled = $3, sound = $4, vibrate = $5`,
+          [userId, ch.channel, ch.enabled, ch.sound ?? 'default', ch.vibrate ?? true],
+        );
+      }
+    }
+
+    // Update DND + global sound on users table
+    const dndSets: string[] = [];
+    const dndParams: unknown[] = [];
+    if (body.dnd) {
+      if (body.dnd.enabled !== undefined) { dndParams.push(body.dnd.enabled); dndSets.push(`dnd_enabled = $${dndParams.length}`); }
+      if (body.dnd.start_hour !== undefined) { dndParams.push(body.dnd.start_hour); dndSets.push(`dnd_start_hour = $${dndParams.length}`); }
+      if (body.dnd.start_minute !== undefined) { dndParams.push(body.dnd.start_minute); dndSets.push(`dnd_start_minute = $${dndParams.length}`); }
+      if (body.dnd.end_hour !== undefined) { dndParams.push(body.dnd.end_hour); dndSets.push(`dnd_end_hour = $${dndParams.length}`); }
+      if (body.dnd.end_minute !== undefined) { dndParams.push(body.dnd.end_minute); dndSets.push(`dnd_end_minute = $${dndParams.length}`); }
+    }
+    if (body.global_sound !== undefined) { dndParams.push(body.global_sound); dndSets.push(`notif_sound = $${dndParams.length}`); }
+
+    if (dndSets.length > 0) {
+      dndParams.push(userId);
+      await pool.query(
+        `UPDATE users SET ${dndSets.join(', ')}, updated_at = NOW() WHERE id = $${dndParams.length}`,
+        dndParams,
+      );
+    }
+
+    reply.send({ success: true });
+  });
+
+  // ─── GET /v1/users/me/theme-preferences ───
+  app.get('/v1/users/me/theme-preferences', {
+    preHandler: requireAuth,
+  }, async (request, reply) => {
+    const userId = request.userId;
+    const { rows } = await pool.query(
+      `SELECT theme_prefs FROM users WHERE id = $1`,
+      [userId],
+    );
+    const prefs = rows[0]?.theme_prefs ?? {};
+    reply.send({ success: true, data: prefs });
+  });
+
+  // ─── PUT /v1/users/me/theme-preferences ───
+  app.put('/v1/users/me/theme-preferences', {
+    preHandler: requireAuth,
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          visual_mode: { type: 'string', enum: ['classic', 'cinematic'] },
+          accent_preset: { type: 'string' },
+          custom_accent_hex: { type: 'string', pattern: '^#[0-9a-fA-F]{6}$' },
+          font_family: { type: 'string', maxLength: 64 },
+          text_scale: { type: 'number', minimum: 0.5, maximum: 2.0 },
+          ui_density: { type: 'string', enum: ['compact', 'comfortable', 'spacious'] },
+          high_contrast: { type: 'boolean' },
+          color_blind_mode: { type: 'boolean' },
+          reduce_transparency: { type: 'boolean' },
+          motion_level: { type: 'string', enum: ['full', 'reduced', 'off'] },
+        },
+      },
+    },
+  }, async (request, reply) => {
+    const userId = request.userId;
+    const body = request.body as Record<string, unknown>;
+    // Merge incoming keys into existing prefs (partial update).
+    const { rows: existing } = await pool.query(
+      `SELECT theme_prefs FROM users WHERE id = $1`,
+      [userId],
+    );
+    const current = (existing[0]?.theme_prefs ?? {}) as Record<string, unknown>;
+    const merged = { ...current, ...body };
+    await pool.query(
+      `UPDATE users SET theme_prefs = $1, updated_at = NOW() WHERE id = $2`,
+      [JSON.stringify(merged), userId],
+    );
+    reply.send({ success: true, data: merged });
+  });
+
+  // ─── GET /v1/users/me/organizations ───
+  app.get('/v1/users/me/organizations', {
+    preHandler: requireAuth,
+  }, async (request, reply) => {
+    const userId = request.userId;
+    const { rows } = await pool.query(
+      `SELECT o.id, o.slug, o.name, o.owner_user_id, om.role, om.status,
+              o.created_at, o.updated_at
+       FROM organization_memberships om
+       JOIN organizations o ON o.id = om.organization_id
+       WHERE om.user_id = $1 AND om.status = 'active'
+       ORDER BY o.name ASC`,
+      [userId],
+    );
+    // Include which org is active
+    const activeRes = await pool.query(
+      `SELECT active_organization_id FROM users WHERE id = $1`,
+      [userId],
+    );
+    const activeOrgId = activeRes.rows[0]?.active_organization_id ?? null;
+    reply.send({
+      success: true,
+      data: {
+        organizations: rows.map((r: Record<string, unknown>) => ({
+          id: r.id,
+          slug: r.slug,
+          name: r.name,
+          owner_user_id: r.owner_user_id,
+          role: r.role,
+          status: r.status,
+          is_active: r.id === activeOrgId,
+          created_at: r.created_at,
+          updated_at: r.updated_at,
+        })),
+        active_organization_id: activeOrgId,
+      },
+    });
+  });
+
+  // ─── PUT /v1/users/me/active-organization ───
+  app.put('/v1/users/me/active-organization', {
+    preHandler: requireAuth,
+    schema: {
+      body: {
+        type: 'object',
+        required: ['organization_id'],
+        properties: {
+          organization_id: { type: 'string', minLength: 1 },
+        },
+      },
+    },
+  }, async (request, reply) => {
+    const userId = request.userId;
+    const { organization_id: orgId } = request.body as { organization_id: string };
+    // Verify membership
+    const { rows: membership } = await pool.query(
+      `SELECT id FROM organization_memberships
+       WHERE user_id = $1 AND organization_id = $2 AND status = 'active'`,
+      [userId, orgId],
+    );
+    if (membership.length === 0) {
+      return reply.status(403).send({
+        success: false,
+        error: { code: 'NOT_A_MEMBER', message: 'You are not a member of this organization' },
+      });
+    }
+    await pool.query(
+      `UPDATE users SET active_organization_id = $1, updated_at = NOW() WHERE id = $2`,
+      [orgId, userId],
+    );
+    reply.send({ success: true, data: { active_organization_id: orgId } });
+  });
+
+  // ─── GET /v1/users/me/activity-feed ───
+  app.get('/v1/users/me/activity-feed', {
+    preHandler: requireAuth,
+  }, async (request, reply) => {
+    const userId = request.userId;
+    const { limit: rawLimit, before, unread_only: unreadOnly } = request.query as {
+      limit?: string; before?: string; unread_only?: string;
+    };
+    const limit = Math.min(parseInt(rawLimit || '50', 10) || 50, 100);
+    const params: unknown[] = [userId, limit];
+    let whereExtra = '';
+    if (before) {
+      params.push(before);
+      whereExtra += ` AND af.created_at < $${params.length}`;
+    }
+    if (unreadOnly === 'true') {
+      whereExtra += ` AND af.read = FALSE`;
+    }
+    const { rows } = await pool.query(
+      `SELECT af.id, af.event_type, af.title, af.body, af.resource_id,
+              af.resource_type, af.metadata, af.read, af.created_at
+       FROM activity_feed af
+       WHERE af.user_id = $1${whereExtra}
+       ORDER BY af.created_at DESC
+       LIMIT $2`,
+      params,
+    );
+    // Unread count
+    const { rows: countRows } = await pool.query(
+      `SELECT COUNT(*)::int AS unread FROM activity_feed WHERE user_id = $1 AND read = FALSE`,
+      [userId],
+    );
+    reply.send({
+      success: true,
+      data: {
+        events: rows,
+        unread_count: countRows[0]?.unread ?? 0,
+        has_more: rows.length === limit,
+      },
+    });
+  });
+
+  // ─── POST /v1/users/me/activity-feed/mark-read ───
+  app.post('/v1/users/me/activity-feed/mark-read', {
+    preHandler: requireAuth,
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          ids: { type: 'array', items: { type: 'string' }, maxItems: 100 },
+          all: { type: 'boolean' },
+        },
+      },
+    },
+  }, async (request, reply) => {
+    const userId = request.userId;
+    const body = request.body as { ids?: string[]; all?: boolean };
+    if (body.all) {
+      await pool.query(
+        `UPDATE activity_feed SET read = TRUE WHERE user_id = $1 AND read = FALSE`,
+        [userId],
+      );
+    } else if (body.ids && body.ids.length > 0) {
+      // Parameterised IN clause
+      const placeholders = body.ids.map((_, i) => `$${i + 2}`).join(', ');
+      await pool.query(
+        `UPDATE activity_feed SET read = TRUE WHERE user_id = $1 AND id IN (${placeholders})`,
+        [userId, ...body.ids],
+      );
+    }
+    reply.send({ success: true });
   });
 
   // ─── GET /v1/auth/token-exchange ───

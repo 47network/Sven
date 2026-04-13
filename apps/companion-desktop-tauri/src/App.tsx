@@ -3,6 +3,15 @@ import { Sidebar, type NavTab } from './components/Sidebar';
 import { ChatPanel } from './panels/ChatPanel';
 import { ApprovalsPanel } from './panels/ApprovalsPanel';
 import { InferencePanel } from './panels/InferencePanel';
+import { AiDashboardPanel } from './panels/AiDashboardPanel';
+import { BrainPanel } from './panels/BrainPanel';
+import { CommunityAgentsPanel } from './panels/CommunityAgentsPanel';
+import { FederationPanel } from './panels/FederationPanel';
+import { ProfilePanel } from './panels/ProfilePanel';
+import ThemePanel from './panels/ThemePanel';
+import OrgSwitcherPanel from './panels/OrgSwitcherPanel';
+import ActivityPanel from './panels/ActivityPanel';
+import SearchPanel from './panels/SearchPanel';
 import { SettingsPanel } from './panels/SettingsPanel';
 import { LogPanel } from './panels/LogPanel';
 
@@ -48,6 +57,49 @@ function App() {
             onRefreshModels={app.onRefreshLocalModels}
           />
         );
+      case 'ai-dashboard':
+        return (
+          <AiDashboardPanel
+            token={app.token}
+            apiBase={app.config.api_base ?? ''}
+          />
+        );
+      case 'brain':
+        return (
+          <BrainPanel
+            token={app.token}
+            apiBase={app.config.api_base ?? ''}
+          />
+        );
+      case 'community-agents':
+        return (
+          <CommunityAgentsPanel
+            token={app.token}
+            apiBase={app.config.api_base ?? ''}
+          />
+        );
+      case 'federation':
+        return (
+          <FederationPanel
+            token={app.token}
+            apiBase={app.config.api_base ?? ''}
+          />
+        );
+      case 'profile':
+        return (
+          <ProfilePanel
+            token={app.token}
+            apiBase={app.config.api_base ?? ''}
+          />
+        );
+      case 'theme':
+        return <ThemePanel />;
+      case 'workspaces':
+        return <OrgSwitcherPanel />;
+      case 'activity':
+        return <ActivityPanel />;
+      case 'search':
+        return <SearchPanel />;
       case 'settings':
         return (
           <SettingsPanel

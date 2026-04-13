@@ -5,7 +5,7 @@ on:
   push:
     paths:
       - 'package.json'
-      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
       - 'packages/cli/**'
       - 'deploy/quickstart/**'
       - 'docs/release/notes/**'
@@ -98,47 +98,51 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable corepack
+        run: corepack enable
+
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install deps
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: No TODO/FIXME gate
-        run: npm run check:no-todo
+        run: pnpm run check:no-todo
 
       - name: Release bundle hygiene gate
-        run: npm run release:bundle:hygiene:check
+        run: pnpm run release:bundle:hygiene:check
 
       - name: Generate master checklist metrics snapshot
-        run: npm run release:master:metrics:snapshot
+        run: pnpm run release:master:metrics:snapshot
 
       - name: Generate app checklist metrics snapshot
-        run: npm run release:app:metrics:snapshot
+        run: pnpm run release:app:metrics:snapshot
 
       - name: Generate mobile binary artifacts snapshot
-        run: npm run release:mobile:binary:artifacts:snapshot
+        run: pnpm run release:mobile:binary:artifacts:snapshot
 
       - name: Generate OpenAPI metrics snapshot
-        run: npm run release:api:openapi:metrics:snapshot
+        run: pnpm run release:api:openapi:metrics:snapshot
 
       - name: Generate master parity summary snapshot
-        run: npm run release:master:parity:snapshot
+        run: pnpm run release:master:parity:snapshot
 
       - name: App checklist format gate
-        run: npm run release:app:checklist:format:check
+        run: pnpm run release:app:checklist:format:check
 
       - name: Checklist metrics drift gate
-        run: npm run release:checklist:metrics:drift:check
+        run: pnpm run release:checklist:metrics:drift:check
 
       - name: Master checklist governance gate
-        run: npm run release:master:governance:check
+        run: pnpm run release:master:governance:check
 
       - name: Firecracker claim consistency gate
-        run: npm run release:firecracker:claim:check
+        run: pnpm run release:firecracker:claim:check
 
       - name: DB migration naming gate
         run: node scripts/db-migration-naming-check.cjs
@@ -147,97 +151,97 @@ jobs:
         run: node scripts/db-migration-rollback-coverage-check.cjs --strict
 
       - name: Agent chat org-scope invariant gate
-        run: npm run release:agent:chat:org-scope:check
+        run: pnpm run release:agent:chat:org-scope:check
 
       - name: Resumable stream gate
-        run: npm run release:streams:resumable:check
+        run: pnpm run release:streams:resumable:check
 
       - name: Web egress security gate
-        run: npm run release:web:egress:security:check
+        run: pnpm run release:web:egress:security:check
 
       - name: Seed baseline gate
-        run: npm run release:seed:baseline:check
+        run: pnpm run release:seed:baseline:check
 
       - name: API contract version gate
-        run: npm run release:api:contract:check
+        run: pnpm run release:api:contract:check
 
       - name: API OpenAPI parity gate
-        run: npm run release:api:openapi:contract:check
+        run: pnpm run release:api:openapi:contract:check
 
       - name: API request-schema coverage gate
-        run: npm run release:api:request-schema:coverage:check
+        run: pnpm run release:api:request-schema:coverage:check
 
       - name: Benchmark suite gate (F1-F4)
-        run: npm run release:benchmarks:check
+        run: pnpm run release:benchmarks:check
 
       - name: Agent-Zero parity verify gate
-        run: npm run release:agent-zero:parity:verify
+        run: pnpm run release:agent-zero:parity:verify
 
       - name: Websocket contract gate
-        run: npm run release:websocket:contract:check
+        run: pnpm run release:websocket:contract:check
 
       - name: Quickstart installer cross-host status check
-        run: npm run release:quickstart:crosshost:check
+        run: pnpm run release:quickstart:crosshost:check
 
       - name: Quickstart installer runtime status check
-        run: npm run release:quickstart:runtime:check
+        run: pnpm run release:quickstart:runtime:check
 
       - name: Competitor benchmark integrity gate
-        run: npm run release:competitor:benchmark:integrity:check
+        run: pnpm run release:competitor:benchmark:integrity:check
 
       - name: Soak hardware evidence gate
-        run: npm run release:soak:hardware:evidence:check
+        run: pnpm run release:soak:hardware:evidence:check
 
       - name: Runbook scenario matrix gate
-        run: npm run release:runbook:scenario:matrix:check
+        run: pnpm run release:runbook:scenario:matrix:check
 
       - name: Runtime security baseline gate
-        run: npm run release:runtime:security:baseline:check
+        run: pnpm run release:runtime:security:baseline:check
 
       - name: Secret ref policy gate
-        run: npm run release:secret:ref:policy:check
+        run: pnpm run release:secret:ref:policy:check
 
       - name: Traceability matrix gate
-        run: npm run release:traceability:matrix:check
+        run: pnpm run release:traceability:matrix:check
 
       - name: Third-checklist integration gate
-        run: npm run release:third:checklist:integration:check
+        run: pnpm run release:third:checklist:integration:check
 
       - name: Staging migration verification gate
-        run: npm run release:staging:migration:verification:check
+        run: pnpm run release:staging:migration:verification:check
 
       - name: Staging parity gate
-        run: npm run release:staging:parity:check
+        run: pnpm run release:staging:parity:check
 
       - name: Runbook scope update gate
         env:
           SVEN_BASE_SHA: ${{ github.event.before }}
           SVEN_HEAD_SHA: ${{ github.sha }}
-        run: npm run release:runbook:scope:update:check
+        run: pnpm run release:runbook:scope:update:check
 
       - name: Feature-flag governance gate
         env:
           SVEN_BASE_SHA: ${{ github.event.before }}
           SVEN_HEAD_SHA: ${{ github.sha }}
-        run: npm run release:feature:flag:governance:check
+        run: pnpm run release:feature:flag:governance:check
 
       - name: Operability auth suite gate
-        run: npm run release:operability:auth:suite:check
+        run: pnpm run release:operability:auth:suite:check
 
       - name: Admin RBAC penetration gate
-        run: npm run release:admin:rbac:penetration:check -- --strict
+        run: pnpm run release:admin:rbac:penetration:check -- --strict
 
       - name: Admin /secrets claim consistency gate
-        run: npm run release:admin:secrets:route:claim:check
+        run: pnpm run release:admin:secrets:route:claim:check
 
       - name: Admin integration route coverage gate
-        run: npm run release:admin:integration:route:coverage:check
+        run: pnpm run release:admin:integration:route:coverage:check
 
       - name: Mobile Patrol discovery gate
-        run: npm run mobile:patrol:discovery:check
+        run: pnpm run mobile:patrol:discovery:check
 
       - name: Mobile Play package-id parity gate
-        run: npm run mobile:play:package:parity:check
+        run: pnpm run mobile:play:package:parity:check
 
       - name: Setup Flutter for mobile coverage gate
         uses: subosito/flutter-action@v2
@@ -255,16 +259,16 @@ jobs:
         run: flutter test --coverage --exclude-tags golden
 
       - name: Mobile coverage threshold gate
-        run: npm run mobile:coverage:gate:check
+        run: pnpm run mobile:coverage:gate:check
 
       - name: Production parity checklist evidence-binding gate
-        run: npm run release:parity:checklist:verify
+        run: pnpm run release:parity:checklist:verify
 
       - name: Release evidence bundle gate
-        run: npm run release:evidence:bundle:check
+        run: pnpm run release:evidence:bundle:check
 
       - name: Release status JSON encoding gate
-        run: npm run release:status:json:encoding:check
+        run: pnpm run release:status:json:encoding:check
 
       - name: Versioning and changelog gate
         run: node scripts/release-version-changelog-check.cjs --strict
@@ -279,10 +283,10 @@ jobs:
         run: node scripts/release-rollout-check.cjs --strict
 
       - name: External input resolution gate
-        run: npm run release:external:input:resolution:check
+        run: pnpm run release:external:input:resolution:check
 
       - name: Release candidate package gate
-        run: npm run release:rc:package:check -- --strict
+        run: pnpm run release:rc:package:check -- --strict
 
       - name: Generate repository SBOM (SPDX JSON)
         uses: anchore/sbom-action@v0
@@ -585,20 +589,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable corepack
+        run: corepack enable
+
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install deps
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: CI required checks gate (strict)
-        run: npm run release:ci:required:check -- --strict
+        run: pnpm run release:ci:required:check -- --strict
 
       - name: Final sign-off gate (strict)
-        run: npm run release:final:signoff:check -- --strict
+        run: pnpm run release:final:signoff:check -- --strict
 
       - name: Upload readiness gate status
         if: always()

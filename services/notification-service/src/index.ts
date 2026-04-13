@@ -624,6 +624,202 @@ type PushDeliveryResult = {
   failed: number;
 };
 
+// ── Privacy-first push: FCM HTTP v1 API (data-only, no content to Google) ──
+// Uses the legacy FCM HTTP API with server key for data-only messages.
+// Only a wake-up signal is sent; actual notification content stays on our server.
+const FCM_SERVER_KEY = process.env.FCM_SERVER_KEY || '';
+const FCM_ENABLED = !!FCM_SERVER_KEY;
+const FCM_SEND_URL = 'https://fcm.googleapis.com/fcm/send';
+const UNIFIED_PUSH_TIMEOUT_MS = 10000;
+
+/**
+ * Store notification payload server-side for privacy-first push delivery.
+ * Returns the generated notification ID that clients will use to fetch content.
+ */
+async function storePushPayload(
+  pool: pg.Pool,
+  userId: string,
+  payload: { title: string; body: string; channel?: string; data?: Record<string, unknown>; priority?: string },
+): Promise<string> {
+  const id = uuidv7();
+  await pool.query(
+    `INSERT INTO push_pending (id, user_id, title, body, channel, data, priority)
+     VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7)`,
+    [
+      id,
+      userId,
+      payload.title,
+      payload.body || '',
+      payload.channel || 'sven_messages',
+      JSON.stringify(payload.data || {}),
+      payload.priority || 'normal',
+    ],
+  );
+  return id;
+}
+
+/**
+ * Send a data-only FCM message (no notification payload — Google never sees content).
+ * The device receives a silent push and fetches the real notification from our server.
+ */
+async function sendFcmWakeUp(
+  pool: pg.Pool,
+  tokens: string[],
+  notificationId: string,
+): Promise<PushDeliveryResult> {
+  if (tokens.length === 0 || !FCM_ENABLED) {
+    return { attempted: 0, delivered: 0, failed: 0 };
+  }
+
+  const result: PushDeliveryResult = { attempted: tokens.length, delivered: 0, failed: 0 };
+  const staleTokens: string[] = [];
+
+  // FCM legacy API supports multicast up to 1000 tokens
+  const batches: string[][] = [];
+  for (let i = 0; i < tokens.length; i += 1000) {
+    batches.push(tokens.slice(i, i + 1000));
+  }
+
+  for (const batch of batches) {
+    try {
+      const res = await fetch(FCM_SEND_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `key=${FCM_SERVER_KEY}`,
+        },
+        body: JSON.stringify({
+          registration_ids: batch,
+          // Data-only message: NO "notification" key, so Google never sees content.
+          // The app handles display locally after fetching from our server.
+          data: {
+            type: 'sven_push',
+            nid: notificationId,
+          },
+          // High priority ensures wake-up even in Doze mode
+          priority: 'high',
+          // TTL: 7 days (matches push_pending expiry)
+          time_to_live: 604800,
+        }),
+      });
+
+      if (!res.ok) {
+        logger.warn('FCM wake-up request failed', { status: res.status });
+        result.failed += batch.length;
+        continue;
+      }
+
+      const body = await res.json() as {
+        success?: number;
+        failure?: number;
+        results?: Array<{ message_id?: string; error?: string }>;
+      };
+
+      result.delivered += body.success ?? 0;
+      result.failed += body.failure ?? 0;
+
+      // Clean up stale tokens
+      if (Array.isArray(body.results)) {
+        for (let i = 0; i < body.results.length; i++) {
+          const err = body.results[i]?.error;
+          if (err === 'NotRegistered' || err === 'InvalidRegistration') {
+            staleTokens.push(batch[i]);
+          }
+        }
+      }
+    } catch (err) {
+      logger.warn('FCM wake-up fetch error', { err: String(err) });
+      result.failed += batch.length;
+    }
+  }
+
+  if (staleTokens.length > 0) {
+    await pool.query(
+      `DELETE FROM mobile_push_tokens WHERE platform IN ('android', 'ios') AND token = ANY($1::text[])`,
+      [staleTokens],
+    );
+    logger.info('Removed stale FCM tokens', { count: staleTokens.length });
+  }
+
+  return result;
+}
+
+/**
+ * Send wake-up via UnifiedPush distributor endpoint (HTTP POST).
+ * UnifiedPush endpoints receive a minimal JSON payload; the app fetches content from our server.
+ */
+async function sendUnifiedPush(
+  pool: pg.Pool,
+  endpoints: string[],
+  notificationId: string,
+): Promise<PushDeliveryResult> {
+  if (endpoints.length === 0) {
+    return { attempted: 0, delivered: 0, failed: 0 };
+  }
+
+  const result: PushDeliveryResult = { attempted: endpoints.length, delivered: 0, failed: 0 };
+  const staleEndpoints: string[] = [];
+  const wakePayload = JSON.stringify({ type: 'sven_push', nid: notificationId });
+
+  for (const endpoint of endpoints) {
+    try {
+      const url = new URL(endpoint);
+      // Block internal/metadata endpoints for SSRF protection
+      if (
+        WEBHOOK_BLOCKED_HOSTNAMES.has(url.hostname) ||
+        WEBHOOK_BLOCKED_IP_LITERALS.has(url.hostname)
+      ) {
+        logger.warn('UnifiedPush endpoint blocked (SSRF)', { endpoint: url.hostname });
+        result.failed += 1;
+        continue;
+      }
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), UNIFIED_PUSH_TIMEOUT_MS);
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: wakePayload,
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+
+        if (res.ok) {
+          result.delivered += 1;
+        } else if (res.status === 404 || res.status === 410) {
+          staleEndpoints.push(endpoint);
+          result.failed += 1;
+        } else {
+          result.failed += 1;
+        }
+      } catch {
+        clearTimeout(timeout);
+        result.failed += 1;
+      }
+    } catch {
+      // Invalid URL
+      staleEndpoints.push(endpoint);
+      result.failed += 1;
+    }
+  }
+
+  if (staleEndpoints.length > 0) {
+    await pool.query(
+      `DELETE FROM mobile_push_tokens WHERE platform = 'unified_push' AND token = ANY($1::text[])`,
+      [staleEndpoints],
+    );
+    logger.info('Removed stale UnifiedPush endpoints', { count: staleEndpoints.length });
+  }
+
+  return result;
+}
+
+/**
+ * Fallback: send via Expo Push API (for backwards compatibility during migration).
+ * Will be removed once all clients support the privacy-first wake-up model.
+ */
+
 async function sendExpoPush(
   pool: pg.Pool,
   tokens: string[],
@@ -1867,6 +2063,20 @@ async function main(): Promise<void> {
     }
   }, pollInterval);
 
+  // ── Periodic cleanup: purge expired push_pending payloads ──
+  setInterval(async () => {
+    try {
+      const res = await pool.query(
+        `DELETE FROM push_pending WHERE expires_at < NOW() OR (fetched AND created_at < NOW() - INTERVAL '1 day')`,
+      );
+      if ((res.rowCount ?? 0) > 0) {
+        logger.info('Purged expired push payloads', { count: res.rowCount });
+      }
+    } catch (err) {
+      logger.warn('Push payload cleanup failed', { err: String(err) });
+    }
+  }, 3600000); // Run every hour
+
   // Subscribe to all notification messages (wildcard pattern avoids filtered consumer issues)
   const sub = await js.pullSubscribe('notify.>', {
     config: {
@@ -2084,8 +2294,9 @@ async function routeNotification(
   if (shouldPush) {
     try {
       const targets = await resolvePushTokens(pool, notif.recipient_user_id, notif.target_user_ids);
-      const expoTokens = targets.filter((t) => isExpoPushPlatform(t.platform)).map((t) => t.token);
+      const fcmTokens = targets.filter((t) => isExpoPushPlatform(t.platform)).map((t) => t.token);
       const webSubscriptions = targets.filter((t) => t.platform === 'web').map((t) => t.token);
+      const unifiedPushEndpoints = targets.filter((t) => t.platform === 'unified_push').map((t) => t.token);
       const actionUrl = (() => {
         const explicit = String((notif.data as any)?.action_url || '');
         if (explicit) return explicit;
@@ -2101,20 +2312,60 @@ async function routeNotification(
         notification_type: notif.type,
       };
 
-      const expoResult = await sendExpoPush(pool, expoTokens, {
-        title: notif.title,
-        body: notif.body || '',
-        data: payloadData,
-      });
+      // ── Privacy-first push: store payload server-side, send content-free wake-ups ──
+      // Resolve all target user IDs for pending payload storage
+      const targetUserIds = new Set<string>();
+      if (notif.recipient_user_id) targetUserIds.add(notif.recipient_user_id);
+      if (Array.isArray(notif.target_user_ids)) {
+        for (const uid of notif.target_user_ids) {
+          if (uid) targetUserIds.add(uid);
+        }
+      }
+
+      // Store a pending payload per user (so each user can fetch their own)
+      const pendingIds = new Map<string, string>();
+      for (const userId of targetUserIds) {
+        const nid = await storePushPayload(pool, userId, {
+          title: notif.title,
+          body: notif.body || '',
+          channel: notif.channel || 'sven_messages',
+          data: payloadData,
+          priority: notif.priority,
+        });
+        pendingIds.set(userId, nid);
+      }
+      // Use the first pending ID as the wake-up reference for broadcast
+      const wakeUpNid = pendingIds.values().next().value || notif.id;
+
+      // Send content-free FCM wake-ups (Google only sees "sven_push" type + an opaque ID)
+      let fcmResult: PushDeliveryResult;
+      if (FCM_ENABLED && fcmTokens.length > 0) {
+        fcmResult = await sendFcmWakeUp(pool, fcmTokens, wakeUpNid);
+      } else if (fcmTokens.length > 0) {
+        // FCM not configured — fall back to Expo (legacy, sends content through Google)
+        fcmResult = await sendExpoPush(pool, fcmTokens, {
+          title: notif.title,
+          body: notif.body || '',
+          data: payloadData,
+        });
+      } else {
+        fcmResult = { attempted: 0, delivered: 0, failed: 0 };
+      }
+
+      // Send content-free UnifiedPush wake-ups (no Google/Apple involved at all)
+      const upResult = await sendUnifiedPush(pool, unifiedPushEndpoints, wakeUpNid);
+
+      // Web Push uses VAPID (already privacy-friendly — content is E2E encrypted)
       const webResult = await sendWebPush(pool, webSubscriptions, {
         title: notif.title,
         body: notif.body || '',
         data: payloadData,
         tag: notif.type,
       });
-      const attempted = expoResult.attempted + webResult.attempted;
-      const deliveredCount = expoResult.delivered + webResult.delivered;
-      const failedCount = expoResult.failed + webResult.failed;
+
+      const attempted = fcmResult.attempted + webResult.attempted + upResult.attempted;
+      const deliveredCount = fcmResult.delivered + webResult.delivered + upResult.delivered;
+      const failedCount = fcmResult.failed + webResult.failed + upResult.failed;
 
       if (attempted === 0) {
         deliveryChannels.push = { status: 'failed', error: 'no registered push targets' };

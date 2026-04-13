@@ -303,7 +303,9 @@ class _ChatListPanelState extends State<ChatListPanel> {
       try {
         await widget.chatService.deleteChat(id);
         widget.onDeleted?.call(id);
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('[ChatListPanel] deleteChat($id) failed: $e');
+      }
     }
     HapticFeedback.mediumImpact();
     _cancelSelect();

@@ -4,6 +4,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PageSpinner } from '@/components/Spinner';
 import { EmptyState } from '@/components/EmptyState';
 import { ActiveAccountPill } from '@/components/ActiveAccountPill';
+import { useConfirm } from '@/components/ConfirmDialog';
 import { useApprovals, useMe, useVoteApproval } from '@/lib/hooks';
 import { ShieldCheck, CheckCircle2, XCircle, Clock, History, Sparkles, ArrowUpRight } from 'lucide-react';
 import { useState } from 'react';
@@ -35,6 +36,7 @@ export default function ApprovalsPage() {
   const { data: pending, isLoading: pLoading } = useApprovals('pending');
   const { data: history, isLoading: hLoading } = useApprovals();
   const vote = useVoteApproval();
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   const isLoading = pLoading || hLoading;
   if (isLoading) return <PageSpinner />;
@@ -42,28 +44,36 @@ export default function ApprovalsPage() {
   const pendingRows = (pending?.rows ?? []) as ApprovalRow[];
   const historyRows = ((history?.rows ?? []) as ApprovalRow[]).filter((r) => r.status !== 'pending');
 
-  function handleVote(id: string, decision: 'approve' | 'deny') {
+  async function handleVote(id: string, decision: 'approve' | 'deny') {
     const confirmPhrase = `${decision.toUpperCase()} ${id.slice(0, 6)}`;
-    const typed = window.prompt(
-      `High-risk action. Type "${confirmPhrase}" to continue:`,
-      '',
-    );
-    if (typed !== confirmPhrase) {
-      toast.error('Confirmation phrase mismatch. Vote canceled.');
-      return;
-    }
-    const reason = window.prompt('Audit reason (required):', '')?.trim() || '';
-    if (!reason) {
+    const phraseResult = await confirm({
+      title: `${decision === 'approve' ? 'Approve' : 'Deny'} action`,
+      description: `High-risk governance action. Type the confirmation phrase to proceed.`,
+      confirmPhrase,
+      confirmLabel: decision === 'approve' ? 'Approve' : 'Deny',
+      variant: decision === 'approve' ? 'warning' : 'danger',
+    });
+    if (phraseResult === false) return;
+
+    const reason = await confirm({
+      title: 'Audit reason',
+      description: 'Provide a reason for this decision. This will be recorded in the audit log.',
+      prompt: true,
+      promptLabel: 'Reason (required)',
+      confirmLabel: 'Submit',
+      variant: 'info',
+    });
+    if (reason === false || !reason.trim()) {
       toast.error('Audit reason is required.');
       return;
     }
 
     vote.mutate(
-      { id, decision, reason, confirmPhrase: confirmPhrase },
+      { id, decision, reason: reason.trim(), confirmPhrase: confirmPhrase },
       {
         onSuccess: () => {
           setLocalAudit((prev) => [
-            { at: new Date().toISOString(), approval_id: id, decision, reason },
+            { at: new Date().toISOString(), approval_id: id, decision, reason: reason.trim() },
             ...prev,
           ].slice(0, 12));
           toast.success(`Approval ${decision}d`);
@@ -75,6 +85,7 @@ export default function ApprovalsPage() {
 
   return (
     <>
+      {confirmDialog}
       <PageHeader title="Approvals" description="Pending approvals and action history">
         <ActiveAccountPill />
       </PageHeader>
@@ -156,7 +167,7 @@ export default function ApprovalsPage() {
                     </p>
                     <p className="text-xs text-slate-500">
                       {a.type} &middot; {a.requester ?? 'system'} &middot;{' '}
-                      {new Date(a.created_at).toLocaleString()}
+                      {new Date(a.created_at as string).toLocaleString()}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -190,7 +201,7 @@ export default function ApprovalsPage() {
               <div className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
                 {localAudit.map((a, idx) => (
                   <p key={`${a.approval_id}-${idx}`}>
-                    {new Date(a.at).toLocaleString()} · {a.approval_id.slice(0, 8)} · {a.decision} · {a.reason}
+                    {new Date(a.at as string).toLocaleString()} · {a.approval_id.slice(0, 8)} · {a.decision} · {a.reason}
                   </p>
                 ))}
               </div>
@@ -228,7 +239,7 @@ export default function ApprovalsPage() {
                       <td className="px-4 py-3 text-slate-500">{a?.details?.last_vote_reason ?? '—'}</td>
                       <td className="px-4 py-3 text-slate-500">{a.decided_by ?? '—'}</td>
                       <td className="px-4 py-3 text-slate-500">
-                        {a.decided_at ? new Date(a.decided_at).toLocaleString() : '—'}
+                        {a.decided_at ? new Date(a.decided_at as string).toLocaleString() : '—'}
                       </td>
                     </tr>
                   ))}

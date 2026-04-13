@@ -136,7 +136,7 @@ function WorkflowRunsContent() {
               </div>
 
               {/* Step timeline */}
-              {run.steps && run.steps.length > 0 && (
+              {Boolean(run.steps) && run.steps.length > 0 && (
                 <div className="mt-4 ml-2 border-l-2 border-slate-200 dark:border-slate-700">
                   {run.steps.map((step, i: number) => (
                     <div key={i} className="relative ml-4 pb-4 last:pb-0">
@@ -155,12 +155,12 @@ function WorkflowRunsContent() {
                       <div className="flex items-start justify-between">
                         <div>
                           <p className="text-sm font-medium">{step.name ?? `Step ${i + 1}`}</p>
-                          {step.error && (
+                          {Boolean(step.error) && (
                             <p className="mt-0.5 text-xs text-red-500">{step.error}</p>
                           )}
                         </div>
                         <div className="flex items-center gap-2 text-xs text-slate-500">
-                          {step.duration_ms && <span>{step.duration_ms}ms</span>}
+                          {Boolean(step.duration_ms) && <span>{step.duration_ms}ms</span>}
                           <span
                             className={
                               step.status === 'completed' ? 'badge-success' :

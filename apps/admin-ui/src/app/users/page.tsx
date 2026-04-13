@@ -19,6 +19,12 @@ import { toast } from 'sonner';
 type UserRow = {
   id: string;
   username?: string;
+  display_name?: string;
+  bio?: string;
+  avatar_url?: string;
+  timezone?: string;
+  status_emoji?: string;
+  status_text?: string;
   role?: string;
   created_at?: string;
 };
@@ -238,9 +244,17 @@ export default function UsersPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-100 text-xs font-medium text-brand-700 dark:bg-brand-900 dark:text-brand-300">
-                        {u.username?.charAt(0).toUpperCase()}
+                        {u.status_emoji || u.username?.charAt(0).toUpperCase()}
                       </div>
-                      <span className="font-medium">{u.username}</span>
+                      <div>
+                        <span className="font-medium">{u.display_name || u.username}</span>
+                        {Boolean(u.display_name) && u.display_name !== u.username && (
+                          <span className="ml-1 text-xs text-slate-400">@{u.username}</span>
+                        )}
+                        {Boolean(u.status_text) && (
+                          <p className="text-xs text-slate-400">{u.status_text}</p>
+                        )}
+                      </div>
                     </div>
                   </td>
                   <td className="px-4 py-3">
@@ -280,12 +294,44 @@ export default function UsersPage() {
         </div>
       )}
 
-      {selectedUserId && (
-        <div className="card mt-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">Identity Links</h3>
-            <span className="badge badge-neutral">{selectedUserId}</span>
-          </div>
+      {selectedUserId && (() => {
+        const sel = rows.find((u) => u.id === selectedUserId);
+        return (
+          <>
+            {sel && (
+              <div className="card mt-6 space-y-3">
+                <h3 className="font-medium">Profile</h3>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  <div>
+                    <span className="text-xs uppercase tracking-wider text-slate-400">Display Name</span>
+                    <p className="text-sm font-medium">{sel.display_name || '—'}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs uppercase tracking-wider text-slate-400">Status</span>
+                    <p className="text-sm">{sel.status_emoji || ''} {sel.status_text || '—'}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs uppercase tracking-wider text-slate-400">Timezone</span>
+                    <p className="text-sm">{sel.timezone || '—'}</p>
+                  </div>
+                  <div className="sm:col-span-2 lg:col-span-3">
+                    <span className="text-xs uppercase tracking-wider text-slate-400">Bio</span>
+                    <p className="text-sm">{sel.bio || '—'}</p>
+                  </div>
+                  {Boolean(sel.avatar_url) && (
+                    <div>
+                      <span className="text-xs uppercase tracking-wider text-slate-400">Avatar</span>
+                      <img src={sel.avatar_url} alt="avatar" className="mt-1 h-10 w-10 rounded-full object-cover" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            <div className="card mt-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium">Identity Links</h3>
+                <span className="badge badge-neutral">{selectedUserId}</span>
+              </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <input
               className="input"
@@ -347,8 +393,10 @@ export default function UsersPage() {
               })
             )}
           </div>
-        </div>
-      )}
+            </div>
+          </>
+        );
+      })()}
     </>
   );
 }

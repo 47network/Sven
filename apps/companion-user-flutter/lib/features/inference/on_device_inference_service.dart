@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../app/api_base_service.dart';
 import '../../app/authenticated_client.dart';
 import '../../app/scoped_preferences.dart';
 
@@ -19,7 +21,10 @@ import '../../app/scoped_preferences.dart';
 // ═══════════════════════════════════════════════════════════════════════════
 
 class OnDeviceInferenceService extends ChangeNotifier {
-  OnDeviceInferenceService({AuthenticatedClient? client}) : _client = client;
+  OnDeviceInferenceService({AuthenticatedClient? client}) : _client = client {
+    _loadPreferences();
+    _probeDeviceCapabilities();
+  }
 
   final AuthenticatedClient? _client;
 
@@ -27,8 +32,6 @@ class OnDeviceInferenceService extends ChangeNotifier {
   static const _kPreferLocal = 'sven.inference.prefer_local';
   static const _kMaxLocalTokens = 'sven.inference.max_local_tokens';
   static const _kActiveModelId = 'sven.inference.active_model';
-
-  ScopedPreferences? _scopedPrefs;
 
   InferenceState _state = InferenceState.idle;
   ModelProfile? _activeModel;
@@ -39,10 +42,14 @@ class OnDeviceInferenceService extends ChangeNotifier {
   bool _disposed = false;
   String? _error;
 
+  // Device capability tracking
+  DeviceCapability? _deviceCapability;
+
   // Performance tracking
   double _lastInferenceMs = 0;
-  double _avgTokensPerSecond = 0;
+  final double _avgTokensPerSecond = 0;
   int _totalInferences = 0;
+  double _downloadProgress = 0;
 
   // ── Public getters ─────────────────────────────────────────────────────
 
@@ -57,18 +64,39 @@ class OnDeviceInferenceService extends ChangeNotifier {
   double get lastInferenceMs => _lastInferenceMs;
   double get avgTokensPerSecond => _avgTokensPerSecond;
   int get totalInferences => _totalInferences;
+  double get downloadProgress => _downloadProgress;
   bool get isModelLoaded => _state == InferenceState.ready;
+  DeviceCapability? get deviceCapability => _deviceCapability;
 
   /// Whether the device supports on-device inference.
   bool get isSupported =>
       Platform.isAndroid || Platform.isIOS || Platform.isMacOS;
 
-  /// Recommended model variant for this device.
+  /// Recommended model variant for this device based on actual RAM.
   ModelVariant get recommendedVariant {
-    if (Platform.isAndroid || Platform.isIOS) {
-      return ModelVariant.e2b;
+    final ramMb = _deviceCapability?.totalRamMb ?? 0;
+    if (ramMb >= 12288) return ModelVariant.dense31b;
+    if (ramMb >= 8192) return ModelVariant.moe26b;
+    if (ramMb >= 6144) return ModelVariant.e4b;
+    return ModelVariant.e2b;
+  }
+
+  /// Check whether a variant is compatible with the current device.
+  ModelCompatibility checkCompatibility(ModelVariant variant) {
+    final cap = _deviceCapability;
+    if (cap == null) return ModelCompatibility.unknown;
+
+    // RAM check: variant needs enough RAM for model + OS overhead
+    if (cap.totalRamMb < variant.minRamMb) {
+      return ModelCompatibility.insufficientRam;
     }
-    return ModelVariant.e4b;
+    // Storage check: need model size + a 500 MB buffer for extraction/temp
+    final requiredStorageMb =
+        (variant.estimatedSizeBytes / (1024 * 1024)).ceil() + 500;
+    if (cap.freeStorageMb < requiredStorageMb) {
+      return ModelCompatibility.insufficientStorage;
+    }
+    return ModelCompatibility.compatible;
   }
 
   // ── Lifecycle ──────────────────────────────────────────────────────────
@@ -81,8 +109,54 @@ class OnDeviceInferenceService extends ChangeNotifier {
 
   /// Bind to scoped preferences for multi-user isolation.
   void bindPreferences(ScopedPreferences prefs) {
-    _scopedPrefs = prefs;
     _loadPreferences();
+  }
+
+  /// Probe the device for RAM and available storage.
+  Future<void> _probeDeviceCapabilities() async {
+    if (!isSupported) return; // Only probe on Android/iOS/macOS.
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+      int totalRamMb = 0;
+      int freeStorageMb = 0;
+
+      if (Platform.isAndroid) {
+        final android = await deviceInfo.androidInfo;
+        totalRamMb = android.physicalRamSize; // already in MB
+        freeStorageMb = android.freeDiskSize ~/ (1024 * 1024); // bytes → MB
+      } else if (Platform.isIOS) {
+        final ios = await deviceInfo.iosInfo;
+        totalRamMb = ios.physicalRamSize; // already in MB
+        freeStorageMb = ios.freeDiskSize ~/ (1024 * 1024); // bytes → MB
+      } else if (Platform.isMacOS) {
+        final mac = await deviceInfo.macOsInfo;
+        totalRamMb = mac.memorySize ~/ (1024 * 1024); // bytes → MB
+        // macOS doesn't expose freeDiskSize; query via df.
+        try {
+          final result =
+              await Process.run('df', ['-m', Directory.systemTemp.path]);
+          if (result.exitCode == 0) {
+            final lines = (result.stdout as String).trim().split('\n');
+            if (lines.length >= 2) {
+              final parts = lines[1].split(RegExp(r'\s+'));
+              if (parts.length >= 4) {
+                freeStorageMb = int.tryParse(parts[3]) ?? 0;
+              }
+            }
+          }
+        } catch (_) {
+          freeStorageMb = 128000; // Assume generous default on macOS.
+        }
+      }
+
+      _deviceCapability = DeviceCapability(
+        totalRamMb: totalRamMb,
+        freeStorageMb: freeStorageMb,
+      );
+      _notify();
+    } catch (e) {
+      debugPrint('OnDeviceInferenceService: device probe failed: $e');
+    }
   }
 
   Future<void> _loadPreferences() async {
@@ -129,7 +203,8 @@ class OnDeviceInferenceService extends ChangeNotifier {
   Future<void> fetchAvailableModules() async {
     if (_client == null) return;
     try {
-      final response = await _client.get(Uri.parse('/v1/admin/gemma4/modules/installed'));
+      final base = ApiBaseService.currentSync();
+      final response = await _client.get(Uri.parse('$base/v1/admin/gemma4/modules/installed'));
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body) as Map<String, dynamic>;
         final data = body['data'] as Map<String, dynamic>? ?? body;
@@ -146,11 +221,35 @@ class OnDeviceInferenceService extends ChangeNotifier {
   }
 
   /// Download and install a model variant.
-  Future<void> installModel(ModelVariant variant) async {
-    if (_installedModels.any((m) => m.variant == variant)) return;
+  ///
+  /// Returns a [ModelInstallResult] indicating success or the reason for
+  /// rejection. The model will NOT be downloaded if the device lacks
+  /// sufficient RAM or storage.
+  Future<ModelInstallResult> installModel(ModelVariant variant) async {
+    if (_installedModels.any((m) => m.variant == variant)) {
+      return ModelInstallResult.alreadyInstalled;
+    }
+
+    // ── Device capability gate ───────────────────────────────────────
+    final compat = checkCompatibility(variant);
+    if (compat == ModelCompatibility.insufficientRam) {
+      _error = 'This model requires ${variant.minRamMb ~/ 1024} GB RAM. '
+          'Your device has ${(_deviceCapability?.totalRamMb ?? 0) ~/ 1024} GB.';
+      _notify();
+      return ModelInstallResult.insufficientRam;
+    }
+    if (compat == ModelCompatibility.insufficientStorage) {
+      final requiredGb = variant.estimatedSizeBytes / 1073741824;
+      _error = 'This model needs ${requiredGb.toStringAsFixed(1)} GB '
+          'of free storage plus 500 MB overhead. '
+          'Available: ${(_deviceCapability?.freeStorageMb ?? 0) ~/ 1024} GB.';
+      _notify();
+      return ModelInstallResult.insufficientStorage;
+    }
 
     _state = InferenceState.downloading;
     _error = null;
+    _downloadProgress = 0;
     _notify();
 
     try {
@@ -170,7 +269,17 @@ class OnDeviceInferenceService extends ChangeNotifier {
 
       // Simulate download progress — in production this would use
       // Google AI Edge SDK's download manager or fetch from module CDN.
-      await Future<void>.delayed(const Duration(milliseconds: 500));
+      // Staged progress gives the user visual feedback proportional to
+      // model size: ~3s for the smallest, ~8s for the largest.
+      const steps = 20;
+      final baseDurationMs = (variant.estimatedSizeBytes / 1200000000 * 3000).clamp(2000, 8000).toInt();
+      final stepDuration = Duration(milliseconds: baseDurationMs ~/ steps);
+      for (var i = 1; i <= steps; i++) {
+        if (_disposed) return ModelInstallResult.downloadFailed;
+        await Future<void>.delayed(stepDuration);
+        _downloadProgress = i / steps;
+        _notify();
+      }
 
       final idx = _installedModels.indexWhere((m) => m.id == profile.id);
       if (idx >= 0) {
@@ -179,11 +288,15 @@ class OnDeviceInferenceService extends ChangeNotifier {
 
       await _savePreferences();
       _state = InferenceState.idle;
+      _downloadProgress = 0;
       _notify();
+      return ModelInstallResult.success;
     } catch (e) {
       _state = InferenceState.error;
+      _downloadProgress = 0;
       _error = 'Download failed: $e';
       _notify();
+      return ModelInstallResult.downloadFailed;
     }
   }
 
@@ -368,6 +481,16 @@ enum ModelVariant {
         ModelVariant.dense31b => 18000000000, // ~18 GB
       };
 
+  /// Minimum device RAM (MB) required to run this variant.
+  /// Accounts for OS overhead — model needs roughly 60-70% of this for
+  /// weights + KV cache; the rest is for OS and app processes.
+  int get minRamMb => switch (this) {
+        ModelVariant.e2b => 4096, // 4 GB
+        ModelVariant.e4b => 6144, // 6 GB
+        ModelVariant.moe26b => 8192, // 8 GB
+        ModelVariant.dense31b => 12288, // 12 GB
+      };
+
   int get contextWindow => switch (this) {
         ModelVariant.e2b => 128000,
         ModelVariant.e4b => 128000,
@@ -405,6 +528,25 @@ enum ModelVariant {
             'structured_json',
             'fine_tuning'
           ],
+      };
+
+  String get description => switch (this) {
+        ModelVariant.e2b =>
+          'Lightweight 2-billion parameter model optimized for mobile devices. '
+          'Best for quick text responses, basic vision tasks, and voice commands. '
+          'Runs efficiently on most modern phones with minimal battery impact.',
+        ModelVariant.e4b =>
+          'Mid-range 4-billion parameter model with enhanced reasoning. '
+          'Stronger at multi-step tasks, image understanding, and multilingual conversations. '
+          'Recommended for flagship phones and tablets.',
+        ModelVariant.moe26b =>
+          'Large 26-billion Mixture-of-Experts model for advanced tasks. '
+          'Excellent at complex reasoning, structured JSON output, and detailed analysis. '
+          'Requires a high-end device with 8+ GB RAM. Download may take several minutes.',
+        ModelVariant.dense31b =>
+          'Largest 31-billion dense model with full capabilities including fine-tuning support. '
+          'Best-in-class accuracy for all tasks. Supports custom model adaptation. '
+          'Requires 12+ GB RAM and significant storage. Recommended for desktop/tablet only.',
       };
 
   static ModelVariant fromString(String s) => switch (s) {
@@ -520,4 +662,43 @@ class InferenceModule {
   final int sizeBytes;
   final bool installed;
   final double? downloadProgress;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Device capability & compatibility models
+// ═══════════════════════════════════════════════════════════════════════════
+
+enum ModelCompatibility {
+  compatible,
+  insufficientRam,
+  insufficientStorage,
+  unknown,
+}
+
+enum ModelInstallResult {
+  success,
+  alreadyInstalled,
+  insufficientRam,
+  insufficientStorage,
+  downloadFailed,
+}
+
+class DeviceCapability {
+  const DeviceCapability({
+    required this.totalRamMb,
+    required this.freeStorageMb,
+  });
+
+  final int totalRamMb;
+  final int freeStorageMb;
+
+  String get ramLabel {
+    final gb = totalRamMb / 1024;
+    return '${gb.toStringAsFixed(1)} GB';
+  }
+
+  String get storageLabel {
+    final gb = freeStorageMb / 1024;
+    return '${gb.toStringAsFixed(1)} GB';
+  }
 }

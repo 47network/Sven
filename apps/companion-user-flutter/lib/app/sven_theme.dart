@@ -11,6 +11,7 @@ ThemeData buildSvenTheme(
   Color? customAccent,
   bool highContrast = false,
   bool colorBlindMode = false,
+  FontFamily fontFamily = FontFamily.inter,
 }) {
   final rawTokens = SvenTokens.forMode(mode);
   // If a custom accent is chosen by the user, override the token primary.
@@ -48,27 +49,54 @@ ThemeData buildSvenTheme(
           ),
         );
 
-  // Apply Inter font via google_fonts
-  final textTheme = GoogleFonts.interTextTheme(baseTextTheme).copyWith(
-    displaySmall: GoogleFonts.inter(
+  // Apply user-selected font family via google_fonts (or system default).
+  TextTheme Function(TextTheme) applyFont;
+  TextStyle Function({TextStyle? textStyle, FontWeight? fontWeight, double? fontSize, Color? color, double? letterSpacing}) fontStyle;
+
+  final gfName = fontFamily.googleFontsName;
+  if (gfName == null) {
+    // system font — pass-through
+    applyFont = (t) => t;
+    fontStyle = ({textStyle, fontWeight, fontSize, color, letterSpacing}) =>
+        (textStyle ?? const TextStyle()).copyWith(
+          fontWeight: fontWeight,
+          fontSize: fontSize,
+          color: color,
+          letterSpacing: letterSpacing,
+        );
+  } else {
+    applyFont = (base) => GoogleFonts.getTextTheme(gfName, base);
+    fontStyle = ({textStyle, fontWeight, fontSize, color, letterSpacing}) =>
+        GoogleFonts.getFont(
+          gfName,
+          textStyle: textStyle,
+          fontWeight: fontWeight,
+          fontSize: fontSize,
+          color: color,
+          letterSpacing: letterSpacing,
+        );
+  }
+
+  final textTheme = applyFont(baseTextTheme).copyWith(
+    displaySmall: fontStyle(
       textStyle: baseTextTheme.displaySmall,
       fontWeight: FontWeight.w600,
     ),
-    headlineSmall: GoogleFonts.inter(
+    headlineSmall: fontStyle(
       textStyle: baseTextTheme.headlineSmall,
       fontWeight: FontWeight.w600,
     ),
-    titleMedium: GoogleFonts.inter(
+    titleMedium: fontStyle(
       textStyle: baseTextTheme.titleMedium,
       fontWeight: FontWeight.w600,
     ),
-    bodyLarge: GoogleFonts.inter(textStyle: baseTextTheme.bodyLarge),
-    bodyMedium: GoogleFonts.inter(textStyle: baseTextTheme.bodyMedium),
-    bodySmall: GoogleFonts.inter(
+    bodyLarge: fontStyle(textStyle: baseTextTheme.bodyLarge),
+    bodyMedium: fontStyle(textStyle: baseTextTheme.bodyMedium),
+    bodySmall: fontStyle(
       fontSize: 12,
       color: tokens.onSurface.withValues(alpha: 0.6),
     ),
-    labelLarge: GoogleFonts.inter(
+    labelLarge: fontStyle(
       textStyle: baseTextTheme.labelLarge,
       fontWeight: FontWeight.w600,
     ),

@@ -7,6 +7,10 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../../app/app_state.dart';
+import '../../app/authenticated_client.dart';
+import '../../app/service_locator.dart';
+import '../chat/chat_service.dart';
+import '../chat/messages_repository.dart';
 import 'notifications_service.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -34,6 +38,12 @@ abstract class SvenNotificationChannels {
   static const String remindersName = 'Reminders';
   static const String remindersDesc =
       'Scheduled reminders and suggestions from Sven';
+
+  /// Trading alerts — trade executions, market insights, circuit breaker trips.
+  static const String trading = 'sven_trading';
+  static const String tradingName = 'Trading Alerts';
+  static const String tradingDesc =
+      'Trade executions, market insights, and trading alerts from Sven';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -104,6 +114,13 @@ class PushNotificationManager {
 
   /// Callback to navigate to a specific chat. Set by the app shell.
   void Function(String chatId)? onNavigateToChat;
+
+  /// Callback invoked when the user replies inline from a notification.
+  /// Set by the app shell or handled internally.
+  void Function(String chatId, String replyText)? onNotificationReply;
+
+  /// Action ID for the inline-reply input on Android notifications.
+  static const _replyActionId = 'sven_inline_reply';
 
   /// Reads the current sound profile from [appState] (falls back to 'default').
   String get _effectiveSoundProfile => appState?.notifSound ?? 'default';
@@ -179,7 +196,7 @@ class PushNotificationManager {
     );
     await _localNotifications.initialize(
       initSettings,
-      onDidReceiveNotificationResponse: _onLocalNotificationTap,
+      onDidReceiveNotificationResponse: _onNotificationResponse,
     );
 
     final androidPlugin =
@@ -216,6 +233,17 @@ class PushNotificationManager {
         description: SvenNotificationChannels.remindersDesc,
         importance: Importance.defaultImportance,
         enableVibration: false,
+        playSound: true,
+      ),
+    );
+
+    await androidPlugin.createNotificationChannel(
+      const AndroidNotificationChannel(
+        SvenNotificationChannels.trading,
+        SvenNotificationChannels.tradingName,
+        description: SvenNotificationChannels.tradingDesc,
+        importance: Importance.high,
+        enableVibration: true,
         playSound: true,
       ),
     );
@@ -300,8 +328,38 @@ class PushNotificationManager {
     await _registerToken(_currentToken!, platform);
   }
 
+  /// Handle a privacy-first push wake-up in the background isolate.
+  ///
+  /// Called from the top-level background message handler when a data-only
+  /// FCM message with `type: "sven_push"` is received. Fetches the actual
+  /// notification content from the Sven server and shows a local notification.
+  Future<void> handleBackgroundPrivacyPush() async {
+    try {
+      if (!_initialized) {
+        await _createAndroidChannels();
+      }
+      await _handlePrivacyPush();
+    } catch (e) {
+      debugPrint('⚠️  Background privacy push failed: $e');
+    }
+  }
+
   /// Handle incoming push message while the app is foregrounded.
+  ///
+  /// Supports two modes:
+  /// 1. **Privacy-first (data-only)**: FCM delivers `{ type: "sven_push", nid: "..." }`.
+  ///    The actual notification content is fetched directly from the Sven server.
+  ///    Google/Apple never see the notification content.
+  /// 2. **Legacy (notification payload)**: FCM delivers title/body directly.
+  ///    Used as fallback when FCM server key is not configured on the backend.
   void _handleMessage(RemoteMessage message) {
+    // Privacy-first: data-only wake-up from Sven server
+    if (message.data['type'] == 'sven_push') {
+      _handlePrivacyPush();
+      return;
+    }
+
+    // Legacy: notification content delivered via FCM
     final title = message.notification?.title ?? 'Sven';
     final body = message.notification?.body ?? '';
     final chatId = message.data['chat_id'] as String?;
@@ -339,10 +397,65 @@ class PushNotificationManager {
     }
   }
 
-  /// Show a local notification that carries the chatId in its payload
+  /// Privacy-first push handler: fetch actual notification content from our
+  /// server after receiving a content-free FCM/UnifiedPush wake-up.
+  ///
+  /// This keeps Google and Apple completely out of the notification content
+  /// path — they only know that *a notification exists*, not what it says.
+  /// Similar to Rocket.Chat's push gateway approach.
+  Future<void> _handlePrivacyPush() async {
+    try {
+      final pending = await _service.fetchPending();
+      if (pending.isEmpty) return;
+
+      final ackIds = <String>[];
+      for (final notif in pending) {
+        ackIds.add(notif.id);
+        final chatId = notif.data['chat_id'] as String?;
+        final channel = notif.channel;
+
+        if (!_inAppController.isClosed) {
+          _inAppController.add(InAppNotification(
+            title: notif.title,
+            body: notif.body,
+            chatId: chatId,
+            channel: channel,
+          ));
+        }
+
+        if (_isInBackground) {
+          _missedWhileAway.add(InAppNotification(
+            title: notif.title,
+            body: notif.body,
+            chatId: chatId,
+            channel: channel,
+          ));
+        }
+
+        if (!kIsWeb) {
+          await _showLocalNotification(
+            title: notif.title,
+            body: notif.body,
+            chatId: chatId ?? '',
+            channel: channel,
+          );
+        }
+      }
+
+      // Acknowledge so these notifications are not re-delivered
+      await _service.ackPending(ackIds);
+    } catch (e) {
+      debugPrint('⚠️  Privacy push fetch failed: $e');
+    }
+  }
+
+  /// Show a rich local notification that carries the chatId in its payload
   /// so tapping it navigates to the right conversation.
-  /// Notifications are grouped by channel — after each individual notification,
-  /// a summary notification is posted/updated with InboxStyleInformation.
+  ///
+  /// Rich notification features:
+  /// - [BigTextStyleInformation] shows full message preview (expandable).
+  /// - Inline reply action (Android) lets users reply without opening the app.
+  /// - Notifications are grouped by channel with [InboxStyleInformation] summary.
   Future<void> _showLocalNotification({
     required String title,
     required String body,
@@ -380,6 +493,37 @@ class PushNotificationManager {
     lines.add('$title: $body');
     if (lines.length > _maxGroupLines) lines.removeAt(0);
 
+    // ── Build inline reply action for message notifications ──────────
+    final List<AndroidNotificationAction> actions = [];
+    if (channel == SvenNotificationChannels.messages && chatId.isNotEmpty) {
+      actions.add(const AndroidNotificationAction(
+        _replyActionId,
+        'Reply',
+        showsUserInterface: false,
+        inputs: <AndroidNotificationActionInput>[
+          AndroidNotificationActionInput(
+            label: 'Type a reply…',
+          ),
+        ],
+      ));
+    }
+
+    // ── Rich notification styling ────────────────────────────────────
+    // BigTextStyleInformation shows full message preview when expanded,
+    // including sender name as contentTitle and channel as summaryText.
+    final richStyle = BigTextStyleInformation(
+      body,
+      htmlFormatBigText: false,
+      contentTitle: title,
+      htmlFormatContentTitle: false,
+      summaryText: channel == SvenNotificationChannels.approvals
+          ? 'Approvals'
+          : channel == SvenNotificationChannels.reminders
+              ? 'Reminders'
+              : 'Messages',
+      htmlFormatSummaryText: false,
+    );
+
     // 1) Show the individual notification (belongs to the group)
     await _localNotifications.show(
       id,
@@ -400,6 +544,11 @@ class PushNotificationManager {
           groupKey: groupKey,
           playSound: _effectiveSoundProfile != 'silent',
           enableVibration: _effectiveSoundProfile != 'silent',
+          styleInformation: richStyle,
+          category: channel == SvenNotificationChannels.messages
+              ? AndroidNotificationCategory.message
+              : null,
+          actions: actions,
         ),
       ),
       payload: payload,
@@ -437,21 +586,65 @@ class PushNotificationManager {
     }
   }
 
-  /// Handle tap on a local notification (flutter_local_notifications).
-  /// Routes to the chat via the onNavigateToChat callback.
-  void _onLocalNotificationTap(NotificationResponse response) {
+  /// Unified handler for all notification interactions:
+  /// - Regular tap → navigate to the chat.
+  /// - Inline reply action → send the reply text to the chat.
+  void _onNotificationResponse(NotificationResponse response) {
     final payload = response.payload;
     if (payload == null || payload.isEmpty) return;
 
     try {
       final data = jsonDecode(payload) as Map<String, dynamic>;
       final chatId = data['chat_id'] as String?;
-      if (chatId != null && onNavigateToChat != null) {
+      if (chatId == null || chatId.isEmpty) return;
+
+      // ── Inline reply action ──────────────────────────────────────────
+      if (response.notificationResponseType ==
+              NotificationResponseType.selectedNotificationAction &&
+          response.actionId == _replyActionId) {
+        final replyText = response.input;
+        if (replyText != null && replyText.trim().isNotEmpty) {
+          debugPrint('📲 Inline reply → chat $chatId: ${replyText.trim()}');
+          _handleInlineReply(chatId, replyText.trim());
+          return;
+        }
+      }
+
+      // ── Regular tap → navigate ─────────────────────────────────────
+      if (onNavigateToChat != null) {
         debugPrint('📲 Local notification tapped → chat $chatId');
         onNavigateToChat!(chatId);
       }
     } catch (e) {
       debugPrint('⚠️  Failed to parse local notification payload: $e');
+    }
+  }
+
+  /// Send an inline reply from the notification tray without opening the app.
+  ///
+  /// Uses the existing service locator to construct a [ChatService] and fire
+  /// the message. If the external callback [onNotificationReply] is set, it
+  /// is invoked instead so the app shell can route through its own pipeline.
+  Future<void> _handleInlineReply(String chatId, String text) async {
+    // Prefer the app shell callback when available (foreground).
+    if (onNotificationReply != null) {
+      onNotificationReply!(chatId, text);
+      return;
+    }
+    // Background / terminated: send directly via ChatService.
+    try {
+      final client = sl<AuthenticatedClient>();
+      MessagesRepository? repo;
+      try {
+        repo = sl<MessagesRepository>();
+      } catch (_) {
+        // Repo may not be available in background isolate.
+      }
+      final chatService = ChatService(client: client, repo: repo);
+      await chatService.sendMessage(chatId, text);
+      debugPrint('✅ Inline reply sent to chat $chatId');
+    } catch (e) {
+      debugPrint('❌ Inline reply failed: $e');
     }
   }
 

@@ -34,21 +34,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Enable corepack
+        run: corepack enable
+
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: npm
+          cache: pnpm
           cache-dependency-path: |
-            package-lock.json
-            services/**/package-lock.json
+            pnpm-lock.yaml
+            services/**/pnpm-lock.yaml
 
       - name: Install bridge dependencies
-        run: npm install
+        run: pnpm install
         working-directory: services/bridge-47dynamics
 
       - name: Run bridge runtime tests
-        run: npm run test:runtime
+        run: pnpm run test:runtime
         working-directory: services/bridge-47dynamics
 
   bridge-runtime-github-hosted:
@@ -59,19 +63,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Enable corepack
+        run: corepack enable
+
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: npm
+          cache: pnpm
           cache-dependency-path: |
-            package-lock.json
-            services/**/package-lock.json
+            pnpm-lock.yaml
+            services/**/pnpm-lock.yaml
 
       - name: Install bridge dependencies
-        run: npm install
+        run: pnpm install
         working-directory: services/bridge-47dynamics
 
       - name: Run bridge runtime tests
-        run: npm run test:runtime
+        run: pnpm run test:runtime
         working-directory: services/bridge-47dynamics

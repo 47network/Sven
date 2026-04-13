@@ -67,3 +67,6 @@ services:
 
   workflow-executor:
     profiles: ["dev", "staging", "production"]
+
+  adapter-whatsapp-personal:
+    profiles: ["dev", "staging", "production"]

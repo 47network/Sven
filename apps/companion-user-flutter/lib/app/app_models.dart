@@ -343,6 +343,81 @@ enum AccentPreset {
   }
 }
 
+/// UI density preset — controls padding/spacing of the interface.
+enum UiDensity {
+  compact,
+  comfortable,
+  spacious;
+
+  String get label {
+    switch (this) {
+      case UiDensity.compact:
+        return 'Compact';
+      case UiDensity.comfortable:
+        return 'Comfortable';
+      case UiDensity.spacious:
+        return 'Spacious';
+    }
+  }
+
+  /// Multiplier applied to standard padding values.
+  double get factor {
+    switch (this) {
+      case UiDensity.compact:
+        return 0.75;
+      case UiDensity.comfortable:
+        return 1.0;
+      case UiDensity.spacious:
+        return 1.25;
+    }
+  }
+}
+
+/// Font family choices available in the theme customiser.
+enum FontFamily {
+  inter,
+  roboto,
+  notoSans,
+  lato,
+  openSans,
+  system;
+
+  String get label {
+    switch (this) {
+      case FontFamily.inter:
+        return 'Inter';
+      case FontFamily.roboto:
+        return 'Roboto';
+      case FontFamily.notoSans:
+        return 'Noto Sans';
+      case FontFamily.lato:
+        return 'Lato';
+      case FontFamily.openSans:
+        return 'Open Sans';
+      case FontFamily.system:
+        return 'System';
+    }
+  }
+
+  /// The google_fonts family name, or null for system default.
+  String? get googleFontsName {
+    switch (this) {
+      case FontFamily.inter:
+        return 'Inter';
+      case FontFamily.roboto:
+        return 'Roboto';
+      case FontFamily.notoSans:
+        return 'Noto Sans';
+      case FontFamily.lato:
+        return 'Lato';
+      case FontFamily.openSans:
+        return 'Open Sans';
+      case FontFamily.system:
+        return null;
+    }
+  }
+}
+
 /// Simple labels a user can pin to a conversation thread (client-side only).
 enum ConversationTag {
   work,

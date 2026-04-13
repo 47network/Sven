@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import fastifyCookie from '@fastify/cookie';
 import fastifyCors from '@fastify/cors';
 import fastifyHelmet from '@fastify/helmet';
+import fastifyMultipart from '@fastify/multipart';
 import { createLogger, FeatureFlagRegistry, detectProxy, createDefaultPermissionEngine, PermissionHookManager, ClientAttestor, generateTaskId, TokenBudgetTracker, QueryChain, PromptGuard, AntiDistillation, BackgroundSessionManager, HeartbeatManager } from '@sven/shared';
 import type { ProxyDetectConfig, PermissionContext } from '@sven/shared';
 import { API_CONTRACT_HEADER, API_CONTRACT_VERSION } from './contracts/api-contract.js';
@@ -39,7 +40,21 @@ import { registerSchedulerRoutes } from './routes/scheduler.js';
 import { registerMetricsRoutes } from './routes/metrics.js';
 import { registerEntityRoutes } from './routes/entity.js';
 import { registerA2ARoutes } from './routes/a2a.js';
+import { registerE2eeRoutes } from './routes/e2ee.js';
+import { registerCallRoutes } from './routes/calls.js';
+import { registerMediaRoutes } from './routes/media.js';
+import { registerPresenceRoutes } from './routes/presence.js';
+import { registerSearchRoutes } from './routes/search.js';
+import { registerFederationPublicRoutes } from './routes/federation-public.js';
 import { registerPublicCommunityRoutes } from './routes/admin/community.js';
+import { registerDesignRoutes } from './routes/design.js';
+import { registerModelRouterRoutes } from './routes/model-router.js';
+import { registerDocumentRoutes } from './routes/documents.js';
+import { registerQuantumRoutes } from './routes/quantum.js';
+import { registerSecurityToolkitRoutes } from './routes/security-toolkit.js';
+import { registerTradingRoutes } from './routes/trading.js';
+import { registerMarketingRoutes } from './routes/marketing.js';
+import { registerComputeMeshRoutes } from './routes/compute-mesh.js';
 import { TailscaleService } from './services/TailscaleService.js';
 import { loadConfigFile } from './config.js';
 import { initDiscoveryService } from './services/DiscoveryService.js';
@@ -56,6 +71,7 @@ const logger = createLogger('gateway-api');
 
 const DEFAULT_ALLOWED_ORIGINS = [
   /^https:\/\/([a-z0-9-]+\.)*47matrix\.online$/i,
+  /^https:\/\/([a-z0-9-]+\.)*sven\.systems$/i,
   /^http:\/\/localhost(:\d+)?$/i,
   /^http:\/\/127\.0\.0\.1(:\d+)?$/i,
 ];
@@ -332,6 +348,9 @@ async function main() {
   await app.register(fastifyCookie as any, {
     secret: requireCookieSecret(),
   });
+  await app.register(fastifyMultipart as any, {
+    limits: { fileSize: 100 * 1024 * 1024, files: 10 },
+  });
   requireTokenExchangeSecretForStartup(process.env);
 
   app.addHook('onRequest', async (request, _reply) => {
@@ -393,6 +412,7 @@ async function main() {
     const acceptsEventStream = String(request.headers.accept || '').toLowerCase().includes('text/event-stream');
     const isSseRoute =
       rawUrl.endsWith('/v1/admin/events') ||
+      rawUrl.endsWith('/v1/trading/events') ||
       rawUrl.endsWith('/v1/stream') ||
       rawUrl.endsWith('/a2ui/stream') ||
       rawUrl.endsWith('/v1/entity/stream') ||
@@ -762,6 +782,22 @@ async function main() {
   await registerEntityRoutes(app, pool);
   await registerA2ARoutes(app, pool);
   await registerPublicCommunityRoutes(app, pool);
+  await registerE2eeRoutes(app, pool);
+  await registerCallRoutes(app, pool);
+  await registerMediaRoutes(app, pool);
+  await registerPresenceRoutes(app, pool);
+  await registerSearchRoutes(app, pool);
+  registerFederationPublicRoutes(app, pool);
+
+  // ── Expansion Pillar routes ──────────────────────────────────────────
+  await registerDesignRoutes(app, pool);
+  await registerModelRouterRoutes(app, pool);
+  await registerDocumentRoutes(app, pool);
+  await registerQuantumRoutes(app, pool);
+  await registerSecurityToolkitRoutes(app, pool);
+  await registerTradingRoutes(app, pool);
+  await registerMarketingRoutes(app, pool);
+  await registerComputeMeshRoutes(app, pool);
 
   // Global error handler
   app.setErrorHandler((error, _request, reply) => {

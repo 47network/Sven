@@ -4,11 +4,13 @@ import { defineConfig } from '@playwright/test';
 const hasDesktopTauri = fs.existsSync('apps/companion-desktop-tauri');
 const adminPort = Number(process.env.ADMIN_UI_PORT || '3100');
 const canvasPort = Number(process.env.CANVAS_UI_PORT || '3200');
+const tradingPort = Number(process.env.TRADING_UI_PORT || '3300');
 const adminBasePath = process.env.ADMIN_BASE_PATH || '/admin47';
 const normalizedAdminBasePath = adminBasePath === '/' ? '' : adminBasePath.replace(/\/$/, '');
 const adminOrigin = `http://127.0.0.1:${adminPort}`;
 const adminBaseUrl = `${adminOrigin}${normalizedAdminBasePath}`;
 const canvasBaseUrl = `http://127.0.0.1:${canvasPort}`;
+const tradingBaseUrl = `http://127.0.0.1:${tradingPort}`;
 
 const projects: Array<{ name: string; use: { baseURL: string }; grep: RegExp }> = [
   {
@@ -20,6 +22,11 @@ const projects: Array<{ name: string; use: { baseURL: string }; grep: RegExp }> 
     name: 'canvas-web',
     use: { baseURL: canvasBaseUrl },
     grep: /@canvas/,
+  },
+  {
+    name: 'trading-web',
+    use: { baseURL: tradingBaseUrl },
+    grep: /@trading/,
   },
 ];
 
@@ -33,6 +40,12 @@ const webServer: Array<{ command: string; url: string; reuseExistingServer: bool
   {
     command: `npm --workspace apps/canvas-ui run dev -- --port ${canvasPort}`,
     url: `${canvasBaseUrl}/login`,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
+  },
+  {
+    command: `cd apps/trading-ui && npx next dev --port ${tradingPort}`,
+    url: tradingBaseUrl,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

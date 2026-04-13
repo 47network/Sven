@@ -46,15 +46,19 @@ class _AccountPickerSheetState extends State<AccountPickerSheet> {
     setState(() => _loading = true);
     try {
       final accounts = await widget.auth.getLinkedAccounts();
-      if (mounted) setState(() {
-        _accounts = accounts;
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _accounts = accounts;
+          _loading = false;
+        });
+      }
     } catch (e) {
-      if (mounted) setState(() {
-        _error = 'Failed to load accounts';
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _error = 'Failed to load accounts';
+          _loading = false;
+        });
+      }
     }
   }
 

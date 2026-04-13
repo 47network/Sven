@@ -1,0 +1,36 @@
+{
+  "name": "@sven/document-intel",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "OCR and document intelligence pipeline powered by GLM-OCR. Multi-language text extraction, table recognition, handwriting, code screenshots, PII-safe processing.",
+  "exports": {
+    "./ocr": {
+      "types": "./src/ocr/index.ts",
+      "import": "./dist/ocr/index.js",
+      "default": "./dist/ocr/index.js"
+    },
+    "./pipeline": {
+      "types": "./src/pipeline/index.ts",
+      "import": "./dist/pipeline/index.js",
+      "default": "./dist/pipeline/index.js"
+    },
+    "./entities": {
+      "types": "./src/entities/index.ts",
+      "import": "./dist/entities/index.js",
+      "default": "./dist/entities/index.js"
+    },
+    "./summarizer": {
+      "types": "./src/summarizer/index.ts",
+      "import": "./dist/summarizer/index.js",
+      "default": "./dist/summarizer/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

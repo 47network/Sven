@@ -110,7 +110,7 @@ export async function registerUserRoutes(app: FastifyInstance, pool: pg.Pool) {
 
     const dataParams = [...params, perPage, offset];
     const result = await pool.query(
-      `SELECT u.id, u.username, u.display_name, u.role, u.created_at, u.updated_at
+      `SELECT u.id, u.username, u.display_name, u.bio, u.avatar_url, u.timezone, u.status_emoji, u.status_text, u.role, u.created_at, u.updated_at
        FROM users u
        JOIN organization_memberships m ON m.user_id = u.id
        ${where}
@@ -137,7 +137,7 @@ export async function registerUserRoutes(app: FastifyInstance, pool: pg.Pool) {
       return reply.status(404).send({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } });
     }
     const result = await pool.query(
-      `SELECT id, username, display_name, role, created_at, updated_at FROM users WHERE id = $1`,
+      `SELECT id, username, display_name, bio, avatar_url, timezone, status_emoji, status_text, role, created_at, updated_at FROM users WHERE id = $1`,
       [id],
     );
     if (result.rows.length === 0) {
@@ -275,7 +275,7 @@ export async function registerUserRoutes(app: FastifyInstance, pool: pg.Pool) {
     if (!(await ensureUserInOrg(id, orgId))) {
       return reply.status(404).send({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } });
     }
-    const bodyParsed = normalizeUserBody<{ display_name?: string; role?: string; password?: string }>(request.body);
+    const bodyParsed = normalizeUserBody<{ display_name?: string; role?: string; password?: string; bio?: string; avatar_url?: string; timezone?: string; status_emoji?: string; status_text?: string }>(request.body);
     if (!bodyParsed.ok) {
       reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: bodyParsed.message } });
       return;
@@ -290,6 +290,26 @@ export async function registerUserRoutes(app: FastifyInstance, pool: pg.Pool) {
       const dn = String(body.display_name).slice(0, 256);
       params.push(dn);
       sets.push(`display_name = $${params.length}`);
+    }
+    if (body.bio !== undefined) {
+      params.push(String(body.bio).slice(0, 500));
+      sets.push(`bio = $${params.length}`);
+    }
+    if (body.avatar_url !== undefined) {
+      params.push(String(body.avatar_url).slice(0, 2048));
+      sets.push(`avatar_url = $${params.length}`);
+    }
+    if (body.timezone !== undefined) {
+      params.push(String(body.timezone).slice(0, 64));
+      sets.push(`timezone = $${params.length}`);
+    }
+    if (body.status_emoji !== undefined) {
+      params.push(String(body.status_emoji).slice(0, 2));
+      sets.push(`status_emoji = $${params.length}`);
+    }
+    if (body.status_text !== undefined) {
+      params.push(String(body.status_text).slice(0, 128));
+      sets.push(`status_text = $${params.length}`);
     }
     if (body.role !== undefined) {
       if (!isPlatformAdmin) {
@@ -362,7 +382,7 @@ export async function registerUserRoutes(app: FastifyInstance, pool: pg.Pool) {
     const res = await pool.query(
       `UPDATE users SET ${sets.join(', ')}, updated_at = NOW()
        WHERE id = $${params.length}
-       RETURNING id, username, display_name, role, updated_at`,
+       RETURNING id, username, display_name, bio, avatar_url, timezone, status_emoji, status_text, role, updated_at`,
       params,
     );
 

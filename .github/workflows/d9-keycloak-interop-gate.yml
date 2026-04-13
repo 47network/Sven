@@ -50,14 +50,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable corepack
+        run: corepack enable
+
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install deps
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Start NATS (JetStream)
         run: |
@@ -74,13 +78,13 @@ jobs:
           exit 1
 
       - name: Build shared package
-        run: npm run --workspace packages/shared build
+        run: pnpm --filter ./packages/shared run build
 
       - name: Build gateway
-        run: npm run --workspace services/gateway-api build
+        run: pnpm --filter ./services/gateway-api run build
 
       - name: Run migrations
-        run: npm run --workspace services/gateway-api db:migrate
+        run: pnpm --filter ./services/gateway-api run db:migrate
 
       - name: Start gateway API
         run: |
@@ -126,7 +130,7 @@ jobs:
         run: node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs --runTestsByPath src/__tests__/tenant-rbac.e2e.ts --runInBand
 
       - name: Run Keycloak interop gate
-        run: npm run release:sso:keycloak:interop:gate:with-idp-preflight
+        run: pnpm run release:sso:keycloak:interop:gate:with-idp-preflight
 
       - name: Upload D9 artifacts
         if: always()

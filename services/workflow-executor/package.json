@@ -11,6 +11,7 @@
     "test:data-shaping": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json && node --test test/data-shaping.test.cjs"
   },
   "dependencies": {
+    "@sven/shared": "workspace:*",
     "nats": "^2.20.0",
     "pg": "^8.11.0",
     "nanoid": "^5.0.0"

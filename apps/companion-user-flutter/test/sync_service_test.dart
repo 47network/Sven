@@ -64,7 +64,7 @@ class _InMemoryTokenStore extends TokenStore {
 // ─────────────────────────────────────────────────────────────────────────────
 
 MessagesRepository _freshRepo() =>
-    MessagesRepository(db: AppDatabase(NativeDatabase.memory()));
+    MessagesRepository.plaintextForTests(db: AppDatabase(NativeDatabase.memory()));
 
 AuthenticatedClient _client(int statusCode) => AuthenticatedClient(
       client: MockClient((_) async => http.Response(

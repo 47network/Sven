@@ -45,6 +45,9 @@ class AppState extends ChangeNotifier {
   static const _kNotifSound = 'ui.notif_sound';
   static const _kColorBlindMode = 'ui.color_blind_mode';
   static const _kReduceTransparency = 'ui.reduce_transparency';
+  static const _kCustomAccentHex = 'ui.custom_accent_hex';
+  static const _kFontFamily = 'ui.font_family';
+  static const _kUiDensity = 'ui.ui_density';
 
   /// All keys that should be migrated from global to scoped storage
   /// on first login after the isolation upgrade.
@@ -76,6 +79,9 @@ class AppState extends ChangeNotifier {
     _kNotifSound,
     _kColorBlindMode,
     _kReduceTransparency,
+    _kCustomAccentHex,
+    _kFontFamily,
+    _kUiDensity,
   ];
 
   /// User-scoped preferences. Null before login.
@@ -114,6 +120,15 @@ class AppState extends ChangeNotifier {
   bool analyticsConsent = true;
   CustomShapeSpec? customShapeSpec;
   double textScale = 1.0;
+
+  /// Custom accent hex (e.g. '#FF6B6B'). Null means use AccentPreset.
+  String? customAccentHex;
+
+  /// Font family preference.
+  FontFamily fontFamily = FontFamily.inter;
+
+  /// UI density preference.
+  UiDensity uiDensity = UiDensity.comfortable;
   bool dndEnabled = false;
   int dndStartHour = 22;
   int dndStartMinute = 0;
@@ -343,6 +358,18 @@ class AppState extends ChangeNotifier {
     dndEndHour = (await _getDouble(_kDndEndHour))?.toInt() ?? 7;
     dndEndMinute = (await _getDouble(_kDndEndMinute))?.toInt() ?? 0;
     notifSound = (await _getString(_kNotifSound)) ?? 'default';
+    customAccentHex = await _getString(_kCustomAccentHex);
+    if (customAccentHex != null && customAccentHex!.isEmpty) customAccentHex = null;
+    final fontFam = await _getString(_kFontFamily);
+    fontFamily = FontFamily.values.firstWhere(
+      (f) => f.name == fontFam,
+      orElse: () => FontFamily.inter,
+    );
+    final density = await _getString(_kUiDensity);
+    uiDensity = UiDensity.values.firstWhere(
+      (d) => d.name == density,
+      orElse: () => UiDensity.comfortable,
+    );
     notifyListeners();
   }
 
@@ -378,6 +405,9 @@ class AppState extends ChangeNotifier {
     analyticsConsent = true;
     customShapeSpec = null;
     textScale = 1.0;
+    customAccentHex = null;
+    fontFamily = FontFamily.inter;
+    uiDensity = UiDensity.comfortable;
     dndEnabled = false;
     dndStartHour = 22;
     dndStartMinute = 0;
@@ -451,8 +481,31 @@ class AppState extends ChangeNotifier {
 
   Future<void> setAccentPreset(AccentPreset preset) async {
     accentPreset = preset;
+    customAccentHex = null; // clear custom when picking preset
     notifyListeners();
     await _setString(_kAccentPreset, preset.name);
+    await _setString(_kCustomAccentHex, '');
+  }
+
+  Future<void> setCustomAccentHex(String? hex) async {
+    customAccentHex = hex;
+    if (hex != null && hex.isNotEmpty) {
+      accentPreset = AccentPreset.sven; // reset preset for custom
+    }
+    notifyListeners();
+    await _setString(_kCustomAccentHex, hex ?? '');
+  }
+
+  Future<void> setFontFamily(FontFamily family) async {
+    fontFamily = family;
+    notifyListeners();
+    await _setString(_kFontFamily, family.name);
+  }
+
+  Future<void> setUiDensity(UiDensity density) async {
+    uiDensity = density;
+    notifyListeners();
+    await _setString(_kUiDensity, density.name);
   }
 
   Future<void> setTtsSpeed(double speed) async {

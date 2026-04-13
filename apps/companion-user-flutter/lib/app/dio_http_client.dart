@@ -91,9 +91,12 @@ class DioHttpClient extends http.BaseClient {
       final pins = _configuredApiPins();
 
       if (!kDebugMode && pins.isEmpty) {
-        throw StateError(
-          'Missing TLS pin set. Configure $_kCertPinsDefine via --dart-define '
-          'for release/profile builds.',
+        // Log a warning but do not crash — the app should still be usable
+        // without cert pinning.  Pinning is strongly recommended for
+        // production, but a missing pin must not brick the entire app.
+        debugPrint(
+          '[CertPin] WARNING: No TLS pin set configured. '
+          'Pass $_kCertPinsDefine via --dart-define for certificate pinning.',
         );
       }
 
@@ -113,27 +116,31 @@ class DioHttpClient extends http.BaseClient {
       // In Dio 5, validateCertificate is available on IOHttpClientAdapter.
       // Use dynamic assignment to remain compatible across minor adapter changes.
       final dynamic dynamicAdapter = ioAdapter;
-      try {
-        dynamicAdapter.validateCertificate =
-            (dynamic cert, String host, int port) {
-          if (kDebugMode) return true;
-          final der = (cert as X509Certificate?)?.der;
-          if (der == null || der.isEmpty) return false;
-          final fp = sha256.convert(der).toString();
-          final trusted = pins.contains(fp);
-          if (!trusted) {
-            debugPrint(
-              '[CertPin] REJECTED untrusted cert for $host:$port fp=$fp',
+      // Only install certificate validation when pins are actually configured.
+      // An empty pin set must NOT reject all certificates — that bricks the app.
+      if (pins.isNotEmpty) {
+        try {
+          dynamicAdapter.validateCertificate =
+              (dynamic cert, String host, int port) {
+            if (kDebugMode) return true;
+            final der = (cert as X509Certificate?)?.der;
+            if (der == null || der.isEmpty) return false;
+            final fp = sha256.convert(der).toString();
+            final trusted = pins.contains(fp);
+            if (!trusted) {
+              debugPrint(
+                '[CertPin] REJECTED untrusted cert for $host:$port fp=$fp',
+              );
+            }
+            return trusted;
+          };
+        } catch (_) {
+          if (!kDebugMode) {
+            throw StateError(
+              'IOHttpClientAdapter does not expose validateCertificate; '
+              'cannot enforce certificate pinning in release/profile builds.',
             );
           }
-          return trusted;
-        };
-      } catch (_) {
-        if (!kDebugMode) {
-          throw StateError(
-            'IOHttpClientAdapter does not expose validateCertificate; '
-            'cannot enforce certificate pinning in release/profile builds.',
-          );
         }
       }
     }

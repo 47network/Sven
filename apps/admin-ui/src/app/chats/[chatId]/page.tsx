@@ -632,7 +632,7 @@ export default function AdminChatDetailPage() {
                   <div className="flex items-center gap-2 text-[11px] text-slate-500">
                     <span className="badge badge-neutral">{msg.role || 'message'}</span>
                     <span>{msg.created_at ? new Date(msg.created_at).toLocaleString() : 'unknown'}</span>
-                    {msg.synthetic && <span className="badge badge-warning">synthetic</span>}
+                    {Boolean(msg.synthetic) && <span className="badge badge-warning">synthetic</span>}
                   </div>
                   <div className="mt-2 whitespace-pre-wrap">{msg.text || (msg.blocks ? JSON.stringify(msg.blocks, null, 2) : '')}</div>
                 </div>
@@ -655,7 +655,7 @@ export default function AdminChatDetailPage() {
                         <span>{tool.trust_level || 'unknown'}</span>
                       </div>
                       <div className="mt-1 text-slate-600 dark:text-slate-300">{tool.description || 'No description.'}</div>
-                      {tool.inputs_schema && (
+                      {Boolean(tool.inputs_schema) && (
                         <pre className="mt-2 whitespace-pre-wrap rounded bg-slate-100 px-2 py-1 text-[11px] dark:bg-slate-800">
                           {JSON.stringify(tool.inputs_schema, null, 2)}
                         </pre>
@@ -677,7 +677,7 @@ export default function AdminChatDetailPage() {
                         <span className="font-semibold text-slate-700 dark:text-slate-200">{tool.qualified_name || tool.tool_name}</span>
                       </div>
                       <div className="mt-1 text-slate-600 dark:text-slate-300">{tool.description || 'No description.'}</div>
-                      {tool.input_schema && (
+                      {Boolean(tool.input_schema) && (
                         <pre className="mt-2 whitespace-pre-wrap rounded bg-slate-100 px-2 py-1 text-[11px] dark:bg-slate-800">
                           {JSON.stringify(tool.input_schema, null, 2)}
                         </pre>

@@ -43,6 +43,10 @@ import {
   FileText,
   LineChart,
   MonitorSmartphone,
+  BrainCircuit,
+  Bot,
+  Shield,
+  BarChart3,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import SidebarBrand from './sidebar/SidebarBrand';
@@ -67,6 +71,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Dashboard',
     items: [
       { href: '/overview', label: 'Overview', icon: LayoutDashboard },
+      { href: '/analytics', label: 'Analytics', icon: BarChart3 },
     ],
   },
   {
@@ -98,7 +103,23 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/llm', label: 'LLM', icon: Cpu },
       { href: '/agent-analytics', label: 'Agent Analytics', icon: LineChart },
       { href: '/agent-routing', label: 'Agent Routing', icon: Users },
+      { href: '/ai-pipelines', label: 'AI Pipelines', icon: BrainCircuit },
+      { href: '/brain', label: 'Brain Admin', icon: BrainCircuit },
       { href: '/improvements', label: 'Improvements', icon: Lightbulb },
+    ],
+  },
+  {
+    label: 'Community Agents',
+    roles: ['admin', 'operator'],
+    items: [
+      { href: '/community-agents', label: 'Agent Management', icon: Bot, roles: ['admin', 'operator'] },
+    ],
+  },
+  {
+    label: 'Federation',
+    roles: ['admin'],
+    items: [
+      { href: '/federation', label: 'Federation Hub', icon: Globe, roles: ['admin'] },
     ],
   },
   {

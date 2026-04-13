@@ -33,6 +33,7 @@ import {
     type SavedAccount,
     type TimelineItem,
 } from './api';
+import { useSSE } from './useSSE';
 import type { NavTab } from '../components/Sidebar';
 
 const MAX_LOG_LINES = 50;
@@ -76,6 +77,10 @@ export interface DesktopAppState {
     // Multi-account
     savedAccounts: SavedAccount[];
     pinLocked: boolean;
+
+    // SSE / real-time
+    sseConnected: boolean;
+    typingUsers: Record<string, string[]>;
 
     // Handlers
     onSaveConfig: () => Promise<void>;
@@ -127,6 +132,50 @@ export function useDesktopApp(): DesktopAppState {
     const pushLog = useCallback((line: string) => {
         setLogs((prev) => [`${new Date().toISOString()} ${line}`, ...prev].slice(0, MAX_LOG_LINES));
     }, []);
+
+    // ── Real-time SSE connection (replaces polling for events) ──
+    const [typingUsers, setTypingUsers] = useState<Record<string, string[]>>({});
+    const { connected: sseConnected } = useSSE({
+        gatewayUrl: config.gateway_url,
+        token,
+        enabled: config.polling_enabled,
+        onMessage: useCallback((item: TimelineItem) => {
+            setTimeline((prev) => {
+                if (prev.some((m) => m.id === item.id)) return prev;
+                return [...prev, item];
+            });
+        }, []),
+        onApproval: useCallback((item: ApprovalItem) => {
+            setApprovals((prev) => {
+                const idx = prev.findIndex((a) => a.id === item.id);
+                if (idx >= 0) {
+                    const next = [...prev];
+                    next[idx] = item;
+                    return next;
+                }
+                return [item, ...prev];
+            });
+        }, []),
+        onTyping: useCallback((ev: { chat_id: string; user_id: string; is_typing: boolean; display_name?: string }) => {
+            setTypingUsers((prev) => {
+                const chatTypers = prev[ev.chat_id] ?? [];
+                const name = ev.display_name ?? ev.user_id;
+                if (ev.is_typing && !chatTypers.includes(name)) {
+                    return { ...prev, [ev.chat_id]: [...chatTypers, name] };
+                }
+                if (!ev.is_typing) {
+                    return { ...prev, [ev.chat_id]: chatTypers.filter((n) => n !== name) };
+                }
+                return prev;
+            });
+        }, []),
+        onLog: pushLog,
+    });
+
+    // Update status based on SSE
+    useEffect(() => {
+        if (sseConnected) setStatus('online');
+    }, [sseConnected]);
 
     // ── Bootstrap: load persisted config + token ──────────
     useEffect(() => {
@@ -535,6 +584,7 @@ export function useDesktopApp(): DesktopAppState {
         ollamaOnline, localModels, activeLocalModelId,
         lastInferenceResponse, pullingModel, generating,
         savedAccounts, pinLocked,
+        sseConnected, typingUsers,
         onSaveConfig, onDeviceLogin, onRefreshSession,
         onSend, onSignOut, onRefreshTimeline, onVoteApproval,
         onClearLogs,

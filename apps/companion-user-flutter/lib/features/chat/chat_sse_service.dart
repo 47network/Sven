@@ -67,7 +67,7 @@ class ChatSseService {
       throw Exception('SSE connect failed: ${streamedResponse.statusCode}');
     }
 
-    final decoder = const Utf8Decoder(allowMalformed: true);
+    const decoder = Utf8Decoder(allowMalformed: true);
     String buffer = '';
     String eventType = 'message';
 

@@ -26,14 +26,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable corepack
+        run: corepack enable
+
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
@@ -63,7 +67,7 @@ jobs:
           ADMIN_SESSION_COOKIE: ${{ secrets.ADMIN_SESSION_COOKIE }}
         run: |
           if [ -d "apps/companion-desktop-tauri" ]; then
-            npm run test:ui:e2e
+            pnpm run test:ui:e2e
           else
             npx playwright test --project=admin-web --project=canvas-web
           fi

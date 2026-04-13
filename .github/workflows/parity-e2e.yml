@@ -63,14 +63,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable corepack
+        run: corepack enable
+
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Start NATS (JetStream)
         run: |
@@ -93,7 +97,7 @@ jobs:
         run: npx pnpm -r build
 
       - name: Run migrations
-        run: npm run --workspace services/gateway-api db:migrate
+        run: pnpm --filter ./services/gateway-api run db:migrate
 
       - name: Seed admin session for parity e2e
         run: |
@@ -191,8 +195,8 @@ jobs:
       - name: MCP/A2A compatibility gates (live)
         id: compat_live_gates
         run: |
-          npm run release:mcp:compat:check:live
-          npm run release:a2a:compat:check:peer-live
+          pnpm run release:mcp:compat:check:live
+          pnpm run release:a2a:compat:check:peer-live
 
       - name: CLI e2e
         id: cli_e2e
@@ -202,160 +206,160 @@ jobs:
       - name: Parity provenance contract tests
         id: parity_contracts
         run: |
-          npm run --workspace services/gateway-api test -- --runTestsByPath src/__tests__/langgraph-wave8-parity-e2e-ci-binding.contract.test.ts src/__tests__/parity-all-waves-closeout-contract.test.ts src/__tests__/parity-checklist-verify-wave-closeout.contract.test.ts --runInBand
+          pnpm --filter ./services/gateway-api run test -- --runTestsByPath src/__tests__/langgraph-wave8-parity-e2e-ci-binding.contract.test.ts src/__tests__/parity-all-waves-closeout-contract.test.ts src/__tests__/parity-checklist-verify-wave-closeout.contract.test.ts --runInBand
 
       - name: OpenHands Wave 1 parity gates
         id: openhands_wave1
         run: |
-          npm run -s release:openhands:w01:status
-          npm run -s release:openhands:w02:status
-          npm run -s release:openhands:w03:status
-          npm run -s release:openhands:w04:status
-          npm run -s release:openhands:w05:status
-          npm run -s release:openhands:w06:status
-          npm run -s release:openhands:w07:status
-          npm run -s release:openhands:w08:status
-          npm run -s release:openhands:w09:status
-          npm run -s release:openhands:w10:status
-          npm run -s release:openhands:wave1:rollup
-          npm run -s release:openhands:wave1:closeout
+          pnpm run -s release:openhands:w01:status
+          pnpm run -s release:openhands:w02:status
+          pnpm run -s release:openhands:w03:status
+          pnpm run -s release:openhands:w04:status
+          pnpm run -s release:openhands:w05:status
+          pnpm run -s release:openhands:w06:status
+          pnpm run -s release:openhands:w07:status
+          pnpm run -s release:openhands:w08:status
+          pnpm run -s release:openhands:w09:status
+          pnpm run -s release:openhands:w10:status
+          pnpm run -s release:openhands:wave1:rollup
+          pnpm run -s release:openhands:wave1:closeout
 
       - name: CrewAI Wave 5 parity gates
         id: crewai_wave5
         run: |
-          npm run -s release:crewai:w01:status
-          npm run -s release:crewai:w02:status
-          npm run -s release:crewai:w03:status
-          npm run -s release:crewai:w04:status
-          npm run -s release:crewai:w05:status
-          npm run -s release:crewai:w06:status
-          npm run -s release:crewai:w07:status
-          npm run -s release:crewai:w08:status
-          npm run -s release:crewai:w09:status
-          npm run -s release:crewai:w10:status
-          npm run -s release:crewai:wave5:rollup
-          npm run -s release:crewai:wave5:closeout
+          pnpm run -s release:crewai:w01:status
+          pnpm run -s release:crewai:w02:status
+          pnpm run -s release:crewai:w03:status
+          pnpm run -s release:crewai:w04:status
+          pnpm run -s release:crewai:w05:status
+          pnpm run -s release:crewai:w06:status
+          pnpm run -s release:crewai:w07:status
+          pnpm run -s release:crewai:w08:status
+          pnpm run -s release:crewai:w09:status
+          pnpm run -s release:crewai:w10:status
+          pnpm run -s release:crewai:wave5:rollup
+          pnpm run -s release:crewai:wave5:closeout
 
       - name: LibreChat Wave 2 parity gates
         id: librechat_wave2
         run: |
-          npm run -s release:librechat:w01:status
-          npm run -s release:librechat:w02:status
-          npm run -s release:librechat:w03:status
-          npm run -s release:librechat:w04:status
-          npm run -s release:librechat:w05:status
-          npm run -s release:librechat:w06:status
-          npm run -s release:librechat:w07:status
-          npm run -s release:librechat:w08:status
-          npm run -s release:librechat:w09:status
-          npm run -s release:librechat:w10:status
-          npm run -s release:librechat:wave2:rollup
-          npm run -s release:librechat:wave2:closeout
+          pnpm run -s release:librechat:w01:status
+          pnpm run -s release:librechat:w02:status
+          pnpm run -s release:librechat:w03:status
+          pnpm run -s release:librechat:w04:status
+          pnpm run -s release:librechat:w05:status
+          pnpm run -s release:librechat:w06:status
+          pnpm run -s release:librechat:w07:status
+          pnpm run -s release:librechat:w08:status
+          pnpm run -s release:librechat:w09:status
+          pnpm run -s release:librechat:w10:status
+          pnpm run -s release:librechat:wave2:rollup
+          pnpm run -s release:librechat:wave2:closeout
 
       - name: n8n Wave 3 parity gates
         id: n8n_wave3
         run: |
-          npm run -s release:n8n:w01:status
-          npm run -s release:n8n:w02:status
-          npm run -s release:n8n:w03:status
-          npm run -s release:n8n:w04:status
-          npm run -s release:n8n:w05:status
-          npm run -s release:n8n:w06:status
-          npm run -s release:n8n:w07:status
-          npm run -s release:n8n:w08:status
-          npm run -s release:n8n:w09:status
-          npm run -s release:n8n:w10:status
-          npm run -s release:n8n:wave3:rollup
-          npm run -s release:n8n:wave3:closeout
+          pnpm run -s release:n8n:w01:status
+          pnpm run -s release:n8n:w02:status
+          pnpm run -s release:n8n:w03:status
+          pnpm run -s release:n8n:w04:status
+          pnpm run -s release:n8n:w05:status
+          pnpm run -s release:n8n:w06:status
+          pnpm run -s release:n8n:w07:status
+          pnpm run -s release:n8n:w08:status
+          pnpm run -s release:n8n:w09:status
+          pnpm run -s release:n8n:w10:status
+          pnpm run -s release:n8n:wave3:rollup
+          pnpm run -s release:n8n:wave3:closeout
 
       - name: Framework Wave 4 parity gates
         id: framework_wave4
         run: |
-          npm run -s release:framework:w01:status
-          npm run -s release:framework:w02:status
-          npm run -s release:framework:w03:status
-          npm run -s release:framework:w04:status
-          npm run -s release:framework:w05:status
-          npm run -s release:framework:w06:status
-          npm run -s release:framework:w07:status
-          npm run -s release:framework:w08:status
-          npm run -s release:framework:w09:status
-          npm run -s release:framework:w10:status
-          npm run -s release:framework:wave4:rollup
-          npm run -s release:framework:wave4:closeout
+          pnpm run -s release:framework:w01:status
+          pnpm run -s release:framework:w02:status
+          pnpm run -s release:framework:w03:status
+          pnpm run -s release:framework:w04:status
+          pnpm run -s release:framework:w05:status
+          pnpm run -s release:framework:w06:status
+          pnpm run -s release:framework:w07:status
+          pnpm run -s release:framework:w08:status
+          pnpm run -s release:framework:w09:status
+          pnpm run -s release:framework:w10:status
+          pnpm run -s release:framework:wave4:rollup
+          pnpm run -s release:framework:wave4:closeout
 
       - name: Letta Wave 6 parity gates
         id: letta_wave6
         run: |
-          npm run -s release:letta:w01:status
-          npm run -s release:letta:w02:status
-          npm run -s release:letta:w03:status
-          npm run -s release:letta:w04:status
-          npm run -s release:letta:w05:status
-          npm run -s release:letta:w06:status
-          npm run -s release:letta:w07:status
-          npm run -s release:letta:w08:status
-          npm run -s release:letta:w09:status
-          npm run -s release:letta:w10:status
-          npm run -s release:letta:wave6:rollup
-          npm run -s release:letta:wave6:closeout
+          pnpm run -s release:letta:w01:status
+          pnpm run -s release:letta:w02:status
+          pnpm run -s release:letta:w03:status
+          pnpm run -s release:letta:w04:status
+          pnpm run -s release:letta:w05:status
+          pnpm run -s release:letta:w06:status
+          pnpm run -s release:letta:w07:status
+          pnpm run -s release:letta:w08:status
+          pnpm run -s release:letta:w09:status
+          pnpm run -s release:letta:w10:status
+          pnpm run -s release:letta:wave6:rollup
+          pnpm run -s release:letta:wave6:closeout
 
       - name: AutoGen Wave 7 parity gates
         id: autogen_wave7
         run: |
-          npm run -s release:autogen:w01:status
-          npm run -s release:autogen:w02:status
-          npm run -s release:autogen:w03:status
-          npm run -s release:autogen:w04:status
-          npm run -s release:autogen:w05:status
-          npm run -s release:autogen:w06:status
-          npm run -s release:autogen:w07:status
-          npm run -s release:autogen:w08:status
-          npm run -s release:autogen:w09:status
-          npm run -s release:autogen:w10:status
-          npm run -s release:autogen:wave7:rollup
-          npm run -s release:autogen:wave7:closeout
+          pnpm run -s release:autogen:w01:status
+          pnpm run -s release:autogen:w02:status
+          pnpm run -s release:autogen:w03:status
+          pnpm run -s release:autogen:w04:status
+          pnpm run -s release:autogen:w05:status
+          pnpm run -s release:autogen:w06:status
+          pnpm run -s release:autogen:w07:status
+          pnpm run -s release:autogen:w08:status
+          pnpm run -s release:autogen:w09:status
+          pnpm run -s release:autogen:w10:status
+          pnpm run -s release:autogen:wave7:rollup
+          pnpm run -s release:autogen:wave7:closeout
 
       - name: LangGraph Wave 8 parity gates
         id: langgraph_wave8
         run: |
-          npm run -s release:langgraph:w01:status
-          npm run -s release:langgraph:w02:status
-          npm run -s release:langgraph:w03:status
-          npm run -s release:langgraph:w04:status
-          npm run -s release:langgraph:w05:status
-          npm run -s release:langgraph:w06:status
-          npm run -s release:langgraph:w07:status
-          npm run -s release:langgraph:w08:status
-          npm run -s release:langgraph:w09:status
-          npm run -s release:langgraph:w10:status
-          npm run -s release:langgraph:wave8:rollup
-          npm run -s release:langgraph:wave8:closeout
+          pnpm run -s release:langgraph:w01:status
+          pnpm run -s release:langgraph:w02:status
+          pnpm run -s release:langgraph:w03:status
+          pnpm run -s release:langgraph:w04:status
+          pnpm run -s release:langgraph:w05:status
+          pnpm run -s release:langgraph:w06:status
+          pnpm run -s release:langgraph:w07:status
+          pnpm run -s release:langgraph:w08:status
+          pnpm run -s release:langgraph:w09:status
+          pnpm run -s release:langgraph:w10:status
+          pnpm run -s release:langgraph:wave8:rollup
+          pnpm run -s release:langgraph:wave8:closeout
 
       - name: Unified parity all-waves closeout
         id: parity_all_waves_closeout
         run: |
-          npm run -s release:parity:all-waves:closeout
+          pnpm run -s release:parity:all-waves:closeout
 
       - name: Competitor runtime truth gate
         id: competitor_runtime_truth
         run: |
-          npm run -s release:competitor:runtime:truth
+          pnpm run -s release:competitor:runtime:truth
 
       - name: Competitor capability proof gate
         id: competitor_capability_proof
         run: |
-          npm run -s release:competitor:capability:proof
+          pnpm run -s release:competitor:capability:proof
 
       - name: Competitive scorecard gate
         id: competitive_scorecard
         run: |
-          npm run -s release:competitive:scorecard:status
+          pnpm run -s release:competitive:scorecard:status
 
       - name: Competitive program completion gate
         id: competitive_program_completion
         run: |
-          npm run -s release:competitive:program:status:strict
+          pnpm run -s release:competitive:program:status:strict
 
       - name: Emit parity e2e workflow status artifact
         if: always()

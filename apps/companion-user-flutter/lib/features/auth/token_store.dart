@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
@@ -77,8 +78,13 @@ class TokenStore {
       _debug('readAccessToken secure=${secure.length}');
       return secure;
     }
+    // Migrate plaintext fallback to SecureStorage and purge from prefs.
     final fallback = prefs.getString(_accessKey);
-    _debug('readAccessToken prefs=${fallback == null ? 0 : fallback.length}');
+    if (fallback != null && fallback.isNotEmpty) {
+      await _secureStorage.write(key: _accessKey, value: fallback);
+      await prefs.remove(_accessKey);
+      _debug('readAccessToken migrated from prefs to secure');
+    }
     return fallback;
   }
 
@@ -94,26 +100,31 @@ class TokenStore {
       _debug('readRefreshToken secure=${secure.length}');
       return secure;
     }
+    // Migrate plaintext fallback to SecureStorage and purge from prefs.
     final fallback = prefs.getString(_refreshKey);
-    _debug('readRefreshToken prefs=${fallback == null ? 0 : fallback.length}');
+    if (fallback != null && fallback.isNotEmpty) {
+      await _secureStorage.write(key: _refreshKey, value: fallback);
+      await prefs.remove(_refreshKey);
+      _debug('readRefreshToken migrated from prefs to secure');
+    }
     return fallback;
   }
 
   Future<void> writeAccessToken(String token) async {
-    final prefs = await _prefs();
-    await prefs.setString(_accessKey, token);
     _debug('writeAccessToken len=${token.length}');
     if (kIsWeb) {
+      final prefs = await _prefs();
+      await prefs.setString(_accessKey, token);
       return;
     }
     await _secureStorage.write(key: _accessKey, value: token);
   }
 
   Future<void> writeRefreshToken(String token) async {
-    final prefs = await _prefs();
-    await prefs.setString(_refreshKey, token);
     _debug('writeRefreshToken len=${token.length}');
     if (kIsWeb) {
+      final prefs = await _prefs();
+      await prefs.setString(_refreshKey, token);
       return;
     }
     await _secureStorage.write(key: _refreshKey, value: token);
@@ -128,14 +139,21 @@ class TokenStore {
     }
     final secure = await _secureStorage.read(key: _userIdKey);
     if (secure != null && secure.isNotEmpty) return secure;
-    return prefs.getString(_userIdKey);
+    // Migrate plaintext fallback.
+    final fallback = prefs.getString(_userIdKey);
+    if (fallback != null && fallback.isNotEmpty) {
+      await _secureStorage.write(key: _userIdKey, value: fallback);
+      await prefs.remove(_userIdKey);
+      _debug('readUserId migrated from prefs to secure');
+    }
+    return fallback;
   }
 
   Future<void> writeUserId(String userId) async {
-    final prefs = await _prefs();
-    await prefs.setString(_userIdKey, userId);
     _debug('writeUserId present=${userId.isNotEmpty}');
     if (kIsWeb) {
+      final prefs = await _prefs();
+      await prefs.setString(_userIdKey, userId);
       return;
     }
     await _secureStorage.write(key: _userIdKey, value: userId);
@@ -148,14 +166,21 @@ class TokenStore {
     }
     final secure = await _secureStorage.read(key: _usernameKey);
     if (secure != null && secure.isNotEmpty) return secure;
-    return prefs.getString(_usernameKey);
+    // Migrate plaintext fallback.
+    final fallback = prefs.getString(_usernameKey);
+    if (fallback != null && fallback.isNotEmpty) {
+      await _secureStorage.write(key: _usernameKey, value: fallback);
+      await prefs.remove(_usernameKey);
+      _debug('readUsername migrated from prefs to secure');
+    }
+    return fallback;
   }
 
   Future<void> writeUsername(String username) async {
-    final prefs = await _prefs();
-    await prefs.setString(_usernameKey, username);
     _debug('writeUsername present=${username.isNotEmpty}');
     if (kIsWeb) {
+      final prefs = await _prefs();
+      await prefs.setString(_usernameKey, username);
       return;
     }
     await _secureStorage.write(key: _usernameKey, value: username);
@@ -164,10 +189,10 @@ class TokenStore {
   // ── Personal-mode auto-login credentials ──
 
   Future<void> writeAutoLogin(String username, String password) async {
-    final prefs = await _prefs();
-    await prefs.setString(_autoLoginUserKey, username);
-    await prefs.setString(_autoLoginPassKey, password);
     if (kIsWeb) {
+      final prefs = await _prefs();
+      await prefs.setString(_autoLoginUserKey, username);
+      await prefs.setString(_autoLoginPassKey, password);
       return;
     }
     await _secureStorage.write(key: _autoLoginUserKey, value: username);
@@ -184,12 +209,21 @@ class TokenStore {
     } else {
       user = await _secureStorage.read(key: _autoLoginUserKey);
       pass = await _secureStorage.read(key: _autoLoginPassKey);
-      user = (user != null && user.isNotEmpty)
-          ? user
-          : prefs.getString(_autoLoginUserKey);
-      pass = (pass != null && pass.isNotEmpty)
-          ? pass
-          : prefs.getString(_autoLoginPassKey);
+      // Migrate plaintext fallback to SecureStorage and purge from prefs.
+      if (user == null || user.isEmpty) {
+        user = prefs.getString(_autoLoginUserKey);
+        if (user != null && user.isNotEmpty) {
+          await _secureStorage.write(key: _autoLoginUserKey, value: user);
+          await prefs.remove(_autoLoginUserKey);
+        }
+      }
+      if (pass == null || pass.isEmpty) {
+        pass = prefs.getString(_autoLoginPassKey);
+        if (pass != null && pass.isNotEmpty) {
+          await _secureStorage.write(key: _autoLoginPassKey, value: pass);
+          await prefs.remove(_autoLoginPassKey);
+        }
+      }
     }
     if (user != null && user.isNotEmpty && pass != null && pass.isNotEmpty) {
       return (username: user, password: pass);
@@ -236,8 +270,9 @@ class TokenStore {
     deviceId ??= prefs.getString(_deviceIdKey);
     if (deviceId != null && deviceId.isNotEmpty) return deviceId;
 
-    // Generate a stable device ID from random bytes
-    final bytes = List<int>.generate(16, (i) => DateTime.now().microsecond ^ (i * 31 + 17));
+    // Generate a stable device ID from cryptographically secure random bytes.
+    final rng = Random.secure();
+    final bytes = List<int>.generate(16, (_) => rng.nextInt(256));
     deviceId = sha256.convert(bytes).toString().substring(0, 32);
     await prefs.setString(_deviceIdKey, deviceId);
     if (!kIsWeb) {
@@ -256,16 +291,17 @@ class TokenStore {
     String? refreshToken,
     String? username,
   }) async {
-    final prefs = await _prefs();
     final prefix = 'sven.account.$userId';
-    await prefs.setString('$prefix.access_token', accessToken);
-    if (refreshToken != null) {
-      await prefs.setString('$prefix.refresh_token', refreshToken);
-    }
-    if (username != null) {
-      await prefs.setString('$prefix.username', username);
-    }
-    if (!kIsWeb) {
+    if (kIsWeb) {
+      final prefs = await _prefs();
+      await prefs.setString('$prefix.access_token', accessToken);
+      if (refreshToken != null) {
+        await prefs.setString('$prefix.refresh_token', refreshToken);
+      }
+      if (username != null) {
+        await prefs.setString('$prefix.username', username);
+      }
+    } else {
       await _secureStorage.write(key: '$prefix.access_token', value: accessToken);
       if (refreshToken != null) {
         await _secureStorage.write(key: '$prefix.refresh_token', value: refreshToken);
@@ -283,21 +319,36 @@ class TokenStore {
     final prefs = await _prefs();
     final prefix = 'sven.account.$userId';
     String? access, refresh, username;
-    if (!kIsWeb) {
+    if (kIsWeb) {
+      access = prefs.getString('$prefix.access_token');
+      refresh = prefs.getString('$prefix.refresh_token');
+      username = prefs.getString('$prefix.username');
+    } else {
       access = await _secureStorage.read(key: '$prefix.access_token');
       refresh = await _secureStorage.read(key: '$prefix.refresh_token');
       username = await _secureStorage.read(key: '$prefix.username');
+      // Migrate plaintext fallbacks to SecureStorage.
+      access = await _migrateAccountField(prefs, '$prefix.access_token', access);
+      refresh = await _migrateAccountField(prefs, '$prefix.refresh_token', refresh);
+      username = await _migrateAccountField(prefs, '$prefix.username', username);
     }
-    access = (access != null && access.isNotEmpty)
-        ? access
-        : prefs.getString('$prefix.access_token');
-    refresh = (refresh != null && refresh.isNotEmpty)
-        ? refresh
-        : prefs.getString('$prefix.refresh_token');
-    username = (username != null && username.isNotEmpty)
-        ? username
-        : prefs.getString('$prefix.username');
     return (accessToken: access, refreshToken: refresh, username: username);
+  }
+
+  /// Helper: if [secureValue] is empty, read from prefs and migrate.
+  Future<String?> _migrateAccountField(
+    SharedPreferences prefs,
+    String key,
+    String? secureValue,
+  ) async {
+    if (secureValue != null && secureValue.isNotEmpty) return secureValue;
+    final fallback = prefs.getString(key);
+    if (fallback != null && fallback.isNotEmpty) {
+      await _secureStorage.write(key: key, value: fallback);
+      await prefs.remove(key);
+      _debug('migrated $key from prefs to secure');
+    }
+    return fallback;
   }
 
   /// Clear stored tokens for a specific account.
@@ -352,23 +403,33 @@ class TokenStore {
 
   /// Store a PIN hash for a specific account.
   Future<void> writeAccountPin(String userId, String pinHash) async {
-    final prefs = await _prefs();
     final key = 'sven.account.$userId.pin_hash';
-    await prefs.setString(key, pinHash);
-    if (!kIsWeb) {
+    if (kIsWeb) {
+      final prefs = await _prefs();
+      await prefs.setString(key, pinHash);
+    } else {
       await _secureStorage.write(key: key, value: pinHash);
     }
   }
 
   /// Read the PIN hash for a specific account.
   Future<String?> readAccountPin(String userId) async {
-    final prefs = await _prefs();
     final key = 'sven.account.$userId.pin_hash';
-    if (!kIsWeb) {
-      final secure = await _secureStorage.read(key: key);
-      if (secure != null && secure.isNotEmpty) return secure;
+    if (kIsWeb) {
+      final prefs = await _prefs();
+      return prefs.getString(key);
     }
-    return prefs.getString(key);
+    final secure = await _secureStorage.read(key: key);
+    if (secure != null && secure.isNotEmpty) return secure;
+    // Migrate plaintext fallback.
+    final prefs = await _prefs();
+    final fallback = prefs.getString(key);
+    if (fallback != null && fallback.isNotEmpty) {
+      await _secureStorage.write(key: key, value: fallback);
+      await prefs.remove(key);
+      _debug('readAccountPin migrated from prefs to secure');
+    }
+    return fallback;
   }
 
   /// Verify a PIN against the stored hash.

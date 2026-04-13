@@ -105,7 +105,9 @@ class PromptHistoryService extends ChangeNotifier {
         final list = jsonDecode(raw) as List<dynamic>;
         _history.addAll(list.cast<String>());
         notifyListeners();
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('[PromptHistoryService] failed to parse history: $e');
+      }
     }
   }
 

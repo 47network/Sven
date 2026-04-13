@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Sven User Flutter</string>
+	<string>Sven</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>sven_user_flutter</string>
+	<string>Sven</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -58,5 +58,21 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Sven needs microphone access for voice commands, speech-to-text, and voice/video calls.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Sven needs camera access for video calls and capturing photos to share.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Sven needs photo library access to share images and files in conversations.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Sven uses speech recognition for voice input and wake word detection.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Sven uses Face ID to secure the app and protect your conversations.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Sven uses local network access to discover nearby Sven instances for federation.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Sven needs permission to save media files from conversations to your photo library.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

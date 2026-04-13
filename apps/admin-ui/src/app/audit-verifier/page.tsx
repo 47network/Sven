@@ -176,7 +176,7 @@ export default function AuditVerifierPage() {
           )}
 
           <div className="text-xs text-slate-400 sm:col-span-2 lg:col-span-4">
-            Last checked: {new Date(result.checked_at).toLocaleString()}
+            Last checked: {new Date(result.checked_at as string).toLocaleString()}
           </div>
         </div>
       )}

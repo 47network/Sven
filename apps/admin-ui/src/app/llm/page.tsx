@@ -583,7 +583,7 @@ export default function LlmPage() {
                   <p className="text-xs text-slate-500">{m.provider ?? 'provider'} &middot; {m.model_id ?? 'id'}</p>
                   <div className="mt-2 flex gap-2">
                     <span className={m.enabled ? 'badge-success' : 'badge-neutral'}>{m.enabled ? 'active' : 'disabled'}</span>
-                    {m.is_primary && <span className="badge-info">primary</span>}
+                    {Boolean(m.is_primary) && <span className="badge-info">primary</span>}
                   </div>
                 </div>
               ))}
@@ -644,11 +644,11 @@ export default function LlmPage() {
                     <p className="font-medium">{b.name ?? 'budget'}</p>
                     <span className="text-sm font-mono">{b.spent ?? 0} / {b.limit ?? '∞'}</span>
                   </div>
-                  {b.limit && (
+                  {Boolean(b.limit) && (
                     <div className="mt-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700">
                       <div
                         className="h-full rounded-full bg-brand-500"
-                        style={{ width: `${Math.min(((b.spent ?? 0) / b.limit) * 100, 100)}%` }}
+                        style={{ width: `${Math.min(((b.spent ?? 0) / (b.limit || 1)) * 100, 100)}%` }}
                       />
                     </div>
                   )}

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
+import '../../app/api_base_service.dart';
 import '../../app/authenticated_client.dart';
-import '../../config/env_config.dart';
 
 class UserScopedSettingRow {
   const UserScopedSettingRow({
@@ -59,7 +59,7 @@ class UserSettingsSnapshot {
 class UserSettingsService {
   UserSettingsService({required AuthenticatedClient client}) : _client = client;
 
-  static final _apiBase = EnvConfig.apiBase;
+  static String get _apiBase => ApiBaseService.currentSync();
 
   final AuthenticatedClient _client;
 

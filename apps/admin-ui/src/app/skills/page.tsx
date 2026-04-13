@@ -330,7 +330,7 @@ export default function SkillsPage() {
                 <p className="font-medium">{sk.name}</p>
                 <p className="mt-0.5 text-xs text-slate-500">{sk.description}</p>
                 <p className="mt-1 text-xs text-slate-400">v{sk.version}</p>
-                {sk.tool_id && <p className="mt-1 text-xs text-slate-500">Tool: {sk.tool_id}</p>}
+                {Boolean(sk.tool_id) && <p className="mt-1 text-xs text-slate-500">Tool: {sk.tool_id}</p>}
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     onClick={() =>

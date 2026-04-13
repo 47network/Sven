@@ -153,7 +153,9 @@ class DesktopTrayManager with TrayListener {
     trayManager.removeListener(this);
     try {
       await trayManager.destroy();
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[DesktopWindow] tray destroy failed: $e');
+    }
   }
 
   Future<void> _rebuildMenu() async {

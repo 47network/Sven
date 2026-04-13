@@ -1,4 +1,7 @@
 {
+  "compilerOptions": {
+    "types": []
+  },
   "references": [
     { "path": "packages/shared" },
     { "path": "services/gateway-api" },
