@@ -122,36 +122,57 @@ export default function SvenControlPage() {
     setIsRunningKronos(true);
     setError(null);
     try {
+      const storeCandles = useTradingStore.getState().candles;
+      const candlePayload = storeCandles.map((c: any) => ({
+        open: c.open, high: c.high, low: c.low, close: c.close,
+        volume: c.volume, timestamp: c.time ?? c.timestamp,
+      }));
       const res = await fetch(`${API_BASE}/v1/trading/kronos/predict`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ symbol: activeSymbol, candles: [] }),
+        body: JSON.stringify({
+          symbol: activeSymbol,
+          candles: candlePayload,
+          current_price: ticker?.price ?? (storeCandles[storeCandles.length - 1]?.close ?? 0),
+        }),
       });
       const json = await res.json();
       if (json.success) {
         setKronosPrediction(json.data);
+      } else {
+        setError(json.error ?? 'Kronos prediction failed');
       }
     } catch {
       setError('Kronos prediction failed');
     } finally {
       setIsRunningKronos(false);
     }
-  }, [activeSymbol]);
+  }, [activeSymbol, ticker?.price]);
 
   const triggerMiroFish = useCallback(async () => {
     setIsRunningMiroFish(true);
     setError(null);
     try {
+      const storeCandles = useTradingStore.getState().candles;
+      const candlePayload = storeCandles.map((c: any) => ({
+        open: c.open, high: c.high, low: c.low, close: c.close,
+        volume: c.volume, timestamp: c.time ?? c.timestamp,
+      }));
       const res = await fetch(`${API_BASE}/v1/trading/mirofish/simulate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ symbol: activeSymbol, candles: [] }),
+        body: JSON.stringify({
+          symbol: activeSymbol,
+          candles: candlePayload,
+        }),
       });
       const json = await res.json();
       if (json.success) {
         setMirofishResult(json.data);
+      } else {
+        setError(json.error ?? 'MiroFish simulation failed');
       }
     } catch {
       setError('MiroFish simulation failed');

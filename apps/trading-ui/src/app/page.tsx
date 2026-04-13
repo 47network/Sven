@@ -170,9 +170,47 @@ export default function TradingPage() {
   const newsItems = useTradingStore((s) => s.newsItems);
   const [orderTicketOpen, setOrderTicketOpen] = useState(false);
 
-  /* Kronos + MiroFish prediction state (populated via SSE events in production) */
+  /* Kronos + MiroFish prediction state — auto-triggered when candles load */
+  const candles = useTradingStore((s) => s.candles);
   const [kronosPrediction, setKronosPrediction] = useState<any>(null);
   const [mirofishResult, setMirofishResult] = useState<any>(null);
+
+  /* Auto-run Kronos + MiroFish when we have enough candle data */
+  useEffect(() => {
+    if (candles.length < 20) return;
+
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
+    const payload = {
+      symbol: activeSymbol,
+      candles: candles.map((c: any) => ({
+        open: c.open, high: c.high, low: c.low, close: c.close,
+        volume: c.volume, timestamp: c.time ?? c.timestamp,
+      })),
+      current_price: ticker?.price ?? candles[candles.length - 1]?.close ?? 0,
+    };
+
+    fetch(`${API_BASE}/v1/trading/kronos/predict`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    })
+      .then((r) => r.json())
+      .then((j) => { if (j.success) setKronosPrediction(j.data); })
+      .catch(() => {});
+
+    fetch(`${API_BASE}/v1/trading/mirofish/simulate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    })
+      .then((r) => r.json())
+      .then((j) => { if (j.success) setMirofishResult(j.data); })
+      .catch(() => {});
+  // Re-run when active symbol changes or candles cross the threshold
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSymbol, candles.length >= 20]);
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden">
