@@ -44,6 +44,7 @@ import '../features/auth/sso_service.dart';
 import '../features/auth/mfa_page.dart';
 import 'authenticated_client.dart';
 import 'deep_link.dart';
+import 'dio_http_client.dart';
 import 'app_models.dart';
 import 'app_state.dart';
 import 'scoped_preferences.dart';
@@ -61,6 +62,28 @@ import 'package:go_router/go_router.dart';
 
 import 'providers.dart';
 import 'app_shell.dart';
+import '../features/chat/call_screen.dart';
+import '../features/chat/search_page.dart';
+import '../features/chat/media_gallery_page.dart';
+import '../features/ai/ai_hub_page.dart';
+import '../features/ai/image_analysis_page.dart';
+import '../features/ai/audio_scribe_page.dart';
+import '../features/ai/device_actions_page.dart';
+import '../features/ai/smart_routing_page.dart';
+import '../features/ai/ai_modules_page.dart';
+import '../features/ai/privacy_controls_page.dart';
+import '../features/ai/brain_admin_service.dart';
+import '../features/ai/brain_admin_page.dart';
+import '../features/ai/community_agents_service.dart';
+import '../features/ai/community_agents_page.dart';
+import '../features/ai/calibration_service.dart';
+import '../features/ai/calibration_page.dart';
+import '../features/ai/federation_service.dart';
+import '../features/ai/federation_page.dart';
+import '../features/profile/profile_service.dart';
+import '../features/profile/profile_page.dart';
+import '../features/notifications/notification_prefs_service.dart';
+import '../features/notifications/notification_prefs_page.dart';
 
 class SvenUserApp extends ConsumerStatefulWidget {
   const SvenUserApp({super.key});
@@ -74,6 +97,14 @@ bool shouldInvalidateStoredSession(AuthFailure failure) {
       failure == AuthFailure.invalidCredentials;
 }
 
+Color? _parseHexColor(String hex) {
+  final h = hex.replaceFirst('#', '');
+  if (h.length != 6) return null;
+  final v = int.tryParse(h, radix: 16);
+  if (v == null) return null;
+  return Color(0xFF000000 | v);
+}
+
 class _SvenUserAppState extends ConsumerState<SvenUserApp>
     with WidgetsBindingObserver {
   final _appLinks = AppLinks();
@@ -84,7 +115,7 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
   late final AuthenticatedClient _authClient;
   final _auth = AuthService();
   final _sso = SsoService();
-  final _deploymentService = DeploymentService();
+  final _deploymentService = DeploymentService(client: sl<DioHttpClient>());
   final _battery = Battery();
   final _voiceService = VoiceService();
   final _memoryService = MemoryService();
@@ -310,6 +341,12 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
   }
 
   void _handleNotificationTap(RemoteMessage message) {
+    // Trading notifications — deep link to the Trading tab.
+    final channel = message.data['channel'] as String?;
+    if (channel == 'sven_trading') {
+      _handleDeepLink(Uri.parse('sven://trading'));
+      return;
+    }
     final chatId = message.data['chat_id'] as String?;
     if (chatId == null || chatId.isEmpty) return;
     _handleDeepLink(Uri.parse('sven://chat/$chatId'));
@@ -374,7 +411,9 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
           final isCharging =
               state == BatteryState.charging || state == BatteryState.full;
           _state.perfMonitor.updateBatteryState(level, isCharging);
-        } catch (_) {}
+        } catch (e) {
+          debugPrint('[SvenUserApp] battery stream update failed: $e');
+        }
       },
       onError: (_) {},
     );
@@ -598,6 +637,10 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
       _voiceService.restoreVoice(parts[0], parts[1]);
     }
     await _memoryService.bindUser(_scopedPrefs!);
+    // Auto-populate display name from login username if not set yet.
+    if (_memoryService.userName.isEmpty && username != null && username.isNotEmpty) {
+      await _memoryService.setUserName(username);
+    }
     await _promptTemplatesService.bindUser(_scopedPrefs!);
     await _promptHistoryService.bindUser(_scopedPrefs!);
     await sl<AbTestService>().bind(userId: userId);
@@ -657,6 +700,13 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
     }
     if (target.kind == 'chat' && target.chatId != null) {
       _router.push(appRouteHomeChat(target.chatId!));
+    }
+    if (target.kind == 'trading') {
+      _router.go(appRouteHome);
+      // Post-frame callback to let home page settle, then switch to trading tab.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        TradingDeepLink.pending = true;
+      });
     }
   }
 
@@ -822,10 +872,6 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
         if (!_state.serverSetupComplete) {
           return loc == appRouteSetup ? null : appRouteSetup;
         }
-        // ── Onboarding ──
-        if (!_state.onboardingComplete) {
-          return loc == appRouteOnboarding ? null : appRouteOnboarding;
-        }
         // ── MFA step (pending second-factor) ──
         if (_state.mfaRequired) {
           return loc == appRouteMfa ? null : appRouteMfa;
@@ -833,6 +879,10 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
         // ── Auth gate ──
         if (!_state.isLoggedIn) {
           return loc == appRouteLogin ? null : appRouteLogin;
+        }
+        // ── Onboarding (after login — we know who the user is) ──
+        if (!_state.onboardingComplete) {
+          return loc == appRouteOnboarding ? null : appRouteOnboarding;
         }
         // ── Authenticated: send root / auth pages → home ──
         if (loc == '/' ||
@@ -871,15 +921,15 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
                         Container(
                           width: 168,
                           height: 168,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
                               colors: [
-                                const Color(0x44FF39C6),
-                                const Color(0x2212C8FF),
+                                Color(0x44FF39C6),
+                                Color(0x2212C8FF),
                                 Colors.transparent,
                               ],
-                              stops: const [0.18, 0.58, 1],
+                              stops: [0.18, 0.58, 1],
                             ),
                           ),
                         ),
@@ -931,10 +981,10 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
                       width: 132,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(999),
-                        child: LinearProgressIndicator(
+                        child: const LinearProgressIndicator(
                           minHeight: 4,
-                          backgroundColor: const Color(0x2200D9FF),
-                          valueColor: const AlwaysStoppedAnimation<Color>(
+                          backgroundColor: Color(0x2200D9FF),
+                          valueColor: AlwaysStoppedAnimation<Color>(
                             Color(0xFF6BE6FF),
                           ),
                         ),
@@ -967,14 +1017,9 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
         GoRoute(
           path: appRouteOnboarding,
           builder: (_, __) => OnboardingPage(
-            onComplete: () {
-              final name = OnboardingPage.capturedName;
-              if (name != null && name.isNotEmpty) {
-                _memoryService.setUserName(name);
-              }
-              _state.completeOnboarding();
-            },
+            onComplete: () => _state.completeOnboarding(),
             onSetVisualMode: (mode) => _state.setVisualMode(mode),
+            userName: _memoryService.userName,
           ),
         ),
 
@@ -1048,8 +1093,6 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
                   repo: sl<MessagesRepository>(),
                 );
                 final tokens = SvenTokens.forMode(_state.effectiveVisualMode);
-                final cinematic =
-                    _state.effectiveVisualMode == VisualMode.cinematic;
                 VoidCallback? exportFn;
                 return StatefulBuilder(builder: (ctx2, setS) {
                   return Scaffold(
@@ -1100,6 +1143,128 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
                   );
                 });
               },
+            ),
+
+            // ── Call screen ──
+            GoRoute(
+              path: 'call/:chatId',
+              builder: (ctx, routeState) {
+                final chatId = routeState.pathParameters['chatId']!;
+                final callType = routeState.uri.queryParameters['type'] ?? 'voice';
+                final callId = routeState.uri.queryParameters['callId'];
+                final incoming = routeState.uri.queryParameters['incoming'] == 'true';
+                final caller = routeState.uri.queryParameters['caller'];
+                return CallScreen(
+                  client: _authClient,
+                  chatId: chatId,
+                  callType: callType,
+                  callId: callId,
+                  isIncoming: incoming,
+                  callerName: caller,
+                  visualMode: _state.effectiveVisualMode,
+                );
+              },
+            ),
+
+            // ── Global search page ──
+            GoRoute(
+              path: 'search',
+              builder: (ctx, __) => SearchPage(
+                client: _authClient,
+                visualMode: _state.effectiveVisualMode,
+              ),
+            ),
+
+            // ── User profile ──
+            GoRoute(
+              path: 'profile',
+              builder: (_, __) => ProfilePage(
+                profileService: ProfileService(_authClient),
+              ),
+            ),
+
+            // ── Notification preferences ──
+            GoRoute(
+              path: 'notification-preferences',
+              builder: (_, __) => NotificationPrefsPage(
+                prefsService: NotificationPrefsService(_authClient),
+              ),
+            ),
+
+            // ── Media gallery for a chat ──
+            GoRoute(
+              path: 'media/:chatId',
+              builder: (ctx, routeState) {
+                final chatId = routeState.pathParameters['chatId']!;
+                final chatName = routeState.uri.queryParameters['name'];
+                return MediaGalleryPage(
+                  client: _authClient,
+                  chatId: chatId,
+                  chatName: chatName,
+                  visualMode: _state.effectiveVisualMode,
+                );
+              },
+            ),
+
+            // ── AI Hub (unified AI capabilities) ──
+            GoRoute(
+              path: 'ai',
+              builder: (_, __) => AiHubPage(
+                client: _authClient,
+                inferenceService: _inferenceService,
+                brainService: _brainService,
+                onNavigate: (route, _) => _router.push('/home/$route'),
+              ),
+              routes: [
+                GoRoute(
+                  path: 'image',
+                  builder: (_, __) => ImageAnalysisPage(client: _authClient, inferenceService: _inferenceService),
+                ),
+                GoRoute(
+                  path: 'scribe',
+                  builder: (_, __) => AudioScribePage(client: _authClient, inferenceService: _inferenceService),
+                ),
+                GoRoute(
+                  path: 'actions',
+                  builder: (_, __) => DeviceActionsPage(client: _authClient, inferenceService: _inferenceService),
+                ),
+                GoRoute(
+                  path: 'routing',
+                  builder: (_, __) => SmartRoutingPage(client: _authClient),
+                ),
+                GoRoute(
+                  path: 'modules',
+                  builder: (_, __) => AiModulesPage(client: _authClient),
+                ),
+                GoRoute(
+                  path: 'privacy',
+                  builder: (_, __) => PrivacyControlsPage(client: _authClient),
+                ),
+                GoRoute(
+                  path: 'brain-admin',
+                  builder: (_, __) => BrainAdminPage(
+                    service: BrainAdminService(client: _authClient),
+                  ),
+                ),
+                GoRoute(
+                  path: 'community-agents',
+                  builder: (_, __) => CommunityAgentsPage(
+                    service: CommunityAgentsService(client: _authClient),
+                  ),
+                ),
+                GoRoute(
+                  path: 'calibration',
+                  builder: (_, __) => CalibrationPage(
+                    service: CalibrationService(client: _authClient),
+                  ),
+                ),
+                GoRoute(
+                  path: 'federation',
+                  builder: (_, __) => FederationPage(
+                    service: FederationService(client: _authClient),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -1178,9 +1343,12 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
                 dynamicScheme: null,
                 highContrast: _state.highContrast,
                 colorBlindMode: _state.colorBlindMode,
-                customAccent: _state.accentPreset != AccentPreset.sven
-                    ? Color(_state.accentPreset.argbValue)
-                    : null),
+                customAccent: _state.customAccentHex != null
+                    ? _parseHexColor(_state.customAccentHex!)
+                    : _state.accentPreset != AccentPreset.sven
+                        ? Color(_state.accentPreset.argbValue)
+                        : null,
+                fontFamily: _state.fontFamily),
             builder: (context, child) {
               // Apply user-configured text scale on top of system scale.
               final scale = _state.textScale;

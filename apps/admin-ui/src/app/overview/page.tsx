@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { StatCard } from '@/components/StatCard';
-import { PageSpinner } from '@/components/Spinner';
+import { SkeletonStatGrid, SkeletonCard } from '@/components/Skeleton';
 import { useCommunityStatus, useHealth, useSelfCorrectionMetrics } from '@/lib/hooks';
 import Link from 'next/link';
 import {
@@ -26,6 +26,11 @@ import {
   Trophy,
   Radar,
   CheckCircle2,
+  Lock,
+  Phone,
+  Paperclip,
+  Search,
+  Globe,
 } from 'lucide-react';
 
 type ServiceHealth = {
@@ -118,7 +123,17 @@ export default function OverviewPage() {
     };
   }, []);
 
-  if (isLoading) return <PageSpinner />;
+  if (isLoading) return (
+    <>
+      <PageHeader title="Overview" description="System health, queues, and error rates at a glance" />
+      <div className="mb-6 grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <SkeletonCard />
+        <SkeletonCard />
+      </div>
+      <SkeletonStatGrid count={4} />
+      <div className="mt-4"><SkeletonStatGrid count={4} /></div>
+    </>
+  );
 
   const h = (health ?? {}) as Record<string, unknown>;
   const services = (h.services ?? {}) as Record<string, ServiceHealth>;
@@ -338,6 +353,31 @@ export default function OverviewPage() {
           </div>
         </div>
       )}
+
+      {/* Platform capabilities */}
+      <div className="mt-8 motion-reveal motion-delay-3">
+        <h2 className="mb-3 text-lg font-semibold">Platform Capabilities</h2>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {([
+            { icon: Lock, label: 'End-to-End Encryption', desc: 'ECDH P-256 + AES-256-GCM', color: 'text-emerald-400' },
+            { icon: Phone, label: 'Voice & Video Calls', desc: 'WebRTC signaling via SSE', color: 'text-cyan-400' },
+            { icon: Paperclip, label: 'File Sharing & Media', desc: 'Multi-backend storage with CDN', color: 'text-violet-400' },
+            { icon: MessageSquare, label: 'Typing & Read Receipts', desc: 'Real-time presence indicators', color: 'text-amber-400' },
+            { icon: Search, label: 'Message Search', desc: 'Full-text + semantic vector search', color: 'text-sky-400' },
+            { icon: Globe, label: 'Federation', desc: 'Instance discovery & peer mesh', color: 'text-rose-400' },
+          ] as const).map((cap) => (
+            <div key={cap.label} className="card hover-lift flex items-center gap-3 py-4">
+              <div className={`flex h-9 w-9 items-center justify-center rounded-lg bg-slate-800 ${cap.color}`}>
+                <cap.icon className="h-4.5 w-4.5" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">{cap.label}</p>
+                <p className="text-xs text-slate-400">{cap.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </>
   );
 }

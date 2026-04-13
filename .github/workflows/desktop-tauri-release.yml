@@ -18,20 +18,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable corepack
+        run: corepack enable
+
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          cache: pnpm
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
       - name: Install desktop dependencies
-        run: npm --prefix apps/companion-desktop-tauri install
+        run: pnpm install --filter ./apps/companion-desktop-tauri
 
       - name: Typecheck desktop frontend
-        run: npm --prefix apps/companion-desktop-tauri run typecheck
+        run: pnpm --filter ./apps/companion-desktop-tauri run typecheck
 
       - name: Cargo check desktop backend
         run: cargo check --manifest-path apps/companion-desktop-tauri/src-tauri/Cargo.toml
@@ -40,7 +44,7 @@ jobs:
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: npm --prefix apps/companion-desktop-tauri run tauri:build
+        run: pnpm --filter ./apps/companion-desktop-tauri run tauri:build
 
       - name: Upload Windows bundles
         uses: actions/upload-artifact@v4
@@ -54,11 +58,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable corepack
+        run: corepack enable
+
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          cache: pnpm
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -74,10 +82,10 @@ jobs:
             patchelf
 
       - name: Install desktop dependencies
-        run: npm --prefix apps/companion-desktop-tauri install
+        run: pnpm install --filter ./apps/companion-desktop-tauri
 
       - name: Typecheck desktop frontend
-        run: npm --prefix apps/companion-desktop-tauri run typecheck
+        run: pnpm --filter ./apps/companion-desktop-tauri run typecheck
 
       - name: Cargo check desktop backend
         run: cargo check --manifest-path apps/companion-desktop-tauri/src-tauri/Cargo.toml
@@ -86,7 +94,7 @@ jobs:
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: npm --prefix apps/companion-desktop-tauri run tauri:build
+        run: pnpm --filter ./apps/companion-desktop-tauri run tauri:build
 
       - name: Upload Linux bundles
         uses: actions/upload-artifact@v4

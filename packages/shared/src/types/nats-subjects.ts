@@ -48,6 +48,8 @@ export const NATS_SUBJECTS = {
 
   // Notify
   NOTIFY_PUSH: 'notify.push',
+  NOTIFY_PROACTIVE: 'notify.proactive',
+  NOTIFY_PROACTIVE_FEEDBACK: 'notify.proactive.feedback',
 
   // Federation
   FEDERATION_HANDSHAKE: 'federation.handshake',

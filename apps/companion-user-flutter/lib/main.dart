@@ -24,12 +24,24 @@ class _FatalBootstrapApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: Center(
-          child: Padding(
+        backgroundColor: const Color(0xFF1A0000),
+        body: SafeArea(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
-            child: Text(
-              message,
-              textAlign: TextAlign.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('⚠ Startup Error',
+                    style: TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold)),
+                const SizedBox(height: 16),
+                Text(
+                  message,
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+              ],
             ),
           ),
         ),
@@ -40,13 +52,23 @@ class _FatalBootstrapApp extends StatelessWidget {
 
 /// Top-level FCM background message handler.
 /// Must be a top-level function (not a method) annotated with vm:entry-point.
+///
+/// Supports two modes:
+/// 1. **Privacy-first**: data-only message with `type: "sven_push"` —
+///    fetches the actual content from the Sven server (Google never sees it).
+/// 2. **Legacy**: notification payload with `chat_id` — syncs local cache.
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Firebase must be initialized before any Firebase calls.
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Keep local chat cache hot even when the app is terminated/backgrounded.
-  // Triggered from push payloads carrying chat_id.
+  // Privacy-first: data-only wake-up — fetch and display from our server.
+  if (message.data['type'] == 'sven_push') {
+    await PushNotificationManager.instance.handleBackgroundPrivacyPush();
+    return;
+  }
+
+  // Legacy: keep local chat cache hot even when the app is terminated/backgrounded.
   final chatId = message.data['chat_id'] as String?;
   await BackgroundChatSyncService.sync(chatId: chatId);
 }
@@ -65,59 +87,126 @@ Future<void> _initializeFirebaseAndPush() async {
   }
 }
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  PerformanceTracker.startFrameMonitoring();
+void main() {
+  // Wrap the entire startup in runZonedGuarded to catch absolutely any
+  // unhandled error — including async gaps the framework try/catch misses.
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialise native desktop window before any UI is rendered.
-  // No-op on Android, iOS, and web ([isDesktop] == false).
-  if (isDesktop) await DesktopWindowManager.instance.initialize();
+      // In release mode, show a red diagnostic error screen instead of the
+      // default grey SizedBox so crashes are visible and diagnosable.
+      ErrorWidget.builder = (FlutterErrorDetails details) {
+        return MaterialApp(
+          home: Scaffold(
+            backgroundColor: const Color(0xFF1A0000),
+            body: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('⚠ Widget Error',
+                        style: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 12),
+                    Text(
+                      details.exceptionAsString(),
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 13),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      (details.stack ?? StackTrace.empty).toString(),
+                      style:
+                          const TextStyle(color: Colors.white38, fontSize: 10),
+                      maxLines: 40,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      };
 
-  // Set up service locator (get_it) — DioHttpClient, AuthService, etc.
-  // This is fail-closed for encryption readiness invariants.
-  try {
-    await setupServiceLocator();
-  } catch (error, stackTrace) {
-    FlutterError.reportError(
-      FlutterErrorDetails(
-        exception: error,
-        stack: stackTrace,
-        library: 'app-bootstrap',
-        context: ErrorDescription('while initializing secure startup dependencies'),
-      ),
-    );
-    runApp(
-      const _FatalBootstrapApp(
-        message:
-            'Critical startup failure: local encryption is unavailable. '
-            'For safety, startup is blocked.',
-      ),
-    );
-    return;
-  }
+      FlutterError.onError = (FlutterErrorDetails details) {
+        FlutterError.presentError(details);
+      };
 
-  final app = ProviderScope(
-    child: SentryWidget(child: const SvenUserApp()),
+      PerformanceTracker.startFrameMonitoring();
+
+      // Initialise native desktop window before any UI is rendered.
+      // No-op on Android, iOS, and web ([isDesktop] == false).
+      if (isDesktop) await DesktopWindowManager.instance.initialize();
+
+      // Set up service locator (get_it) — DioHttpClient, AuthService, etc.
+      try {
+        await setupServiceLocator();
+      } catch (error, stackTrace) {
+        FlutterError.reportError(
+          FlutterErrorDetails(
+            exception: error,
+            stack: stackTrace,
+            library: 'app-bootstrap',
+            context: ErrorDescription(
+                'while initializing secure startup dependencies'),
+          ),
+        );
+        runApp(
+          _FatalBootstrapApp(
+            message: 'Startup failed:\n\n$error\n\n'
+                'Stack trace (top):\n${stackTrace.toString().split('\n').take(15).join('\n')}',
+          ),
+        );
+        return;
+      }
+
+      final app = ProviderScope(
+        child: SentryWidget(child: const SvenUserApp()),
+      );
+
+      // When Sentry DSN is empty, skip blocking Sentry init and render
+      // immediately.
+      final dsn = EnvConfig.sentryDsn.trim();
+      if (dsn.isEmpty) {
+        runApp(app);
+      } else {
+        await SentryFlutter.init(
+          (options) {
+            options.dsn = dsn;
+            options.tracesSampleRate = 0.2;
+            // ignore: experimental_member_use
+            options.profilesSampleRate = 0.1;
+            options.attachScreenshot = true;
+            options.environment = EnvConfig.sentryEnv;
+          },
+          appRunner: () => runApp(app),
+        );
+      }
+
+      // Defer non-critical startup work to avoid blocking first frame.
+      unawaited(_initializeFirebaseAndPush());
+    },
+    // This catches ANY unhandled error anywhere in the async zone —
+    // including errors thrown during startup that escape try/catch.
+    (error, stackTrace) {
+      // If we get here, something crashed before or outside the widget tree.
+      // Attempt to show a diagnostic screen. If runApp was never called,
+      // the binding still exists from ensureInitialized, so this works.
+      try {
+        runApp(
+          _FatalBootstrapApp(
+            message: 'Uncaught zone error:\n\n$error\n\n'
+                'Stack trace:\n${stackTrace.toString().split('\n').take(20).join('\n')}',
+          ),
+        );
+      } catch (_) {
+        // Last resort: nothing we can do.
+      }
+    },
   );
-
-  // When Sentry DSN is empty, skip blocking Sentry init and render immediately.
-  final dsn = EnvConfig.sentryDsn.trim();
-  if (dsn.isEmpty) {
-    runApp(app);
-  } else {
-    await SentryFlutter.init(
-      (options) {
-        options.dsn = dsn;
-        options.tracesSampleRate = 0.2; // 20% of transactions
-        // ignore: experimental_member_use
-        options.profilesSampleRate = 0.1;
-        options.attachScreenshot = true;
-        options.environment = EnvConfig.sentryEnv;
-      },
-      appRunner: () => runApp(app),
-    );
-  }
-
-  // Defer non-critical startup work to avoid blocking first frame.
-  unawaited(_initializeFirebaseAndPush());
 }

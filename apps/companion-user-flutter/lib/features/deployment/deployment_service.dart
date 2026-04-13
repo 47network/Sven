@@ -15,6 +15,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/api_base_service.dart';
+import '../../app/dio_http_client.dart';
 
 /// The two operational modes of a Sven deployment.
 enum DeploymentMode {
@@ -69,7 +70,7 @@ class DeploymentConfig {
 /// Caches the last-known config in SharedPreferences so the app can
 /// render the correct flow even when offline.
 class DeploymentService {
-  DeploymentService({http.Client? client}) : _client = client ?? http.Client();
+  DeploymentService({http.Client? client}) : _client = client ?? DioHttpClient();
 
   static String get _apiBase => ApiBaseService.currentSync();
 
@@ -147,7 +148,9 @@ class DeploymentService {
         final data = body['data'] as Map<String, dynamic>?;
         if (data != null) return DeploymentConfig.fromJson(data);
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[DeploymentService] cache read failed: $e');
+    }
     return DeploymentConfig.fallback;
   }
 }

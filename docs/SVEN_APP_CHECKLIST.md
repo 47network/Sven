@@ -231,7 +231,7 @@
 ### 4.3 Connectivity
 
 - [x] Smart reconnection with network quality detection   ← *Sprint 27: _updateConnectivity() schedules _reconnectTimer with delay based on network type (WiFi/Ethernet=1s, Mobile=3s, Other=5s) via _sseReconnectDelay(); cancels existing timer on new event; drains offline queue on reconnect; _reconnectTimer?.cancel() in dispose()*
-- [~] Retry with exponential backoff on all API calls
+- [x] Retry with exponential backoff on all API calls   ← *Sprint 72: DioHttpClient._RetryInterceptor (3 attempts, 1s/2s/4s exponential backoff) on connectionError/receiveTimeout/sendTimeout + HTTP 502/503/504; all 27+ services use AuthenticatedClient wrapping DioHttpClient; ChatService has additional explicit retry (6 methods via retry package); ChatSseService has manual reconnect doubling 1s→30s; DeploymentService migrated from raw http.Client to DioHttpClient*
 - [x] Request deduplication (prevent double-sends)   ← *Sprint 11: 2-second window guard in _handleSend, blocks identical consecutive messages*
 - [x] Bandwidth-aware behavior (reduce image quality on slow connections)   ← *Sprint 28: _MarkdownImage converted from StatelessWidget to StatefulWidget; initState() calls Connectivity().checkConnectivity(); on mobile data (only) shows tap-to-load placeholder (Container h=80 with "Tap to load image / Saving mobile data" label); tapping sets _shouldLoad=true and renders full Image.network*
 
@@ -283,10 +283,10 @@
 
 ### 5.5 Notifications
 
-- [~] Rich push notifications with message preview
+- [x] Rich push notifications with message preview   ← *Sprint 72: BigTextStyleInformation for expandable message preview, AndroidNotificationCategory.message for message-type styling, sender name in contentTitle, channel name in summaryText*
 - [x] Notification channels (Android) — separate for messages, approvals, reminders   ← *Sprint 7: SvenNotificationChannels + flutter_local_notifications + POST_NOTIFICATIONS*
 - [x] Notification grouping (bundle multiple messages from same thread)   ← *Sprint 18: groupKey per channel, InboxStyleInformation summary notification, _recentXxxLines tracking (max 6), setAsGroupSummary*
-- [~] Reply from notification (inline reply)
+- [x] Reply from notification (inline reply)   ← *Sprint 72: AndroidNotificationAction with AndroidNotificationActionInput for inline text reply on message notifications; _onNotificationResponse unified handler dispatches taps vs inline replies; _handleInlineReply sends via ChatService (foreground callback or direct service locator fallback for background)*
 - [x] Do Not Disturb scheduling
 - [x] Notification sound customization   ← *Sprint 23: notifSound pref in AppState ('default'/'subtle'/'silent'), PushNotificationManager reads appState.notifSound via _effectiveSoundProfile, Settings dropdown in More section*
 
@@ -320,7 +320,7 @@
 ### 7.1 Testing
 
 - [x] Unit tests for all services (auth, chat, approvals, notifications, preferences)
-- [~] Widget tests for all screens (login, chat home, thread, composer, approvals)
+- [x] Widget tests for all screens (login, chat home, thread, composer, approvals)   ← *Sprint 72: test/widget_screens_test.dart — 19 tests across 5 screens: LoginPage (5: renders fields+button, initialMessage, validation, onSubmit callback, SSO hidden), ChatHomePage (2: classic+cinematic mode), ChatThreadPage (3: thread+composer, header, incognito indicator), ChatComposer (6: input+send, onSend callback, isSending disabled, retry button, disabled state, editPrefillText), ApprovalsPage (3: empty state, pending items, tab switching)*
 - [x] Integration tests for critical flows (login → chat → send → receive)   ← *Sprint 31: test/integration_smoke_test.dart — mock HTTP client (package:http/testing); 13 tests across 5 groups: login success (token/userId/username/refresh-token stored), login failures (401/403/malformed/missing-token), login→MemoryService wired, token refresh (auth.refresh() writes new access token), auto-login persistence (saveAutoLogin/readAutoLogin/clearAutoLogin)*
 - [x] Golden tests for visual regression on both themes   ← *Sprint 37: test/golden_test.dart — see 0.3 entry above*
 - [x] Performance benchmarks (startup time, scroll FPS, memory usage)   ← *Sprint 31: test/performance_benchmark_test.dart — 5 benchmark groups: MemoryService cold+warm load <200ms, buildSystemPrompt 100 facts <5ms + 1000× <500ms, ChatMessage list 500 obj <50ms + 5000 obj <200ms, detectLanguage 500× <100ms, FeatureFlagService 100k lookups <50ms; fixed field names (text/timestamp/role:String) and flag() API*

@@ -1625,3 +1625,114 @@ export function useNasSearch(path: string, pattern?: string) {
 export function useNasList(path: string, enabled = true) {
   return useQuery({ queryKey: ['nas', 'list', path], queryFn: () => api.nas.list(path), enabled: !!path && enabled });
 }
+
+// ── AI Pipelines (Gemma 4) ──
+export function useImageStats() {
+  return useQuery({ queryKey: ['ai', 'image', 'stats'], queryFn: api.aiPipelines.imageStats });
+}
+export function useImagePolicy() {
+  return useQuery({ queryKey: ['ai', 'image', 'policy'], queryFn: api.aiPipelines.imagePolicy });
+}
+export function useImageJobs() {
+  return useQuery({ queryKey: ['ai', 'image', 'jobs'], queryFn: api.aiPipelines.imageJobs });
+}
+export function useScribeStats() {
+  return useQuery({ queryKey: ['ai', 'scribe', 'stats'], queryFn: api.aiPipelines.scribeStats });
+}
+export function useScribeConfig() {
+  return useQuery({ queryKey: ['ai', 'scribe', 'config'], queryFn: api.aiPipelines.scribeConfig });
+}
+export function useScribeSessions() {
+  return useQuery({ queryKey: ['ai', 'scribe', 'sessions'], queryFn: api.aiPipelines.scribeSessions });
+}
+export function useActionStats() {
+  return useQuery({ queryKey: ['ai', 'actions', 'stats'], queryFn: api.aiPipelines.actionStats });
+}
+export function useActionBuiltins() {
+  return useQuery({ queryKey: ['ai', 'actions', 'builtins'], queryFn: api.aiPipelines.actionBuiltins });
+}
+export function useActionExecutions() {
+  return useQuery({ queryKey: ['ai', 'actions', 'executions'], queryFn: api.aiPipelines.actionExecutions });
+}
+export function useRoutingPolicy() {
+  return useQuery({ queryKey: ['ai', 'routing', 'policy'], queryFn: api.aiPipelines.routingPolicy });
+}
+export function useRoutingStats() {
+  return useQuery({ queryKey: ['ai', 'routing', 'stats'], queryFn: api.aiPipelines.routingStats });
+}
+export function usePrivacyPolicy() {
+  return useQuery({ queryKey: ['ai', 'privacy', 'policy'], queryFn: api.aiPipelines.privacyPolicy });
+}
+export function usePrivacyVerify() {
+  return useQuery({ queryKey: ['ai', 'privacy', 'verify'], queryFn: api.aiPipelines.privacyVerify });
+}
+export function usePrivacyAuditStats() {
+  return useQuery({ queryKey: ['ai', 'privacy', 'audit'], queryFn: api.aiPipelines.privacyAuditStats });
+}
+export function useModulesList() {
+  return useQuery({ queryKey: ['ai', 'modules', 'list'], queryFn: api.aiPipelines.modulesList });
+}
+export function useModulesStats() {
+  return useQuery({ queryKey: ['ai', 'modules', 'stats'], queryFn: api.aiPipelines.modulesStats });
+}
+export function useUpdateRoutingPolicy() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: api.aiPipelines.updateRoutingPolicy, onSuccess: () => qc.invalidateQueries({ queryKey: ['ai', 'routing'] }) });
+}
+export function useUpdatePrivacyPolicy() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: api.aiPipelines.updatePrivacyPolicy, onSuccess: () => qc.invalidateQueries({ queryKey: ['ai', 'privacy'] }) });
+}
+
+// ── Brain Admin (Batch 2) ──
+export function useBrainGraph(userId?: string) { return useQuery({ queryKey: ['brain', 'graph', userId], queryFn: () => api.brain.graph(userId) }); }
+export function useQuantumFadeConfig() { return useQuery({ queryKey: ['brain', 'qf-config'], queryFn: api.brain.quantumFadeConfig }); }
+export function useUpdateQuantumFadeConfig() { const qc = useQueryClient(); return useMutation({ mutationFn: api.brain.updateQuantumFadeConfig, onSuccess: () => qc.invalidateQueries({ queryKey: ['brain', 'qf-config'] }) }); }
+export function useEmotionalHistory() { return useQuery({ queryKey: ['brain', 'emotional-history'], queryFn: () => api.brain.emotionalHistory() }); }
+export function useEmotionalSummary(days = 30) { return useQuery({ queryKey: ['brain', 'emotional-summary', days], queryFn: () => api.brain.emotionalSummary(days) }); }
+export function useReasoning() { return useQuery({ queryKey: ['brain', 'reasoning'], queryFn: () => api.brain.reasoning() }); }
+export function useReasoningUnderstanding() { return useQuery({ queryKey: ['brain', 'reasoning-understanding'], queryFn: api.brain.reasoningUnderstanding }); }
+export function useMemoryConsent() { return useQuery({ queryKey: ['brain', 'memory-consent'], queryFn: api.brain.memoryConsent }); }
+export function useUpdateMemoryConsent() { const qc = useQueryClient(); return useMutation({ mutationFn: api.brain.updateMemoryConsent, onSuccess: () => qc.invalidateQueries({ queryKey: ['brain', 'memory-consent'] }) }); }
+export function useMemoryForget() { const qc = useQueryClient(); return useMutation({ mutationFn: api.brain.memoryForget, onSuccess: () => qc.invalidateQueries({ queryKey: ['brain'] }) }); }
+
+// ── Community Agents (Batch 3 + 4) ──
+export function useAgentPersonas() { return useQuery({ queryKey: ['agents', 'personas'], queryFn: () => api.communityAgents.personas() }); }
+export function useCreatePersona() { const qc = useQueryClient(); return useMutation({ mutationFn: api.communityAgents.createPersona, onSuccess: () => qc.invalidateQueries({ queryKey: ['agents', 'personas'] }) }); }
+export function useModerationPending() { return useQuery({ queryKey: ['agents', 'moderation'], queryFn: () => api.communityAgents.moderationPending() }); }
+export function useReviewModeration() { const qc = useQueryClient(); return useMutation({ mutationFn: ({ decisionId, body }: { decisionId: string; body: Record<string, unknown> }) => api.communityAgents.reviewModeration(decisionId, body), onSuccess: () => qc.invalidateQueries({ queryKey: ['agents', 'moderation'] }) }); }
+export function useAgentChangelog() { return useQuery({ queryKey: ['agents', 'changelog'], queryFn: () => api.communityAgents.changelog() }); }
+export function usePublishChangelog() { const qc = useQueryClient(); return useMutation({ mutationFn: (entryId: string) => api.communityAgents.publishChangelog(entryId), onSuccess: () => qc.invalidateQueries({ queryKey: ['agents', 'changelog'] }) }); }
+export function useConfidenceCalibration(days = 30) { return useQuery({ queryKey: ['agents', 'confidence', days], queryFn: () => api.communityAgents.confidenceCalibration(days) }); }
+export function useConfidenceLow() { return useQuery({ queryKey: ['agents', 'confidence-low'], queryFn: api.communityAgents.confidenceLow }); }
+export function useFeedbackTaskSummary(days = 30) { return useQuery({ queryKey: ['agents', 'feedback-summary', days], queryFn: () => api.communityAgents.feedbackTaskSummary(days) }); }
+export function useCorrections() { return useQuery({ queryKey: ['agents', 'corrections'], queryFn: () => api.communityAgents.corrections() }); }
+export function useVerifyCorrection() { const qc = useQueryClient(); return useMutation({ mutationFn: (id: string) => api.communityAgents.verifyCorrection(id), onSuccess: () => qc.invalidateQueries({ queryKey: ['agents', 'corrections'] }) }); }
+export function usePromoteCorrection() { const qc = useQueryClient(); return useMutation({ mutationFn: (id: string) => api.communityAgents.promoteCorrection(id), onSuccess: () => qc.invalidateQueries({ queryKey: ['agents', 'corrections'] }) }); }
+export function useAgentPatterns() { return useQuery({ queryKey: ['agents', 'patterns'], queryFn: () => api.communityAgents.patterns() }); }
+export function useSelfImprovementSnapshots(days = 30) { return useQuery({ queryKey: ['agents', 'self-improvement', days], queryFn: () => api.communityAgents.selfImprovementSnapshots(days) }); }
+
+// ── Federation (Batch 5) ──
+export function useFederationIdentity() { return useQuery({ queryKey: ['federation', 'identity'], queryFn: api.federation.identity }); }
+export function useGenerateIdentity() { const qc = useQueryClient(); return useMutation({ mutationFn: api.federation.generateIdentity, onSuccess: () => qc.invalidateQueries({ queryKey: ['federation', 'identity'] }) }); }
+export function useRotateIdentity() { const qc = useQueryClient(); return useMutation({ mutationFn: api.federation.rotateIdentity, onSuccess: () => qc.invalidateQueries({ queryKey: ['federation', 'identity'] }) }); }
+export function useIdentityHistory() { return useQuery({ queryKey: ['federation', 'identity-history'], queryFn: api.federation.identityHistory }); }
+export function useFederationPeers() { return useQuery({ queryKey: ['federation', 'peers'], queryFn: () => api.federation.peers() }); }
+export function useRegisterPeer() { const qc = useQueryClient(); return useMutation({ mutationFn: api.federation.registerPeer, onSuccess: () => qc.invalidateQueries({ queryKey: ['federation', 'peers'] }) }); }
+export function useHandshakePeer() { const qc = useQueryClient(); return useMutation({ mutationFn: (peerId: string) => api.federation.handshake(peerId), onSuccess: () => qc.invalidateQueries({ queryKey: ['federation', 'peers'] }) }); }
+export function usePrunePeers() { const qc = useQueryClient(); return useMutation({ mutationFn: api.federation.prunePeers, onSuccess: () => qc.invalidateQueries({ queryKey: ['federation', 'peers'] }) }); }
+export function useHomeserverConnections() { return useQuery({ queryKey: ['federation', 'homeserver'], queryFn: () => api.federation.homeserverConnections() }); }
+export function useHomeserverStats() { return useQuery({ queryKey: ['federation', 'homeserver-stats'], queryFn: api.federation.homeserverStats }); }
+export function useHomeserverConfig() { return useQuery({ queryKey: ['federation', 'homeserver-config'], queryFn: api.federation.homeserverConfig }); }
+export function useFederatedTopics() { return useQuery({ queryKey: ['federation', 'topics'], queryFn: () => api.federation.communityTopics() }); }
+export function useCommunitySummaryFed() { return useQuery({ queryKey: ['federation', 'community-summary'], queryFn: api.federation.communitySummary }); }
+export function useDelegations() { return useQuery({ queryKey: ['federation', 'delegations'], queryFn: () => api.federation.delegations() }); }
+export function useDelegationSummary() { return useQuery({ queryKey: ['federation', 'delegation-summary'], queryFn: api.federation.delegationSummary }); }
+export function useFederationConsent() { return useQuery({ queryKey: ['federation', 'consent'], queryFn: api.federation.consent }); }
+export function useUpdateFederationConsent() { const qc = useQueryClient(); return useMutation({ mutationFn: api.federation.updateConsent, onSuccess: () => qc.invalidateQueries({ queryKey: ['federation', 'consent'] }) }); }
+export function useConsentStats() { return useQuery({ queryKey: ['federation', 'consent-stats'], queryFn: api.federation.consentStats }); }
+export function useSovereignty() { return useQuery({ queryKey: ['federation', 'sovereignty'], queryFn: api.federation.sovereignty }); }
+export function useUpdateSovereignty() { const qc = useQueryClient(); return useMutation({ mutationFn: api.federation.updateSovereignty, onSuccess: () => qc.invalidateQueries({ queryKey: ['federation', 'sovereignty'] }) }); }
+export function useExportPolicy() { return useQuery({ queryKey: ['federation', 'export-policy'], queryFn: api.federation.exportPolicy }); }
+export function useMeshHealth() { return useQuery({ queryKey: ['federation', 'mesh-health'], queryFn: api.federation.meshHealth }); }
+export function useHealthCheck() { const qc = useQueryClient(); return useMutation({ mutationFn: (peerId: string) => api.federation.healthCheck(peerId), onSuccess: () => qc.invalidateQueries({ queryKey: ['federation', 'mesh-health'] }) }); }

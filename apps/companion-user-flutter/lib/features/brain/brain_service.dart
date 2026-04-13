@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../../app/api_base_service.dart';
 import '../../app/authenticated_client.dart';
 import 'brain_models.dart';
 
@@ -64,7 +65,8 @@ class BrainService extends ChangeNotifier {
     _notify();
 
     try {
-      final response = await _client.get(Uri.parse('/v1/admin/brain/graph'));
+      final base = ApiBaseService.currentSync();
+      final response = await _client.get(Uri.parse('$base/v1/admin/brain/graph'));
       if (response.statusCode != 200) {
         _error = 'Failed to load brain graph (${response.statusCode})';
         _loading = false;
@@ -132,12 +134,14 @@ class BrainService extends ChangeNotifier {
     final edges = _graph!.edges;
     final rng = Random(42);
 
-    // Initialise random positions.
+    // Initialise random 3D positions.
     for (final n in nodes) {
       n.x = (rng.nextDouble() - 0.5) * 400;
       n.y = (rng.nextDouble() - 0.5) * 400;
+      n.z = (rng.nextDouble() - 0.5) * 400;
       n.vx = 0;
       n.vy = 0;
+      n.vz = 0;
     }
 
     // Build lookup for O(1) node access.
@@ -150,54 +154,66 @@ class BrainService extends ChangeNotifier {
     const centerPull = 0.003;
 
     for (var iter = 0; iter < iterations; iter++) {
-      // Repulsion: every node pushes every other away.
+      // Repulsion: every node pushes every other away (3D).
       for (var i = 0; i < nodes.length; i++) {
         for (var j = i + 1; j < nodes.length; j++) {
           final a = nodes[i];
           final b = nodes[j];
           var dx = b.x - a.x;
           var dy = b.y - a.y;
-          var dist = sqrt(dx * dx + dy * dy);
+          var dz = b.z - a.z;
+          var dist = sqrt(dx * dx + dy * dy + dz * dz);
           if (dist < 1) dist = 1;
           final force = repulsion / (dist * dist);
           final fx = (dx / dist) * force;
           final fy = (dy / dist) * force;
+          final fz = (dz / dist) * force;
           a.vx -= fx;
           a.vy -= fy;
+          a.vz -= fz;
           b.vx += fx;
           b.vy += fy;
+          b.vz += fz;
         }
       }
 
-      // Attraction along edges.
+      // Attraction along edges (3D).
       for (final edge in edges) {
         final a = nodeMap[edge.source];
         final b = nodeMap[edge.target];
         if (a == null || b == null) continue;
         final dx = b.x - a.x;
         final dy = b.y - a.y;
-        final dist = sqrt(dx * dx + dy * dy);
+        final dz = b.z - a.z;
+        final dist = sqrt(dx * dx + dy * dy + dz * dz);
         final force = dist * attraction * edge.weight;
-        final fx = (dx / (dist < 1 ? 1 : dist)) * force;
-        final fy = (dy / (dist < 1 ? 1 : dist)) * force;
+        final id = dist < 1 ? 1.0 : dist;
+        final fx = (dx / id) * force;
+        final fy = (dy / id) * force;
+        final fz = (dz / id) * force;
         a.vx += fx;
         a.vy += fy;
+        a.vz += fz;
         b.vx -= fx;
         b.vy -= fy;
+        b.vz -= fz;
       }
 
-      // Center gravity.
+      // Center gravity (3D).
       for (final n in nodes) {
         n.vx -= n.x * centerPull;
         n.vy -= n.y * centerPull;
+        n.vz -= n.z * centerPull;
       }
 
       // Apply velocity with damping.
       for (final n in nodes) {
         n.vx *= damping;
         n.vy *= damping;
+        n.vz *= damping;
         n.x += n.vx;
         n.y += n.vy;
+        n.z += n.vz;
       }
     }
   }

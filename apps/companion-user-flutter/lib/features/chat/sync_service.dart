@@ -25,17 +25,14 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/widgets.dart';
 
+import '../../app/api_base_service.dart';
 import '../../app/authenticated_client.dart';
 import '../../app/database.dart' show DbOutboxMessage;
-import '../../config/env_config.dart';
 import 'chat_service.dart';
 import 'messages_repository.dart';
 
 /// Maximum number of delivery attempts before a message is abandoned.
 const _kMaxAttempts = 5;
-
-/// API base for outbox delivery (same dart-define as [ChatService]).
-final _kApiBase = EnvConfig.apiBase;
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -226,10 +223,13 @@ class SyncService extends ChangeNotifier with WidgetsBindingObserver {
         // Best-effort per thread; one failed fetch should not block others.
         try {
           await chatService.listMessages(thread.id, limit: 30);
-        } catch (_) {}
+        } catch (e) {
+          debugPrint('[SyncService] refreshInboxCache thread ${thread.id} failed: $e');
+        }
       }
-    } catch (_) {
+    } catch (e) {
       // Non-fatal. Outbox drain and foreground UX should continue unaffected.
+      debugPrint('[SyncService] refreshInboxCache failed: $e');
     }
   }
 
@@ -237,8 +237,9 @@ class SyncService extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<bool> _trySend(DbOutboxMessage item) async {
     try {
+      final base = ApiBaseService.currentSync();
       final uri = Uri.parse(
-          '$_kApiBase/v1/chats/${Uri.encodeComponent(item.chatId)}/messages');
+          '$base/v1/chats/${Uri.encodeComponent(item.chatId)}/messages');
       final response = await _client!.postJson(uri, {'text': item.body});
       return response.statusCode == 200 || response.statusCode == 201;
     } catch (_) {

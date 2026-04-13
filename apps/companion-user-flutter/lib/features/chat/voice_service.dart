@@ -406,7 +406,9 @@ class VoiceService extends ChangeNotifier {
     _onBargeDetected = null;
     try {
       await _stt.stop();
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[VoiceService] stopBargeInMonitor stt.stop failed: $e');
+    }
   }
 
   Future<void> startWakeWordMonitor({
@@ -453,7 +455,9 @@ class VoiceService extends ChangeNotifier {
     _wakeWordRestartTimer = null;
     try {
       await _stt.stop();
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[VoiceService] stopWakeWordMonitor stt.stop failed: $e');
+    }
     notifyListeners();
   }
 

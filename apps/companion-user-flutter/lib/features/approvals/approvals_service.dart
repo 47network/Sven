@@ -1,8 +1,8 @@
 import 'dart:convert';
 
+import '../../app/api_base_service.dart';
 import '../../app/authenticated_client.dart';
 import '../../app/telemetry.dart';
-import '../../config/env_config.dart';
 import '../auth/auth_errors.dart';
 import 'approvals_models.dart';
 
@@ -10,7 +10,7 @@ class ApprovalsService {
   ApprovalsService({AuthenticatedClient? client})
       : _client = client ?? AuthenticatedClient();
 
-  static final _apiBase = EnvConfig.apiBase;
+  static String get _apiBase => ApiBaseService.currentSync();
 
   final AuthenticatedClient _client;
 

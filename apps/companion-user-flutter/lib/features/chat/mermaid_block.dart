@@ -371,7 +371,7 @@ class _MermaidBlockState extends State<MermaidBlock> {
       primaryColor: '$primaryColor',
       fontSize: '14px',
     },
-    securityLevel: 'loose',
+    securityLevel: 'strict',
   });
 
   (async () => {

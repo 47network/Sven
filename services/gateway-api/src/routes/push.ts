@@ -15,7 +15,7 @@ export async function registerPushRoutes(app: FastifyInstance, pool: pg.Pool) {
         additionalProperties: false,
         properties: {
           token: { type: 'string', minLength: 1 },
-          platform: { type: 'string', enum: ['android', 'ios', 'web'] },
+          platform: { type: 'string', enum: ['android', 'ios', 'web', 'unified_push'] },
           device_id: { type: 'string' },
         },
       },
@@ -82,5 +82,61 @@ export async function registerPushRoutes(app: FastifyInstance, pool: pg.Pool) {
       });
     }
     reply.send({ publicKey });
+  });
+
+  // ── Privacy-first push: fetch pending notifications ──────────────────
+  // Clients receive only a content-free wake-up via FCM/APNs/UnifiedPush.
+  // They call this endpoint to fetch the actual notification payload
+  // directly from the Sven server — Google and Apple never see the content.
+
+  app.get('/v1/push/pending', {
+    preHandler: requireAuth,
+  }, async (request: any, reply) => {
+    const res = await pool.query(
+      `SELECT id, title, body, channel, data, priority, created_at
+       FROM push_pending
+       WHERE user_id = $1 AND NOT fetched AND expires_at > NOW()
+       ORDER BY created_at ASC
+       LIMIT 50`,
+      [request.userId],
+    );
+
+    reply.send({
+      success: true,
+      notifications: res.rows.map((row: any) => ({
+        id: row.id,
+        title: row.title,
+        body: row.body,
+        channel: row.channel,
+        data: row.data,
+        priority: row.priority,
+        created_at: row.created_at,
+      })),
+    });
+  });
+
+  app.post('/v1/push/ack', {
+    preHandler: requireAuth,
+    schema: {
+      body: {
+        type: 'object',
+        required: ['ids'],
+        additionalProperties: false,
+        properties: {
+          ids: { type: 'array', items: { type: 'string' }, maxItems: 100 },
+        },
+      },
+    },
+  }, async (request: any, reply) => {
+    const body = (request.body || {}) as { ids?: string[] };
+    const ids = Array.isArray(body.ids) ? body.ids.filter((id) => typeof id === 'string' && id.trim()) : [];
+    if (ids.length === 0) {
+      return reply.send({ success: true, acknowledged: 0 });
+    }
+    const res = await pool.query(
+      `UPDATE push_pending SET fetched = TRUE WHERE user_id = $1 AND id = ANY($2::text[])`,
+      [request.userId, ids],
+    );
+    reply.send({ success: true, acknowledged: res.rowCount ?? 0 });
   });
 }

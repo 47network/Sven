@@ -30,10 +30,12 @@ class BrainNode {
   /// Mutable position set by the force-directed layout.
   double x = 0;
   double y = 0;
+  double z = 0;
 
   /// Velocity for physics simulation.
   double vx = 0;
   double vy = 0;
+  double vz = 0;
 
   Map<String, dynamic> toJson() => {
         'id': id,

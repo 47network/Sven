@@ -61,80 +61,84 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable corepack
+        run: corepack enable
+
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install deps
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Generate master checklist metrics snapshot
-        run: npm run release:master:metrics:snapshot
+        run: pnpm run release:master:metrics:snapshot
 
       - name: Generate app checklist metrics snapshot
-        run: npm run release:app:metrics:snapshot
+        run: pnpm run release:app:metrics:snapshot
 
       - name: Generate mobile binary artifacts snapshot
-        run: npm run release:mobile:binary:artifacts:snapshot
+        run: pnpm run release:mobile:binary:artifacts:snapshot
 
       - name: Generate OpenAPI metrics snapshot
-        run: npm run release:api:openapi:metrics:snapshot
+        run: pnpm run release:api:openapi:metrics:snapshot
 
       - name: Run master checklist governance check
-        run: npm run release:master:governance:check
+        run: pnpm run release:master:governance:check
 
       - name: Generate master parity summary snapshot
-        run: npm run release:master:parity:snapshot
+        run: pnpm run release:master:parity:snapshot
 
       - name: Run app checklist format check
-        run: npm run release:app:checklist:format:check
+        run: pnpm run release:app:checklist:format:check
 
       - name: Run checklist metrics drift check
-        run: npm run release:checklist:metrics:drift:check
+        run: pnpm run release:checklist:metrics:drift:check
 
       - name: Run admin RBAC surface check
-        run: npm run release:admin:rbac:surface:check
+        run: pnpm run release:admin:rbac:surface:check
 
       - name: Run API contract version check
-        run: npm run release:api:contract:check
+        run: pnpm run release:api:contract:check
 
       - name: Run API OpenAPI contract check
-        run: npm run release:api:openapi:contract:check
+        run: pnpm run release:api:openapi:contract:check
 
       - name: Run API request-schema coverage check
-        run: npm run release:api:request-schema:coverage:check
+        run: pnpm run release:api:request-schema:coverage:check
 
       - name: Run traceability matrix check
-        run: npm run release:traceability:matrix:check
+        run: pnpm run release:traceability:matrix:check
 
       - name: Run release bundle hygiene check
-        run: npm run release:bundle:hygiene:check
+        run: pnpm run release:bundle:hygiene:check
 
       - name: Run local temp/cache governance check
-        run: npm run release:local-temp-cache:governance:check
+        run: pnpm run release:local-temp-cache:governance:check
 
       - name: Run competitor runtime truth check
-        run: npm run release:competitor:runtime:truth
+        run: pnpm run release:competitor:runtime:truth
 
       - name: Run competitor capability proof check
-        run: npm run release:competitor:capability:proof
+        run: pnpm run release:competitor:capability:proof
 
       - name: Run competitive scorecard status check
-        run: npm run release:competitive:scorecard:status
+        run: pnpm run release:competitive:scorecard:status
 
       - name: Run parity all-waves closeout check
-        run: npm run release:parity:all-waves:closeout
+        run: pnpm run release:parity:all-waves:closeout
 
       - name: Run parity checklist verify (local-only context)
         run: node scripts/release-parity-checklist-verify.cjs --strict --local-only
 
       - name: Run competitive reproduction completion check
-        run: npm run release:competitive:program:status:strict
+        run: pnpm run release:competitive:program:status:strict
 
       - name: Build release status snapshot
-        run: npm run release:status -- --strict
+        run: pnpm run release:status -- --strict
 
       - name: Upload release status artifact
         uses: actions/upload-artifact@v4

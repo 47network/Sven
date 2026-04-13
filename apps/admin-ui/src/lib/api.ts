@@ -2190,6 +2190,171 @@ export const agentAnalytics = {
   },
 };
 
+// ── AI Pipelines (Gemma 4 admin endpoints) ──
+
+const aiPipelines = {
+  imageStats: () => requestRowsSoft('/admin/pipeline/image/stats'),
+  imagePolicy: () => requestRowsSoft('/admin/pipeline/image/policy'),
+  imageJobs: () => requestRowsSoft('/admin/pipeline/image/jobs'),
+  scribeStats: () => requestRowsSoft('/admin/pipeline/scribe/stats'),
+  scribeConfig: () => requestRowsSoft('/admin/pipeline/scribe/config'),
+  scribeSessions: () => requestRowsSoft('/admin/pipeline/scribe/sessions'),
+  actionStats: () => requestRowsSoft('/admin/pipeline/actions/stats'),
+  actionBuiltins: () => requestRowsSoft('/admin/pipeline/actions/builtins'),
+  actionExecutions: () => requestRowsSoft('/admin/pipeline/actions/executions'),
+  routingPolicy: () => requestRowsSoft('/admin/gemma4/routing/policy'),
+  routingStats: () => requestRowsSoft('/admin/gemma4/routing/stats'),
+  privacyPolicy: () => requestRowsSoft('/admin/gemma4/privacy/policy'),
+  privacyVerify: () => requestRowsSoft('/admin/gemma4/privacy/verify'),
+  privacyBlockedDomains: () => requestRowsSoft('/admin/gemma4/privacy/blocked-domains'),
+  privacyAuditStats: () => requestRowsSoft('/admin/gemma4/privacy/audit-stats'),
+  modulesList: () => requestRowsSoft('/admin/gemma4/modules'),
+  modulesInstalled: () => requestRowsSoft('/admin/gemma4/modules/installed'),
+  modulesStats: () => requestRowsSoft('/admin/gemma4/modules/stats'),
+  updateRoutingPolicy: (body: Record<string, unknown>) =>
+    request<{ success: boolean }>('PUT', '/admin/gemma4/routing/policy', body),
+  updatePrivacyPolicy: (body: Record<string, unknown>) =>
+    request<{ success: boolean }>('PUT', '/admin/gemma4/privacy/policy', body),
+};
+
+// ── Brain Admin (Batch 2: Memory + EQ) ──
+
+const brain = {
+  graph: (userId?: string) => requestRowsSoft(`/admin/brain/graph${userId ? `?user_id=${userId}` : ''}`),
+  decayTrajectory: (body: Record<string, unknown>) =>
+    request<{ success: boolean; data: unknown }>('POST', '/admin/brain/decay-trajectory', body),
+  quantumFadeConfig: () => requestRowsSoft('/admin/memory/quantum-fade-config'),
+  updateQuantumFadeConfig: (body: Record<string, unknown>) =>
+    request<{ success: boolean }>('PUT', '/admin/memory/quantum-fade-config', body),
+  emotionalHistory: (params?: string) => requestRowsSoft(`/admin/emotional/history${params ? `?${params}` : ''}`),
+  emotionalSummary: (days = 30) => requestRowsSoft(`/admin/emotional/summary?days=${days}`),
+  reasoning: (params?: string) => requestRowsSoft(`/admin/reasoning${params ? `?${params}` : ''}`),
+  reasoningUnderstanding: () => requestRowsSoft('/admin/reasoning/understanding'),
+  memoryConsent: () => requestRowsSoft('/admin/memory/consent'),
+  updateMemoryConsent: (body: Record<string, unknown>) =>
+    request<{ success: boolean }>('PUT', '/admin/memory/consent', body),
+  memoryExport: () => requestRowsSoft('/admin/memory/export'),
+  memoryForget: () => request<{ success: boolean }>('POST', '/admin/memory/forget', {}),
+};
+
+// ── Community Agents (Batch 3 + 4: Agents, Calibration, Corrections) ──
+
+const communityAgents = {
+  personas: (params?: string) => requestRowsSoft(`/admin/community-agents/personas${params ? `?${params}` : ''}`),
+  createPersona: (body: Record<string, unknown>) =>
+    request<{ success: boolean }>('POST', '/admin/community-agents/personas', body),
+  updatePersona: (agentId: string, body: Record<string, unknown>) =>
+    request<{ success: boolean }>('PUT', `/admin/community-agents/personas/${agentId}`, body),
+  updatePersonaStatus: (agentId: string, body: Record<string, unknown>) =>
+    request<{ success: boolean }>('PATCH', `/admin/community-agents/personas/${agentId}/status`, body),
+  updatePersonaVisibility: (agentId: string, body: Record<string, unknown>) =>
+    request<{ success: boolean }>('PATCH', `/admin/community-agents/personas/${agentId}/visibility`, body),
+  agentInbox: (agentId: string) => requestRowsSoft(`/admin/community-agents/messages/${agentId}/inbox`),
+  messageThread: (threadId: string) => requestRowsSoft(`/admin/community-agents/messages/thread/${threadId}`),
+  rateLimits: (agentId: string) => requestRowsSoft(`/admin/community-agents/rate-limits/${agentId}`),
+  updateRateLimits: (agentId: string, body: Record<string, unknown>) =>
+    request<{ success: boolean }>('PATCH', `/admin/community-agents/rate-limits/${agentId}`, body),
+  moderationPending: (params?: string) => requestRowsSoft(`/admin/community-agents/moderation/pending${params ? `?${params}` : ''}`),
+  reviewModeration: (decisionId: string, body: Record<string, unknown>) =>
+    request<{ success: boolean }>('POST', `/admin/community-agents/moderation/${decisionId}/review`, body),
+  changelog: (params?: string) => requestRowsSoft(`/admin/community-agents/changelog${params ? `?${params}` : ''}`),
+  createChangelog: (body: Record<string, unknown>) =>
+    request<{ success: boolean }>('POST', '/admin/community-agents/changelog', body),
+  publishChangelog: (entryId: string) =>
+    request<{ success: boolean }>('PATCH', `/admin/community-agents/changelog/${entryId}/publish`, {}),
+  confidenceCalibration: (days = 30) => requestRowsSoft(`/admin/community-agents/confidence/calibration?days=${days}`),
+  confidenceLow: () => requestRowsSoft('/admin/community-agents/confidence/low'),
+  feedbackSignal: (body: Record<string, unknown>) =>
+    request<{ success: boolean }>('POST', '/admin/community-agents/feedback/signal', body),
+  feedbackTaskSummary: (days = 30) => requestRowsSoft(`/admin/community-agents/feedback/task-summary?days=${days}`),
+  corrections: (params?: string) => requestRowsSoft(`/admin/community-agents/corrections${params ? `?${params}` : ''}`),
+  submitCorrection: (body: Record<string, unknown>) =>
+    request<{ success: boolean }>('POST', '/admin/community-agents/corrections', body),
+  verifyCorrection: (correctionId: string) =>
+    request<{ success: boolean }>('POST', `/admin/community-agents/corrections/${correctionId}/verify`, {}),
+  promoteCorrection: (correctionId: string) =>
+    request<{ success: boolean }>('POST', `/admin/community-agents/corrections/${correctionId}/promote`, {}),
+  patterns: (params?: string) => requestRowsSoft(`/admin/community-agents/patterns${params ? `?${params}` : ''}`),
+  updatePatternStatus: (patternId: string, body: Record<string, unknown>) =>
+    request<{ success: boolean }>('PATCH', `/admin/community-agents/patterns/${patternId}/status`, body),
+  selfImprovementSnapshots: (days = 30) => requestRowsSoft(`/admin/community-agents/self-improvement/snapshots?days=${days}`),
+};
+
+// ── Federation (Batch 5: Identity, Peers, Homeserver, Community, Delegation, Consent, Sovereignty, Health) ──
+
+const federation = {
+  identity: () => requestRowsSoft('/admin/federation/identity'),
+  generateIdentity: () => request<{ success: boolean }>('POST', '/admin/federation/identity/generate', {}),
+  rotateIdentity: () => request<{ success: boolean }>('POST', '/admin/federation/identity/rotate', {}),
+  identityHistory: () => requestRowsSoft('/admin/federation/identity/history'),
+  signPayload: (body: Record<string, unknown>) =>
+    request<{ success: boolean; data: unknown }>('POST', '/admin/federation/identity/sign', body),
+  verifySignature: (body: Record<string, unknown>) =>
+    request<{ success: boolean; data: unknown }>('POST', '/admin/federation/identity/verify', body),
+  peers: (params?: string) => requestRowsSoft(`/admin/federation/peers${params ? `?${params}` : ''}`),
+  peer: (peerId: string) => requestRowsSoft(`/admin/federation/peers/${peerId}`),
+  registerPeer: (body: Record<string, unknown>) =>
+    request<{ success: boolean }>('POST', '/admin/federation/peers', body),
+  handshake: (peerId: string) =>
+    request<{ success: boolean }>('POST', `/admin/federation/peers/${peerId}/handshake`, {}),
+  completeHandshake: (peerId: string, body: Record<string, unknown>) =>
+    request<{ success: boolean }>('POST', `/admin/federation/peers/${peerId}/handshake/complete`, body),
+  updateTrust: (peerId: string, body: Record<string, unknown>) =>
+    request<{ success: boolean }>('PATCH', `/admin/federation/peers/${peerId}/trust`, body),
+  prunePeers: () => request<{ success: boolean }>('POST', '/admin/federation/peers/prune', {}),
+  homeserverConnect: (body: Record<string, unknown>) =>
+    request<{ success: boolean }>('POST', '/admin/federation/homeserver/connect', body),
+  homeserverHeartbeat: () =>
+    request<{ success: boolean }>('POST', '/admin/federation/homeserver/heartbeat', {}),
+  homeserverDisconnect: (connectionId: string) =>
+    request<{ success: boolean }>('POST', `/admin/federation/homeserver/${connectionId}/disconnect`, {}),
+  homeserverConnections: (params?: string) => requestRowsSoft(`/admin/federation/homeserver/connections${params ? `?${params}` : ''}`),
+  homeserverConfig: () => requestRowsSoft('/admin/federation/homeserver/config'),
+  homeserverStats: () => requestRowsSoft('/admin/federation/homeserver/stats'),
+  communityTopics: (params?: string) => requestRowsSoft(`/admin/federation/community/topics${params ? `?${params}` : ''}`),
+  createTopic: (body: Record<string, unknown>) =>
+    request<{ success: boolean }>('POST', '/admin/federation/community/topics', body),
+  deleteTopic: (topicId: string) =>
+    request<{ success: boolean }>('DELETE', `/admin/federation/community/topics/${topicId}`),
+  communitySummary: () => requestRowsSoft('/admin/federation/community/summary'),
+  delegations: (params?: string) => requestRowsSoft(`/admin/federation/delegations${params ? `?${params}` : ''}`),
+  createDelegation: (body: Record<string, unknown>) =>
+    request<{ success: boolean }>('POST', '/admin/federation/delegations', body),
+  updateDelegation: (delegationId: string, body: Record<string, unknown>) =>
+    request<{ success: boolean }>('PATCH', `/admin/federation/delegations/${delegationId}`, body),
+  expireDelegations: () => request<{ success: boolean }>('POST', '/admin/federation/delegations/expire', {}),
+  delegationSummary: () => requestRowsSoft('/admin/federation/delegations/summary'),
+  consent: () => requestRowsSoft('/admin/federation/consent'),
+  updateConsent: (body: Record<string, unknown>) =>
+    request<{ success: boolean }>('PUT', '/admin/federation/consent', body),
+  revokeConsent: () => request<{ success: boolean }>('POST', '/admin/federation/consent/revoke', {}),
+  consentStats: () => requestRowsSoft('/admin/federation/consent/stats'),
+  sovereignty: () => requestRowsSoft('/admin/federation/sovereignty'),
+  updateSovereignty: (body: Record<string, unknown>) =>
+    request<{ success: boolean }>('PATCH', '/admin/federation/sovereignty', body),
+  canFederate: (peerId: string) => requestRowsSoft(`/admin/federation/sovereignty/can-federate/${peerId}`),
+  exportPolicy: () => requestRowsSoft('/admin/federation/sovereignty/export-policy'),
+  healthCheck: (peerId: string) =>
+    request<{ success: boolean }>('POST', `/admin/federation/health/${peerId}/check`, {}),
+  peerHealth: (peerId: string) => requestRowsSoft(`/admin/federation/health/${peerId}`),
+  meshHealth: () => requestRowsSoft('/admin/federation/health'),
+  pruneHealth: () => request<{ success: boolean }>('POST', '/admin/federation/health/prune', {}),
+};
+
+// ── Analytics Overview ──
+export const analyticsOverview = {
+  getOverview: () => request<{ success: boolean; data: AnalyticsOverviewData }>('GET', '/admin/analytics/overview'),
+};
+
+export type AnalyticsOverviewData = {
+  users: { total: number; active_7d: number; active_30d: number };
+  chats: { total: number; created_7d: number; created_30d: number };
+  messages: { total: number; last_24h: number; last_7d: number };
+  agent_runs: { total_runs: number; succeeded: number; failed: number; runs_7d: number };
+  approvals: { total: number; pending: number; approved: number; rejected: number };
+  daily_activity: Array<{ day: string; messages: number; active_users: number }>;
+};
+
 export const api = {
   auth,
   users,
@@ -2242,4 +2407,9 @@ export const api = {
   integrations,
   agents,
   agentAnalytics,
+  aiPipelines,
+  brain,
+  communityAgents,
+  federation,
+  analyticsOverview,
 };

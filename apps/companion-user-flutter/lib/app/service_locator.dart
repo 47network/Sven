@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:get_it/get_it.dart';
 
 import '../features/auth/auth_service.dart';
@@ -7,6 +9,16 @@ import '../features/chat/messages_repository.dart';
 import '../features/chat/voice_service.dart';
 import '../features/inference/on_device_inference_service.dart';
 import '../features/memory/memory_service.dart';
+import '../features/ai/image_processing_service.dart';
+import '../features/ai/audio_scribe_service.dart';
+import '../features/ai/device_action_service.dart';
+import '../features/ai/ai_policy_service.dart';
+import '../features/ai/brain_admin_service.dart';
+import '../features/ai/community_agents_service.dart';
+import '../features/ai/calibration_service.dart';
+import '../features/ai/federation_service.dart';
+import '../features/trading/trading_service.dart';
+import '../features/trading/trading_sse_service.dart';
 import 'authenticated_client.dart';
 import 'database.dart';
 import 'db_encryption.dart';
@@ -37,7 +49,15 @@ final GetIt sl = GetIt.instance;
 Future<void> _verifyDbEncryptionReady() async {
   try {
     // Fail fast at startup if key-material bootstrap is unavailable.
-    final enc = await sl<Future<DbEncryption>>();
+    // Timeout after 10 seconds — FlutterSecureStorage can hang on some
+    // devices with corrupted Android Keystore state.
+    final enc = await sl<Future<DbEncryption>>().timeout(
+      const Duration(seconds: 10),
+      onTimeout: () => throw TimeoutException(
+        'DbEncryption.init() timed out after 10s — '
+        'FlutterSecureStorage / Android Keystore may be unresponsive.',
+      ),
+    );
     const probe = '__sven_db_encryption_probe__';
     final stored = enc.encrypt(probe);
     if (stored == probe || !stored.startsWith('v2:')) {
@@ -161,6 +181,76 @@ Future<void> setupServiceLocator() async {
   if (!sl.isRegistered<OnDeviceInferenceService>()) {
     sl.registerLazySingleton<OnDeviceInferenceService>(
       () => OnDeviceInferenceService(client: sl<AuthenticatedClient>()),
+    );
+  }
+
+  // ── 10. Image processing service ──────────────────────────────────────────
+  if (!sl.isRegistered<ImageProcessingService>()) {
+    sl.registerLazySingleton<ImageProcessingService>(
+      () => ImageProcessingService(client: sl<AuthenticatedClient>()),
+    );
+  }
+
+  // ── 11. Audio scribe service ──────────────────────────────────────────────
+  if (!sl.isRegistered<AudioScribeService>()) {
+    sl.registerLazySingleton<AudioScribeService>(
+      () => AudioScribeService(client: sl<AuthenticatedClient>()),
+    );
+  }
+
+  // ── 12. Device action service ─────────────────────────────────────────────
+  if (!sl.isRegistered<DeviceActionService>()) {
+    sl.registerLazySingleton<DeviceActionService>(
+      () => DeviceActionService(client: sl<AuthenticatedClient>()),
+    );
+  }
+
+  // ── 13. AI policy service (routing + privacy + modules) ───────────────────
+  if (!sl.isRegistered<AiPolicyService>()) {
+    sl.registerLazySingleton<AiPolicyService>(
+      () => AiPolicyService(client: sl<AuthenticatedClient>()),
+    );
+  }
+
+  // ── 14. Brain admin service ───────────────────────────────────────────────
+  if (!sl.isRegistered<BrainAdminService>()) {
+    sl.registerLazySingleton<BrainAdminService>(
+      () => BrainAdminService(client: sl<AuthenticatedClient>()),
+    );
+  }
+
+  // ── 15. Community agents service ──────────────────────────────────────────
+  if (!sl.isRegistered<CommunityAgentsService>()) {
+    sl.registerLazySingleton<CommunityAgentsService>(
+      () => CommunityAgentsService(client: sl<AuthenticatedClient>()),
+    );
+  }
+
+  // ── 16. Calibration service ───────────────────────────────────────────────
+  if (!sl.isRegistered<CalibrationService>()) {
+    sl.registerLazySingleton<CalibrationService>(
+      () => CalibrationService(client: sl<AuthenticatedClient>()),
+    );
+  }
+
+  // ── 17. Federation service ────────────────────────────────────────────────
+  if (!sl.isRegistered<FederationService>()) {
+    sl.registerLazySingleton<FederationService>(
+      () => FederationService(client: sl<AuthenticatedClient>()),
+    );
+  }
+
+  // ── 18. Trading service ───────────────────────────────────────────────────
+  if (!sl.isRegistered<TradingService>()) {
+    sl.registerLazySingleton<TradingService>(
+      () => TradingService(client: sl<AuthenticatedClient>()),
+    );
+  }
+
+  // ── 19. Trading SSE service ───────────────────────────────────────────────
+  if (!sl.isRegistered<TradingSseService>()) {
+    sl.registerLazySingleton<TradingSseService>(
+      () => TradingSseService(client: sl<AuthenticatedClient>()),
     );
   }
 }

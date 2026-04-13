@@ -311,7 +311,7 @@ function TraceViewPageContent() {
                         </span>
                         <div>
                           <p className="font-medium">{step.name ?? step.type ?? `Step ${i + 1}`}</p>
-                          {step.duration_ms && (
+                          {Boolean(step.duration_ms) && (
                             <p className="text-xs text-slate-500">{step.duration_ms}ms</p>
                           )}
                           {Boolean(step.detail) && (

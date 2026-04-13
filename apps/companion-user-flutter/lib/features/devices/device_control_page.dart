@@ -176,7 +176,7 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
               const Text('Capture from source camera and display on this device'),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: selected.id,
+                initialValue: selected.id,
                 decoration: const InputDecoration(
                   labelText: 'Source camera device',
                   border: OutlineInputBorder(),

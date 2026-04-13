@@ -2,6 +2,8 @@
 node_modules/
 .pnp
 .pnp.js
+package-lock.json
+yarn.lock
 
 # ─── Build outputs ──────────────────────────────────────────────
 dist/
@@ -80,3 +82,5 @@ coverage/
 
 # ─── Package manager ───────────────────────────────────────────
 .npmrc
+deploy/quickstart/download/*.apk
+deploy/quickstart/download/*.aab

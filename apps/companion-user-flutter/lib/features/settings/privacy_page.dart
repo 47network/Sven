@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../app/api_base_service.dart';
 import '../../app/app_models.dart';
 import '../../app/app_state.dart';
 import '../../app/sven_tokens.dart';
@@ -38,8 +39,8 @@ class PrivacyPage extends StatelessWidget {
   /// back to the login / onboarding flow.
   final VoidCallback? onClearData;
 
-  static const _privacyUrl = 'https://app.sven.systems/privacy';
-  static const _tosUrl = 'https://app.sven.systems/terms';
+  static String get _privacyUrl => '${ApiBaseService.currentSync()}/privacy';
+  static String get _tosUrl => '${ApiBaseService.currentSync()}/terms';
 
   Future<void> _exportData(BuildContext context) async {
     final ms = memoryService;
@@ -252,7 +253,7 @@ class PrivacyPage extends StatelessWidget {
             cinematic: cinematic,
             trailing: Switch(
               value: state.analyticsConsent,
-              activeColor: tokens.primary,
+              activeThumbColor: tokens.primary,
               onChanged: state.setAnalyticsConsent,
             ),
           ),

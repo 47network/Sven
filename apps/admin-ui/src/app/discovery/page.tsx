@@ -93,20 +93,20 @@ export default function DiscoveryPage() {
             <div>
               <p className="font-medium">
                 {row.name || row.id}
-                {row.self && <span className="ml-2 rounded bg-emerald-500/20 px-2 py-0.5 text-xs text-emerald-200">Self</span>}
+                {Boolean(row.self) && <span className="ml-2 rounded bg-emerald-500/20 px-2 py-0.5 text-xs text-emerald-200">Self</span>}
               </p>
               <p className="text-sm text-slate-500">
                 {row.url || `${row.address || row.host || 'unknown'}:${row.port ?? ''}`} &middot; {row.version || 'unknown version'}
               </p>
-              {row.last_seen && (
-                <p className="text-xs text-slate-500">Last seen: {new Date(row.last_seen).toLocaleString()}</p>
+              {Boolean(row.last_seen) && (
+                <p className="text-xs text-slate-500">Last seen: {new Date(row.last_seen as string).toLocaleString()}</p>
               )}
             </div>
             <div className="flex gap-2">
-              {row.url && (
+              {Boolean(row.url) && (
                 <a
                   className="btn-primary btn-sm"
-                  href={row.url}
+                  href={row.url as string}
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -134,8 +134,8 @@ export default function DiscoveryPage() {
               <div>
                 <p className="font-medium">{peer.instance_name || peer.instance_id}</p>
                 <p className="text-sm text-slate-500 font-mono">{peer.nats_leaf_url}</p>
-                {peer.last_seen && (
-                  <p className="text-xs text-slate-500">Last seen: {new Date(peer.last_seen).toLocaleString()}</p>
+                {Boolean(peer.last_seen) && (
+                  <p className="text-xs text-slate-500">Last seen: {new Date(peer.last_seen as string).toLocaleString()}</p>
                 )}
               </div>
             </div>

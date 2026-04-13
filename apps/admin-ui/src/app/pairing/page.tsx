@@ -83,8 +83,8 @@ export default function PairingPage() {
                 </p>
                 <p className="text-sm text-slate-500">
                   Code <span className="font-semibold">{req.code}</span> &middot; Requested{' '}
-                  {new Date(req.created_at).toLocaleString()} &middot; Expires{' '}
-                  {new Date(req.expires_at).toLocaleTimeString()}
+                  {new Date(req.created_at as string).toLocaleString()} &middot; Expires{' '}
+                  {new Date(req.expires_at as string).toLocaleTimeString()}
                 </p>
               </div>
               <div className="flex items-center gap-2">

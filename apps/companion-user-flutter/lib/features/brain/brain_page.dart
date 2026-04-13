@@ -7,10 +7,10 @@ import 'brain_models.dart';
 import 'brain_service.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// BrainPage — interactive force-directed knowledge graph for mobile
+// BrainPage — immersive 3D knowledge graph visualisation
 //
-// Touch-navigable, pinch-zoom, tap for memory details.
-// Mirrors Canvas UI BrainBlock but adapted for mobile interaction.
+// Auto-rotating 3D perspective view with depth-based effects, glowing nodes,
+// animated particle trails along connections, drag-to-rotate, pinch-to-zoom.
 // ═══════════════════════════════════════════════════════════════════════════
 
 class BrainPage extends StatefulWidget {
@@ -22,20 +22,32 @@ class BrainPage extends StatefulWidget {
   State<BrainPage> createState() => _BrainPageState();
 }
 
-class _BrainPageState extends State<BrainPage>
-    with SingleTickerProviderStateMixin {
+class _BrainPageState extends State<BrainPage> with TickerProviderStateMixin {
+  late final AnimationController _rotationController;
   late final AnimationController _pulseController;
-  Offset _panOffset = Offset.zero;
+  late final AnimationController _particleController;
+
+  double _rotationY = 0.0;
+  double _rotationX = 0.15;
+  bool _autoRotate = true;
 
   BrainService get _service => widget.brainService;
 
   @override
   void initState() {
     super.initState();
+    _rotationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 30),
+    )..repeat();
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
     )..repeat(reverse: true);
+    _particleController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    )..repeat();
 
     _service.addListener(_onServiceChanged);
     _service.fetchGraph();
@@ -43,7 +55,9 @@ class _BrainPageState extends State<BrainPage>
 
   @override
   void dispose() {
+    _rotationController.dispose();
     _pulseController.dispose();
+    _particleController.dispose();
     _service.removeListener(_onServiceChanged);
     super.dispose();
   }
@@ -52,31 +66,38 @@ class _BrainPageState extends State<BrainPage>
     if (mounted) setState(() {});
   }
 
+  double get _currentRotY => _autoRotate
+      ? _rotationY + _rotationController.value * 2 * pi
+      : _rotationY;
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0f172a) : Colors.grey.shade50,
+      backgroundColor:
+          isDark ? const Color(0xFF0a0e1a) : const Color(0xFFF0F2F8),
       appBar: AppBar(
         title: const Text('Brain Map'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.remove),
-            onPressed: _service.zoomOut,
-            tooltip: 'Zoom out',
-          ),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _service.zoomIn,
-            tooltip: 'Zoom in',
+            icon: Icon(_autoRotate
+                ? Icons.pause_circle_outline
+                : Icons.play_circle_outline),
+            onPressed: () => setState(() => _autoRotate = !_autoRotate),
+            tooltip: _autoRotate ? 'Pause rotation' : 'Resume rotation',
           ),
           IconButton(
             icon: const Icon(Icons.center_focus_strong),
             onPressed: () {
               _service.resetZoom();
-              setState(() => _panOffset = Offset.zero);
+              setState(() {
+                _rotationY = 0;
+                _rotationX = 0.15;
+                _autoRotate = true;
+              });
             },
             tooltip: 'Reset view',
           ),
@@ -121,7 +142,7 @@ class _BrainPageState extends State<BrainPage>
     );
   }
 
-  // ── Graph canvas ───────────────────────────────────────────────────────
+  // ── 3D graph canvas ────────────────────────────────────────────────────
 
   Widget _buildGraphArea(bool isDark) {
     if (_service.loading) {
@@ -135,7 +156,8 @@ class _BrainPageState extends State<BrainPage>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.warning_amber, color: Colors.orange.shade400, size: 48),
+              Icon(Icons.warning_amber,
+                  color: Colors.orange.shade400, size: 48),
               const SizedBox(height: 12),
               Text(
                 _service.error!,
@@ -165,44 +187,97 @@ class _BrainPageState extends State<BrainPage>
       );
     }
 
-    return GestureDetector(
-      onScaleUpdate: (details) {
-        setState(() {
-          _panOffset += details.focalPointDelta;
-          if (details.scale != 1.0) {
-            _service.setZoom(_service.zoom * details.scale.clamp(0.95, 1.05));
-          }
-        });
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final canvasSize =
+            Size(constraints.maxWidth, constraints.maxHeight);
+
+        return GestureDetector(
+          onScaleUpdate: (details) {
+            setState(() {
+              if (details.pointerCount == 1) {
+                _autoRotate = false;
+                _rotationY += details.focalPointDelta.dx * 0.005;
+                _rotationX += details.focalPointDelta.dy * 0.005;
+                _rotationX = _rotationX.clamp(-pi / 2.5, pi / 2.5);
+              } else if (details.scale != 1.0) {
+                _service
+                    .setZoom(_service.zoom * details.scale.clamp(0.95, 1.05));
+              }
+            });
+          },
+          onTapUp: (details) => _handleTap(details, canvasSize),
+          child: AnimatedBuilder(
+            animation: Listenable.merge([
+              _rotationController,
+              _pulseController,
+              _particleController,
+            ]),
+            builder: (context, _) {
+              return CustomPaint(
+                painter: _Brain3DPainter(
+                  nodes: _service.filteredNodes,
+                  edges: _service.filteredEdges,
+                  zoom: _service.zoom,
+                  rotationY: _currentRotY,
+                  rotationX: _rotationX,
+                  selectedNodeId: _service.selectedNodeId,
+                  pulseValue: _pulseController.value,
+                  particleValue: _particleController.value,
+                  isDark: isDark,
+                ),
+                size: Size.infinite,
+              );
+            },
+          ),
+        );
       },
-      onTapUp: (details) {
-        final box = context.findRenderObject() as RenderBox;
-        final local = box.globalToLocal(details.globalPosition);
-        final center = Offset(box.size.width / 2, box.size.height / 2);
-        // Translate tap into graph coordinate space.
-        final graphX =
-            (local.dx - center.dx - _panOffset.dx) / _service.zoom;
-        final graphY =
-            (local.dy - center.dy - _panOffset.dy) / _service.zoom;
-        final hit = _service.hitTest(graphX, graphY, radius: 20);
-        _service.selectNode(hit?.id);
-      },
-      child: AnimatedBuilder(
-        animation: _pulseController,
-        builder: (context, _) {
-          return CustomPaint(
-            painter: _BrainGraphPainter(
-              nodes: _service.filteredNodes,
-              edges: _service.filteredEdges,
-              zoom: _service.zoom,
-              panOffset: _panOffset,
-              selectedNodeId: _service.selectedNodeId,
-              pulseValue: _pulseController.value,
-              isDark: isDark,
-            ),
-            size: Size.infinite,
-          );
-        },
-      ),
+    );
+  }
+
+  void _handleTap(TapUpDetails details, Size canvasSize) {
+    final tapPos = details.localPosition;
+    final rotY = _currentRotY;
+    final rotX = _rotationX;
+
+    BrainNode? closest;
+    double closestDist = double.infinity;
+
+    for (final node in _service.filteredNodes) {
+      final projected = _projectNode(
+        node.x, node.y, node.z, rotY, rotX, canvasSize, _service.zoom,
+      );
+      final dist = (projected - tapPos).distance;
+      if (dist < 30 && dist < closestDist) {
+        closest = node;
+        closestDist = dist;
+      }
+    }
+
+    _service.selectNode(closest?.id);
+  }
+
+  static Offset _projectNode(
+    double x, double y, double z,
+    double rotY, double rotX,
+    Size canvasSize, double zoom,
+  ) {
+    final cosY = cos(rotY);
+    final sinY = sin(rotY);
+    final rx = x * cosY + z * sinY;
+    var ry = y;
+    var rz = -x * sinY + z * cosY;
+    final cosX = cos(rotX);
+    final sinX = sin(rotX);
+    final ry2 = ry * cosX - rz * sinX;
+    final rz2 = ry * sinX + rz * cosX;
+    ry = ry2;
+    rz = rz2;
+    const fov = 800.0;
+    final scale = fov / (fov + rz);
+    return Offset(
+      canvasSize.width / 2 + rx * scale * zoom,
+      canvasSize.height / 2 + ry * scale * zoom,
     );
   }
 
@@ -340,120 +415,253 @@ class _BrainPageState extends State<BrainPage>
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// _BrainGraphPainter — renders force-directed graph via CustomPaint
+// _Brain3DPainter — 3D perspective graph renderer with glow & particles
 // ═══════════════════════════════════════════════════════════════════════════
 
-class _BrainGraphPainter extends CustomPainter {
-  _BrainGraphPainter({
+class _Brain3DPainter extends CustomPainter {
+  _Brain3DPainter({
     required this.nodes,
     required this.edges,
     required this.zoom,
-    required this.panOffset,
+    required this.rotationY,
+    required this.rotationX,
     required this.selectedNodeId,
     required this.pulseValue,
+    required this.particleValue,
     required this.isDark,
   });
 
   final List<BrainNode> nodes;
   final List<BrainEdge> edges;
   final double zoom;
-  final Offset panOffset;
+  final double rotationY;
+  final double rotationX;
   final String? selectedNodeId;
   final double pulseValue;
+  final double particleValue;
   final bool isDark;
+
+  static const double _fov = 800.0;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final cosY = cos(rotationY);
+    final sinY = sin(rotationY);
+    final cosX = cos(rotationX);
+    final sinX = sin(rotationX);
 
-    canvas.save();
-    canvas.translate(center.dx + panOffset.dx, center.dy + panOffset.dy);
-    canvas.scale(zoom);
-
-    // Build node lookup.
-    final nodeMap = {for (final n in nodes) n.id: n};
-
-    // Draw edges.
-    final edgePaint = Paint()
-      ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.12)
-      ..strokeWidth = 1.0
-      ..style = PaintingStyle.stroke;
-
-    for (final edge in edges) {
-      final a = nodeMap[edge.source];
-      final b = nodeMap[edge.target];
-      if (a == null || b == null) continue;
-      canvas.drawLine(Offset(a.x, a.y), Offset(b.x, b.y), edgePaint);
+    // Project all nodes into screen space.
+    final projected = <String, _Projected3D>{};
+    for (final n in nodes) {
+      projected[n.id] =
+          _transform(n.x, n.y, n.z, cosY, sinY, cosX, sinX, cx, cy);
     }
 
-    // Draw nodes.
-    for (final node in nodes) {
-      final isSelected = node.id == selectedNodeId;
-      final color = _BrainPageState._nodeColor(node.type);
-      final opacity = _stateOpacity(node.state);
+    // ── Ambient glow background ──────────────────────────────────────
+    if (isDark) {
+      final bgGlow = Paint()
+        ..shader = ui.Gradient.radial(
+          Offset(cx, cy),
+          size.shortestSide * 0.6,
+          [
+            const Color(0xFF1a1a3e).withValues(alpha: 0.5),
+            const Color(0xFF0a0e1a).withValues(alpha: 0.0),
+          ],
+        );
+      canvas.drawRect(Offset.zero & size, bgGlow);
+    }
 
-      final baseRadius = 6.0 + node.strength * 8.0;
+    // ── Draw edges with depth-based alpha ────────────────────────────
+    for (final edge in edges) {
+      final pa = projected[edge.source];
+      final pb = projected[edge.target];
+      if (pa == null || pb == null) continue;
+      final avgDepth = (pa.depth + pb.depth) / 2;
+      final depthAlpha = _depthAlpha(avgDepth) * 0.4;
+
+      final edgePaint = Paint()
+        ..color = (isDark ? Colors.white : Colors.blueGrey)
+            .withValues(alpha: depthAlpha)
+        ..strokeWidth = (0.5 + edge.weight * 0.8) * _depthScale(avgDepth)
+        ..style = PaintingStyle.stroke;
+      canvas.drawLine(pa.offset, pb.offset, edgePaint);
+
+      // Animated particles along edge.
+      _drawEdgeParticles(canvas, pa, pb, edge, avgDepth);
+    }
+
+    // ── Sort nodes back-to-front ─────────────────────────────────────
+    final sortedNodes = List<BrainNode>.from(nodes);
+    sortedNodes.sort((a, b) {
+      return projected[b.id]!.depth.compareTo(projected[a.id]!.depth);
+    });
+
+    // ── Draw nodes ───────────────────────────────────────────────────
+    for (final node in sortedNodes) {
+      final p = projected[node.id]!;
+      final color = _BrainPageState._nodeColor(node.type);
+      final isSelected = node.id == selectedNodeId;
+      final stateAlpha = _stateOpacity(node.state);
+      final dScale = _depthScale(p.depth);
+      final dAlpha = _depthAlpha(p.depth);
+      final alpha = stateAlpha * dAlpha;
+
+      final baseRadius = (6.0 + node.strength * 8.0) * dScale * zoom;
       final radius = isSelected
           ? baseRadius + 3 + pulseValue * 2
           : node.state == BrainNodeState.resonating
               ? baseRadius + pulseValue * 2
               : baseRadius;
 
-      // Glow for resonating / selected nodes.
-      if (isSelected || node.state == BrainNodeState.resonating) {
+      // ── Outer glow ─────────────────────────────────────────────
+      if (isDark) {
+        final glowR = radius * (isSelected ? 4.0 : 2.5);
+        final glowA = (isSelected ? 0.4 : 0.15) * alpha;
         final glowPaint = Paint()
           ..shader = ui.Gradient.radial(
-            Offset(node.x, node.y),
-            radius * 2.5,
+            p.offset,
+            glowR,
             [
-              color.withValues(alpha: 0.3 * opacity),
+              color.withValues(alpha: glowA),
               color.withValues(alpha: 0.0),
             ],
           );
-        canvas.drawCircle(Offset(node.x, node.y), radius * 2.5, glowPaint);
+        canvas.drawCircle(p.offset, glowR, glowPaint);
+      } else if (isSelected || node.state == BrainNodeState.resonating) {
+        final glowPaint = Paint()
+          ..shader = ui.Gradient.radial(
+            p.offset,
+            radius * 2.5,
+            [
+              color.withValues(alpha: 0.3 * alpha),
+              color.withValues(alpha: 0.0),
+            ],
+          );
+        canvas.drawCircle(p.offset, radius * 2.5, glowPaint);
       }
 
-      // Node fill.
+      // ── Node sphere fill with subtle gradient ──────────────────
       final fillPaint = Paint()
-        ..color = color.withValues(alpha: opacity)
+        ..shader = ui.Gradient.radial(
+          p.offset + Offset(-radius * 0.3, -radius * 0.3),
+          radius * 1.5,
+          [
+            color.withValues(alpha: alpha),
+            color.withValues(alpha: alpha * 0.6),
+          ],
+        )
         ..style = PaintingStyle.fill;
-      canvas.drawCircle(Offset(node.x, node.y), radius, fillPaint);
+      canvas.drawCircle(p.offset, radius, fillPaint);
 
-      // Stroke for fading / consolidating.
+      // ── Specular highlight ─────────────────────────────────────
+      final highlightPaint = Paint()
+        ..shader = ui.Gradient.radial(
+          p.offset + Offset(-radius * 0.25, -radius * 0.25),
+          radius * 0.6,
+          [
+            Colors.white.withValues(alpha: 0.35 * alpha),
+            Colors.white.withValues(alpha: 0.0),
+          ],
+        );
+      canvas.drawCircle(p.offset, radius, highlightPaint);
+
+      // ── Stroke ring for fading / consolidating ─────────────────
       if (node.state == BrainNodeState.fading ||
           node.state == BrainNodeState.consolidating) {
         final strokePaint = Paint()
-          ..color = color.withValues(alpha: 0.5)
+          ..color = color.withValues(alpha: 0.5 * dAlpha)
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.5;
-        canvas.drawCircle(Offset(node.x, node.y), radius + 1, strokePaint);
+          ..strokeWidth = 1.5 * dScale;
+        canvas.drawCircle(p.offset, radius + 1.5, strokePaint);
       }
 
-      // Label for selected node.
+      // ── Label for selected node ────────────────────────────────
       if (isSelected) {
         final textPainter = TextPainter(
           text: TextSpan(
             text: node.label,
             style: TextStyle(
-              fontSize: 10 / zoom,
+              fontSize: 11,
               color: isDark ? Colors.white : Colors.black87,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
+              shadows: isDark
+                  ? [Shadow(color: color.withValues(alpha: 0.6), blurRadius: 6)]
+                  : null,
             ),
           ),
           textDirection: TextDirection.ltr,
         );
-        textPainter.layout(maxWidth: 120 / zoom);
+        textPainter.layout(maxWidth: 140);
         textPainter.paint(
           canvas,
           Offset(
-            node.x - textPainter.width / 2,
-            node.y + radius + 4,
+            p.offset.dx - textPainter.width / 2,
+            p.offset.dy + radius + 6,
           ),
         );
       }
     }
+  }
 
-    canvas.restore();
+  // ── 3D → 2D projection ────────────────────────────────────────────────
+
+  _Projected3D _transform(
+    double x, double y, double z,
+    double cosY, double sinY, double cosX, double sinX,
+    double cx, double cy,
+  ) {
+    // Rotate around Y.
+    final rx = x * cosY + z * sinY;
+    var ry = y;
+    var rz = -x * sinY + z * cosY;
+    // Rotate around X.
+    final ry2 = ry * cosX - rz * sinX;
+    final rz2 = ry * sinX + rz * cosX;
+    ry = ry2;
+    rz = rz2;
+    // Perspective projection.
+    final scale = _fov / (_fov + rz);
+    return _Projected3D(
+      offset: Offset(cx + rx * scale * zoom, cy + ry * scale * zoom),
+      depth: rz,
+    );
+  }
+
+  double _depthScale(double depth) {
+    return (_fov / (_fov + depth)).clamp(0.3, 2.0);
+  }
+
+  double _depthAlpha(double depth) {
+    return (1.0 - (depth / 800.0)).clamp(0.15, 1.0);
+  }
+
+  // ── Animated particles traveling along edges ──────────────────────────
+
+  void _drawEdgeParticles(
+    Canvas canvas,
+    _Projected3D pa,
+    _Projected3D pb,
+    BrainEdge edge,
+    double avgDepth,
+  ) {
+    final hash = (edge.source.hashCode ^ edge.target.hashCode) & 0x7FFFFFFF;
+    final count = (edge.weight * 2).ceil().clamp(1, 3);
+    final dAlpha = _depthAlpha(avgDepth);
+    final dScale = _depthScale(avgDepth);
+
+    for (var i = 0; i < count; i++) {
+      final phase = ((hash + i * 137) % 1000) / 1000.0;
+      final t = (particleValue + phase) % 1.0;
+      final px = pa.offset.dx + (pb.offset.dx - pa.offset.dx) * t;
+      final py = pa.offset.dy + (pb.offset.dy - pa.offset.dy) * t;
+
+      final particlePaint = Paint()
+        ..color = Colors.white.withValues(alpha: 0.6 * dAlpha)
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(Offset(px, py), 1.5 * dScale, particlePaint);
+    }
   }
 
   double _stateOpacity(BrainNodeState state) {
@@ -474,11 +682,13 @@ class _BrainGraphPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _BrainGraphPainter old) {
-    return old.zoom != zoom ||
-        old.panOffset != panOffset ||
-        old.selectedNodeId != selectedNodeId ||
-        old.pulseValue != pulseValue ||
-        old.nodes != nodes;
-  }
+  bool shouldRepaint(covariant _Brain3DPainter old) => true;
+}
+
+// ── Helper ───────────────────────────────────────────────────────────────
+
+class _Projected3D {
+  const _Projected3D({required this.offset, required this.depth});
+  final Offset offset;
+  final double depth;
 }

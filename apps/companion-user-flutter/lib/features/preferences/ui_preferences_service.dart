@@ -1,7 +1,7 @@
 import 'dart:convert';
 
+import '../../app/api_base_service.dart';
 import '../../app/authenticated_client.dart';
-import '../../config/env_config.dart';
 import '../../features/auth/auth_errors.dart';
 import 'ui_preferences.dart';
 
@@ -9,7 +9,7 @@ class UiPreferencesService {
   UiPreferencesService({AuthenticatedClient? client})
       : _client = client ?? AuthenticatedClient();
 
-  static final _apiBase = EnvConfig.apiBase;
+  static String get _apiBase => ApiBaseService.currentSync();
 
   final AuthenticatedClient _client;
 

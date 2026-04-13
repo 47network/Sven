@@ -11,8 +11,8 @@ import {
   type SortingState,
   type ColumnFiltersState,
 } from '@tanstack/react-table';
-import { useState } from 'react';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowUpDown, ArrowUp, ArrowDown, Download } from 'lucide-react';
 
 interface DataTableProps<T> {
   data: T[];
@@ -20,6 +20,8 @@ interface DataTableProps<T> {
   searchColumn?: string;
   searchPlaceholder?: string;
   pageSize?: number;
+  /** File name stem used when exporting CSV. Set to false to hide the button. */
+  exportName?: string | false;
 }
 
 export function DataTable<T>({
@@ -28,6 +30,7 @@ export function DataTable<T>({
   searchColumn,
   searchPlaceholder = 'Search…',
   pageSize = 20,
+  exportName,
 }: DataTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -47,17 +50,48 @@ export function DataTable<T>({
     initialState: { pagination: { pageSize } },
   });
 
+  const handleExport = useCallback(() => {
+    const headers = columns
+      .map((c) => (typeof c.header === 'string' ? c.header : String((c as { accessorKey?: string }).accessorKey ?? '')))
+      .filter(Boolean);
+    const rows = table.getFilteredRowModel().rows.map((row) =>
+      row.getVisibleCells().map((cell) => {
+        const val = cell.getValue();
+        const str = val == null ? '' : String(val);
+        return str.includes(',') || str.includes('"') || str.includes('\n')
+          ? `"${str.replace(/"/g, '""')}"`
+          : str;
+      }),
+    );
+    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${exportName || 'export'}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [columns, table, exportName]);
+
   return (
     <div>
-      {/* Search bar */}
-      {searchColumn && (
-        <div className="mb-4">
-          <input
-            className="input w-64"
-            placeholder={searchPlaceholder}
-            value={(table.getColumn(searchColumn)?.getFilterValue() as string) ?? ''}
-            onChange={(e) => table.getColumn(searchColumn)?.setFilterValue(e.target.value)}
-          />
+      {/* Search bar + export */}
+      {(searchColumn || exportName !== false) && (
+        <div className="mb-4 flex items-center justify-between gap-2">
+          {searchColumn ? (
+            <input
+              className="input w-64"
+              placeholder={searchPlaceholder}
+              value={(table.getColumn(searchColumn)?.getFilterValue() as string) ?? ''}
+              onChange={(e) => table.getColumn(searchColumn)?.setFilterValue(e.target.value)}
+            />
+          ) : <div />}
+          {exportName !== false && data.length > 0 && (
+            <button className="btn-secondary btn-sm inline-flex items-center gap-1.5" onClick={handleExport}>
+              <Download className="h-3.5 w-3.5" />
+              Export CSV
+            </button>
+          )}
         </div>
       )}
 

@@ -39,21 +39,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Enable corepack
+        run: corepack enable
+
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: npm
+          cache: pnpm
           cache-dependency-path: |
-            package-lock.json
-            services/**/package-lock.json
+            pnpm-lock.yaml
+            services/**/pnpm-lock.yaml
 
       - name: Install gateway dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Run gateway bridge contract tests
         run: >
-          npm test -- --runTestsByPath
+          pnpm run test -- --runTestsByPath
           src/__tests__/admin-bridge-tenant-mappings-registration.contract.test.ts
           src/__tests__/admin-bridge-tenant-mappings-health.contract.test.ts
           src/__tests__/bridge-correlation-routing.contract.test.ts
@@ -75,21 +79,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Enable corepack
+        run: corepack enable
+
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: npm
+          cache: pnpm
           cache-dependency-path: |
-            package-lock.json
-            services/**/package-lock.json
+            pnpm-lock.yaml
+            services/**/pnpm-lock.yaml
 
       - name: Install gateway dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Run gateway bridge contract tests
         run: >
-          npm test -- --runTestsByPath
+          pnpm run test -- --runTestsByPath
           src/__tests__/admin-bridge-tenant-mappings-registration.contract.test.ts
           src/__tests__/admin-bridge-tenant-mappings-health.contract.test.ts
           src/__tests__/bridge-correlation-routing.contract.test.ts

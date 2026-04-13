@@ -146,13 +146,13 @@ export default function WorkflowBuilderPage() {
               <div className="mt-3 flex items-center gap-4 text-sm text-slate-500">
                 <span>{wf.step_count ?? 0} steps</span>
                 <span>{wf.run_count ?? 0} runs</span>
-                {wf.last_run_at && (
-                  <span>Last: {new Date(wf.last_run_at).toLocaleDateString()}</span>
+                {Boolean(wf.last_run_at) && (
+                  <span>Last: {new Date(wf.last_run_at as string).toLocaleDateString()}</span>
                 )}
               </div>
 
               {/* Steps preview */}
-              {wf.steps && wf.steps.length > 0 && (
+              {Boolean(wf.steps) && wf.steps.length > 0 && (
                 <div className="mt-3 flex items-center gap-1 overflow-x-auto">
                   {wf.steps.slice(0, 5).map((step, i: number) => (
                     <span key={i} className="flex items-center gap-1">

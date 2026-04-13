@@ -600,6 +600,10 @@ async function main() {
       if (availableToolsPrompt) {
         systemPrompt = `${systemPrompt}\n\n${availableToolsPrompt}`;
       }
+      const dynamicCapabilityPrompt = await buildDynamicCapabilityPrompt(pool, event.chat_id, context.user_id);
+      if (dynamicCapabilityPrompt) {
+        systemPrompt = `${systemPrompt}\n\n${dynamicCapabilityPrompt}`;
+      }
       const deviceContextPrompt = await buildDeviceContextPrompt(pool, event.chat_id);
       if (deviceContextPrompt) {
         systemPrompt = `${systemPrompt}\n\n${deviceContextPrompt}`;
@@ -1649,7 +1653,7 @@ async function buildAvailableToolsPrompt(pool: pg.Pool, chatId: string): Promise
   let toolsRes;
   try {
     toolsRes = await pool.query(
-      `SELECT name
+      `SELECT name, description
        FROM tools
        WHERE status = 'active'
        ORDER BY name ASC
@@ -1658,7 +1662,7 @@ async function buildAvailableToolsPrompt(pool: pg.Pool, chatId: string): Promise
   } catch {
     return '';
   }
-  let mcpRows: Array<{ qualified_name: string }> = [];
+  let mcpRows: Array<{ qualified_name: string; description: string | null }> = [];
   try {
     const overrideCount = await pool.query(
       `SELECT COUNT(*)::int AS c FROM mcp_chat_overrides WHERE chat_id = $1`,
@@ -1666,7 +1670,7 @@ async function buildAvailableToolsPrompt(pool: pg.Pool, chatId: string): Promise
     );
     if (Number(overrideCount.rows[0]?.c || 0) > 0) {
       const res = await pool.query(
-        `SELECT t.qualified_name
+        `SELECT t.qualified_name, t.description
          FROM mcp_server_tools t
          JOIN mcp_chat_overrides o ON o.server_id = t.server_id
          WHERE o.chat_id = $1 AND o.enabled = true
@@ -1677,7 +1681,7 @@ async function buildAvailableToolsPrompt(pool: pg.Pool, chatId: string): Promise
       mcpRows = res.rows;
     } else {
       const res = await pool.query(
-        `SELECT qualified_name
+        `SELECT qualified_name, description
          FROM mcp_server_tools
          ORDER BY qualified_name ASC
          LIMIT 80`,
@@ -1688,15 +1692,192 @@ async function buildAvailableToolsPrompt(pool: pg.Pool, chatId: string): Promise
     mcpRows = [];
   }
 
-  const names = new Set<string>();
-  for (const row of toolsRes.rows) names.add(String((row as any).name));
-  for (const row of mcpRows) names.add(String(row.qualified_name));
-  if (names.size === 0) return '';
+  const toolEntries = new Map<string, string>();
+  for (const row of toolsRes.rows) {
+    const name = String((row as any).name);
+    const desc = String((row as any).description || '').trim();
+    toolEntries.set(name, desc);
+  }
+  for (const row of mcpRows) {
+    const name = String(row.qualified_name);
+    if (!toolEntries.has(name)) {
+      toolEntries.set(name, String(row.description || '').trim());
+    }
+  }
+  if (toolEntries.size === 0) return '';
 
-  return [
-    'Available tools (call by exact tool name when needed):',
-    ...Array.from(names).sort().map((name) => `- ${name}`),
-  ].join('\n');
+  const lines: string[] = ['Available tools (call by exact tool name when needed):'];
+  for (const [name, desc] of Array.from(toolEntries.entries()).sort((a, b) => a[0].localeCompare(b[0]))) {
+    lines.push(desc ? `- ${name} — ${desc}` : `- ${name}`);
+  }
+  return lines.join('\n');
+}
+
+async function buildDynamicCapabilityPrompt(pool: pg.Pool, chatId: string, userId?: string): Promise<string> {
+  try {
+    const sections: string[] = [];
+
+    // Memory stats
+    const memRes = await pool.query(
+      `SELECT COUNT(*)::int AS count FROM memories WHERE archived_at IS NULL AND merged_into IS NULL`,
+    );
+    const memCount = memRes.rows[0]?.count || 0;
+    if (memCount > 0) {
+      sections.push(`Memory: ${memCount} memories stored (use memory.search/memory.list to recall)`);
+    }
+
+    // Knowledge graph stats
+    const kgRes = await pool.query(
+      `SELECT COUNT(*)::int AS entity_count FROM kg_entities WHERE deleted_at IS NULL`,
+    );
+    const entityCount = kgRes.rows[0]?.entity_count || 0;
+    if (entityCount > 0) {
+      const relRes = await pool.query(
+        `SELECT COUNT(*)::int AS relation_count FROM kg_relations WHERE deleted_at IS NULL`,
+      );
+      sections.push(`Knowledge Graph: ${entityCount} entities, ${relRes.rows[0]?.relation_count || 0} relations (use brain.search/brain.entity to query)`);
+    }
+
+    // Active community agents
+    const agentsRes = await pool.query(
+      `SELECT name FROM agents WHERE status = 'active' ORDER BY name ASC`,
+    );
+    if (agentsRes.rows.length > 0) {
+      const names = agentsRes.rows.map((r: any) => String(r.name)).join(', ');
+      sections.push(`Active agents: ${names} (use agents.list/agents.message to coordinate)`);
+    }
+
+    // Active patterns
+    const patRes = await pool.query(
+      `SELECT COUNT(*)::int AS count FROM proactive_pattern_insights WHERE status = 'active'`,
+    );
+    const patCount = patRes.rows[0]?.count || 0;
+    if (patCount > 0) {
+      sections.push(`Observed patterns: ${patCount} active (use pattern.insights to review)`);
+    }
+
+    // Federation status
+    try {
+      const fedRes = await pool.query(
+        `SELECT value FROM settings WHERE key = 'federation_enabled'`,
+      );
+      if (fedRes.rows[0]?.value === 'true') {
+        sections.push('Federation: enabled (use federation.status/federation.peers to check)');
+      }
+    } catch { /* Settings may not have federation keys */ }
+
+    // Inference nodes
+    const infRes = await pool.query(
+      `SELECT COUNT(*)::int AS count FROM inference_nodes WHERE is_healthy = true`,
+    );
+    const nodeCount = infRes.rows[0]?.count || 0;
+    if (nodeCount > 0) {
+      sections.push(`Inference nodes: ${nodeCount} healthy (use inference.status to inspect)`);
+    }
+
+    // Connected channels
+    try {
+      const chRes = await pool.query(
+        `SELECT COUNT(DISTINCT channel)::int AS count FROM chats WHERE channel IS NOT NULL`,
+      );
+      const channelCount = chRes.rows[0]?.count || 0;
+      if (channelCount > 0) {
+        sections.push(`Channels: active on ${channelCount} channel types (use sven.channels to list)`);
+      }
+    } catch { /* channels column may not exist */ }
+
+    // Integrations
+    try {
+      const intRes = await pool.query(
+        `SELECT integration_type, status FROM integration_runtime_instances WHERE status = 'running'`,
+      );
+      if (intRes.rows.length > 0) {
+        const names = intRes.rows.map((r: any) => String(r.integration_type)).join(', ');
+        sections.push(`Running integrations: ${names} (use sven.integrations to check health)`);
+      }
+    } catch { /* integration_runtime_instances may not exist */ }
+
+    // MCP servers
+    try {
+      const mcpRes = await pool.query(
+        `SELECT COUNT(*)::int AS count FROM mcp_servers WHERE status = 'connected'`,
+      );
+      const mcpCount = mcpRes.rows[0]?.count || 0;
+      if (mcpCount > 0) {
+        sections.push(`MCP servers: ${mcpCount} connected (use sven.mcp_servers to list)`);
+      }
+    } catch { /* mcp_servers may not exist */ }
+
+    // Scheduled tasks
+    try {
+      const schedRes = await pool.query(
+        `SELECT COUNT(*)::int AS count FROM scheduled_tasks WHERE enabled = true`,
+      );
+      const schedCount = schedRes.rows[0]?.count || 0;
+      if (schedCount > 0) {
+        sections.push(`Scheduled tasks: ${schedCount} active (use sven.schedules to list)`);
+      }
+    } catch { /* scheduled_tasks may not exist */ }
+
+    // Skills
+    try {
+      const skillRes = await pool.query(
+        `SELECT COUNT(*)::int AS count FROM skills_installed WHERE trust_level = 'trusted'`,
+      );
+      const skillCount = skillRes.rows[0]?.count || 0;
+      if (skillCount > 0) {
+        sections.push(`Installed skills: ${skillCount} trusted (use sven.skills to list)`);
+      }
+    } catch { /* skills_installed may not exist */ }
+
+    // Documents / RAG
+    try {
+      const docRes = await pool.query(
+        `SELECT COUNT(*)::int AS count FROM rag_embeddings`,
+      );
+      const chunkCount = docRes.rows[0]?.count || 0;
+      if (chunkCount > 0) {
+        sections.push(`Knowledge base: ${chunkCount} indexed chunks (use sven.documents to inspect)`);
+      }
+    } catch { /* rag_embeddings may not exist */ }
+
+    // Active soul
+    try {
+      const soulRes = await pool.query(
+        `SELECT slug, version FROM souls_installed WHERE status = 'active' LIMIT 1`,
+      );
+      if (soulRes.rows.length > 0) {
+        sections.push(`Active soul: ${(soulRes.rows[0] as any).slug} v${(soulRes.rows[0] as any).version} (use sven.soul to read)`);
+      }
+    } catch { /* souls_installed may not exist */ }
+
+    // Privileged ops tools — only visible to admin '47'
+    if (userId) {
+      try {
+        const adminCheck = await pool.query(
+          `SELECT username, role FROM users WHERE id = $1 LIMIT 1`,
+          [userId],
+        );
+        const adminUser = adminCheck.rows[0] as { username: string; role: string } | undefined;
+        const adminUsername = process.env.ADMIN_USERNAME || '47';
+        if (adminUser && adminUser.username === adminUsername && adminUser.role === 'admin') {
+          sections.push(`Operations (admin-only): infrastructure overview (sven.ops.infra), system health (sven.ops.health), code scanner (sven.ops.code_scan), Glasswing-class deep SAST scanner (sven.ops.deep_scan), code fix proposals (sven.ops.code_fix), security pentest with live HTTP probes (sven.ops.pentest), deployment manager (sven.ops.deploy), service logs (sven.ops.logs), runtime config (sven.ops.config) — all require /approve for destructive actions`);
+          sections.push(`Audit trail: all ops actions logged to immutable ops_audit_log with user identity, tool, action, severity, and timestamp`);
+
+          // Evolution readiness — model-swap architecture awareness
+          const currentModel = process.env.LLM_MODEL || process.env.DEFAULT_MODEL || 'unknown';
+          const routingEnabled = process.env.SMART_ROUTING_ENABLED === 'true';
+          const federationEnabled = process.env.FEDERATION_ENABLED === 'true';
+          sections.push(`Evolution status: base model "${currentModel}" | smart routing: ${routingEnabled ? 'active' : 'standby'} | federation: ${federationEnabled ? 'active' : 'standby'} | model-swappable architecture: ready — memory, tools, agents, security, audit trail all persist independently of base model`);
+        }
+      } catch { /* users table query may fail */ }
+    }
+
+    if (sections.length === 0) return '';
+    return `Current capability snapshot:\n${sections.map((s) => `• ${s}`).join('\n')}`;
+  } catch {
+    return '';
+  }
 }
 
 async function buildDeviceContextPrompt(pool: pg.Pool, chatId: string): Promise<string> {

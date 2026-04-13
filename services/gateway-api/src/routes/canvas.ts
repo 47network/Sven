@@ -3104,12 +3104,13 @@ export async function registerCanvasRoutes(
           response_length: { type: 'string', enum: ['short', 'balanced', 'detailed'] },
           personality: { type: 'string', enum: ['friendly', 'professional', 'casual', 'technical'] },
           memory_context: { type: 'string' },
+          reply_to_message_id: { type: 'string', maxLength: 128 },
         },
       },
     },
   }, async (request, reply) => {
     const { chatId } = request.params as { chatId: string };
-    const { text } = request.body as { text: string };
+    const { text, reply_to_message_id: replyToId } = request.body as { text: string; reply_to_message_id?: string };
     if (!request.orgId) {
       return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED', message: 'Active account required' } });
     }
@@ -3194,9 +3195,9 @@ export async function registerCanvasRoutes(
     await setChatProcessing(pool, chatId, true);
     try {
       await pool.query(
-        `INSERT INTO messages (id, chat_id, sender_user_id, role, content_type, text, created_at)
-         VALUES ($1, $2, $3, 'user', 'text', $4, NOW())`,
-        [messageId, chatId, request.userId, text],
+        `INSERT INTO messages (id, chat_id, sender_user_id, role, content_type, text, reply_to_message_id, created_at)
+         VALUES ($1, $2, $3, 'user', 'text', $4, $5, NOW())`,
+        [messageId, chatId, request.userId, text, replyToId || null],
       );
 
       const identityId = await ensureCanvasIdentity(pool, String(request.userId));
@@ -3437,6 +3438,145 @@ export async function registerCanvasRoutes(
         counts: { up, down },
       },
     });
+  });
+
+  // ─── POST /v1/chats/:chatId/messages/:messageId/reactions ───
+  // Add an emoji reaction to a message.
+  app.post('/v1/chats/:chatId/messages/:messageId/reactions', { preHandler: requireAuth }, async (request, reply) => {
+    const { chatId, messageId } = request.params as { chatId: string; messageId: string };
+    if (!request.orgId) {
+      return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED', message: 'Active account required' } });
+    }
+    const member = await assertChatMember(pool, chatId, request.userId, request.orgId);
+    if (!member) {
+      return reply.status(403).send({ success: false, error: { code: 'FORBIDDEN', message: 'Not a member' } });
+    }
+    const { emoji } = (request.body || {}) as { emoji?: string };
+    if (!emoji || emoji.length > 8) {
+      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'emoji is required (max 8 chars)' } });
+    }
+    await pool.query(
+      `INSERT INTO message_reactions (id, message_id, user_id, emoji, created_at)
+       VALUES ($1, $2, $3, $4, NOW())
+       ON CONFLICT (message_id, user_id, emoji) DO NOTHING`,
+      [uuidv7(), messageId, request.userId, emoji],
+    );
+    const reactionCounts = await pool.query(
+      `SELECT emoji, COUNT(*)::int AS count, array_agg(user_id) AS user_ids
+       FROM message_reactions WHERE message_id = $1 GROUP BY emoji ORDER BY MIN(created_at)`,
+      [messageId],
+    );
+    reply.send({ success: true, data: { message_id: messageId, reactions: reactionCounts.rows } });
+  });
+
+  // ─── DELETE /v1/chats/:chatId/messages/:messageId/reactions ───
+  // Remove an emoji reaction from a message.
+  app.delete('/v1/chats/:chatId/messages/:messageId/reactions', { preHandler: requireAuth }, async (request, reply) => {
+    const { chatId, messageId } = request.params as { chatId: string; messageId: string };
+    if (!request.orgId) {
+      return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED', message: 'Active account required' } });
+    }
+    const member = await assertChatMember(pool, chatId, request.userId, request.orgId);
+    if (!member) {
+      return reply.status(403).send({ success: false, error: { code: 'FORBIDDEN', message: 'Not a member' } });
+    }
+    const bodyEmoji = ((request.body || {}) as { emoji?: string }).emoji;
+    const queryEmoji = ((request.query || {}) as { emoji?: string }).emoji;
+    const emoji = bodyEmoji || queryEmoji;
+    if (!emoji) {
+      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'emoji is required' } });
+    }
+    await pool.query(
+      `DELETE FROM message_reactions WHERE message_id = $1 AND user_id = $2 AND emoji = $3`,
+      [messageId, request.userId, emoji],
+    );
+    const reactionCounts = await pool.query(
+      `SELECT emoji, COUNT(*)::int AS count, array_agg(user_id) AS user_ids
+       FROM message_reactions WHERE message_id = $1 GROUP BY emoji ORDER BY MIN(created_at)`,
+      [messageId],
+    );
+    reply.send({ success: true, data: { message_id: messageId, reactions: reactionCounts.rows } });
+  });
+
+  // ─── GET /v1/chats/:chatId/messages/:messageId/reactions ───
+  // List reactions on a message.
+  app.get('/v1/chats/:chatId/messages/:messageId/reactions', { preHandler: requireAuth }, async (request, reply) => {
+    const { chatId, messageId } = request.params as { chatId: string; messageId: string };
+    if (!request.orgId) {
+      return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED', message: 'Active account required' } });
+    }
+    const member = await assertChatMember(pool, chatId, request.userId, request.orgId);
+    if (!member) {
+      return reply.status(403).send({ success: false, error: { code: 'FORBIDDEN', message: 'Not a member' } });
+    }
+    const result = await pool.query(
+      `SELECT emoji, COUNT(*)::int AS count, array_agg(user_id) AS user_ids
+       FROM message_reactions WHERE message_id = $1 GROUP BY emoji ORDER BY MIN(created_at)`,
+      [messageId],
+    );
+    reply.send({ success: true, data: { message_id: messageId, reactions: result.rows } });
+  });
+
+  // ─── POST /v1/chats/:chatId/messages/:messageId/pin ───
+  // Pin a message in a chat (max 50 per chat).
+  app.post('/v1/chats/:chatId/messages/:messageId/pin', { preHandler: requireAuth }, async (request, reply) => {
+    const { chatId, messageId } = request.params as { chatId: string; messageId: string };
+    if (!request.orgId) {
+      return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED', message: 'Active account required' } });
+    }
+    const member = await assertChatMember(pool, chatId, request.userId, request.orgId);
+    if (!member) {
+      return reply.status(403).send({ success: false, error: { code: 'FORBIDDEN', message: 'Not a member' } });
+    }
+    // Enforce limit
+    const countRes = await pool.query(`SELECT COUNT(*)::int AS c FROM pinned_messages WHERE chat_id = $1`, [chatId]);
+    if (countRes.rows[0].c >= 50) {
+      return reply.status(400).send({ success: false, error: { code: 'LIMIT', message: 'Max 50 pinned messages per chat' } });
+    }
+    await pool.query(
+      `INSERT INTO pinned_messages (id, chat_id, message_id, pinned_by, pinned_at)
+       VALUES ($1, $2, $3, $4, NOW())
+       ON CONFLICT (chat_id, message_id) DO NOTHING`,
+      [uuidv7(), chatId, messageId, request.userId],
+    );
+    reply.send({ success: true });
+  });
+
+  // ─── DELETE /v1/chats/:chatId/messages/:messageId/pin ───
+  // Unpin a message.
+  app.delete('/v1/chats/:chatId/messages/:messageId/pin', { preHandler: requireAuth }, async (request, reply) => {
+    const { chatId, messageId } = request.params as { chatId: string; messageId: string };
+    if (!request.orgId) {
+      return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED', message: 'Active account required' } });
+    }
+    const member = await assertChatMember(pool, chatId, request.userId, request.orgId);
+    if (!member) {
+      return reply.status(403).send({ success: false, error: { code: 'FORBIDDEN', message: 'Not a member' } });
+    }
+    await pool.query(`DELETE FROM pinned_messages WHERE chat_id = $1 AND message_id = $2`, [chatId, messageId]);
+    reply.send({ success: true });
+  });
+
+  // ─── GET /v1/chats/:chatId/pinned ───
+  // List pinned messages in a chat.
+  app.get('/v1/chats/:chatId/pinned', { preHandler: requireAuth }, async (request, reply) => {
+    const { chatId } = request.params as { chatId: string };
+    if (!request.orgId) {
+      return reply.status(403).send({ success: false, error: { code: 'ORG_REQUIRED', message: 'Active account required' } });
+    }
+    const member = await assertChatMember(pool, chatId, request.userId, request.orgId);
+    if (!member) {
+      return reply.status(403).send({ success: false, error: { code: 'FORBIDDEN', message: 'Not a member' } });
+    }
+    const result = await pool.query(
+      `SELECT pm.message_id, pm.pinned_by, pm.pinned_at, m.text, m.role, m.created_at AS message_created_at
+       FROM pinned_messages pm
+       JOIN messages m ON m.id = pm.message_id
+       WHERE pm.chat_id = $1
+       ORDER BY pm.pinned_at DESC`,
+      [chatId],
+    );
+    reply.send({ success: true, data: { pins: result.rows } });
   });
 
   // ─── GET /v1/chats/:chatId/canvas ───

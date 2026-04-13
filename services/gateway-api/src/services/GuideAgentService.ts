@@ -73,10 +73,18 @@ export class GuideAgentService {
     return {
       greeting: `Welcome to the Sven community! I'm the Guide Agent — here to help you get started. Feel free to ask me anything.`,
       feature_highlights: [
-        'Multi-channel messaging (Telegram, Discord, WhatsApp, and more)',
-        'AI-powered knowledge graph that learns as you work',
-        'Community agents that participate alongside humans',
-        'Memory that improves over time with your feedback',
+        'Multi-channel messaging — Telegram, Discord, WhatsApp, Slack, email, and more',
+        'Knowledge graph brain that learns entities and relations from your conversations',
+        'Memory system that remembers your preferences and improves with feedback',
+        'Community agents — Guide, Inspector, Curator, Advocate, QA, Librarian, Imagination',
+        'Smart home control via Home Assistant, Frigate, and IoT devices',
+        'Productivity tools — calendar, notes (Apple, Obsidian, Bear, Notion), Trello, Things3',
+        'Media and entertainment — Spotify, Sonos, Shazam, web search',
+        'Pattern observation — I notice recurring questions and proactively help',
+        'Calibrated intelligence with confidence scoring and self-reflection',
+        'Federation — connect with other Sven instances while keeping data sovereign',
+        'On-device AI inference with smart model routing',
+        'Developer tools — Git, shell, file system, code generation, and skill authoring',
       ],
       suggested_faq: faqRows.rows,
     };

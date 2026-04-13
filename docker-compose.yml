@@ -1333,6 +1333,41 @@ services:
       start_period: 15s
     logging: *default-logging
 
+  # ── WhatsApp Personal Adapter (Baileys / WhatsApp Web) ───────────────
+  adapter-whatsapp-personal:
+    profiles: [ "adapters", "whatsapp-personal" ]
+    build:
+      context: .
+      dockerfile: services/adapter-whatsapp-personal/Dockerfile
+    restart: unless-stopped
+    # Baileys needs /tmp writes for protobuf and session management
+    read_only: false
+    environment:
+      - ADAPTER_CHANNEL=whatsapp_personal
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - WHATSAPP_SESSION_USERS=${WHATSAPP_SESSION_USERS:-}
+      - WHATSAPP_QR_PORT=8444
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${WHATSAPP_PERSONAL_PORT:-8444}:8444"
+    volumes:
+      - whatsapp-personal-sessions:/data/whatsapp-sessions
+    networks:
+      - core
+      - tools
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://127.0.0.1:8444/status', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    logging: *default-logging
+
   # ── Signal Adapter ───────────────────────────────────────────────────
   adapter-signal:
     profiles: [ "adapters", "signal" ]
@@ -1658,3 +1693,5 @@ volumes:
     name: sven-tunnel-data
   zalo-personal-data:
     name: sven-zalo-personal-data
+  whatsapp-personal-sessions:
+    name: sven-whatsapp-personal-sessions

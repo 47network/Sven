@@ -79,7 +79,6 @@ class _ChatHomePageState extends State<ChatHomePage> {
   ChatSseService? _sseService;
   StreamSubscription<SseEvent>? _sseSub;
   Timer? _fallbackPollTimer;
-  bool _sseActive = false;
 
   @override
   void initState() {
@@ -120,14 +119,13 @@ class _ChatHomePageState extends State<ChatHomePage> {
     _sseService = null;
     _fallbackPollTimer?.cancel();
     _fallbackPollTimer = null;
-    _sseActive = false;
   }
 
   void _onSseEvent(SseEvent event) {
     if (!mounted) return;
     switch (event.type) {
       case 'heartbeat':
-        _sseActive = true;
+        break;
       case 'message':
       case 'approval':
         // Any real event means the chat list may have changed.

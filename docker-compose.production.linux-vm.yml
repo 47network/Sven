@@ -5,6 +5,13 @@ services:
       ARTIFACT_STORAGE_ROOT: ${ARTIFACT_STORAGE_ROOT:-/var/lib/sven/artifacts}
       SVEN_NAS_ROOT: ${SVEN_NAS_ROOT:-/var/lib/sven/nas}
       SVEN_INTEGRATION_STORAGE_ROOT: ${SVEN_INTEGRATION_STORAGE_ROOT:-/var/lib/sven/integrations}
+      SVEN_LLM_MODEL: ${SVEN_LLM_MODEL:-qwen2.5:7b}
+      SVEN_LLM_ENDPOINT: ${SVEN_LLM_ENDPOINT:-http://10.47.47.13:11434}
+      SVEN_LLM_POWER_MODEL: ${SVEN_LLM_POWER_MODEL:-qwen2.5:32b}
+      SVEN_LLM_POWER_ENDPOINT: ${SVEN_LLM_POWER_ENDPOINT:-http://10.47.47.9:11434}
+      SVEN_LOOP_AUTOSTART: ${SVEN_LOOP_AUTOSTART:-true}
+      SVEN_AUTO_TRADE: ${SVEN_AUTO_TRADE:-true}
+      SVEN_AUTO_TRADE_MIN_CONFIDENCE: ${SVEN_AUTO_TRADE_MIN_CONFIDENCE:-0.60}
     volumes:
       - ${SVEN_PROD_ARTIFACTS_DIR:-/srv/sven/prod/data/artifacts}:${SVEN_STORAGE_ROOT:-/var/lib/sven/artifacts}
       - ${SVEN_PROD_NAS_DIR:-/srv/sven/prod/data/nas}:${SVEN_NAS_ROOT:-/var/lib/sven/nas}

@@ -135,8 +135,8 @@ export default function ModelRegistryPage() {
                   <p className="text-xs text-slate-500 mt-0.5">{m.provider} / {m.model_id}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <span className={m.enabled ? 'badge-success' : 'badge-neutral'}>{m.enabled ? 'active' : 'disabled'}</span>
-                    {m.is_primary && <span className="badge-info">primary</span>}
-                    {m.max_tokens && <span className="badge-neutral">{m.max_tokens} tokens</span>}
+                    {Boolean(m.is_primary) && <span className="badge-info">primary</span>}
+                    {Boolean(m.max_tokens) && <span className="badge-neutral">{m.max_tokens} tokens</span>}
                     {m.cost_per_1k_tokens !== null && m.cost_per_1k_tokens !== undefined && (
                       <span className="badge-neutral">${m.cost_per_1k_tokens}/1k</span>
                     )}
@@ -146,7 +146,7 @@ export default function ModelRegistryPage() {
                   <TestTube2 className="h-4 w-4" />
                 </button>
               </div>
-              {m.base_url && (
+              {Boolean(m.base_url) && (
                 <p className="mt-2 text-xs text-slate-400 font-mono truncate">{m.base_url}</p>
               )}
             </div>

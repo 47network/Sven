@@ -3,16 +3,18 @@
 // from a natural-language description like "a crystal dragon" or "a neon cat"
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'package:flutter/foundation.dart';
+
 import 'dart:convert';
 
+import '../../app/api_base_service.dart';
 import '../../app/authenticated_client.dart';
-import '../../config/env_config.dart';
 import 'custom_shape_spec.dart';
 
 class ShapeGenService {
   ShapeGenService({required AuthenticatedClient client}) : _client = client;
 
-  static final _apiBase = EnvConfig.apiBase;
+  static String get _apiBase => ApiBaseService.currentSync();
 
   final AuthenticatedClient _client;
 
@@ -116,7 +118,9 @@ Output ONLY the JSON object, nothing else.''';
     // Cleanup: delete the temporary chat (fire and forget)
     try {
       await _client.delete(Uri.parse('$_apiBase/v1/chats/$chatId'));
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[ShapeGenService] temp chat cleanup failed: $e');
+    }
 
     return _parseSpec(content, description);
   }

@@ -201,7 +201,7 @@ export default function EmailPage() {
                 <span className={ev.status === 'success' ? 'text-emerald-600' : 'text-red-600'}>{ev.status}</span>
                 <span className="text-slate-500">{String(ev.created_at || '')}</span>
               </div>
-              {ev.error && <div className="text-red-600">{String(ev.error)}</div>}
+              {Boolean(ev.error) && <div className="text-red-600">{String(ev.error)}</div>}
             </div>
           ))}
           {!selectedSub && <p className="text-sm text-slate-500">Select a subscription to view logs.</p>}

@@ -115,6 +115,9 @@ class OpenAiCompatUpstreamTimeoutError extends Error {
   }
 }
 
+/** SSE keepalive interval — prevents reverse proxy and client inactivity timeouts */
+const SSE_KEEPALIVE_INTERVAL_MS = 15_000;
+
 const DEFAULT_GLOBAL_KEY_FORWARD_ALLOWLIST = ['api.openai.com'];
 const PRIVATE_ENDPOINT_BLOCKLIST = new Set([
   'localhost',
@@ -668,16 +671,35 @@ function isOpenAiCompatUpstreamTimeoutError(error: unknown): error is OpenAiComp
   return error instanceof OpenAiCompatUpstreamTimeoutError;
 }
 
+/**
+ * Fetch with a connection timeout. For non-streaming requests this is a
+ * hard wall-clock limit. For streaming callers the timeout only governs
+ * the initial connection + first byte — the caller is responsible for
+ * handling inactivity once the body stream is open.
+ */
 async function fetchOpenAiCompatUpstream(input: string, init: RequestInit): Promise<Response> {
   const timeoutMs = getOpenAiCompatUpstreamTimeoutMs();
+  const controller = new AbortController();
+  // Merge caller-provided signal if any
+  if (init.signal) {
+    init.signal.addEventListener('abort', () => controller.abort(init.signal!.reason), { once: true });
+  }
+  const timer = setTimeout(() => controller.abort(new OpenAiCompatUpstreamTimeoutError(timeoutMs)), timeoutMs);
   try {
-    return await fetch(input, {
+    const response = await fetch(input, {
       ...init,
-      signal: AbortSignal.timeout(timeoutMs),
+      signal: controller.signal,
     });
+    // Connection established and headers received — clear the connection timer.
+    // For streaming, the body is read progressively; we don't timeout the entire stream.
+    clearTimeout(timer);
+    return response;
   } catch (error) {
-    if (isAbortLikeError(error)) {
-      throw new OpenAiCompatUpstreamTimeoutError(timeoutMs);
+    clearTimeout(timer);
+    if (isAbortLikeError(error) || isOpenAiCompatUpstreamTimeoutError(error)) {
+      throw error instanceof OpenAiCompatUpstreamTimeoutError
+        ? error
+        : new OpenAiCompatUpstreamTimeoutError(timeoutMs);
     }
     throw error;
   }
@@ -1168,6 +1190,17 @@ export async function registerOpenAIRoutes(app: FastifyInstance, pool: pg.Pool) 
         'X-Accel-Buffering': 'no',
       });
 
+      // Keepalive prevents reverse proxy (nginx proxy_read_timeout) and
+      // client-side inactivity timeouts from killing the connection while
+      // the upstream LLM is thinking / loading a model.
+      const keepalive = setInterval(() => {
+        try {
+          reply.raw.write(': keepalive\n\n');
+        } catch {
+          clearInterval(keepalive);
+        }
+      }, SSE_KEEPALIVE_INTERVAL_MS);
+
       try {
         if (model.provider === 'ollama') {
           await streamOllama(model, body.messages, params, reply.raw, completionId, created, pacing);
@@ -1194,6 +1227,7 @@ export async function registerOpenAIRoutes(app: FastifyInstance, pool: pg.Pool) 
           // client may have disconnected
         }
       } finally {
+        clearInterval(keepalive);
         try {
           reply.raw.end();
         } catch {
