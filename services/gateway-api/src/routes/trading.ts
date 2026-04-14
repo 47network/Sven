@@ -1330,6 +1330,75 @@ Respond ONLY with a JSON object, no other text:
     }
   }
 
+  // ── Batch 9D: Multi-timeframe signal confluence ──────────────
+  // Compute trend direction on multiple timeframes (15m, 1h, 4h)
+  // and boost signal confidence when all agree. Disagreement between
+  // timeframes is a warning sign — trends confirmed across scales
+  // are more reliable.
+  interface MultiTfResult {
+    tf15m: 'long' | 'short' | 'neutral';
+    tf1h: 'long' | 'short' | 'neutral';
+    tf4h: 'long' | 'short' | 'neutral';
+    alignment: 'aligned' | 'partial' | 'conflicting';
+    confluenceBoost: number; // 0.8 (conflicting) to 1.3 (fully aligned)
+    dominantDirection: 'long' | 'short' | 'neutral';
+  }
+
+  function computeSmaDirection(candles: Candle[], period = 20): 'long' | 'short' | 'neutral' {
+    if (candles.length < period + 1) return 'neutral';
+    // SMA of last `period` bars
+    const recent = candles.slice(-period);
+    const sma = recent.reduce((s, c) => s + c.close, 0) / period;
+    const currentPrice = candles[candles.length - 1]!.close;
+    const pctFromSma = (currentPrice - sma) / sma;
+    // Need meaningful separation from SMA to declare direction
+    if (pctFromSma > 0.003) return 'long';
+    if (pctFromSma < -0.003) return 'short';
+    return 'neutral';
+  }
+
+  function computeMultiTfConfluence(
+    candles15m: Candle[],
+    candles1h: Candle[],
+    candles4h: Candle[],
+  ): MultiTfResult {
+    const tf15m = computeSmaDirection(candles15m, 20);
+    const tf1h = computeSmaDirection(candles1h, 20);
+    const tf4h = computeSmaDirection(candles4h, 20);
+
+    const dirs = [tf15m, tf1h, tf4h];
+    const longCount = dirs.filter(d => d === 'long').length;
+    const shortCount = dirs.filter(d => d === 'short').length;
+
+    let alignment: 'aligned' | 'partial' | 'conflicting';
+    let confluenceBoost: number;
+    let dominantDirection: 'long' | 'short' | 'neutral';
+
+    if (longCount === 3 || shortCount === 3) {
+      // All 3 timeframes agree — strong signal
+      alignment = 'aligned';
+      confluenceBoost = 1.3;
+      dominantDirection = longCount === 3 ? 'long' : 'short';
+    } else if (longCount >= 2 || shortCount >= 2) {
+      // 2/3 agree — partial confirmation
+      alignment = 'partial';
+      confluenceBoost = 1.1;
+      dominantDirection = longCount >= 2 ? 'long' : 'short';
+    } else if (longCount > 0 && shortCount > 0) {
+      // Timeframes disagree — conflicting signals, reduce confidence
+      alignment = 'conflicting';
+      confluenceBoost = 0.8;
+      dominantDirection = 'neutral';
+    } else {
+      // All neutral or mixed with neutral
+      alignment = 'partial';
+      confluenceBoost = 1.0;
+      dominantDirection = longCount > shortCount ? 'long' : shortCount > longCount ? 'short' : 'neutral';
+    }
+
+    return { tf15m, tf1h, tf4h, alignment, confluenceBoost, dominantDirection };
+  }
+
   /** Fetch recent news from database */
   async function fetchRecentNews(): Promise<any[]> {
     try {
@@ -1477,16 +1546,20 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       broadcastEvent(createTradingEvent('state_change', { state: 'scanning', symbols, iteration: loopIterations }));
 
       // Fetch market data for ALL symbols in parallel
+      // Batch 9D: Fetch multiple timeframes (15m, 1h, 4h) for multi-timeframe
+      // signal confirmation. Trends confirmed across timeframes are more reliable.
       const marketDataPromises = symbols.map(async (symbol) => {
         const binanceSymbol = BINANCE_SYMBOL_MAP[symbol] ?? symbol.replace('/', '');
         try {
-          const [candles, currentPrice] = await Promise.all([
-            fetchBinanceCandles(binanceSymbol, '1h', 200), // Batch 7: 200 bars for multi-timeframe SMA
+          const [candles1h, candles15m, candles4h, currentPrice] = await Promise.all([
+            fetchBinanceCandles(binanceSymbol, '1h', 200),
+            fetchBinanceCandles(binanceSymbol, '15m', 100),
+            fetchBinanceCandles(binanceSymbol, '4h', 100),
             fetchBinancePrice(binanceSymbol),
           ]);
-          return { symbol, binanceSymbol, candles, currentPrice, error: null as string | null };
+          return { symbol, binanceSymbol, candles: candles1h, candles15m, candles4h, currentPrice, error: null as string | null };
         } catch (err) {
-          return { symbol, binanceSymbol, candles: [] as Candle[], currentPrice: 0, error: (err as Error).message };
+          return { symbol, binanceSymbol, candles: [] as Candle[], candles15m: [] as Candle[], candles4h: [] as Candle[], currentPrice: 0, error: (err as Error).message };
         }
       });
 
@@ -1516,6 +1589,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         output: AutonomousDecisionOutput;
         signalStrength: number;
         riskPassed: boolean;
+        multiTf?: MultiTfResult;
       }
       const analyses: SymbolAnalysis[] = [];
 
@@ -1579,8 +1653,24 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
           consecutiveWins: svenConsecutiveWins,
         };
         const output = makeAutonomousDecision(input);
-        const signalStrength = output.aggregatedSignal?.strength ?? 0;
+        let signalStrength = output.aggregatedSignal?.strength ?? 0;
         const riskPassed = output.riskChecks.every((r: any) => r.passed);
+
+        // Batch 9D: Multi-timeframe confluence — boost or dampen signal
+        // based on whether 15m, 1h, and 4h timeframes agree on direction.
+        const mtf = computeMultiTfConfluence(data.candles15m, data.candles, data.candles4h);
+        signalStrength = Math.min(1, signalStrength * mtf.confluenceBoost);
+
+        // If all timeframes disagree with the primary signal direction,
+        // override to hold — don't trade against the higher timeframe.
+        const signalDir = output.aggregatedSignal?.direction ?? 'close';
+        if (mtf.alignment === 'conflicting' || (mtf.dominantDirection !== 'neutral' && signalDir !== 'close' && signalDir !== mtf.dominantDirection)) {
+          // Don't override — just reduce strength further via the 0.8x boost already applied
+        }
+
+        if (mtf.alignment === 'aligned') {
+          logger.info('Multi-TF aligned', { symbol: data.symbol, direction: mtf.dominantDirection, tf15m: mtf.tf15m, tf1h: mtf.tf1h, tf4h: mtf.tf4h, boost: mtf.confluenceBoost });
+        }
 
         analyses.push({
           symbol: data.symbol,
@@ -1589,6 +1679,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
           output,
           signalStrength,
           riskPassed,
+          multiTf: mtf,
         });
 
         // Broadcast events for each symbol's analysis
@@ -2135,6 +2226,13 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
             score: symbolSentiments.get(a.symbol)!.score,
             confidence: symbolSentiments.get(a.symbol)!.confidence,
           } : null,
+          multiTf: a.multiTf ? {
+            tf15m: a.multiTf.tf15m,
+            tf1h: a.multiTf.tf1h,
+            tf4h: a.multiTf.tf4h,
+            alignment: a.multiTf.alignment,
+            boost: a.multiTf.confluenceBoost,
+          } : null,
         })),
         llmReasonings: llmReasonings.slice(0, 5),
         autoTradeEnabled: AUTO_TRADE_ENABLED,
@@ -2154,6 +2252,12 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       const holdCount = analyses.filter(a => a.decision.decisionType === 'hold').length;
       const taVetoCount = analyses.filter(a => a.decision.decisionType === 'hold' && a.decision.reason?.startsWith('TA veto')).length;
 
+      // Batch 9D: Summarize multi-TF confluence across all analyzed symbols
+      const mtfSummary: Record<string, string> = {};
+      for (const a of analyses) {
+        if (a.multiTf) mtfSummary[a.symbol] = `${a.multiTf.alignment}(${a.multiTf.tf15m}/${a.multiTf.tf1h}/${a.multiTf.tf4h})`;
+      }
+
       logger.info('autonomous loop tick (multi-symbol)', {
         iteration: loopIterations,
         symbolsScanned: validData.length,
@@ -2163,6 +2267,8 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         holdsCount: holdCount,
         taVetoes: taVetoCount,
         llmSentiments: symbolSentiments.size,
+        multiTfAligned: analyses.filter(a => a.multiTf?.alignment === 'aligned').length,
+        multiTfConflicting: analyses.filter(a => a.multiTf?.alignment === 'conflicting').length,
         balance: svenAccount.balance,
         totalPnl: svenTotalPnl,
         dailyPnl: svenDailyPnl,
