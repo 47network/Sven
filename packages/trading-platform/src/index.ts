@@ -8,6 +8,7 @@ export * from './risk/index.js';
 export * from './oms/index.js';
 export * from './predictions/index.js';
 export * from './news/index.js';
+export * from './indicators/index.js';
 export * from './autonomous/index.js';
 export * from './broker/index.js';
 export * from './backtest/index.js';

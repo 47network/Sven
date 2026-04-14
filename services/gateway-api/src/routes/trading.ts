@@ -1811,7 +1811,22 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       const dynamicSymbols = dynamicWatchlist
         .filter(d => d.expiresAt.getTime() > Date.now())
         .map(d => d.symbol);
-      const symbols = [...new Set([...coreSymbols, ...dynamicSymbols])];
+
+      // Include symbols from open positions so they always get exit-checked
+      // even if they've rotated out of the dynamic watchlist
+      let positionSymbols: string[] = [];
+      try {
+        const posOrg = await resolvePublicOrg(pool, { orgId: '' });
+        if (posOrg) {
+          const { rows: posRows } = await pool.query(
+            `SELECT DISTINCT symbol FROM trading_positions WHERE org_id = $1 AND status = 'open' AND user_id = '${SVEN_AUTONOMOUS_USER_ID}'`,
+            [posOrg],
+          );
+          positionSymbols = posRows.map((r: { symbol: string }) => r.symbol);
+        }
+      } catch { /* schema compat */ }
+
+      const symbols = [...new Set([...coreSymbols, ...dynamicSymbols, ...positionSymbols])];
 
       broadcastEvent(createTradingEvent('state_change', { state: 'scanning', symbols, iteration: loopIterations }));
 
@@ -2032,6 +2047,11 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
               signalStrength: candidate.output.aggregatedSignal?.strength,
               kronosDirection: candidate.output.kronosPrediction?.horizons?.[0]?.predictedDirection ?? 'n/a',
               mirofishDirection: candidate.output.mirofishResult?.consensusDirection ?? 'n/a',
+              taDirection: candidate.output.technicalAnalysis?.direction ?? 'n/a',
+              taStrength: candidate.output.technicalAnalysis?.strength ?? 0,
+              taConfluence: candidate.output.technicalAnalysis?.confluence ?? 0,
+              rsi: candidate.output.technicalAnalysis?.rsi?.value?.toFixed(1) ?? 'n/a',
+              macdCrossover: candidate.output.technicalAnalysis?.macd?.crossover ?? 'n/a',
               llmNode: llmResult.node, positionsThisTick, totalExposurePct: (totalExposurePct * 100).toFixed(1),
               paperTrade: PAPER_TRADE_MODE,
             });
@@ -2046,7 +2066,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         const defaultOrg = await resolvePublicOrg(pool, { orgId: '' });
         if (defaultOrg) {
           const { rows: openPositions } = await pool.query(
-            `SELECT id, symbol, side, quantity, avg_entry_price FROM trading_positions WHERE org_id = $1 AND status = 'open' AND user_id = '${SVEN_AUTONOMOUS_USER_ID}'`,
+            `SELECT id, symbol, side, quantity, avg_entry_price, opened_at FROM trading_positions WHERE org_id = $1 AND status = 'open' AND user_id = '${SVEN_AUTONOMOUS_USER_ID}'`,
             [defaultOrg],
           );
           for (const pos of openPositions) {
@@ -2067,8 +2087,31 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
               );
             } catch { /* schema compat */ }
 
-            // Exit conditions: 3% profit take (small wins compound) or 2% stop loss
-            const shouldClose = priceDelta >= 0.03 || priceDelta <= -0.02;
+            // ── Smart Exit Logic ────────────────────────────────────
+            // Paper mode uses tighter thresholds to generate more learning data.
+            // Three exit conditions (any one triggers close):
+            //   1. Take profit: 1.5% (paper) / 3% (live)
+            //   2. Stop loss: -1% (paper) / -2% (live)
+            //   3. Time-based: close after 2h if profitable, 4h regardless (paper only)
+            //      This prevents capital being tied up in ranging positions.
+            const TP_THRESHOLD = PAPER_TRADE_MODE ? 0.015 : 0.03;
+            const SL_THRESHOLD = PAPER_TRADE_MODE ? -0.01 : -0.02;
+
+            let shouldClose = priceDelta >= TP_THRESHOLD || priceDelta <= SL_THRESHOLD;
+            let closeReason = priceDelta >= TP_THRESHOLD ? 'take_profit' : priceDelta <= SL_THRESHOLD ? 'stop_loss' : '';
+
+            // Time-based exit for paper mode — force close stale positions to generate learning data
+            if (!shouldClose && PAPER_TRADE_MODE && pos.opened_at) {
+              const ageMs = Date.now() - new Date(pos.opened_at).getTime();
+              const ageHours = ageMs / 3_600_000;
+              if (ageHours >= 2 && priceDelta > 0) {
+                shouldClose = true;
+                closeReason = 'time_profit_lock';
+              } else if (ageHours >= 4) {
+                shouldClose = true;
+                closeReason = 'time_expiry';
+              }
+            }
 
             if (shouldClose) {
               const pnl = priceDelta * parseFloat(pos.quantity) * entryPrice;
@@ -2110,18 +2153,19 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
                 pnl,
                 pnlPct: (priceDelta * 100).toFixed(2),
                 balance: svenAccount.balance,
+                closeReason,
               }));
 
               svenSendMessage({
                 type: 'trade_alert',
-                title: `Position Closed: ${pos.symbol} ${pnl >= 0 ? 'PROFIT' : 'LOSS'}`,
+                title: `Position Closed: ${pos.symbol} ${pnl >= 0 ? 'PROFIT' : 'LOSS'} (${closeReason})`,
                 body: `${pos.side.toUpperCase()} ${pos.symbol}: ${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)} 47T (${(priceDelta * 100).toFixed(2)}%). Balance: ${svenAccount.balance.toFixed(2)} 47T`,
                 symbol: pos.symbol,
                 severity: pnl >= 0 ? 'info' : 'warning',
               });
 
               logger.info('Sven position closed', {
-                positionId: pos.id, symbol: pos.symbol, side: pos.side,
+                positionId: pos.id, symbol: pos.symbol, side: pos.side, closeReason,
                 pnl, pnlPct: (priceDelta * 100).toFixed(2), balance: svenAccount.balance,
               });
             }
@@ -2435,8 +2479,16 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
             topStrategies: output.mirofishResult.topStrategies.slice(0, 3),
           } : null,
           newsSignals: output.newsSignals.length,
+          technicalAnalysis: output.technicalAnalysis ? {
+            direction: output.technicalAnalysis.direction,
+            strength: output.technicalAnalysis.strength,
+            confluence: output.technicalAnalysis.confluence,
+            rsi: output.technicalAnalysis.rsi?.value ?? null,
+            macdCrossover: output.technicalAnalysis.macd?.crossover ?? null,
+            bollingerPercentB: output.technicalAnalysis.bollinger?.percentB ?? null,
+          } : null,
           order: output.order,
-          signalCount: output.newsSignals.length + (output.kronosPrediction ? 1 : 0) + (output.mirofishResult ? 1 : 0),
+          signalCount: output.newsSignals.length + (output.kronosPrediction ? 1 : 0) + (output.mirofishResult ? 1 : 0) + (output.technicalAnalysis ? 1 : 0),
         },
       };
     } catch (err) {

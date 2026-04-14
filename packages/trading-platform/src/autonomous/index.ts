@@ -78,6 +78,11 @@ import {
   type ImpactLevel,
 } from '../news/index.js';
 
+import {
+  computeTechnicalAnalysis,
+  type TechnicalAnalysis,
+} from '../indicators/index.js';
+
 /* ── Sven State Machine ────────────────────────────────────────────────── */
 
 export type SvenTradingState =
@@ -637,6 +642,7 @@ export interface AutonomousDecisionOutput {
   kronosPrediction: MultiHorizonPrediction | null;
   mirofishResult: SimulationResult | null;
   newsSignals: NewsSignal[];
+  technicalAnalysis: TechnicalAnalysis | null;
   aggregatedSignal: Signal | null;
   riskChecks: RiskCheckResult[];
   order: Order | null;
@@ -669,6 +675,7 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
       kronosPrediction: null,
       mirofishResult: null,
       newsSignals: [],
+      technicalAnalysis: null,
       aggregatedSignal: null,
       riskChecks: [],
       order: null,
@@ -764,6 +771,42 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
     }
   }
 
+  // ── 3b. Technical Analysis (RSI, MACD, Bollinger Bands) ──────────
+  events.push(createTradingEvent('state_change', { state: 'analyzing', phase: 'technical', symbol: input.symbol }));
+
+  const ta = computeTechnicalAnalysis(input.candles);
+  if (ta.direction !== 'neutral' && ta.strength > 0) {
+    const taSignal: Signal = {
+      id: `technical-${Date.now()}`,
+      symbol: input.symbol,
+      direction: ta.direction === 'long' ? 'long' : 'short',
+      strength: ta.strength,
+      source: 'technical',
+      createdAt: new Date(),
+      metadata: {
+        rsi: ta.rsi?.value ?? null,
+        rsiDirection: ta.rsi?.direction ?? null,
+        macdHistogram: ta.macd?.histogram ?? null,
+        macdCrossover: ta.macd?.crossover ?? null,
+        bollingerPercentB: ta.bollinger?.percentB ?? null,
+        bollingerSqueeze: ta.bollinger?.squeeze ?? null,
+        confluence: ta.confluence,
+      },
+    };
+    allSignals.push(taSignal);
+
+    events.push(createTradingEvent('prediction_ready', {
+      model: 'technical_analysis',
+      symbol: input.symbol,
+      direction: ta.direction,
+      strength: ta.strength,
+      confluence: ta.confluence,
+      rsi: ta.rsi?.value ?? null,
+      macdCrossover: ta.macd?.crossover ?? null,
+      bollingerPercentB: ta.bollinger?.percentB ?? null,
+    }));
+  }
+
   // ── 4. Aggregate All Signals ──────────────────────────────────────
   events.push(createTradingEvent('state_change', { state: 'deciding', symbol: input.symbol }));
 
@@ -797,6 +840,7 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
       kronosPrediction,
       mirofishResult,
       newsSignals,
+      technicalAnalysis: ta,
       aggregatedSignal: aggregated,
       riskChecks: [],
       order: null,
@@ -840,6 +884,7 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
           kronosPrediction,
           mirofishResult,
           newsSignals,
+          technicalAnalysis: ta,
           aggregatedSignal: aggregated,
           riskChecks: [],
           order: null,
@@ -867,6 +912,7 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
       kronosPrediction,
       mirofishResult,
       newsSignals,
+      technicalAnalysis: ta,
       aggregatedSignal: aggregated,
       riskChecks: [],
       order: null,
@@ -941,6 +987,7 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
       kronosPrediction,
       mirofishResult,
       newsSignals,
+      technicalAnalysis: ta,
       aggregatedSignal: aggregated,
       riskChecks,
       order: null,
@@ -1006,6 +1053,7 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
     kronosPrediction,
     mirofishResult,
     newsSignals,
+    technicalAnalysis: ta,
     aggregatedSignal: aggregated,
     riskChecks,
     order,
