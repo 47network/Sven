@@ -1890,8 +1890,8 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       // ═══ RANK OPPORTUNITIES & TRADE THE BEST ═══════════════════════
       // Sort by signal strength descending. Sven can take multiple positions
       // but respects portfolio limits (max 3 concurrent positions, max 25% total exposure).
-      const MAX_CONCURRENT_POSITIONS = 3;
-      const MAX_TOTAL_EXPOSURE_PCT = 0.25;
+      const MAX_CONCURRENT_POSITIONS = PAPER_TRADE_MODE ? 10 : 3;
+      const MAX_TOTAL_EXPOSURE_PCT = PAPER_TRADE_MODE ? 0.80 : 0.25;
       let totalExposurePct = 0;
       let positionsThisTick = 0;
 
@@ -2028,6 +2028,10 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
             logger.info('Sven auto-trade executed', {
               orderId, symbol: candidate.symbol, side: orderSide, quantity,
               price: candidate.currentPrice, confidence: candidate.decision.confidence,
+              signalDirection: candidate.output.aggregatedSignal?.direction,
+              signalStrength: candidate.output.aggregatedSignal?.strength,
+              kronosDirection: candidate.output.kronosPrediction?.horizons?.[0]?.predictedDirection ?? 'n/a',
+              mirofishDirection: candidate.output.mirofishResult?.consensusDirection ?? 'n/a',
               llmNode: llmResult.node, positionsThisTick, totalExposurePct: (totalExposurePct * 100).toFixed(1),
               paperTrade: PAPER_TRADE_MODE,
             });
@@ -2053,6 +2057,15 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
             const priceDelta = pos.side === 'long'
               ? (currentData.currentPrice - entryPrice) / entryPrice
               : (entryPrice - currentData.currentPrice) / entryPrice;
+
+            // Always update current price and unrealized P&L on open positions
+            const unrealizedPnl = priceDelta * parseFloat(pos.quantity) * entryPrice;
+            try {
+              await pool.query(
+                `UPDATE trading_positions SET current_price = $1, unrealized_pnl = $2 WHERE id = $3 AND org_id = $4 AND status = 'open'`,
+                [currentData.currentPrice, unrealizedPnl, pos.id, defaultOrg],
+              );
+            } catch { /* schema compat */ }
 
             // Exit conditions: 3% profit take (small wins compound) or 2% stop loss
             const shouldClose = priceDelta >= 0.03 || priceDelta <= -0.02;

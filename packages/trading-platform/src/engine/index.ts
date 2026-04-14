@@ -244,7 +244,10 @@ export function aggregateSignals(signals: Signal[], weights: WeightedSource[] = 
 
   const netLong = longScore / totalWeight;
   const netShort = shortScore / totalWeight;
-  const direction: SignalDirection = netLong > netShort ? 'long' : netShort > netLong ? 'short' : 'close';
+  // Require a meaningful difference to declare direction — prevents tiny bias from forcing all trades one way
+  const scoreDiff = Math.abs(netLong - netShort);
+  const minConviction = 0.10; // 10% minimum edge to declare directional
+  const direction: SignalDirection = scoreDiff < minConviction ? 'close' : netLong > netShort ? 'long' : 'short';
   const strength = Math.max(netLong, netShort);
 
   return {

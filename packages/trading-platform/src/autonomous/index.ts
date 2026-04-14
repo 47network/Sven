@@ -180,6 +180,7 @@ export type TradingEventType =
   | 'loop_error'         // autonomous loop iteration error
   | 'trade_executed'     // Sven auto-executed a trade
   | 'trend_scout'       // news-driven symbol discovery event
+  | 'signal_override'    // signal source override (e.g. paper mode)
   | 'sven_message';      // proactive message from Sven
 
 export interface TradingEvent {
@@ -389,25 +390,30 @@ export function runMiroFishSimulation(
 
       switch (agent.strategy) {
         case 'momentum':
-          signal = avgReturn > 0 ? 1 : avgReturn < 0 ? -1 : 0;
+          // Only signal when trend is meaningful (beyond noise threshold)
+          signal = avgReturn > volatility * 0.5 ? 1 : avgReturn < -volatility * 0.5 ? -1 : 0;
           break;
         case 'mean_reversion':
           signal = current.close < avgClose * 0.98 ? 1 : current.close > avgClose * 1.02 ? -1 : 0;
           break;
         case 'sentiment':
-          // Proxy: volume surge = bullish, volume drop = bearish
-          signal = current.volume > lookback.reduce((s, c) => s + c.volume, 0) / lookback.length * 1.5 ? 1 : -1;
+          // Volume surge = bullish, volume drought = bearish, normal = neutral
+          {
+            const avgVol = lookback.reduce((s, c) => s + c.volume, 0) / lookback.length;
+            signal = current.volume > avgVol * 1.5 ? 1 : current.volume < avgVol * 0.5 ? -1 : 0;
+          }
           break;
         case 'fundamental':
-          // Proxy: if price is below 50-period avg, bullish (undervalued)
-          signal = current.close < avgClose ? 1 : -1;
+          // Only signal when significantly away from avg (2% bands)
+          signal = current.close < avgClose * 0.98 ? 1 : current.close > avgClose * 1.02 ? -1 : 0;
           break;
         case 'technical':
           // RSI-like: oversold/overbought
           signal = avgReturn < -volatility ? 1 : avgReturn > volatility ? -1 : 0;
           break;
         case 'contrarian':
-          signal = avgReturn > 0 ? -1 : 1;
+          // Only go contrarian on strong trends (beyond 1.5x volatility)
+          signal = avgReturn > volatility * 1.5 ? -1 : avgReturn < -volatility * 1.5 ? 1 : 0;
           break;
         case 'random_walk':
           signal = Math.random() > 0.5 ? 1 : -1;
@@ -784,6 +790,76 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
       reason: 'Insufficient signal conviction',
       signalCount: allSignals.length,
       aggregatedStrength: aggregated?.strength ?? 0,
+    }));
+
+    return {
+      decision,
+      kronosPrediction,
+      mirofishResult,
+      newsSignals,
+      aggregatedSignal: aggregated,
+      riskChecks: [],
+      order: null,
+      events,
+      updatedLearningMetrics: metrics,
+      updatedCircuitBreaker: cb,
+    };
+  }
+
+  // ── 4b. Conflicting Source Filter — resolve before neutral check ──
+  const kronosSignal = allSignals.find((s) => s.source === 'kronos');
+  const mirofishSig = allSignals.find((s) => s.source === 'mirofish');
+  if (kronosSignal && mirofishSig && kronosSignal.direction !== 'close' && mirofishSig.direction !== 'close') {
+    const kronosLong = kronosSignal.direction === 'long';
+    const mirofishLong = mirofishSig.direction === 'long';
+    if (kronosLong !== mirofishLong) {
+      if (input.paperTradeMode) {
+        // Paper mode: override aggregation to use Kronos direction (actual market data)
+        // MiroFish has inherent mean-reversion bias from strategy mix; Kronos follows price action
+        aggregated.direction = kronosSignal.direction;
+        aggregated.strength = kronosSignal.strength * 0.75; // Penalize for lack of consensus
+        events.push(createTradingEvent('signal_override', {
+          reason: 'Conflicting sources — using Kronos (data-driven) over MiroFish (mean-reversion bias)',
+          kronosDirection: kronosSignal.direction,
+          mirofishDirection: mirofishSig.direction,
+        }));
+      } else {
+        // Live mode: skip — too risky when primary sources disagree
+        const decision = buildDecision('hold', input.symbol, allSignals, {},
+          `Conflicting signals — Kronos: ${kronosSignal.direction}, MiroFish: ${mirofishSig.direction}. Skipping trade until sources align.`);
+        events.push(createTradingEvent('decision_made', {
+          type: 'hold',
+          symbol: input.symbol,
+          reason: 'Conflicting primary signal sources',
+          kronosDirection: kronosSignal.direction,
+          mirofishDirection: mirofishSig.direction,
+        }));
+
+        return {
+          decision,
+          kronosPrediction,
+          mirofishResult,
+          newsSignals,
+          aggregatedSignal: aggregated,
+          riskChecks: [],
+          order: null,
+          events,
+          updatedLearningMetrics: metrics,
+          updatedCircuitBreaker: cb,
+        };
+      }
+    }
+  }
+
+  // ── 4c. Neutral Direction Filter — skip when no directional edge ──
+  if (aggregated.direction === 'close') {
+    const decision = buildDecision('hold', input.symbol, allSignals, {}, `No directional edge — signals are neutral (long/short equally weighted)`);
+    events.push(createTradingEvent('decision_made', {
+      type: 'hold',
+      symbol: input.symbol,
+      reason: 'No directional edge — neutral signals',
+      signalCount: allSignals.length,
+      aggregatedStrength: aggregated.strength,
     }));
 
     return {
