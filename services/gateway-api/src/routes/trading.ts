@@ -128,13 +128,13 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
     }),
   });
 
-  const requireAuth = requireRole(pool, 'admin', 'user');
+  const requireAdmin = requireRole(pool, 'admin');
 
   const instrumentRegistry = new InstrumentRegistry();
   const strategyRegistry = new StrategyRegistry();
 
   // ── Instruments ─────────────────────────────────────────────────────
-  app.get('/v1/trading/instruments', async (request, reply) => {
+  app.get('/v1/trading/instruments', { preHandler: [requireAdmin] }, async (request, reply) => {
     try {
       const instruments = instrumentRegistry.list();
       return { success: true, data: instruments };
@@ -145,7 +145,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   });
 
   // ── Strategies ──────────────────────────────────────────────────────
-  app.get('/v1/trading/strategies', async (request, reply) => {
+  app.get('/v1/trading/strategies', { preHandler: [requireAdmin] }, async (request, reply) => {
     try {
       const strategies = strategyRegistry.list();
       return { success: true, data: strategies };
@@ -155,7 +155,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
     }
   });
 
-  app.post('/v1/trading/signals/aggregate', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/signals/aggregate', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { signals } = request.body as Record<string, any>;
@@ -172,7 +172,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   });
 
   // ── Risk Management ─────────────────────────────────────────────────
-  app.post('/v1/trading/risk/check', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/risk/check', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { signal, context, config } = request.body as Record<string, any>;
@@ -189,7 +189,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
     }
   });
 
-  app.post('/v1/trading/risk/position-size', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/risk/position-size', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { capital, risk_pct, entry_price, stop_loss_price, method = 'fixed_fractional' } = request.body as Record<string, any>;
@@ -208,7 +208,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   });
 
   // ── Order Management ────────────────────────────────────────────────
-  app.post('/v1/trading/orders', { preHandler: [requireAuth], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request, reply) => {
+  app.post('/v1/trading/orders', { preHandler: [requireAdmin], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const body = request.body as Record<string, any>;
@@ -242,7 +242,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
     }
   });
 
-  app.get('/v1/trading/orders', async (request, reply) => {
+  app.get('/v1/trading/orders', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await resolvePublicOrg(pool, request);
     try {
       const { rows } = await pool.query(
@@ -259,7 +259,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   });
 
   // ── Order Status Update ─────────────────────────────────────────────
-  app.patch('/v1/trading/orders/:id/status', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.patch('/v1/trading/orders/:id/status', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { id } = request.params as { id: string };
@@ -308,7 +308,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   });
 
   // ── Close Position ──────────────────────────────────────────────────
-  app.post('/v1/trading/positions/:id/close', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/positions/:id/close', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { id } = request.params as { id: string };
@@ -356,7 +356,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   });
 
   // ── Predictions ─────────────────────────────────────────────────────
-  app.post('/v1/trading/predictions/multi-horizon', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/predictions/multi-horizon', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { symbol, model = 'kronos_v1', current_price, direction_scores } = request.body as Record<string, any>;
@@ -386,7 +386,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
     }
   });
 
-  app.post('/v1/trading/predictions/ensemble', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/predictions/ensemble', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { predictions, weights } = request.body as Record<string, any>;
@@ -403,7 +403,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   });
 
   // ── News Analysis ───────────────────────────────────────────────────
-  app.post('/v1/trading/news/analyze', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/news/analyze', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { headline, summary } = request.body as Record<string, any>;
@@ -431,7 +431,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   });
 
   // ── Portfolio ───────────────────────────────────────────────────────
-  app.post('/v1/trading/portfolio/state', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/portfolio/state', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { capital, positions = [], open_order_count = 0 } = request.body as Record<string, any>;
@@ -447,7 +447,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
     }
   });
 
-  app.post('/v1/trading/portfolio/performance', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/portfolio/performance', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { closed_pnls, initial_capital, holding_periods = [] } = request.body as Record<string, any>;
@@ -2209,7 +2209,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   }
 
   // ── SSE: Live Trading Events Stream ─────────────────────────────
-  app.get('/v1/trading/events', async (request, reply) => {
+  app.get('/v1/trading/events', { preHandler: [requireAdmin] }, async (request, reply) => {
 
     reply.raw.writeHead(200, {
       'Content-Type': 'text/event-stream',
@@ -2236,7 +2236,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   });
 
   // ── Sven Status ─────────────────────────────────────────────────
-  app.get('/v1/trading/sven/status', async (request, reply) => {
+  app.get('/v1/trading/sven/status', { preHandler: [requireAdmin] }, async (request, reply) => {
 
     // Determine active symbol based on loop rotation
     const symbols = DEFAULT_LOOP_CONFIG.trackedSymbols;
@@ -2347,7 +2347,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   });
 
   // ── Sven 47Token Account ───────────────────────────────────────
-  app.get('/v1/trading/sven/account', async (request, reply) => {
+  app.get('/v1/trading/sven/account', { preHandler: [requireAdmin] }, async (request, reply) => {
 
     return {
       success: true,
@@ -2365,7 +2365,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   });
 
   // ── Autonomous Decision Trigger ─────────────────────────────────
-  app.post('/v1/trading/sven/decide', { preHandler: [requireAuth], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (request, reply) => {
+  app.post('/v1/trading/sven/decide', { preHandler: [requireAdmin], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
 
@@ -2425,7 +2425,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   });
 
   // ── Autonomous Loop Control ─────────────────────────────────────
-  app.post('/v1/trading/sven/loop/start', { preHandler: [requireAuth], config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (request, reply) => {
+  app.post('/v1/trading/sven/loop/start', { preHandler: [requireAdmin], config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     if (loopRunning) {
@@ -2440,7 +2440,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     return { success: true, data: { running: true, intervalMs: loopIntervalMs } };
   });
 
-  app.post('/v1/trading/sven/loop/stop', { preHandler: [requireAuth], config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (request, reply) => {
+  app.post('/v1/trading/sven/loop/stop', { preHandler: [requireAdmin], config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     if (!loopRunning) {
@@ -2454,7 +2454,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     return { success: true, data: { running: false, iterations: loopIterations } };
   });
 
-  app.get('/v1/trading/sven/loop/status', async (request, reply) => {
+  app.get('/v1/trading/sven/loop/status', { preHandler: [requireAdmin] }, async (request, reply) => {
     return {
       success: true,
       data: {
@@ -2468,7 +2468,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   });
 
   // ── Kronos Pipeline (standalone) ────────────────────────────────
-  app.post('/v1/trading/kronos/predict', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/kronos/predict', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
 
@@ -2493,7 +2493,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   });
 
   // ── MiroFish Simulation (standalone) ────────────────────────────
-  app.post('/v1/trading/mirofish/simulate', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/mirofish/simulate', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
 
@@ -2519,7 +2519,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   });
 
   // ── Learning: Record Prediction Outcome ─────────────────────────
-  app.post('/v1/trading/sven/learn', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/sven/learn', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
 
@@ -2552,7 +2552,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   });
 
   // ── Circuit Breaker Control ─────────────────────────────────────
-  app.post('/v1/trading/sven/circuit-breaker/reset', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/sven/circuit-breaker/reset', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
 
@@ -2569,11 +2569,11 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   // ═══════════════════════════════════════════════════════════════════
   const brokerRegistry = createDefaultBrokerRegistry();
 
-  app.get('/v1/trading/broker/list', async (request, reply) => {
+  app.get('/v1/trading/broker/list', { preHandler: [requireAdmin] }, async (request, reply) => {
     return { success: true, data: { brokers: brokerRegistry.list() } };
   });
 
-  app.post('/v1/trading/broker/connect', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/broker/connect', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { broker, credentials } = request.body as Record<string, any>;
@@ -2589,7 +2589,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     }
   });
 
-  app.get('/v1/trading/broker/account', async (request, reply) => {
+  app.get('/v1/trading/broker/account', { preHandler: [requireAdmin] }, async (request, reply) => {
     const { broker = 'paper' } = request.query as Record<string, string>;
     try {
       const connector = brokerRegistry.get(broker as BrokerName);
@@ -2604,7 +2604,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     }
   });
 
-  app.post('/v1/trading/broker/order', { preHandler: [requireAuth], config: { rateLimit: { max: 20, timeWindow: '1 minute' } } }, async (request, reply) => {
+  app.post('/v1/trading/broker/order', { preHandler: [requireAdmin], config: { rateLimit: { max: 20, timeWindow: '1 minute' } } }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { broker = 'paper', symbol, side, quantity, type = 'market', limitPrice, timeInForce = 'GTC' } = request.body as Record<string, any>;
@@ -2626,7 +2626,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     }
   });
 
-  app.get('/v1/trading/broker/positions', async (request, reply) => {
+  app.get('/v1/trading/broker/positions', { preHandler: [requireAdmin] }, async (request, reply) => {
     const { broker = 'paper' } = request.query as Record<string, string>;
     try {
       const connector = brokerRegistry.get(broker as BrokerName);
@@ -2641,7 +2641,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     }
   });
 
-  app.get('/v1/trading/broker/health', async (request, reply) => {
+  app.get('/v1/trading/broker/health', { preHandler: [requireAdmin] }, async (request, reply) => {
     try {
       const results = await brokerRegistry.healthCheckAll();
       return { success: true, data: results };
@@ -2657,12 +2657,12 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   // Backtest Routes  (/v1/trading/backtest/*)
   // ═══════════════════════════════════════════════════════════════════
 
-  app.get('/v1/trading/backtest/strategies', async (request, reply) => {
+  app.get('/v1/trading/backtest/strategies', { preHandler: [requireAdmin] }, async (request, reply) => {
     const names = Object.keys(BUILT_IN_STRATEGIES);
     return { success: true, data: { strategies: names } };
   });
 
-  app.post('/v1/trading/backtest/run', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/backtest/run', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { strategy, candles, symbol = 'UNKNOWN', initialCapital = 100_000, positionSizePct = 0.1, commissionPct = 0.001, slippageBps = 5, warmupBars = 50, maxOpenPositions = 1 } = request.body as Record<string, any>;
@@ -2722,7 +2722,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   logger.info('Backtest routes registered (/v1/trading/backtest/*)');
 
   /* GET /v1/trading/backtest/history — retrieve past backtest results */
-  app.get('/v1/trading/backtest/history', async (request, reply) => {
+  app.get('/v1/trading/backtest/history', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await resolvePublicOrg(pool, request);
     const { limit = '20' } = request.query as Record<string, string>;
     try {
@@ -2743,7 +2743,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   // Analytics Routes  (/v1/trading/analytics/*)
   // ═══════════════════════════════════════════════════════════════════
 
-  app.post('/v1/trading/analytics/portfolio', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/analytics/portfolio', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { snapshots, positions, totalEquity, returnSeries } = request.body as Record<string, any>;
@@ -2759,7 +2759,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     }
   });
 
-  app.post('/v1/trading/analytics/drawdowns', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/analytics/drawdowns', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { snapshots } = request.body as Record<string, any>;
@@ -2776,7 +2776,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     }
   });
 
-  app.post('/v1/trading/analytics/exposure', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/analytics/exposure', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { positions, totalEquity } = request.body as Record<string, any>;
@@ -2814,7 +2814,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     }));
   });
 
-  app.get('/v1/trading/alerts', async (request, reply) => {
+  app.get('/v1/trading/alerts', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await resolvePublicOrg(pool, request);
     const { status } = request.query as Record<string, string>;
     /* Prefer in-memory engine; fallback to DB */
@@ -2836,7 +2836,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     }
   });
 
-  app.post('/v1/trading/alerts', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/alerts', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const body = request.body as Record<string, any>;
@@ -2925,7 +2925,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     }
   });
 
-  app.delete('/v1/trading/alerts/:alertId', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.delete('/v1/trading/alerts/:alertId', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { alertId } = request.params as Record<string, string>;
@@ -2938,7 +2938,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     return { success: true, data: { deleted: alertId } };
   });
 
-  app.patch('/v1/trading/alerts/:alertId/disable', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.patch('/v1/trading/alerts/:alertId/disable', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { alertId } = request.params as Record<string, string>;
@@ -2947,7 +2947,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     return { success: true, data: { alertId, status: 'disabled' } };
   });
 
-  app.patch('/v1/trading/alerts/:alertId/enable', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.patch('/v1/trading/alerts/:alertId/enable', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { alertId } = request.params as Record<string, string>;
@@ -2956,7 +2956,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     return { success: true, data: { alertId, status: 'active' } };
   });
 
-  app.post('/v1/trading/alerts/check-price', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/v1/trading/alerts/check-price', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { symbol, price, previousPrice } = request.body as Record<string, any>;
@@ -2970,7 +2970,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   logger.info('Alert routes registered (/v1/trading/alerts/*)');
 
   // ── Positions (DB) ──────────────────────────────────────────────
-  app.get('/v1/trading/positions', async (request, reply) => {
+  app.get('/v1/trading/positions', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await resolvePublicOrg(pool, request);
     const qs = request.query as Record<string, string>;
     const statusFilter = qs.status || 'open';
@@ -2994,7 +2994,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   });
 
   // ── Predictions ─────────────────────────────────────────────────
-  app.get('/v1/trading/predictions', async (request, reply) => {
+  app.get('/v1/trading/predictions', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await resolvePublicOrg(pool, request);
     try {
       const { rows } = await pool.query(
@@ -3014,7 +3014,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   });
 
   // ── News Events ────────────────────────────────────────────────
-  app.get('/v1/trading/news', async (request, reply) => {
+  app.get('/v1/trading/news', { preHandler: [requireAdmin] }, async (request, reply) => {
     const orgId = await resolvePublicOrg(pool, request);
     try {
       const { rows } = await pool.query(
@@ -3040,8 +3040,8 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   // Sven Messages  (/v1/trading/sven/messages/*)
   // ═══════════════════════════════════════════════════════════════════
 
-  // GET — public, anyone can see what Sven is saying
-  app.get('/v1/trading/sven/messages', async (request, reply) => {
+  // GET — admin-only, trading messages are privileged
+  app.get('/v1/trading/sven/messages', { preHandler: [requireAdmin] }, async (request, reply) => {
     const qs = request.query as Record<string, string>;
     const limit = Math.min(Number(qs.limit || 50), 100);
     const typeFilter = qs.type;
@@ -3051,7 +3051,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   });
 
   // POST — auth-gated: schedule a message from Sven
-  app.post('/v1/trading/sven/messages/schedule', { preHandler: [requireAuth], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (request, reply) => {
+  app.post('/v1/trading/sven/messages/schedule', { preHandler: [requireAdmin], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { message, scheduled_for } = request.body as Record<string, any>;
@@ -3136,7 +3136,7 @@ Reference your actual live data when answering. Be data-driven, direct, and self
   }
 
   // POST — auth-gated: ask Sven to send a message now
-  app.post('/v1/trading/sven/messages/send', { preHandler: [requireAuth], config: { rateLimit: { max: 20, timeWindow: '1 minute' } } }, async (request, reply) => {
+  app.post('/v1/trading/sven/messages/send', { preHandler: [requireAdmin], config: { rateLimit: { max: 20, timeWindow: '1 minute' } } }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
     const { prompt } = request.body as Record<string, any>;
@@ -3187,7 +3187,7 @@ Reference your actual live data when answering. Be data-driven, direct, and self
   });
 
   // Mark message as read — auth-gated
-  app.patch('/v1/trading/sven/messages/:id/read', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.patch('/v1/trading/sven/messages/:id/read', { preHandler: [requireAdmin] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const msg = svenMessages.find(m => m.id === id);
     if (!msg) return reply.status(404).send({ success: false, error: { code: 'NOT_FOUND', message: 'Message not found' } });
@@ -3200,7 +3200,7 @@ Reference your actual live data when answering. Be data-driven, direct, and self
   // ═══════════════════════════════════════════════════════════════════
   // Sven Trade Log  (/v1/trading/sven/trades)
   // ═══════════════════════════════════════════════════════════════════
-  app.get('/v1/trading/sven/trades', async (request, reply) => {
+  app.get('/v1/trading/sven/trades', { preHandler: [requireAdmin] }, async (request, reply) => {
     const qs = request.query as Record<string, string>;
     const limit = Math.min(Number(qs.limit || 50), 100);
     return {
@@ -3216,7 +3216,7 @@ Reference your actual live data when answering. Be data-driven, direct, and self
   });
 
   // Toggle auto-trade — auth-gated (admin only)
-  app.post('/v1/trading/sven/auto-trade/config', { preHandler: [requireAuth], config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (request, reply) => {
+  app.post('/v1/trading/sven/auto-trade/config', { preHandler: [requireAdmin], config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
     if (!orgId) return;
 
