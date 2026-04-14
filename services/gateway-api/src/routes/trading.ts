@@ -4,6 +4,26 @@ import pg from 'pg';
 import { v7 as uuidv7 } from 'uuid';
 import { createLogger } from '@sven/shared';
 import { requireRole } from './auth.js';
+import {
+  createGpuFleet, initGpuUtilization,
+  probeGpuNode, callLlm,
+  selectNode, acquireGpu,
+  trackGpuStart, trackGpuEnd,
+  startFleetHealthTimer,
+  createNewsSourceHealthTracker,
+  fetchCryptoPanicNews, fetchCoinGeckoTrending,
+  fetchBinanceMovers, fetchBinanceAnnouncements,
+  fetchFearGreedIndex, fetchCoinGeckoGlobal,
+  fetchDefiLlamaTvl, fetchRssNewsSource,
+  RSS_FEEDS, KNOWN_ALTS,
+  BINANCE_SYMBOL_MAP as BINANCE_SYMBOL_MAP_INIT,
+  fetchBinanceCandles, fetchBinancePrice,
+  validateBinanceSymbol,
+  type GpuNode, type GpuUtilization,
+  type NewsArticle, type DynamicSymbol,
+  type SvenMessage, type ScheduledMessage, type TradeLogEntry,
+  type GoalMilestone, type PositionSignals, type NewsDigest,
+} from './trading/index.js';
 
 import {
   InstrumentRegistry, normalizeCandle, validateCandle,
@@ -482,25 +502,12 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   let AUTO_TRADE_MAX_POSITION_PCT = Number(process.env.SVEN_AUTO_TRADE_MAX_POSITION_PCT || '0.05'); // 5% of balance
   const PAPER_TRADE_MODE = String(process.env.SVEN_PAPER_TRADE_MODE || 'true').trim().toLowerCase() !== 'false';
   const PAPER_TRADE_CONFIDENCE = 0.35; // Batch 7: raised from 0.25 → 0.35 for selectivity
-  const svenTradeLog: Array<{
-    id: string; symbol: string; side: string; quantity: number; price: number;
-    confidence: number; reasoning: string; llmNode: string; executedAt: string;
-  }> = [];
+  const svenTradeLog: TradeLogEntry[] = [];
 
   // ── Sven Proactive Messaging ────────────────────────────────
-  interface SvenMessage {
-    id: string;
-    type: 'trade_alert' | 'market_insight' | 'scheduled' | 'system';
-    title: string;
-    body: string;
-    symbol?: string;
-    severity: 'info' | 'warning' | 'critical';
-    read: boolean;
-    createdAt: string;
-  }
   const svenMessages: SvenMessage[] = [];
   const MAX_MESSAGES = 200;
-  const scheduledMessages: Array<{ id: string; message: string; scheduledFor: Date; delivered: boolean }> = [];
+  const scheduledMessages: ScheduledMessage[] = [];
 
   function svenSendMessage(msg: Omit<SvenMessage, 'id' | 'read' | 'createdAt'>): SvenMessage {
     const full: SvenMessage = {
@@ -594,16 +601,6 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   const SVEN_AUTONOMOUS_USER_ID = '00000000-0000-4000-a000-000000000047';
 
   // ── Sven's Goal System (earn upgrades) ──────────────────────
-  // Sven trades to accumulate capital. When he reaches milestones,
-  // resources can be allocated to him (GPUs, storage, VMs).
-  interface GoalMilestone {
-    id: string;
-    name: string;
-    targetBalance: number;
-    reward: string;
-    achieved: boolean;
-    achievedAt: Date | null;
-  }
   const goalMilestones: GoalMilestone[] = [
     { id: 'gpu-1', name: 'First GPU Upgrade', targetBalance: 105_000, reward: 'Additional GPU node allocation', achieved: false, achievedAt: null },
     { id: 'storage-1', name: 'Storage Expansion', targetBalance: 115_000, reward: '500GB NVMe storage block', achieved: false, achievedAt: null },
@@ -631,15 +628,6 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   let svenConsecutiveWins = 0;
 
   // Batch 7: Track per-position signal directions for accurate source attribution.
-  // Instead of crediting all sources equally, store which source predicted which
-  // direction, then check each against the actual outcome individually.
-  interface PositionSignals {
-    kronos: 'long' | 'short' | 'neutral';
-    mirofish: 'long' | 'short' | 'neutral';
-    technical: 'long' | 'short' | 'neutral';
-    news: 'long' | 'short' | 'neutral';
-    tradeSide: 'long' | 'short';
-  }
   const positionSignalMap = new Map<string, PositionSignals>(); // symbol → signals at entry
 
   // ── Persist state to DB after every change ──
@@ -730,30 +718,13 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   }
 
   // ── Multi-Source News Aggregation Pipeline ───────────────────
-  // Sven gathers crypto & macro news from multiple sources worldwide,
-  // thinks about their implications, and feeds them to Trend Scout.
-  interface NewsArticle {
-    id: string;
-    headline: string;
-    source: string;
-    publishedAt: Date;
-    url: string;
-    currencies: string[];
-    kind: string;
-    sentiment: string | null;
-  }
   const newsCache: NewsArticle[] = [];
   const NEWS_MAX_CACHE = 500;
   const NEWS_FETCH_INTERVAL_MS = 5 * 60_000; // 5 minutes
   const NEWS_SOURCE_TIMEOUT = 10_000;
 
   /** Track per-source health for observability */
-  const newsSourceHealth: Record<string, { ok: number; fail: number; lastOk: Date | null; lastFail: Date | null }> = {};
-  function recordSourceResult(source: string, success: boolean): void {
-    if (!newsSourceHealth[source]) newsSourceHealth[source] = { ok: 0, fail: 0, lastOk: null, lastFail: null };
-    if (success) { newsSourceHealth[source]!.ok++; newsSourceHealth[source]!.lastOk = new Date(); }
-    else { newsSourceHealth[source]!.fail++; newsSourceHealth[source]!.lastFail = new Date(); }
-  }
+  const { health: newsSourceHealth, record: recordSourceResult } = createNewsSourceHealthTracker();
 
   /** Deduplicate by ID and push into newsCache. Returns count of new articles. */
   function ingestArticles(articles: NewsArticle[]): number {
@@ -796,376 +767,19 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
     }
   }
 
-  // ── Source 1: CryptoPanic (may be intermittent) ──────────────
-  async function fetchCryptoPanicNews(): Promise<NewsArticle[]> {
-    const src = 'cryptopanic';
-    try {
-      const url = 'https://cryptopanic.com/api/free/v1/posts/?auth_token=free&public=true&filter=important&currencies=BTC,ETH,SOL,BNB,XRP';
-      const res = await fetch(url, { signal: AbortSignal.timeout(NEWS_SOURCE_TIMEOUT) });
-      if (!res.ok) { recordSourceResult(src, false); return []; }
-      const data = (await res.json()) as { results?: Array<{ id: number; title: string; source: { domain: string }; published_at: string; url: string; currencies?: Array<{ code: string }>; kind: string; votes?: { positive: number; negative: number } }> };
-      const articles: NewsArticle[] = [];
-      for (const a of data.results ?? []) {
-        const currencies = (a.currencies ?? []).map(c => `${c.code}/USDT`);
-        const positive = a.votes?.positive ?? 0;
-        const negative = a.votes?.negative ?? 0;
-        const voteTotal = positive + negative;
-        const sentimentStr = voteTotal > 0 ? (positive > negative ? 'positive' : negative > positive ? 'negative' : 'neutral') : null;
-        articles.push({
-          id: `cpanic-${a.id}`,
-          headline: a.title,
-          source: a.source?.domain ?? 'cryptopanic',
-          publishedAt: new Date(a.published_at),
-          url: a.url,
-          currencies,
-          kind: a.kind,
-          sentiment: sentimentStr,
-        });
-      }
-      recordSourceResult(src, true);
-      return articles;
-    } catch (err) {
-      recordSourceResult(src, false);
-      logger.debug('CryptoPanic fetch failed', { err: (err as Error).message });
-      return [];
-    }
-  }
-
-  // ── Source 2: CoinGecko Trending + Global Market ─────────────
-  async function fetchCoinGeckoTrending(): Promise<NewsArticle[]> {
-    const src = 'coingecko';
-    try {
-      const res = await fetch('https://api.coingecko.com/api/v3/search/trending', { signal: AbortSignal.timeout(NEWS_SOURCE_TIMEOUT) });
-      if (!res.ok) { recordSourceResult(src, false); return []; }
-      const data = (await res.json()) as { coins?: Array<{ item: { id: string; symbol: string; name: string; market_cap_rank: number; price_btc: number; score: number } }> };
-      const articles: NewsArticle[] = [];
-      for (const c of data.coins ?? []) {
-        const sym = c.item.symbol.toUpperCase();
-        articles.push({
-          id: `cgecko-trending-${c.item.id}-${new Date().toISOString().slice(0, 13)}`,
-          headline: `${c.item.name} (${sym}) is trending on CoinGecko — rank #${c.item.market_cap_rank ?? 'N/A'}, search interest surging`,
-          source: 'coingecko-trending',
-          publishedAt: new Date(),
-          url: `https://www.coingecko.com/en/coins/${c.item.id}`,
-          currencies: [`${sym}/USDT`],
-          kind: 'trending',
-          sentiment: 'positive',
-        });
-      }
-      recordSourceResult(src, true);
-      return articles;
-    } catch (err) {
-      recordSourceResult(src, false);
-      logger.debug('CoinGecko trending failed', { err: (err as Error).message });
-      return [];
-    }
-  }
-
-  // ── Source 3: Binance Top Movers (24h) ──────────────────────
-  async function fetchBinanceMovers(): Promise<NewsArticle[]> {
-    const src = 'binance-movers';
-    try {
-      const res = await fetch('https://api.binance.com/api/v3/ticker/24hr', { signal: AbortSignal.timeout(NEWS_SOURCE_TIMEOUT) });
-      if (!res.ok) { recordSourceResult(src, false); return []; }
-      const tickers = (await res.json()) as Array<{ symbol: string; priceChangePercent: string; volume: string; quoteVolume: string }>;
-      const usdtPairs = tickers
-        .filter(t => t.symbol.endsWith('USDT'))
-        .map(t => ({ symbol: t.symbol, change: parseFloat(t.priceChangePercent), absChange: Math.abs(parseFloat(t.priceChangePercent)), volume: parseFloat(t.quoteVolume) }))
-        .filter(t => t.volume > 10_000_000) // min $10M daily volume for relevance
-        .sort((a, b) => b.absChange - a.absChange)
-        .slice(0, 15);
-
-      const articles: NewsArticle[] = [];
-      for (const t of usdtPairs) {
-        const base = t.symbol.replace('USDT', '');
-        const direction = t.change > 0 ? 'surging' : 'dropping';
-        articles.push({
-          id: `binance-mover-${t.symbol}-${new Date().toISOString().slice(0, 13)}`,
-          headline: `${base} ${direction} ${Math.abs(t.change).toFixed(1)}% in 24h — $${(t.volume / 1_000_000).toFixed(0)}M volume on Binance`,
-          source: 'binance-24hr',
-          publishedAt: new Date(),
-          url: `https://www.binance.com/en/trade/${base}_USDT`,
-          currencies: [`${base}/USDT`],
-          kind: 'market_data',
-          sentiment: t.change > 5 ? 'positive' : t.change < -5 ? 'negative' : 'neutral',
-        });
-      }
-      recordSourceResult(src, true);
-      return articles;
-    } catch (err) {
-      recordSourceResult(src, false);
-      logger.debug('Binance movers failed', { err: (err as Error).message });
-      return [];
-    }
-  }
-
-  // ── Source 4: Binance Announcements (new listings, delistings) ──
-  async function fetchBinanceAnnouncements(): Promise<NewsArticle[]> {
-    const src = 'binance-announce';
-    try {
-      // Binance announcement API — new listings are critical market-moving events
-      const res = await fetch('https://www.binance.com/bapi/composite/v1/public/cms/article/list/query?type=1&catalogId=48&pageNo=1&pageSize=10', { signal: AbortSignal.timeout(NEWS_SOURCE_TIMEOUT) });
-      if (!res.ok) { recordSourceResult(src, false); return []; }
-      const data = (await res.json()) as { data?: { catalogs?: Array<{ articles?: Array<{ id: number; title: string; releaseDate: number }> }> } };
-      const articles: NewsArticle[] = [];
-      const rawArticles = data.data?.catalogs?.[0]?.articles ?? [];
-      for (const a of rawArticles) {
-        // Extract tickers from announcement title (e.g., "Binance Will List XYZ (XYZ)")
-        const tickerMatches = a.title.match(/\(([A-Z]{2,10})\)/g) ?? [];
-        const currencies = tickerMatches.map(m => `${m.replace(/[()]/g, '')}/USDT`);
-        articles.push({
-          id: `binance-ann-${a.id}`,
-          headline: a.title,
-          source: 'binance-announcements',
-          publishedAt: new Date(a.releaseDate),
-          url: `https://www.binance.com/en/support/announcement/${a.id}`,
-          currencies,
-          kind: 'announcement',
-          sentiment: a.title.toLowerCase().includes('delist') ? 'negative' : a.title.toLowerCase().includes('list') ? 'positive' : 'neutral',
-        });
-      }
-      recordSourceResult(src, true);
-      return articles;
-    } catch (err) {
-      recordSourceResult(src, false);
-      logger.debug('Binance announcements failed', { err: (err as Error).message });
-      return [];
-    }
-  }
-
-  // ── Source 5: RSS Feeds (CoinDesk, The Block, Decrypt, CoinTelegraph) ──
-  async function fetchRssNewsSource(feedUrl: string, sourceName: string): Promise<NewsArticle[]> {
-    const src = `rss-${sourceName}`;
-    try {
-      const res = await fetch(feedUrl, {
-        signal: AbortSignal.timeout(NEWS_SOURCE_TIMEOUT),
-        headers: { 'User-Agent': 'SvenTradingBot/1.0 (news aggregator)' },
-      });
-      if (!res.ok) { recordSourceResult(src, false); return []; }
-      const xml = await res.text();
-
-      // Simple XML parser for RSS items — no external dependency needed
-      const items: Array<{ title: string; link: string; pubDate: string; description: string }> = [];
-      const itemMatches = xml.match(/<item>[\s\S]*?<\/item>/gi) ?? [];
-      for (const itemXml of itemMatches.slice(0, 20)) {
-        const title = itemXml.match(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i)?.[1]?.trim() ?? '';
-        const link = itemXml.match(/<link>([\s\S]*?)<\/link>/i)?.[1]?.trim() ?? '';
-        const pubDate = itemXml.match(/<pubDate>([\s\S]*?)<\/pubDate>/i)?.[1]?.trim() ?? '';
-        const description = itemXml.match(/<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i)?.[1]?.trim() ?? '';
-        if (title) items.push({ title, link, pubDate, description });
-      }
-
-      const articles: NewsArticle[] = [];
-      for (const item of items) {
-        // Extract crypto tickers from title + description
-        const combinedText = `${item.title} ${item.description}`.toUpperCase();
-        const currencies: string[] = [];
-
-        // Match known crypto names/tickers in headlines
-        const cryptoKeywords: Record<string, string> = {
-          'BITCOIN': 'BTC/USDT', 'BTC': 'BTC/USDT',
-          'ETHEREUM': 'ETH/USDT', 'ETH': 'ETH/USDT', 'ETHER': 'ETH/USDT',
-          'SOLANA': 'SOL/USDT', 'SOL': 'SOL/USDT',
-          'XRP': 'XRP/USDT', 'RIPPLE': 'XRP/USDT',
-          'BNB': 'BNB/USDT', 'BINANCE COIN': 'BNB/USDT',
-          'CARDANO': 'ADA/USDT', 'ADA': 'ADA/USDT',
-          'DOGECOIN': 'DOGE/USDT', 'DOGE': 'DOGE/USDT',
-          'POLKADOT': 'DOT/USDT', 'DOT': 'DOT/USDT',
-          'AVALANCHE': 'AVAX/USDT', 'AVAX': 'AVAX/USDT',
-          'CHAINLINK': 'LINK/USDT', 'LINK': 'LINK/USDT',
-          'POLYGON': 'MATIC/USDT', 'MATIC': 'MATIC/USDT',
-          'UNISWAP': 'UNI/USDT', 'UNI': 'UNI/USDT',
-          'LITECOIN': 'LTC/USDT', 'LTC': 'LTC/USDT',
-          'NEAR PROTOCOL': 'NEAR/USDT', 'NEAR': 'NEAR/USDT',
-          'APTOS': 'APT/USDT', 'APT': 'APT/USDT',
-          'ARBITRUM': 'ARB/USDT', 'ARB': 'ARB/USDT',
-          'OPTIMISM': 'OP/USDT', 'SUI': 'SUI/USDT',
-          'INJECTIVE': 'INJ/USDT', 'INJ': 'INJ/USDT',
-          'PEPE': 'PEPE/USDT', 'SHIBA': 'SHIB/USDT', 'SHIB': 'SHIB/USDT',
-          'TONCOIN': 'TON/USDT', 'TON': 'TON/USDT',
-          'RENDER': 'RENDER/USDT', 'FETCH.AI': 'FET/USDT', 'FET': 'FET/USDT',
-          'CELESTIA': 'TIA/USDT', 'TIA': 'TIA/USDT',
-          'AAVE': 'AAVE/USDT', 'MAKER': 'MKR/USDT', 'MKR': 'MKR/USDT',
-        };
-        const seen = new Set<string>();
-        for (const [kw, pair] of Object.entries(cryptoKeywords)) {
-          // Use word boundary-like matching to avoid false positives
-          const regex = new RegExp(`\\b${kw}\\b`, 'i');
-          if (regex.test(combinedText) && !seen.has(pair)) {
-            currencies.push(pair);
-            seen.add(pair);
-          }
-        }
-
-        // Simple sentiment from title keywords
-        const lower = item.title.toLowerCase();
-        let sentiment: string | null = null;
-        if (/surge|soar|rally|bull|gain|record high|breakout|pump|approved|adoption/i.test(lower)) sentiment = 'positive';
-        else if (/crash|plunge|dump|bear|hack|exploit|sec |lawsuit|ban|fraud|collapse/i.test(lower)) sentiment = 'negative';
-
-        // Determine kind from title
-        let kind = 'news';
-        if (/regulation|sec |cftc|law|bill|ban|sanction/i.test(lower)) kind = 'regulation';
-        else if (/hack|exploit|breach|vulnerability|rug.?pull/i.test(lower)) kind = 'security';
-        else if (/etf|institutional|blackrock|fidelity|grayscale/i.test(lower)) kind = 'institutional';
-        else if (/defi|dex|lending|yield|staking/i.test(lower)) kind = 'defi';
-        else if (/nft|metaverse|gaming/i.test(lower)) kind = 'nft';
-
-        const pubDate = item.pubDate ? new Date(item.pubDate) : new Date();
-        // Skip articles with invalid dates
-        if (isNaN(pubDate.getTime())) continue;
-
-        articles.push({
-          id: `rss-${sourceName}-${Buffer.from(item.title).toString('base64').slice(0, 32)}`,
-          headline: item.title,
-          source: sourceName,
-          publishedAt: pubDate,
-          url: item.link,
-          currencies,
-          kind,
-          sentiment,
-        });
-      }
-
-      recordSourceResult(src, true);
-      return articles;
-    } catch (err) {
-      recordSourceResult(src, false);
-      logger.debug(`RSS feed ${sourceName} failed`, { err: (err as Error).message });
-      return [];
-    }
-  }
-
-  // ── Source 6: Crypto Fear & Greed Index ─────────────────────
-  async function fetchFearGreedIndex(): Promise<NewsArticle[]> {
-    const src = 'fear-greed';
-    try {
-      const res = await fetch('https://api.alternative.me/fng/?limit=1', { signal: AbortSignal.timeout(NEWS_SOURCE_TIMEOUT) });
-      if (!res.ok) { recordSourceResult(src, false); return []; }
-      const data = (await res.json()) as { data?: Array<{ value: string; value_classification: string; timestamp: string }> };
-      const entry = data.data?.[0];
-      if (!entry) return [];
-
-      const value = parseInt(entry.value, 10);
-      const classification = entry.value_classification;
-      let sentiment: string | null = 'neutral';
-      if (value <= 25) sentiment = 'negative';
-      else if (value >= 75) sentiment = 'positive';
-
-      recordSourceResult(src, true);
-      return [{
-        id: `fng-${entry.timestamp}`,
-        headline: `Crypto Fear & Greed Index: ${value}/100 (${classification}) — market sentiment ${value <= 25 ? 'extremely fearful, potential buying opportunity' : value >= 75 ? 'extremely greedy, potential correction ahead' : 'neutral'}`,
-        source: 'alternative.me',
-        publishedAt: new Date(parseInt(entry.timestamp, 10) * 1000),
-        url: 'https://alternative.me/crypto/fear-and-greed-index/',
-        currencies: ['BTC/USDT', 'ETH/USDT'],
-        kind: 'sentiment_index',
-        sentiment,
-      }];
-    } catch (err) {
-      recordSourceResult(src, false);
-      logger.debug('Fear & Greed fetch failed', { err: (err as Error).message });
-      return [];
-    }
-  }
-
-  // ── Source 7: CoinGecko Global Market Data ──────────────────
-  async function fetchCoinGeckoGlobal(): Promise<NewsArticle[]> {
-    const src = 'coingecko-global';
-    try {
-      const res = await fetch('https://api.coingecko.com/api/v3/global', { signal: AbortSignal.timeout(NEWS_SOURCE_TIMEOUT) });
-      if (!res.ok) { recordSourceResult(src, false); return []; }
-      const data = (await res.json()) as { data?: { total_market_cap?: Record<string, number>; market_cap_change_percentage_24h_usd?: number; active_cryptocurrencies?: number; markets?: number } };
-      const g = data.data;
-      if (!g) return [];
-
-      const capChangeStr = (g.market_cap_change_percentage_24h_usd ?? 0).toFixed(2);
-      const totalCapB = ((g.total_market_cap?.['usd'] ?? 0) / 1e9).toFixed(0);
-      const direction = (g.market_cap_change_percentage_24h_usd ?? 0) > 0 ? 'up' : 'down';
-
-      recordSourceResult(src, true);
-      return [{
-        id: `cgecko-global-${new Date().toISOString().slice(0, 13)}`,
-        headline: `Global crypto market cap $${totalCapB}B (${direction} ${Math.abs(parseFloat(capChangeStr))}% in 24h) — ${g.active_cryptocurrencies?.toLocaleString() ?? '?'} active currencies across ${g.markets ?? '?'} markets`,
-        source: 'coingecko-global',
-        publishedAt: new Date(),
-        url: 'https://www.coingecko.com/',
-        currencies: [],
-        kind: 'market_overview',
-        sentiment: parseFloat(capChangeStr) > 2 ? 'positive' : parseFloat(capChangeStr) < -2 ? 'negative' : 'neutral',
-      }];
-    } catch (err) {
-      recordSourceResult(src, false);
-      logger.debug('CoinGecko global failed', { err: (err as Error).message });
-      return [];
-    }
-  }
-
-  // ── Source 8: DeFi Llama TVL Changes (DeFi market pulse) ───
-  async function fetchDefiLlamaTvl(): Promise<NewsArticle[]> {
-    const src = 'defillama';
-    try {
-      const res = await fetch('https://api.llama.fi/protocols', { signal: AbortSignal.timeout(NEWS_SOURCE_TIMEOUT) });
-      if (!res.ok) { recordSourceResult(src, false); return []; }
-      const protocols = (await res.json()) as Array<{ name: string; symbol: string; tvl: number; change_1d: number; category: string; chains: string[] }>;
-      // Top 10 by absolute 1-day TVL change
-      const movers = protocols
-        .filter(p => p.tvl > 100_000_000 && typeof p.change_1d === 'number' && Math.abs(p.change_1d) > 3)
-        .sort((a, b) => Math.abs(b.change_1d) - Math.abs(a.change_1d))
-        .slice(0, 10);
-
-      const articles: NewsArticle[] = [];
-      for (const p of movers) {
-        const sym = p.symbol?.toUpperCase() ?? '';
-        const direction = p.change_1d > 0 ? 'surging' : 'dropping';
-        articles.push({
-          id: `defillama-${p.name.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 13)}`,
-          headline: `${p.name}${sym ? ` (${sym})` : ''} TVL ${direction} ${Math.abs(p.change_1d).toFixed(1)}% — $${(p.tvl / 1e9).toFixed(2)}B locked in ${p.category}`,
-          source: 'defillama',
-          publishedAt: new Date(),
-          url: `https://defillama.com/protocol/${p.name.toLowerCase().replace(/\s+/g, '-')}`,
-          currencies: sym ? [`${sym}/USDT`] : [],
-          kind: 'defi_tvl',
-          sentiment: p.change_1d > 5 ? 'positive' : p.change_1d < -5 ? 'negative' : 'neutral',
-        });
-      }
-      recordSourceResult(src, true);
-      return articles;
-    } catch (err) {
-      recordSourceResult(src, false);
-      logger.debug('DefiLlama TVL failed', { err: (err as Error).message });
-      return [];
-    }
-  }
-
-  // ── RSS feed URLs for major crypto news outlets ─────────────
-  const RSS_FEEDS: Array<{ url: string; name: string }> = [
-    { url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', name: 'coindesk' },
-    { url: 'https://www.theblock.co/rss.xml', name: 'theblock' },
-    { url: 'https://decrypt.co/feed', name: 'decrypt' },
-    { url: 'https://cointelegraph.com/rss', name: 'cointelegraph' },
-    { url: 'https://bitcoinmagazine.com/feed', name: 'bitcoinmagazine' },
-    { url: 'https://www.newsbtc.com/feed/', name: 'newsbtc' },
-    { url: 'https://cryptoslate.com/feed/', name: 'cryptoslate' },
-    { url: 'https://cryptonews.com/news/feed/', name: 'cryptonews' },
-    // General financial news (macro events move crypto)
-    { url: 'https://feeds.reuters.com/reuters/businessNews', name: 'reuters-biz' },
-    { url: 'https://feeds.bbci.co.uk/news/business/rss.xml', name: 'bbc-biz' },
-  ];
 
   /** Master news aggregation: fetch all sources in parallel, ingest results */
   async function fetchAllNewsSources(): Promise<void> {
     const startMs = Date.now();
     const allFetches: Array<Promise<NewsArticle[]>> = [
-      fetchCryptoPanicNews(),
-      fetchCoinGeckoTrending(),
-      fetchBinanceMovers(),
-      fetchBinanceAnnouncements(),
-      fetchFearGreedIndex(),
-      fetchCoinGeckoGlobal(),
-      fetchDefiLlamaTvl(),
-      ...RSS_FEEDS.map(f => fetchRssNewsSource(f.url, f.name)),
+      fetchCryptoPanicNews(NEWS_SOURCE_TIMEOUT, recordSourceResult),
+      fetchCoinGeckoTrending(NEWS_SOURCE_TIMEOUT, recordSourceResult),
+      fetchBinanceMovers(NEWS_SOURCE_TIMEOUT, recordSourceResult),
+      fetchBinanceAnnouncements(NEWS_SOURCE_TIMEOUT, recordSourceResult),
+      fetchFearGreedIndex(NEWS_SOURCE_TIMEOUT, recordSourceResult),
+      fetchCoinGeckoGlobal(NEWS_SOURCE_TIMEOUT, recordSourceResult),
+      fetchDefiLlamaTvl(NEWS_SOURCE_TIMEOUT, recordSourceResult),
+      ...RSS_FEEDS.map(f => fetchRssNewsSource(f.url, f.name, NEWS_SOURCE_TIMEOUT, recordSourceResult)),
     ];
 
     const results = await Promise.allSettled(allFetches);
@@ -1212,7 +826,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   /** Sven reads recent news and thinks about macro implications */
   let lastNewsDigest: { summary: string; timestamp: Date; keyThemes: string[] } | null = null;
   async function synthesizeNewsDigest(): Promise<void> {
-    const node = acquireGpu('trading', 'fast');
+    const node = acquireGpu(GPU_FLEET, gpuUtilization, 'trading', 'fast');
     if (!node) return;
 
     const recentNews = newsCache
@@ -1221,7 +835,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
     if (recentNews.length < 3) return;
 
     try {
-      trackGpuStart(node.name, 'trading');
+      trackGpuStart(gpuUtilization, node.name, 'trading');
       const digest = recentNews.map((n, i) =>
         `${i + 1}. [${n.source}] [${n.sentiment ?? '?'}] ${n.headline}${n.currencies.length > 0 ? ` (${n.currencies.join(', ')})` : ''}`
       ).join('\n');
@@ -1244,7 +858,7 @@ Respond in plain text, no markdown.`;
             { role: 'system', content: 'You are Sven, an autonomous AI trading agent. Provide sharp, concise market analysis. No fluff. Think like a quant.' },
             { role: 'user', content: prompt },
           ], { temperature: 0.3, num_predict: 512, signal: AbortSignal.timeout(SVEN_LLM_TIMEOUT) });
-      trackGpuEnd(node.name, Date.now());
+      trackGpuEnd(gpuUtilization, node.name, Date.now());
 
       if (llmResult.ok) {
         const summary = llmResult.content;
@@ -1292,54 +906,10 @@ Respond in plain text, no markdown.`;
   // watchlist, validates they're tradable on Binance, then adds them
   // to a dynamic watchlist so the autonomous loop analyzes them
   // with Kronos + MiroFish on the very next tick.
-  interface DynamicSymbol {
-    symbol: string;           // e.g. 'DOGE/USDT'
-    binanceSymbol: string;    // e.g. 'DOGEUSDT'
-    discoveredFrom: string;   // news headline that triggered the discovery
-    addedAt: Date;
-    expiresAt: Date;          // auto-remove after TTL (4 hours)
-    newsScore: number;        // 0-1 relevance score from LLM
-    trades: number;           // how many trades Sven made on this symbol
-  }
   const dynamicWatchlist: DynamicSymbol[] = [];
   const DYNAMIC_SYMBOL_TTL_MS = 4 * 60 * 60_000; // 4 hours
   const MAX_DYNAMIC_SYMBOLS = 10;
   const TREND_SCOUT_INTERVAL_MS = 10 * 60_000; // every 10 minutes
-
-  // Well-known crypto ticker → Binance pair map (common ones outside core 5)
-  const KNOWN_ALTS: Record<string, string> = {
-    'DOGE': 'DOGE/USDT', 'ADA': 'ADA/USDT', 'AVAX': 'AVAX/USDT',
-    'DOT': 'DOT/USDT', 'LINK': 'LINK/USDT', 'MATIC': 'MATIC/USDT',
-    'SHIB': 'SHIB/USDT', 'UNI': 'UNI/USDT', 'LTC': 'LTC/USDT',
-    'ATOM': 'ATOM/USDT', 'NEAR': 'NEAR/USDT', 'FTM': 'FTM/USDT',
-    'APT': 'APT/USDT', 'ARB': 'ARB/USDT', 'OP': 'OP/USDT',
-    'SUI': 'SUI/USDT', 'SEI': 'SEI/USDT', 'TIA': 'TIA/USDT',
-    'INJ': 'INJ/USDT', 'PEPE': 'PEPE/USDT', 'WIF': 'WIF/USDT',
-    'JUP': 'JUP/USDT', 'RENDER': 'RENDER/USDT', 'FET': 'FET/USDT',
-    'ONDO': 'ONDO/USDT', 'TAO': 'TAO/USDT', 'TRX': 'TRX/USDT',
-    'TON': 'TON/USDT', 'XLM': 'XLM/USDT', 'ALGO': 'ALGO/USDT',
-    'FIL': 'FIL/USDT', 'AAVE': 'AAVE/USDT', 'GRT': 'GRT/USDT',
-    'IMX': 'IMX/USDT', 'MANA': 'MANA/USDT', 'SAND': 'SAND/USDT',
-    'CRV': 'CRV/USDT', 'MKR': 'MKR/USDT', 'SNX': 'SNX/USDT',
-    'RUNE': 'RUNE/USDT', 'COMP': 'COMP/USDT', 'LDO': 'LDO/USDT',
-    'STX': 'STX/USDT', 'KAS': 'KAS/USDT', 'BONK': 'BONK/USDT',
-    'WLD': 'WLD/USDT', 'PYTH': 'PYTH/USDT', 'JTO': 'JTO/USDT',
-    'ENA': 'ENA/USDT', 'PENDLE': 'PENDLE/USDT', 'STRK': 'STRK/USDT',
-    'HBAR': 'HBAR/USDT', 'XMR': 'XMR/USDT', 'ETC': 'ETC/USDT',
-  };
-
-  /** Validate a symbol exists on Binance by fetching its price */
-  async function validateBinanceSymbol(binanceSymbol: string): Promise<boolean> {
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5_000);
-      const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${encodeURIComponent(binanceSymbol)}`, { signal: controller.signal });
-      clearTimeout(timeout);
-      return res.ok;
-    } catch {
-      return false;
-    }
-  }
 
   /** Use Sven's LLM brain to analyze recent news and extract trending symbols */
   async function runTrendScout(): Promise<void> {
@@ -1400,9 +970,9 @@ Respond in plain text, no markdown.`;
 
     if (highImpactNews.length >= 2) {
       try {
-        const node = acquireGpu('trading', 'fast');
+        const node = acquireGpu(GPU_FLEET, gpuUtilization, 'trading', 'fast');
         if (node) {
-          trackGpuStart(node.name, 'trading');
+          trackGpuStart(gpuUtilization, node.name, 'trading');
           const newsDigest = highImpactNews.slice(0, 15).map((n, i) => `${i + 1}. [${n.sentiment ?? 'neutral'}] ${n.headline} (currencies: ${n.currencies.join(', ') || 'none'})`).join('\n');
 
           const scoutPrompt = `You are Sven, an autonomous AI trading agent. Analyze these recent crypto news articles and identify which assets are TRENDING or could have significant price movement soon.
@@ -1431,7 +1001,7 @@ Return [] if nothing notable.`;
               ], { temperature: 0.2, num_predict: 256, signal: controller.signal });
           clearTimeout(timeout);
           const latencyMs = Date.now();
-          trackGpuEnd(node.name, latencyMs);
+          trackGpuEnd(gpuUtilization, node.name, latencyMs);
 
           if (llmResult.ok) {
             const raw = llmResult.content || '[]';
@@ -1531,263 +1101,18 @@ Return [] if nothing notable.`;
   // First scout after 30s boot
   setTimeout(() => { runTrendScout().catch(() => {}); }, 30_000);
 
-  // ── Resource-Aware GPU Allocation ───────────────────────────
-  // Track GPU utilization so Sven can prioritize tasks properly:
-  // answering users > trading decisions > backtesting > learning
-  interface GpuUtilization {
-    node: GpuNode;
-    activeRequests: number;
-    maxConcurrent: number;
-    lastResponseMs: number;
-    taskPriority: 'user' | 'trading' | 'backtest' | 'learning';
-  }
-  const gpuUtilization = new Map<string, GpuUtilization>();
-  // GPU_FLEET initialization is deferred — see initGpuUtilization() below
-
-  /** Get a GPU node that has capacity, respecting priority */
-  function acquireGpu(priority: 'user' | 'trading' | 'backtest' | 'learning', preferRole: 'fast' | 'power'): GpuNode | null {
-    // Priority order: user > trading > backtest > learning
-    const priorityRank: Record<string, number> = { user: 4, trading: 3, backtest: 2, learning: 1 };
-    const requestRank = priorityRank[priority] ?? 0;
-
-    // Try preferred role first
-    for (const role of [preferRole, preferRole === 'fast' ? 'power' : 'fast'] as const) {
-      for (const node of GPU_FLEET) {
-        if (node.role !== role || !node.healthy) continue;
-        const util = gpuUtilization.get(node.name);
-        if (!util) continue;
-        // Allow if capacity available or if this request outranks current work
-        if (util.activeRequests < util.maxConcurrent || requestRank >= (priorityRank[util.taskPriority] ?? 0)) {
-          return node;
-        }
-      }
-    }
-    // Fallback to any healthy node
-    return GPU_FLEET.find(n => n.healthy) ?? GPU_FLEET[0]!;
-  }
-
-  function trackGpuStart(nodeName: string, priority: 'user' | 'trading' | 'backtest' | 'learning'): void {
-    const util = gpuUtilization.get(nodeName);
-    if (util) {
-      util.activeRequests++;
-      util.taskPriority = priority;
-    }
-  }
-
-  function trackGpuEnd(nodeName: string, latencyMs: number): void {
-    const util = gpuUtilization.get(nodeName);
-    if (util) {
-      util.activeRequests = Math.max(0, util.activeRequests - 1);
-      util.lastResponseMs = latencyMs;
-    }
-  }
-
-  // Binance symbol mapping (our format → Binance format)
-  const BINANCE_SYMBOL_MAP: Record<string, string> = {
-    'BTC/USDT': 'BTCUSDT', 'ETH/USDT': 'ETHUSDT', 'SOL/USDT': 'SOLUSDT',
-    'BNB/USDT': 'BNBUSDT', 'XRP/USDT': 'XRPUSDT',
-  };
-
-  // LLM config for Sven's brain — GPU fleet with automatic failover + escalation
-  //
-  // Fleet topology:
-  //   • fast node  (10.47.47.13)  — qwen2.5:7b   — routine loop ticks, fast reasoning
-  //   • power node (10.47.47.9)   — qwen2.5:32b  — high-stakes decisions, deep reasoning (2x GPU)
-  //
-  // Sven uses the fast model for every tick but escalates to the power model
-  // when signal conviction is high enough to potentially execute a trade.
-  // If the primary node is down, traffic fails over to the next healthy node.
-
-  interface GpuNode {
-    name: string;
-    endpoint: string;
-    model: string;
-    role: 'fast' | 'power';
-    apiFormat: 'ollama' | 'openai';
-    healthy: boolean;
-    lastCheck: number;
-    lastLatencyMs: number;
-    consecutiveFailures: number;
-  }
-
-  const GPU_FLEET: GpuNode[] = [
-    {
-      name: 'vm13-fast',
-      endpoint: process.env.SVEN_LLM_ENDPOINT || 'http://10.47.47.13:11434',
-      model: process.env.SVEN_LLM_MODEL || 'qwen2.5:7b',
-      role: 'fast',
-      apiFormat: 'ollama',
-      healthy: true,
-      lastCheck: 0,
-      lastLatencyMs: 0,
-      consecutiveFailures: 0,
-    },
-    {
-      name: 'vm9-power',
-      endpoint: process.env.SVEN_LLM_POWER_ENDPOINT || 'http://10.47.47.9:8080',
-      model: process.env.SVEN_LLM_POWER_MODEL || 'qwen2.5-coder:32b',
-      role: 'power',
-      apiFormat: 'openai',
-      healthy: true,
-      lastCheck: 0,
-      lastLatencyMs: 0,
-      consecutiveFailures: 0,
-    },
-  ];
-
-  const FLEET_HEALTH_INTERVAL_MS = 60_000; // check each node every 60s
-  const FLEET_MAX_CONSECUTIVE_FAILURES = 3;
-  const ESCALATION_CONFIDENCE_THRESHOLD = 0.55; // escalate to power model above this
+  // ── GPU Fleet (from trading/gpu-fleet.ts) ───────────────────
+  const GPU_FLEET = createGpuFleet();
+  const gpuUtilization = initGpuUtilization(GPU_FLEET);
+  const FLEET_HEALTH_INTERVAL_MS = 60_000;
+  const ESCALATION_CONFIDENCE_THRESHOLD = 0.55;
   const SVEN_LLM_TIMEOUT = Number(process.env.SVEN_LLM_TIMEOUT_MS || 60_000);
   const SVEN_LLM_POWER_TIMEOUT = Number(process.env.SVEN_LLM_POWER_TIMEOUT_MS || 120_000);
-
-  // Initialize GPU utilization tracking now that GPU_FLEET is defined
-  for (const node of GPU_FLEET) {
-    gpuUtilization.set(node.name, {
-      node,
-      activeRequests: 0,
-      maxConcurrent: node.role === 'power' ? 2 : 4,
-      lastResponseMs: 0,
-      taskPriority: 'trading',
-    });
-  }
-
-  /** Probe a GPU node's health */
-  async function probeGpuNode(node: GpuNode): Promise<void> {
-    const start = Date.now();
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5_000);
-      const healthUrl = node.apiFormat === 'openai'
-        ? `${node.endpoint}/health`
-        : `${node.endpoint}/api/tags`;
-      const res = await fetch(healthUrl, { signal: controller.signal });
-      clearTimeout(timeout);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      node.lastLatencyMs = Date.now() - start;
-      node.healthy = true;
-      node.consecutiveFailures = 0;
-    } catch {
-      node.lastLatencyMs = Date.now() - start;
-      node.consecutiveFailures++;
-      if (node.consecutiveFailures >= FLEET_MAX_CONSECUTIVE_FAILURES) {
-        node.healthy = false;
-      }
-    }
-    node.lastCheck = Date.now();
-  }
-
-  /**
-   * Unified LLM call supporting both Ollama (/api/chat) and OpenAI (/v1/chat/completions) formats.
-   * Returns the assistant message content string.
-   */
-  async function callLlm(
-    node: GpuNode,
-    messages: Array<{ role: string; content: string }>,
-    opts: { temperature?: number; num_predict?: number; signal?: AbortSignal },
-  ): Promise<{ ok: boolean; content: string; status: number }> {
-    if (node.apiFormat === 'openai') {
-      // Cap max_tokens to stay within the per-slot ctx window (8192 with --parallel 2)
-      const maxTokens = Math.min(opts.num_predict ?? 512, 4096);
-      const res = await fetch(`${node.endpoint}/v1/chat/completions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: opts.signal,
-        body: JSON.stringify({
-          model: node.model,
-          messages,
-          max_tokens: maxTokens,
-          temperature: opts.temperature ?? 0.3,
-        }),
-      });
-      if (!res.ok) return { ok: false, content: '', status: res.status };
-      const data = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
-      const content = data.choices?.[0]?.message?.content?.trim() ?? '';
-      return { ok: true, content, status: res.status };
-    }
-    // Ollama format
-    const res = await fetch(`${node.endpoint}/api/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      signal: opts.signal,
-      body: JSON.stringify({
-        model: node.model,
-        messages,
-        stream: false,
-        options: { temperature: opts.temperature ?? 0.3, num_predict: opts.num_predict ?? 512 },
-      }),
-    });
-    if (!res.ok) return { ok: false, content: '', status: res.status };
-    const data = (await res.json()) as { message?: { content?: string } };
-    const content = data.message?.content?.trim() ?? '';
-    return { ok: true, content, status: res.status };
-  }
-
-  /** Background fleet health checker */
-  const fleetHealthTimer = setInterval(async () => {
-    for (const node of GPU_FLEET) {
-      await probeGpuNode(node);
-    }
-    const healthyNodes = GPU_FLEET.filter(n => n.healthy);
-    if (healthyNodes.length === 0) {
-      logger.error('All GPU nodes unhealthy — Sven brain degraded to algorithmic-only');
-    } else if (healthyNodes.length < GPU_FLEET.length) {
-      const down = GPU_FLEET.filter(n => !n.healthy).map(n => n.name);
-      logger.warn('GPU fleet partially degraded', { downNodes: down });
-    }
-  }, FLEET_HEALTH_INTERVAL_MS);
-  // Don't let the health timer keep the process alive
-  if (fleetHealthTimer.unref) fleetHealthTimer.unref();
-
-  // Run initial probe at startup
-  void Promise.all(GPU_FLEET.map(n => probeGpuNode(n)));
-
-  /** Select the best node for a given role, with failover */
-  function selectNode(preferRole: 'fast' | 'power'): GpuNode {
-    // Try preferred role first
-    const preferred = GPU_FLEET.find(n => n.role === preferRole && n.healthy);
-    if (preferred) return preferred;
-    // Failover to any healthy node
-    const fallback = GPU_FLEET.find(n => n.healthy);
-    if (fallback) {
-      logger.warn('GPU fleet failover', { wanted: preferRole, using: fallback.name });
-      return fallback;
-    }
-    // All down — return fast node (will fail gracefully in askSvenBrain)
-    return GPU_FLEET[0]!;
-  }
-
-  // Keep compat aliases for code that references these
+  startFleetHealthTimer(GPU_FLEET, FLEET_HEALTH_INTERVAL_MS);
   const SVEN_LLM_MODEL = GPU_FLEET[0]!.model;
   const SVEN_LLM_ENDPOINT = GPU_FLEET[0]!.endpoint;
-
-  /** Fetch live candles from Binance public API */
-  async function fetchBinanceCandles(binanceSymbol: string, interval = '1h', limit = 100): Promise<Candle[]> {
-    const url = `https://api.binance.com/api/v3/klines?symbol=${encodeURIComponent(binanceSymbol)}&interval=${encodeURIComponent(interval)}&limit=${limit}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`Binance klines ${res.status}`);
-    const raw = (await res.json()) as unknown[][];
-    return raw.map((k) => ({
-      time: new Date(k[0] as number),
-      symbol: binanceSymbol,
-      exchange: 'binance' as const,
-      timeframe: interval as Timeframe,
-      open: parseFloat(k[1] as string),
-      high: parseFloat(k[2] as string),
-      low: parseFloat(k[3] as string),
-      close: parseFloat(k[4] as string),
-      volume: parseFloat(k[5] as string),
-    }));
-  }
-
-  /** Fetch current price from Binance */
-  async function fetchBinancePrice(binanceSymbol: string): Promise<number> {
-    const url = `https://api.binance.com/api/v3/ticker/price?symbol=${encodeURIComponent(binanceSymbol)}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`Binance price ${res.status}`);
-    const data = (await res.json()) as { price: string };
-    return parseFloat(data.price);
-  }
+  // Mutable Binance symbol map — starts from BINANCE_SYMBOL_MAP_INIT, extended by trend scout
+  const BINANCE_SYMBOL_MAP: Record<string, string> = { ...BINANCE_SYMBOL_MAP_INIT };
 
   /** Fetch recent news from database */
   async function fetchRecentNews(): Promise<any[]> {
@@ -1863,9 +1188,9 @@ PORTFOLIO: Balance $${context.portfolio.totalCapital?.toLocaleString() ?? '100,0
 Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider risk, momentum, the predictions, and news sentiment. End with your confidence level (low/medium/high).`;
 
     try {
-      const node = acquireGpu('trading', preferRole);
+      const node = acquireGpu(GPU_FLEET, gpuUtilization, 'trading', preferRole);
       if (!node) throw new Error('No GPU node available');
-      trackGpuStart(node.name, 'trading');
+      trackGpuStart(gpuUtilization, node.name, 'trading');
       const timeoutMs = node.role === 'power' ? SVEN_LLM_POWER_TIMEOUT : SVEN_LLM_TIMEOUT;
       const start = Date.now();
       const controller = new AbortController();
@@ -1878,13 +1203,13 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       if (!llmResult.ok) throw new Error(`LLM ${llmResult.status}`);
       const latencyMs = Date.now() - start;
       node.lastLatencyMs = latencyMs;
-      trackGpuEnd(node.name, latencyMs);
+      trackGpuEnd(gpuUtilization, node.name, latencyMs);
       const reasoning = llmResult.content || 'LLM returned empty response';
       return { reasoning, node: node.name, model: node.model, latencyMs };
     } catch (err) {
       // Track GPU end even on failure
-      const failNode = acquireGpu('trading', preferRole);
-      if (failNode) trackGpuEnd(failNode.name, 0);
+      const failNode = acquireGpu(GPU_FLEET, gpuUtilization, 'trading', preferRole);
+      if (failNode) trackGpuEnd(gpuUtilization, failNode.name, 0);
       logger.warn('Sven LLM brain unavailable, falling back to algorithmic-only', { err: (err as Error).message, preferRole });
       const fallback = `[Algorithmic mode] Kronos: ${context.kronosPrediction?.horizons?.[0]?.predictedDirection ?? 'n/a'}, MiroFish: ${context.mirofishResult?.consensusDirection ?? 'n/a'}. Decision based on quant signals only — GPU inference unavailable.`;
       return { reasoning: fallback, node: 'none', model: 'algorithmic', latencyMs: 0 };
@@ -3638,9 +2963,9 @@ Reference your actual live data when answering. Be data-driven, direct, and self
     // Have Sven's brain generate a response — user priority (highest)
     try {
       const svenContext = await buildSvenSelfAwareness();
-      const node = acquireGpu('user', 'fast');
+      const node = acquireGpu(GPU_FLEET, gpuUtilization, 'user', 'fast');
       if (!node) throw new Error('No GPU node available');
-      trackGpuStart(node.name, 'user');
+      trackGpuStart(gpuUtilization, node.name, 'user');
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), SVEN_LLM_TIMEOUT);
       const llmResult = await callLlm(node, [
@@ -3649,7 +2974,7 @@ Reference your actual live data when answering. Be data-driven, direct, and self
           ], { temperature: 0.4, num_predict: 300, signal: controller.signal });
       clearTimeout(timeout);
       const latencyMs = Date.now();
-      trackGpuEnd(node.name, latencyMs);
+      trackGpuEnd(gpuUtilization, node.name, latencyMs);
       if (!llmResult.ok) throw new Error(`LLM ${llmResult.status}`);
       const reply_text = llmResult.content || 'I could not generate a response right now.';
 
@@ -3757,7 +3082,7 @@ Reference your actual live data when answering. Be data-driven, direct, and self
     try {
       const svenContext = await buildSvenSelfAwareness();
       const preferRole = escalate ? 'power' as const : 'fast' as const;
-      const node = acquireGpu('user', preferRole);
+      const node = acquireGpu(GPU_FLEET, gpuUtilization, 'user', preferRole);
       if (!node) {
         return reply.status(503).send({ success: false, error: { code: 'GPU_UNAVAILABLE', message: 'No GPU node available right now' } });
       }
@@ -3774,13 +3099,13 @@ Reference your actual live data when answering. Be data-driven, direct, and self
       }
       messages.push({ role: 'user', content: prompt });
 
-      trackGpuStart(node.name, 'user');
+      trackGpuStart(gpuUtilization, node.name, 'user');
       const controller = new AbortController();
       const timeoutMs = node.role === 'power' ? SVEN_LLM_POWER_TIMEOUT : SVEN_LLM_TIMEOUT;
       const timeout = setTimeout(() => controller.abort(), timeoutMs);
       const llmResult = await callLlm(node, messages, { temperature: 0.5, num_predict: node.role === 'power' ? 2048 : 1024, signal: controller.signal });
       clearTimeout(timeout);
-      trackGpuEnd(node.name, Date.now());
+      trackGpuEnd(gpuUtilization, node.name, Date.now());
 
       if (!llmResult.ok) throw new Error(`LLM ${llmResult.status}`);
       const replyText = llmResult.content || 'I could not generate a response right now.';
@@ -3813,7 +3138,7 @@ Reference your actual live data when answering. Be data-driven, direct, and self
 
     try {
       const svenContext = await buildSvenSelfAwareness();
-      const node = acquireGpu('user', 'fast');
+      const node = acquireGpu(GPU_FLEET, gpuUtilization, 'user', 'fast');
       if (!node) {
         return reply.status(503).send({ success: false, error: { code: 'GPU_UNAVAILABLE', message: 'No GPU node available' } });
       }
@@ -3829,7 +3154,7 @@ Reference your actual live data when answering. Be data-driven, direct, and self
       messages.push({ role: 'user', content: prompt });
 
       const useModel = preferModel || node.model;
-      trackGpuStart(node.name, 'user');
+      trackGpuStart(gpuUtilization, node.name, 'user');
 
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), SVEN_LLM_TIMEOUT);
@@ -3847,7 +3172,7 @@ Reference your actual live data when answering. Be data-driven, direct, and self
 
       if (!ollamaRes.ok || !ollamaRes.body) {
         clearTimeout(timeout);
-        trackGpuEnd(node.name, Date.now());
+        trackGpuEnd(gpuUtilization, node.name, Date.now());
         return reply.status(502).send({ success: false, error: { code: 'LLM_ERROR', message: `LLM returned ${ollamaRes.status}` } });
       }
 
@@ -3879,7 +3204,7 @@ Reference your actual live data when answering. Be data-driven, direct, and self
             }
             if (parsed.done) {
               clearTimeout(timeout);
-              trackGpuEnd(node.name, Date.now());
+              trackGpuEnd(gpuUtilization, node.name, Date.now());
               reply.raw.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
               reply.raw.end();
             }
@@ -3889,7 +3214,7 @@ Reference your actual live data when answering. Be data-driven, direct, and self
 
       reader.on('end', () => {
         clearTimeout(timeout);
-        trackGpuEnd(node.name, Date.now());
+        trackGpuEnd(gpuUtilization, node.name, Date.now());
         if (!reply.raw.writableEnded) {
           reply.raw.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
           reply.raw.end();
@@ -3898,7 +3223,7 @@ Reference your actual live data when answering. Be data-driven, direct, and self
 
       reader.on('error', (err: Error) => {
         clearTimeout(timeout);
-        trackGpuEnd(node.name, Date.now());
+        trackGpuEnd(gpuUtilization, node.name, Date.now());
         logger.error('ext/sven/chat/stream error', { err: err.message });
         if (!reply.raw.writableEnded) {
           reply.raw.write(`data: ${JSON.stringify({ type: 'error', message: 'Stream interrupted' })}\n\n`);
@@ -4085,7 +3410,7 @@ Reference your actual live data when answering. Be data-driven, direct, and self
 
     try {
       const svenContext = await buildSvenSelfAwareness();
-      const node = acquireGpu('user', 'fast');
+      const node = acquireGpu(GPU_FLEET, gpuUtilization, 'user', 'fast');
       if (!node) {
         return reply.status(503).send({ success: false, error: { code: 'GPU_UNAVAILABLE', message: 'No GPU node available' } });
       }
@@ -4116,7 +3441,7 @@ Analyze and propose concrete, specific improvements. For each proposal:
 Focus on: signal accuracy, risk management, execution timing, learning adaptation.
 Do NOT suggest cosmetic changes. Only propose changes that move the P&L needle.`;
 
-      trackGpuStart(node.name, 'user');
+      trackGpuStart(gpuUtilization, node.name, 'user');
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), SVEN_LLM_TIMEOUT);
       const llmResult = await callLlm(node, [
@@ -4124,7 +3449,7 @@ Do NOT suggest cosmetic changes. Only propose changes that move the P&L needle.`
             { role: 'user', content: improvementPrompt },
           ], { temperature: 0.3, num_predict: 2048, signal: controller.signal });
       clearTimeout(timeout);
-      trackGpuEnd(node.name, Date.now());
+      trackGpuEnd(gpuUtilization, node.name, Date.now());
 
       if (!llmResult.ok) throw new Error(`LLM ${llmResult.status}`);
       const analysis = llmResult.content || 'Could not generate improvement analysis.';
