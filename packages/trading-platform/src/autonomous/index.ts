@@ -623,6 +623,7 @@ export interface AutonomousDecisionInput {
   learningMetrics: LearningMetrics;
   newsEvents: NewsEvent[];
   circuitBreaker: CircuitBreakerState;
+  paperTradeMode?: boolean;
 }
 
 export interface AutonomousDecisionOutput {
@@ -773,9 +774,10 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
     }));
   }
 
-  if (!aggregated || aggregated.strength < 0.3) {
+  const minSignalStrength = input.paperTradeMode ? 0.15 : 0.3;
+  if (!aggregated || aggregated.strength < minSignalStrength) {
     // Not enough conviction — hold
-    const decision = buildDecision('hold', input.symbol, allSignals, {}, 'Insufficient signal conviction');
+    const decision = buildDecision('hold', input.symbol, allSignals, {}, `Insufficient signal conviction (${(aggregated?.strength ?? 0).toFixed(2)} < ${minSignalStrength})`);    
     events.push(createTradingEvent('decision_made', {
       type: 'hold',
       symbol: input.symbol,
@@ -800,13 +802,16 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
 
   // ── 5. Risk Checks ───────────────────────────────────────────────
   const strategyDef = new StrategyRegistry().list()[0];
-  const riskConfig = strategyDef?.riskParameters ?? {
+  const baseRiskConfig = strategyDef?.riskParameters ?? {
     maxPositionPct: 0.05,
     maxExposurePct: 0.50,
     maxDailyLossPct: 0.03,
     minConfidence: 0.65,
     mandatoryStopLoss: true,
   };
+  const riskConfig = input.paperTradeMode
+    ? { ...baseRiskConfig, minConfidence: 0.25, maxDailyLossPct: 0.10, maxExposurePct: 0.80 }
+    : baseRiskConfig;
 
   const strategyContext: StrategyContext = {
     capital: input.portfolio.totalCapital,

@@ -8,7 +8,7 @@ import { requireRole } from './auth.js';
 import {
   InstrumentRegistry, normalizeCandle, validateCandle,
   calculateSpread, detectDataGap,
-  type Candle, type Instrument, type Timeframe,
+  type Candle, type Instrument, type Timeframe, type Exchange,
 } from '@sven/trading-platform/market-data';
 import {
   StrategyRegistry, aggregateSignals,
@@ -479,6 +479,8 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   let AUTO_TRADE_ENABLED = String(process.env.SVEN_AUTO_TRADE || 'true').trim().toLowerCase() !== 'false';
   let AUTO_TRADE_CONFIDENCE_THRESHOLD = Number(process.env.SVEN_AUTO_TRADE_MIN_CONFIDENCE || '0.60');
   let AUTO_TRADE_MAX_POSITION_PCT = Number(process.env.SVEN_AUTO_TRADE_MAX_POSITION_PCT || '0.05'); // 5% of balance
+  const PAPER_TRADE_MODE = String(process.env.SVEN_PAPER_TRADE_MODE || 'true').trim().toLowerCase() !== 'false';
+  const PAPER_TRADE_CONFIDENCE = 0.25; // lower threshold in paper mode so Sven learns
   const svenTradeLog: Array<{
     id: string; symbol: string; side: string; quantity: number; price: number;
     confidence: number; reasoning: string; llmNode: string; executedAt: string;
@@ -1866,6 +1868,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
           learningMetrics: svenLearning,
           newsEvents,
           circuitBreaker: svenCircuitBreaker,
+          paperTradeMode: PAPER_TRADE_MODE,
         };
         const output = makeAutonomousDecision(input);
         const signalStrength = output.aggregatedSignal?.strength ?? 0;
@@ -1910,11 +1913,12 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         .sort((a, b) => b.signalStrength - a.signalStrength);
 
       let llmReasonings: string[] = [];
+      const effectiveConfidence = PAPER_TRADE_MODE ? PAPER_TRADE_CONFIDENCE : AUTO_TRADE_CONFIDENCE_THRESHOLD;
 
       for (const candidate of tradeCandidates) {
         if (currentOpenPositions + positionsThisTick >= MAX_CONCURRENT_POSITIONS) break;
         if (totalExposurePct >= MAX_TOTAL_EXPOSURE_PCT) break;
-        if (candidate.decision.confidence < AUTO_TRADE_CONFIDENCE_THRESHOLD) continue;
+        if (candidate.decision.confidence < effectiveConfidence) continue;
         if (!AUTO_TRADE_ENABLED) continue;
 
         // Ask LLM brain — escalate to power model for candidates that may execute
@@ -2009,20 +2013,23 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
               llmNode: llmResult.node,
               llmModel: llmResult.model,
               reasoning: llmResult.reasoning.slice(0, 200),
+              paperTrade: PAPER_TRADE_MODE,
             }));
 
+            const tradeLabel = PAPER_TRADE_MODE ? '📝 Paper Trade' : 'Trade';
             svenSendMessage({
               type: 'trade_alert',
-              title: `Trade: ${orderSide.toUpperCase()} ${candidate.symbol}`,
-              body: `Sven auto-traded ${quantity} ${candidate.symbol} at $${candidate.currentPrice.toLocaleString()}. Confidence: ${(candidate.decision.confidence * 100).toFixed(0)}%. Signal: ${(candidate.signalStrength * 100).toFixed(0)}%. ${llmResult.reasoning.slice(0, 150)}`,
+              title: `${tradeLabel}: ${orderSide.toUpperCase()} ${candidate.symbol}`,
+              body: `Sven ${PAPER_TRADE_MODE ? 'paper-traded' : 'auto-traded'} ${quantity} ${candidate.symbol} at $${candidate.currentPrice.toLocaleString()}. Confidence: ${(candidate.decision.confidence * 100).toFixed(0)}%. Signal: ${(candidate.signalStrength * 100).toFixed(0)}%. ${llmResult.reasoning.slice(0, 150)}`,
               symbol: candidate.symbol,
-              severity: 'critical',
+              severity: PAPER_TRADE_MODE ? 'info' : 'critical',
             });
 
             logger.info('Sven auto-trade executed', {
               orderId, symbol: candidate.symbol, side: orderSide, quantity,
               price: candidate.currentPrice, confidence: candidate.decision.confidence,
               llmNode: llmResult.node, positionsThisTick, totalExposurePct: (totalExposurePct * 100).toFixed(1),
+              paperTrade: PAPER_TRADE_MODE,
             });
           }
         } catch (tradeErr) {
@@ -2388,6 +2395,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         learningMetrics: svenLearning,
         newsEvents: news_events,
         circuitBreaker: svenCircuitBreaker,
+        paperTradeMode: PAPER_TRADE_MODE,
       };
 
       const output = makeAutonomousDecision(input);
@@ -3321,6 +3329,127 @@ Reference your actual live data when answering. Be data-driven, direct, and self
     }
   });
 
+  // POST /v1/ext/sven/chat/stream — SSE streaming version
+  app.post('/v1/ext/sven/chat/stream', {
+    config: { rateLimit: { max: 30, timeWindow: '1 minute' } },
+  }, async (request, reply) => {
+    const authHeader = (request.headers['x-sven-api-key'] || request.headers['authorization'] || '') as string;
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    if (!EXT_API_KEY || token !== EXT_API_KEY) {
+      return reply.status(401).send({ success: false, error: { code: 'UNAUTHORIZED', message: 'Invalid extension API key' } });
+    }
+
+    const { prompt, history, preferModel } = request.body as {
+      prompt: string;
+      history?: Array<{ role: string; content: string }>;
+      preferModel?: string;
+    };
+    if (!prompt || typeof prompt !== 'string') {
+      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'prompt string required' } });
+    }
+
+    try {
+      const svenContext = await buildSvenSelfAwareness();
+      const node = acquireGpu('user', 'fast');
+      if (!node) {
+        return reply.status(503).send({ success: false, error: { code: 'GPU_UNAVAILABLE', message: 'No GPU node available' } });
+      }
+
+      const messages: Array<{ role: string; content: string }> = [
+        { role: 'system', content: svenContext },
+      ];
+      if (history && Array.isArray(history)) {
+        for (const msg of history.slice(-10)) {
+          if (msg.role && msg.content) messages.push({ role: msg.role, content: msg.content });
+        }
+      }
+      messages.push({ role: 'user', content: prompt });
+
+      const useModel = preferModel || node.model;
+      trackGpuStart(node.name, 'user');
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), SVEN_LLM_TIMEOUT);
+      const ollamaRes = await fetch(`${node.endpoint}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: useModel,
+          messages,
+          stream: true,
+          options: { temperature: 0.5, num_predict: 2048 },
+        }),
+      });
+
+      if (!ollamaRes.ok || !ollamaRes.body) {
+        clearTimeout(timeout);
+        trackGpuEnd(node.name, Date.now());
+        return reply.status(502).send({ success: false, error: { code: 'LLM_ERROR', message: `LLM returned ${ollamaRes.status}` } });
+      }
+
+      reply.raw.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'X-Sven-Model': useModel,
+        'X-Sven-Node': node.name,
+      });
+
+      // Send metadata event first
+      reply.raw.write(`data: ${JSON.stringify({ type: 'meta', model: useModel, node: node.name })}\n\n`);
+
+      const reader = ollamaRes.body as any;
+      let buffer = '';
+
+      reader.on('data', (chunk: Buffer) => {
+        buffer += chunk.toString();
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try {
+            const parsed = JSON.parse(line) as { message?: { content?: string }; done?: boolean };
+            if (parsed.message?.content) {
+              reply.raw.write(`data: ${JSON.stringify({ type: 'token', content: parsed.message.content })}\n\n`);
+            }
+            if (parsed.done) {
+              clearTimeout(timeout);
+              trackGpuEnd(node.name, Date.now());
+              reply.raw.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
+              reply.raw.end();
+            }
+          } catch { /* skip malformed chunks */ }
+        }
+      });
+
+      reader.on('end', () => {
+        clearTimeout(timeout);
+        trackGpuEnd(node.name, Date.now());
+        if (!reply.raw.writableEnded) {
+          reply.raw.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
+          reply.raw.end();
+        }
+      });
+
+      reader.on('error', (err: Error) => {
+        clearTimeout(timeout);
+        trackGpuEnd(node.name, Date.now());
+        logger.error('ext/sven/chat/stream error', { err: err.message });
+        if (!reply.raw.writableEnded) {
+          reply.raw.write(`data: ${JSON.stringify({ type: 'error', message: 'Stream interrupted' })}\n\n`);
+          reply.raw.end();
+        }
+      });
+
+      return reply;
+    } catch (err) {
+      logger.error('ext/sven/chat/stream setup error', { err: (err as Error).message });
+      return reply.status(500).send({ success: false, error: { code: 'INTERNAL', message: 'Failed to start stream' } });
+    }
+  });
+
   // GET — extension can fetch soul + status in one call
   app.get('/v1/ext/sven/context', async (request, reply) => {
     const authHeader = (request.headers['x-sven-api-key'] || request.headers['authorization'] || '') as string;
@@ -3346,12 +3475,228 @@ Reference your actual live data when answering. Be data-driven, direct, and self
             loopIterations,
             autoTradeEnabled: AUTO_TRADE_ENABLED,
             tradesExecuted: svenTradeLog.length,
+            paperTradeMode: PAPER_TRADE_MODE,
+            confidenceThreshold: PAPER_TRADE_MODE ? PAPER_TRADE_CONFIDENCE : AUTO_TRADE_CONFIDENCE_THRESHOLD,
           },
         },
       };
     } catch (err) {
       logger.error('ext/sven/context error', { err: (err as Error).message });
       return reply.status(500).send({ success: false, error: { code: 'INTERNAL', message: 'Failed to build context' } });
+    }
+  });
+
+  // GET — extension can fetch open positions
+  app.get('/v1/ext/sven/positions', async (request, reply) => {
+    const authHeader = (request.headers['x-sven-api-key'] || request.headers['authorization'] || '') as string;
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    if (!EXT_API_KEY || token !== EXT_API_KEY) {
+      return reply.status(401).send({ success: false, error: { code: 'UNAUTHORIZED', message: 'Invalid extension API key' } });
+    }
+
+    try {
+      const { rows } = await pool.query(
+        `SELECT id, symbol, side, quantity, avg_entry_price AS "entryPrice",
+                current_price AS "currentPrice", unrealized_pnl AS "unrealizedPnl",
+                status, opened_at AS "openedAt", closed_at AS "closedAt"
+         FROM trading_positions
+         WHERE status = 'open'
+         ORDER BY opened_at DESC LIMIT 50`,
+      );
+      return { success: true, data: { positions: rows, paperTradeMode: PAPER_TRADE_MODE } };
+    } catch (err) {
+      if (isSchemaCompatError(err)) {
+        return { success: true, data: { positions: [], paperTradeMode: PAPER_TRADE_MODE } };
+      }
+      logger.error('ext/sven/positions error', { err: (err as Error).message });
+      return reply.status(500).send({ success: false, error: { code: 'INTERNAL', message: 'Failed to fetch positions' } });
+    }
+  });
+
+  // POST — trigger single-symbol paper analysis from extension
+  app.post('/v1/ext/sven/analyze', async (request, reply) => {
+    const authHeader = (request.headers['x-sven-api-key'] || request.headers['authorization'] || '') as string;
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    if (!EXT_API_KEY || token !== EXT_API_KEY) {
+      return reply.status(401).send({ success: false, error: { code: 'UNAUTHORIZED', message: 'Invalid extension API key' } });
+    }
+
+    const { symbol } = request.body as { symbol?: string };
+    if (!symbol || typeof symbol !== 'string') {
+      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'symbol string required (e.g. BTCUSDT)' } });
+    }
+
+    const symbolClean = symbol.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (symbolClean.length < 3 || symbolClean.length > 20) {
+      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'Invalid symbol format' } });
+    }
+
+    try {
+      const BINANCE_API = process.env.BINANCE_API_BASE || 'https://api.binance.com';
+      const candleRes = await fetch(`${BINANCE_API}/api/v3/klines?symbol=${symbolClean}&interval=1h&limit=48`);
+      if (!candleRes.ok) {
+        return reply.status(400).send({ success: false, error: { code: 'SYMBOL_ERROR', message: `Invalid symbol or Binance error: ${candleRes.status}` } });
+      }
+      const rawCandles = (await candleRes.json()) as Array<Array<string | number>>;
+      const candles: Candle[] = rawCandles.map((c: Array<string | number>) => ({
+        time: new Date(Number(c[0])),
+        symbol: symbolClean,
+        exchange: 'binance' as Exchange,
+        timeframe: '1h' as Timeframe,
+        open: Number(c[1]), high: Number(c[2]), low: Number(c[3]), close: Number(c[4]),
+        volume: Number(c[5]),
+      }));
+
+      const currentPrice = candles.length > 0 ? candles[candles.length - 1].close : 0;
+      const portfolio = computePortfolioState(svenAccount.balance, [], 0);
+
+      const input: AutonomousDecisionInput = {
+        symbol: symbolClean,
+        candles,
+        currentPrice,
+        portfolio,
+        config: DEFAULT_LOOP_CONFIG,
+        learningMetrics: svenLearning,
+        newsEvents: [],
+        circuitBreaker: svenCircuitBreaker,
+        paperTradeMode: true, // always paper mode from extension
+      };
+
+      const output = makeAutonomousDecision(input);
+
+      // Broadcast events but don't execute real trades from extension
+      for (const event of output.events) {
+        broadcastEvent(event);
+      }
+
+      return {
+        success: true,
+        data: {
+          symbol: symbolClean,
+          currentPrice,
+          decision: output.decision.decisionType,
+          confidence: output.decision.confidence,
+          reasoning: output.decision.reasoning,
+          signals: output.decision.signals.map(s => ({ name: s.source ?? s.id, value: s.strength, direction: s.direction })),
+          events: output.events.map(e => ({ type: e.type, message: String((e.data as any).message ?? e.type) })),
+          paperTradeMode: true,
+        },
+      };
+    } catch (err) {
+      logger.error('ext/sven/analyze error', { err: (err as Error).message, symbol: symbolClean });
+      return reply.status(500).send({ success: false, error: { code: 'INTERNAL', message: 'Analysis failed' } });
+    }
+  });
+
+  // GET — recent trade history from extension
+  app.get('/v1/ext/sven/trades', async (request, reply) => {
+    const authHeader = (request.headers['x-sven-api-key'] || request.headers['authorization'] || '') as string;
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    if (!EXT_API_KEY || token !== EXT_API_KEY) {
+      return reply.status(401).send({ success: false, error: { code: 'UNAUTHORIZED', message: 'Invalid extension API key' } });
+    }
+
+    const limit = Math.min(Number((request.query as any).limit) || 20, 100);
+    const recentTrades = svenTradeLog.slice(-limit).reverse();
+    return {
+      success: true,
+      data: {
+        trades: recentTrades,
+        totalTrades: svenTradeLog.length,
+        paperTradeMode: PAPER_TRADE_MODE,
+      },
+    };
+  });
+
+  // POST — Sven self-improvement analysis via GPU
+  app.post('/v1/ext/sven/improve', {
+    config: { rateLimit: { max: 5, timeWindow: '1 minute' } },
+  }, async (request, reply) => {
+    const authHeader = (request.headers['x-sven-api-key'] || request.headers['authorization'] || '') as string;
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    if (!EXT_API_KEY || token !== EXT_API_KEY) {
+      return reply.status(401).send({ success: false, error: { code: 'UNAUTHORIZED', message: 'Invalid extension API key' } });
+    }
+
+    const { focus, codeSnippet } = request.body as { focus?: string; codeSnippet?: string };
+
+    try {
+      const svenContext = await buildSvenSelfAwareness();
+      const node = acquireGpu('user', 'fast');
+      if (!node) {
+        return reply.status(503).send({ success: false, error: { code: 'GPU_UNAVAILABLE', message: 'No GPU node available' } });
+      }
+
+      // Build self-improvement prompt
+      const improvementPrompt = `You are Sven, an AI trading agent. You are reviewing your own codebase for improvements.
+
+${focus ? `Focus area: ${focus}` : 'General review — find the most impactful improvements.'}
+
+${codeSnippet ? `Code to review:\n\`\`\`\n${codeSnippet.substring(0, 4000)}\n\`\`\`` : ''}
+
+Your current performance metrics:
+- Trading loop iterations: ${loopIterations}
+- Trades executed: ${svenTradeLog.length}
+- Paper trade mode: ${PAPER_TRADE_MODE}
+- Circuit breaker: ${svenCircuitBreaker.tripped ? 'TRIPPED' : 'OK'}
+- Strategies tracked: ${svenLearning.strategyRankings.length}
+- Top strategy win rate: ${svenLearning.strategyRankings.length > 0 ? svenLearning.strategyRankings[0].winRate.toFixed(2) : 'N/A'}
+- Learning iterations: ${svenLearning.learningIterations}
+- Learned patterns: ${svenLearning.learnedPatterns.length}
+
+Analyze and propose concrete, specific improvements. For each proposal:
+1. What to change (be specific — file, function, logic)
+2. Why it improves performance/reliability
+3. Risk level (low/medium/high)
+4. Priority (P0 urgent, P1 important, P2 nice-to-have)
+
+Focus on: signal accuracy, risk management, execution timing, learning adaptation.
+Do NOT suggest cosmetic changes. Only propose changes that move the P&L needle.`;
+
+      trackGpuStart(node.name, 'user');
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), SVEN_LLM_TIMEOUT);
+      const res = await fetch(`${node.endpoint}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: node.model,
+          messages: [
+            { role: 'system', content: svenContext },
+            { role: 'user', content: improvementPrompt },
+          ],
+          stream: false,
+          options: { temperature: 0.3, num_predict: 2048 },
+        }),
+      });
+      clearTimeout(timeout);
+      trackGpuEnd(node.name, Date.now());
+
+      if (!res.ok) throw new Error(`LLM ${res.status}`);
+      const data = (await res.json()) as { message?: { content?: string } };
+      const analysis = data.message?.content?.trim() ?? 'Could not generate improvement analysis.';
+
+      return {
+        success: true,
+        data: {
+          analysis,
+          model: node.model,
+          node: node.name,
+          metrics: {
+            loopIterations,
+            tradesExecuted: svenTradeLog.length,
+            winRate: svenLearning.strategyRankings.length > 0 ? svenLearning.strategyRankings[0].winRate : 0,
+            avgWin: svenLearning.strategyRankings.length > 0 ? svenLearning.strategyRankings[0].profitFactor : 0,
+            avgLoss: 0,
+            riskScore: svenLearning.learningIterations,
+            paperTradeMode: PAPER_TRADE_MODE,
+          },
+        },
+      };
+    } catch (err) {
+      logger.error('ext/sven/improve error', { err: (err as Error).message });
+      return reply.status(500).send({ success: false, error: { code: 'INTERNAL', message: 'Improvement analysis failed' } });
     }
   });
 
@@ -3369,6 +3714,8 @@ Reference your actual live data when answering. Be data-driven, direct, and self
       trackedSymbols: DEFAULT_LOOP_CONFIG.trackedSymbols,
       gpuFleet: GPU_FLEET.map(n => ({ name: n.name, role: n.role, model: n.model, endpoint: n.endpoint })),
       escalationThreshold: ESCALATION_CONFIDENCE_THRESHOLD,
+      paperTradeMode: PAPER_TRADE_MODE,
+      effectiveConfidence: PAPER_TRADE_MODE ? PAPER_TRADE_CONFIDENCE : AUTO_TRADE_CONFIDENCE_THRESHOLD,
     });
   }
 }
