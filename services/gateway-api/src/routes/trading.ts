@@ -563,7 +563,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
       let openList = '';
       try {
         const { rows } = await pool.query(
-          `SELECT symbol, side FROM sven_positions WHERE status = 'open' AND user_id = $1`,
+          `SELECT symbol, side FROM trading_positions WHERE status = 'open' AND user_id = $1`,
           [SVEN_AUTONOMOUS_USER_ID],
         );
         openCount = rows.length;
@@ -631,16 +631,42 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   const positionSignalMap = new Map<string, PositionSignals>(); // symbol → signals at entry
 
   // ── Persist state to DB after every change ──
+  // Batch 9B: now also persists trailing stop peaks, profit ladder state,
+  // position signal map, dynamic watchlist, and consecutive wins — all
+  // critical for correct behavior across container restarts.
   async function persistSvenState(): Promise<void> {
     try {
+      // Serialize Maps to plain objects for JSONB storage
+      const peaksObj: Record<string, number> = {};
+      for (const [k, v] of trailingStopPeaks) peaksObj[k] = v;
+
+      const ladderObj: Record<string, number[]> = {};
+      for (const [k, v] of profitLadderState) ladderObj[k] = [...v];
+
+      const signalObj: Record<string, PositionSignals> = {};
+      for (const [k, v] of positionSignalMap) signalObj[k] = v;
+
+      const watchlistArr = dynamicWatchlist.map(d => ({
+        symbol: d.symbol,
+        binanceSymbol: d.binanceSymbol,
+        discoveredFrom: d.discoveredFrom,
+        addedAt: d.addedAt.toISOString(),
+        expiresAt: d.expiresAt.toISOString(),
+        newsScore: d.newsScore,
+        trades: d.trades,
+      }));
+
       await pool.query(
-        `INSERT INTO sven_trading_state (id, balance, peak_balance, total_pnl, daily_pnl, daily_trade_count, daily_reset_date, source_weights, model_accuracy, learning_iterations, circuit_breaker, updated_at)
-         VALUES ('singleton', $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())
+        `INSERT INTO sven_trading_state (id, balance, peak_balance, total_pnl, daily_pnl, daily_trade_count, daily_reset_date, source_weights, model_accuracy, learning_iterations, circuit_breaker, consecutive_wins, trailing_stop_peaks, profit_ladder_state, position_signal_map, dynamic_watchlist, updated_at)
+         VALUES ('singleton', $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW())
          ON CONFLICT (id) DO UPDATE SET
            balance = $1, peak_balance = $2, total_pnl = $3, daily_pnl = $4,
            daily_trade_count = $5, daily_reset_date = $6,
            source_weights = $7, model_accuracy = $8,
-           learning_iterations = $9, circuit_breaker = $10, updated_at = NOW()`,
+           learning_iterations = $9, circuit_breaker = $10,
+           consecutive_wins = $11, trailing_stop_peaks = $12,
+           profit_ladder_state = $13, position_signal_map = $14,
+           dynamic_watchlist = $15, updated_at = NOW()`,
         [
           svenAccount.balance, svenPeakBalance, svenTotalPnl, svenDailyPnl,
           svenDailyTradeCount, lastDailyResetDate,
@@ -648,6 +674,11 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
           JSON.stringify(svenLearning.modelAccuracy),
           svenLearning.learningIterations,
           JSON.stringify(svenCircuitBreaker),
+          svenConsecutiveWins,
+          JSON.stringify(peaksObj),
+          JSON.stringify(ladderObj),
+          JSON.stringify(signalObj),
+          JSON.stringify(watchlistArr),
         ],
       );
     } catch (err) {
@@ -656,6 +687,10 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   }
 
   // ── Restore persisted state from DB on startup ──
+  // Batch 9B: Buffer for dynamic watchlist restore (const dynamicWatchlist declared later)
+  let pendingWatchlistRestore: any[] | null = null;
+  let resolveRestoreReady!: () => void;
+  const restoreReady = new Promise<void>(r => { resolveRestoreReady = r; });
   void (async () => {
     try {
       const { rows } = await pool.query(`SELECT * FROM sven_trading_state WHERE id = 'singleton' LIMIT 1`);
@@ -678,17 +713,59 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
           if (s.circuit_breaker && typeof s.circuit_breaker === 'object' && Object.keys(s.circuit_breaker).length > 0) {
             Object.assign(svenCircuitBreaker, s.circuit_breaker);
           }
+
+          // Batch 9B: Restore critical trading-safety state
+          if (typeof s.consecutive_wins === 'number') svenConsecutiveWins = s.consecutive_wins;
+
+          // Restore trailing stop peaks (positionId → peak priceDelta)
+          if (s.trailing_stop_peaks && typeof s.trailing_stop_peaks === 'object') {
+            for (const [posId, peak] of Object.entries(s.trailing_stop_peaks)) {
+              if (typeof peak === 'number') trailingStopPeaks.set(posId, peak);
+            }
+          }
+
+          // Restore profit ladder state (positionId → Set of triggered thresholds)
+          if (s.profit_ladder_state && typeof s.profit_ladder_state === 'object') {
+            for (const [posId, thresholds] of Object.entries(s.profit_ladder_state)) {
+              if (Array.isArray(thresholds)) {
+                profitLadderState.set(posId, new Set(thresholds as number[]));
+              }
+            }
+          }
+
+          // Restore position signal map (symbol → PositionSignals)
+          if (s.position_signal_map && typeof s.position_signal_map === 'object') {
+            for (const [symbol, signals] of Object.entries(s.position_signal_map)) {
+              if (signals && typeof signals === 'object') {
+                positionSignalMap.set(symbol, signals as PositionSignals);
+              }
+            }
+          }
+
+          // Restore dynamic watchlist with date rehydration
+          // NOTE: dynamicWatchlist is declared further down; this IIFE is async
+          // so by the time it resolves, the const will be initialized. Store
+          // raw data in pendingWatchlistRestore and apply after declaration.
+          if (Array.isArray(s.dynamic_watchlist)) {
+            pendingWatchlistRestore = s.dynamic_watchlist;
+          }
+
           logger.info('Sven trading state restored from DB', {
             balance: svenAccount.balance,
             totalPnl: svenTotalPnl,
             learningIterations: svenLearning.learningIterations,
             sourceWeights: svenLearning.sourceWeights,
+            consecutiveWins: svenConsecutiveWins,
+            trailingStopPeaks: trailingStopPeaks.size,
+            profitLadderState: profitLadderState.size,
+            positionSignalMap: positionSignalMap.size,
           });
         }
       }
     } catch (err) {
       logger.warn('Could not restore Sven trading state (table may not exist yet)', { error: (err as Error).message });
     }
+    resolveRestoreReady();
   })();
 
   function checkGoalMilestones(): GoalMilestone[] {
@@ -910,6 +987,32 @@ Respond in plain text, no markdown.`;
   const DYNAMIC_SYMBOL_TTL_MS = 4 * 60 * 60_000; // 4 hours
   const MAX_DYNAMIC_SYMBOLS = 10;
   const TREND_SCOUT_INTERVAL_MS = 10 * 60_000; // every 10 minutes
+
+  // Batch 9B: Apply buffered watchlist restore from DB (async — waits for restore IIFE)
+  void restoreReady.then(() => {
+    if (pendingWatchlistRestore) {
+      for (const d of pendingWatchlistRestore) {
+        if (d && typeof d === 'object' && d.symbol) {
+          const expiresAt = new Date(d.expiresAt);
+          if (expiresAt.getTime() > Date.now()) {
+            dynamicWatchlist.push({
+              symbol: d.symbol,
+              binanceSymbol: d.binanceSymbol ?? d.symbol,
+              discoveredFrom: d.discoveredFrom ?? 'restored',
+              addedAt: new Date(d.addedAt),
+              expiresAt,
+              newsScore: d.newsScore ?? 0,
+              trades: d.trades ?? 0,
+            });
+          }
+        }
+      }
+      if (dynamicWatchlist.length > 0) {
+        logger.info('Dynamic watchlist restored from DB', { count: dynamicWatchlist.length, symbols: dynamicWatchlist.map(d => d.symbol) });
+      }
+      pendingWatchlistRestore = null;
+    }
+  });
 
   /** Use Sven's LLM brain to analyze recent news and extract trending symbols */
   async function runTrendScout(): Promise<void> {
@@ -1919,6 +2022,10 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         goalProgress: `${goalMilestones.filter(m => m.achieved).length}/${goalMilestones.length}`,
         sourceWeights: svenLearning.sourceWeights,
       });
+
+      // Batch 9B: Persist all state at end of every tick so trailing stop
+      // peaks, profit ladder progress, and dynamic watchlist survive restarts.
+      void persistSvenState();
     } catch (err) {
       logger.error('autonomous loop error', { err: (err as Error).message });
       broadcastEvent(createTradingEvent('loop_error', { error: (err as Error).message }));
@@ -2911,7 +3018,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     let openList = 'none';
     try {
       const { rows } = await pool.query(
-        `SELECT symbol, side FROM sven_positions WHERE status = 'open' AND user_id = $1`,
+        `SELECT symbol, side FROM trading_positions WHERE status = 'open' AND user_id = $1`,
         [SVEN_AUTONOMOUS_USER_ID],
       );
       openCount = rows.length;
