@@ -1466,12 +1466,45 @@ async function loadContext(pool: pg.Pool, chatId: string, senderIdentityId: stri
     return sections.join('\n\n');
   }
 
+  /** Strip sections marked (Admin-Only) and STRICT CONFIDENTIALITY for non-admin users */
+  function stripAdminOnlySections(content: string): string {
+    const lines = content.split('\n');
+    const result: string[] = [];
+    let inAdminSection = false;
+    for (const line of lines) {
+      const trimmed = line.trim();
+      const isBoldHeader = trimmed.startsWith('**') && trimmed.endsWith('**') && trimmed.length > 4;
+      const isHeading = trimmed.startsWith('## ');
+      if (isBoldHeader || isHeading) {
+        if (trimmed.includes('(Admin-Only)') || trimmed.includes('STRICT CONFIDENTIALITY')) {
+          inAdminSection = true;
+          continue;
+        } else {
+          inAdminSection = false;
+        }
+      }
+      if (!inAdminSection) {
+        result.push(line);
+      }
+    }
+    return result.join('\n').replace(/\n{3,}/g, '\n\n');
+  }
+
   // Get user from identity
   const identityRes = await pool.query(
     `SELECT user_id FROM identities WHERE id = $1`,
     [senderIdentityId],
   );
   const userId = identityRes.rows[0]?.user_id || 'unknown';
+
+  // Get user role for access control
+  let userRole = 'user';
+  try {
+    const roleRes = await pool.query(`SELECT role FROM users WHERE id = $1`, [userId]);
+    userRole = roleRes.rows[0]?.role || 'user';
+  } catch { /* default to user */ }
+  const isAdmin = userRole === 'admin' || userRole === 'platform_admin';
+
   let projectKey: string | null = null;
   try {
     const workspaceRes = await pool.query(
@@ -1543,6 +1576,11 @@ async function loadContext(pool: pg.Pool, chatId: string, senderIdentityId: stri
       [chatId],
     );
     systemPrompt = composeSystemPrompt(identityDocRes.rows as Array<{ scope: string; content: string }>);
+  }
+
+  // Strip admin-only sections for non-admin users
+  if (!isAdmin) {
+    systemPrompt = stripAdminOnlySections(systemPrompt);
   }
 
   // Get relevant memories
