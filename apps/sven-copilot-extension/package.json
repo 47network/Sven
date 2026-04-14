@@ -2,7 +2,7 @@
   "name": "sven-copilot",
   "displayName": "Sven AI – Copilot Chat Participant",
   "description": "Sven AI assistant as a GitHub Copilot Chat participant. Sven helps code himself, provides live trading context, and tests self-healing.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "47network",
   "license": "MIT",
   "engines": {
@@ -41,6 +41,22 @@
           {
             "name": "deploy",
             "description": "Show deployment status and guide through deploying changes."
+          },
+          {
+            "name": "trade",
+            "description": "Show live trading dashboard — paper/live mode, positions, P&L, confidence thresholds."
+          },
+          {
+            "name": "positions",
+            "description": "Show all open positions with entry price, side, and unrealized P&L."
+          },
+          {
+            "name": "execute",
+            "description": "Trigger a paper trade analysis for a specific symbol (e.g. /execute BTCUSDT)."
+          },
+          {
+            "name": "improve",
+            "description": "Sven analyzes his own code and proposes improvements using GPU inference."
           }
         ]
       }

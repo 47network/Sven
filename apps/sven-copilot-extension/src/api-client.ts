@@ -93,9 +93,107 @@ export class SvenApiClient {
       loopIterations: number;
       autoTradeEnabled: boolean;
       tradesExecuted: number;
+      paperTradeMode: boolean;
+      confidenceThreshold: number;
     };
   }> {
     return this.request('/v1/ext/sven/context');
+  }
+
+  /** Stream chat with Sven's brain — returns tokens via callback */
+  chatStream(
+    prompt: string,
+    onToken: (token: string) => void,
+    onDone: (meta: { model: string; node: string }) => void,
+    onError: (err: Error) => void,
+    history?: Array<{ role: string; content: string }>,
+  ): { abort: () => void } {
+    const config = this.getConfig();
+    const url = `${config.gatewayUrl.replace(/\/$/, '')}/v1/ext/sven/chat/stream`;
+    const parsed = new URL(url);
+    const isHttps = parsed.protocol === 'https:';
+    const mod = isHttps ? https : http;
+    let aborted = false;
+    let model = '';
+    let node = '';
+
+    const payload = JSON.stringify({ prompt, history });
+
+    const req = mod.request({
+      hostname: parsed.hostname,
+      port: parsed.port || (isHttps ? 443 : 80),
+      path: parsed.pathname + parsed.search,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Sven-Api-Key': config.apiKey,
+        'Accept': 'text/event-stream',
+      },
+      timeout: 120_000,
+    }, (res) => {
+      if (res.statusCode !== 200) {
+        const chunks: Buffer[] = [];
+        res.on('data', (c: Buffer) => chunks.push(c));
+        res.on('end', () => {
+          const body = Buffer.concat(chunks).toString('utf-8');
+          onError(new Error(`Sven stream ${res.statusCode}: ${body}`));
+        });
+        return;
+      }
+
+      let buffer = '';
+      res.on('data', (chunk: Buffer) => {
+        if (aborted) { return; }
+        buffer += chunk.toString('utf-8');
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) { continue; }
+          const json = line.slice(6).trim();
+          if (!json) { continue; }
+          try {
+            const parsed = JSON.parse(json) as { type: string; content?: string; model?: string; node?: string; message?: string };
+            if (parsed.type === 'meta') {
+              model = parsed.model || '';
+              node = parsed.node || '';
+            } else if (parsed.type === 'token' && parsed.content) {
+              onToken(parsed.content);
+            } else if (parsed.type === 'done') {
+              onDone({ model, node });
+            } else if (parsed.type === 'error') {
+              onError(new Error(parsed.message || 'Stream error'));
+            }
+          } catch { /* skip malformed SSE frames */ }
+        }
+      });
+
+      res.on('end', () => {
+        if (!aborted) { onDone({ model, node }); }
+      });
+
+      res.on('error', (err: Error) => {
+        if (!aborted) { onError(err); }
+      });
+    });
+
+    req.on('error', (err: Error) => {
+      if (!aborted) { onError(err); }
+    });
+    req.on('timeout', () => {
+      req.destroy();
+      if (!aborted) { onError(new Error('Stream timed out')); }
+    });
+
+    req.write(payload);
+    req.end();
+
+    return {
+      abort: () => {
+        aborted = true;
+        req.destroy();
+      },
+    };
   }
 
   /** Legacy: get trading status (admin session required) */
@@ -106,5 +204,78 @@ export class SvenApiClient {
   /** Legacy: get active soul */
   async getActiveSoul(): Promise<{ slug: string; version: string; content: string }> {
     return this.request('/v1/admin/souls/installed');
+  }
+
+  /** Get open positions via extension auth */
+  async getPositions(): Promise<{
+    positions: Array<{
+      id: string;
+      symbol: string;
+      side: string;
+      quantity: number;
+      entryPrice: number;
+      currentPrice: number;
+      unrealizedPnl: number;
+      status: string;
+      openedAt: string;
+    }>;
+    paperTradeMode: boolean;
+  }> {
+    return this.request('/v1/ext/sven/positions');
+  }
+
+  /** Trigger paper analysis for a symbol */
+  async analyzeSymbol(symbol: string): Promise<{
+    symbol: string;
+    currentPrice: number;
+    decision: string;
+    confidence: number;
+    reasoning: string;
+    signals: Array<{ name: string; value: number; direction: string }>;
+    events: Array<{ type: string; message: string }>;
+    paperTradeMode: boolean;
+  }> {
+    return this.request('/v1/ext/sven/analyze', {
+      method: 'POST',
+      body: JSON.stringify({ symbol }),
+    });
+  }
+
+  /** Get recent trade history */
+  async getTradeHistory(limit = 20): Promise<{
+    trades: Array<{
+      symbol: string;
+      side: string;
+      price: number;
+      quantity: number;
+      pnl?: number;
+      timestamp: string;
+      paperTrade?: boolean;
+    }>;
+    totalTrades: number;
+    paperTradeMode: boolean;
+  }> {
+    return this.request(`/v1/ext/sven/trades?limit=${limit}`);
+  }
+
+  /** Sven self-improvement analysis via GPU */
+  async analyzeForImprovement(focus?: string, codeSnippet?: string): Promise<{
+    analysis: string;
+    model: string;
+    node: string;
+    metrics: {
+      loopIterations: number;
+      tradesExecuted: number;
+      winRate: number;
+      profitFactor: number;
+      learningIterations: number;
+      learnedPatterns: number;
+      paperTradeMode: boolean;
+    };
+  }> {
+    return this.request('/v1/ext/sven/improve', {
+      method: 'POST',
+      body: JSON.stringify({ focus, codeSnippet }),
+    });
   }
 }
