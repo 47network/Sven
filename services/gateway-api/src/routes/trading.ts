@@ -649,6 +649,69 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   // Batch 7: Track per-position signal directions for accurate source attribution.
   const positionSignalMap = new Map<string, PositionSignals>(); // symbol → signals at entry
 
+  // ── Batch 9F: Execution quality tracking ──
+  // Records every trade entry/exit and computes quality metrics:
+  // slippage, hold time, win rate, avg gain/loss, max drawdown per trade.
+  interface ExecutionRecord {
+    orderId: string;
+    symbol: string;
+    side: 'buy' | 'sell';
+    entryPrice: number;
+    exitPrice: number | null;
+    quantity: number;
+    entryAt: number;    // Unix ms
+    exitAt: number | null;
+    pnl: number | null;
+    pnlPct: number | null;
+    closeReason: string | null;
+    peakPnlPct: number;  // Max favorable excursion
+    troughPnlPct: number; // Max adverse excursion (drawdown during hold)
+    tickLatencyMs: number; // Time from tick start to order execution
+    multiTfAlignment: string | null; // alignment at entry
+    llmSentiment: string | null; // LLM sentiment direction at entry
+  }
+
+  const executionLog: ExecutionRecord[] = [];
+  const MAX_EXECUTION_LOG = 200;
+
+  function computeExecutionQuality(): Record<string, unknown> {
+    const closed = executionLog.filter(e => e.exitPrice !== null);
+    if (closed.length === 0) return { trades: 0 };
+
+    const wins = closed.filter(e => (e.pnl ?? 0) > 0);
+    const losses = closed.filter(e => (e.pnl ?? 0) <= 0);
+    const avgGainPct = wins.length > 0 ? wins.reduce((s, e) => s + (e.pnlPct ?? 0), 0) / wins.length : 0;
+    const avgLossPct = losses.length > 0 ? losses.reduce((s, e) => s + (e.pnlPct ?? 0), 0) / losses.length : 0;
+    const avgHoldMs = closed.reduce((s, e) => s + ((e.exitAt ?? 0) - e.entryAt), 0) / closed.length;
+    const avgMaePct = closed.reduce((s, e) => s + e.troughPnlPct, 0) / closed.length;
+    const avgMfePct = closed.reduce((s, e) => s + e.peakPnlPct, 0) / closed.length;
+
+    // Profit factor: gross gains / gross losses
+    const grossGain = wins.reduce((s, e) => s + (e.pnl ?? 0), 0);
+    const grossLoss = Math.abs(losses.reduce((s, e) => s + (e.pnl ?? 0), 0));
+    const profitFactor = grossLoss > 0 ? grossGain / grossLoss : grossGain > 0 ? Infinity : 0;
+
+    // Win rate by multi-TF alignment
+    const alignedTrades = closed.filter(e => e.multiTfAlignment === 'aligned');
+    const alignedWinRate = alignedTrades.length > 0
+      ? alignedTrades.filter(e => (e.pnl ?? 0) > 0).length / alignedTrades.length
+      : null;
+
+    return {
+      totalTrades: executionLog.length,
+      closedTrades: closed.length,
+      openTrades: executionLog.length - closed.length,
+      winRate: (wins.length / closed.length * 100).toFixed(1) + '%',
+      avgGainPct: avgGainPct.toFixed(3),
+      avgLossPct: avgLossPct.toFixed(3),
+      profitFactor: profitFactor === Infinity ? 'Inf' : profitFactor.toFixed(2),
+      avgHoldMinutes: (avgHoldMs / 60_000).toFixed(1),
+      avgMaePct: avgMaePct.toFixed(3),  // avg max adverse excursion
+      avgMfePct: avgMfePct.toFixed(3),  // avg max favorable excursion
+      alignedWinRate: alignedWinRate !== null ? (alignedWinRate * 100).toFixed(1) + '%' : 'n/a',
+    };
+  }
+
   // ── Persist state to DB after every change ──
   // Batch 9B: now also persists trailing stop peaks, profit ladder state,
   // position signal map, dynamic watchlist, and consecutive wins — all
@@ -1536,6 +1599,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     }
 
     try {
+      const tickStartMs = Date.now(); // Batch 9F: measure tick-to-execution latency
       // ═══ MULTI-SYMBOL PARALLEL SCAN ═══════════════════════════════
       // Sven now analyzes ALL tracked symbols every tick, not just one.
       // Core symbols are always scanned. Dynamic symbols discovered by
@@ -1848,6 +1912,27 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
             svenTradeLog.push(tradeRecord);
             if (svenTradeLog.length > 100) svenTradeLog.shift();
 
+            // Batch 9F: Record execution for quality tracking
+            executionLog.push({
+              orderId,
+              symbol: candidate.symbol,
+              side: orderSide as 'buy' | 'sell',
+              entryPrice: candidate.currentPrice,
+              exitPrice: null,
+              quantity,
+              entryAt: Date.now(),
+              exitAt: null,
+              pnl: null,
+              pnlPct: null,
+              closeReason: null,
+              peakPnlPct: 0,
+              troughPnlPct: 0,
+              tickLatencyMs: Date.now() - tickStartMs,
+              multiTfAlignment: candidate.multiTf?.alignment ?? null,
+              llmSentiment: symbolSentiments.get(candidate.symbol)?.direction ?? null,
+            });
+            if (executionLog.length > MAX_EXECUTION_LOG) executionLog.shift();
+
             // Batch 7: Store per-source signal directions at trade entry
             // for accurate attribution when the position closes.
             const kronosDir = candidate.output.kronosPrediction?.horizons?.[0]?.predictedDirection ?? 'neutral';
@@ -1943,6 +2028,14 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
                 [currentData.currentPrice, unrealizedPnl, pos.id, defaultOrg],
               );
             } catch { /* schema compat */ }
+
+            // Batch 9F: Update execution record peak/trough excursion (MFE/MAE)
+            const execForPos = executionLog.find(e => e.symbol === pos.symbol && e.exitPrice === null);
+            if (execForPos) {
+              const pctMove = priceDelta * 100;
+              if (pctMove > execForPos.peakPnlPct) execForPos.peakPnlPct = pctMove;
+              if (pctMove < execForPos.troughPnlPct) execForPos.troughPnlPct = pctMove;
+            }
 
             // ── Smart Exit Logic with Trailing Stop + Profit-Taking Ladder ───
             // Instead of fixed TP/SL, use a trailing stop that locks in
@@ -2136,6 +2229,16 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
                 positionId: pos.id, symbol: pos.symbol, side: pos.side, closeReason,
                 pnl, pnlPct: (priceDelta * 100).toFixed(2), balance: svenAccount.balance,
               });
+
+              // Batch 9F: Update execution record with exit data
+              const execEntry = executionLog.find(e => e.symbol === pos.symbol && e.exitPrice === null);
+              if (execEntry) {
+                execEntry.exitPrice = currentData.currentPrice;
+                execEntry.exitAt = Date.now();
+                execEntry.pnl = pnl;
+                execEntry.pnlPct = priceDelta * 100;
+                execEntry.closeReason = closeReason;
+              }
 
               // ── Learn from this trade outcome ──
               // Batch 7: Per-source attribution. Instead of crediting/debiting
@@ -2688,6 +2791,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
           healthy: binanceWs.isHealthy(),
           cachedPrices: binanceWs.getAllPrices().size,
         },
+        executionQuality: computeExecutionQuality(),
       },
     };
   });
@@ -3910,4 +4014,34 @@ Do NOT suggest cosmetic changes. Only propose changes that move the P&L needle.`
       effectiveConfidence: PAPER_TRADE_MODE ? PAPER_TRADE_CONFIDENCE : AUTO_TRADE_CONFIDENCE_THRESHOLD,
     });
   }
+
+  // ── Batch 9F: Graceful shutdown ─────────────────────────────────
+  // On SIGTERM/SIGINT (Docker stop, k8s pod termination), persist state
+  // and cleanly shut down resources before the process exits.
+  const gracefulShutdown = async (signal: string) => {
+    logger.info(`Graceful shutdown initiated (${signal})`);
+    try {
+      // 1. Stop the trading loop
+      if (loopTimer) { clearInterval(loopTimer); loopTimer = null; }
+      loopRunning = false;
+
+      // 2. Persist final state to DB
+      await persistSvenState();
+      logger.info('Trading state persisted on shutdown');
+
+      // 3. Stop WebSocket feed
+      binanceWs.stop();
+
+      // 4. Log execution quality summary
+      const quality = computeExecutionQuality();
+      logger.info('Shutdown execution quality summary', quality);
+
+      logger.info('Graceful shutdown complete');
+    } catch (err) {
+      logger.error('Error during graceful shutdown', { err: (err as Error).message });
+    }
+  };
+
+  process.once('SIGTERM', () => { void gracefulShutdown('SIGTERM'); });
+  process.once('SIGINT', () => { void gracefulShutdown('SIGINT'); });
 }
