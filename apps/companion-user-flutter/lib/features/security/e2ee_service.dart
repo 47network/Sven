@@ -106,7 +106,8 @@ class E2eeService {
   // ── Key Query ──────────────────────────────────────────────
 
   /// Query device keys for a list of user IDs.
-  Future<Map<String, List<DeviceKeyInfo>>> queryDeviceKeys(List<String> userIds) async {
+  Future<Map<String, List<DeviceKeyInfo>>> queryDeviceKeys(
+      List<String> userIds) async {
     final base = ApiBaseService.currentSync();
     final response = await _client.postJson(
       Uri.parse('$base/v1/e2ee/keys/query'),
@@ -114,7 +115,8 @@ class E2eeService {
     );
     if (response.statusCode != 200) return {};
 
-    final data = jsonDecode(response.body)['data']['device_keys'] as Map<String, dynamic>;
+    final data = jsonDecode(response.body)['data']['device_keys']
+        as Map<String, dynamic>;
     final result = <String, List<DeviceKeyInfo>>{};
     for (final entry in data.entries) {
       result[entry.key] = (entry.value as List)
@@ -140,21 +142,25 @@ class E2eeService {
     );
     if (response.statusCode != 200) return {};
 
-    final otks = jsonDecode(response.body)['data']['one_time_keys'] as Map<String, dynamic>;
-    return otks.map((k, v) => MapEntry(k, ClaimedKey.fromJson(v as Map<String, dynamic>)));
+    final otks = jsonDecode(response.body)['data']['one_time_keys']
+        as Map<String, dynamic>;
+    return otks.map(
+        (k, v) => MapEntry(k, ClaimedKey.fromJson(v as Map<String, dynamic>)));
   }
 
   // ── Encrypt / Decrypt Messages ─────────────────────────────
 
   /// Encrypt a message for a specific recipient using ECDH + AES-256-GCM.
-  EncryptedPayload encryptMessage(String plaintext, String recipientPublicKeyBase64) {
+  EncryptedPayload encryptMessage(
+      String plaintext, String recipientPublicKeyBase64) {
     final recipientPubBytes = base64Decode(recipientPublicKeyBase64);
     final recipientPoint = _domain.curve.decodePoint(recipientPubBytes);
     final recipientPub = ECPublicKey(recipientPoint, _domain);
 
     // ECDH: shared secret = private * recipientPublic
     final sharedPoint = recipientPub.Q! * _identityPrivateKey!.d;
-    final sharedSecretBytes = _bigIntToBytes(sharedPoint!.x!.toBigInteger()!, 32);
+    final sharedSecretBytes =
+        _bigIntToBytes(sharedPoint!.x!.toBigInteger()!, 32);
 
     // HKDF to derive AES key
     final hkdf = HKDFKeyDerivator(SHA256Digest());
@@ -167,7 +173,8 @@ class E2eeService {
     final iv = _randomBytes(12);
     final plaintextBytes = Uint8List.fromList(utf8.encode(plaintext));
     final cipher = GCMBlockCipher(AESEngine());
-    cipher.init(true, AEADParameters(KeyParameter(aesKey), 128, iv, Uint8List(0)));
+    cipher.init(
+        true, AEADParameters(KeyParameter(aesKey), 128, iv, Uint8List(0)));
     final ciphertext = cipher.process(plaintextBytes);
 
     return EncryptedPayload(
@@ -187,7 +194,8 @@ class E2eeService {
 
     // ECDH: shared secret = private * senderPublic
     final sharedPoint = senderPub.Q! * _identityPrivateKey!.d;
-    final sharedSecretBytes = _bigIntToBytes(sharedPoint!.x!.toBigInteger()!, 32);
+    final sharedSecretBytes =
+        _bigIntToBytes(sharedPoint!.x!.toBigInteger()!, 32);
 
     // HKDF to derive AES key
     final hkdf = HKDFKeyDerivator(SHA256Digest());
@@ -200,7 +208,8 @@ class E2eeService {
     final iv = Uint8List.fromList(base64Decode(payload.iv));
     final ciphertext = Uint8List.fromList(base64Decode(payload.ciphertext));
     final cipher = GCMBlockCipher(AESEngine());
-    cipher.init(false, AEADParameters(KeyParameter(aesKey), 128, iv, Uint8List(0)));
+    cipher.init(
+        false, AEADParameters(KeyParameter(aesKey), 128, iv, Uint8List(0)));
     final plaintext = cipher.process(ciphertext);
 
     return utf8.decode(plaintext);
@@ -247,7 +256,8 @@ class E2eeService {
 
   String _generateId(int length) {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    return List.generate(length, (_) => chars[Random.secure().nextInt(chars.length)]).join();
+    return List.generate(
+        length, (_) => chars[Random.secure().nextInt(chars.length)]).join();
   }
 
   String _serializeKeyPair() {
@@ -294,22 +304,29 @@ class EncryptedPayload {
   final String? sessionId;
 
   Map<String, dynamic> toJson() => {
-    'algorithm': algorithm,
-    'sender_key': senderKey,
-    'ciphertext': ciphertext,
-    'iv': iv,
-    'device_id': deviceId,
-    if (sessionId != null) 'session_id': sessionId,
-  };
+        'algorithm': algorithm,
+        'sender_key': senderKey,
+        'ciphertext': ciphertext,
+        'iv': iv,
+        'device_id': deviceId,
+        if (sessionId != null) 'session_id': sessionId,
+      };
 
   factory EncryptedPayload.fromJson(Map<String, dynamic> json) {
     return EncryptedPayload(
       algorithm: json['algorithm'] as String? ?? '',
-      senderKey: json['sender_key'] as String? ?? json['e2ee_sender_key'] as String? ?? '',
-      ciphertext: json['ciphertext'] as String? ?? json['e2ee_ciphertext'] as String? ?? '',
+      senderKey: json['sender_key'] as String? ??
+          json['e2ee_sender_key'] as String? ??
+          '',
+      ciphertext: json['ciphertext'] as String? ??
+          json['e2ee_ciphertext'] as String? ??
+          '',
       iv: json['iv'] as String? ?? '',
-      deviceId: json['device_id'] as String? ?? json['e2ee_device_id'] as String? ?? '',
-      sessionId: json['session_id'] as String? ?? json['e2ee_session_id'] as String?,
+      deviceId: json['device_id'] as String? ??
+          json['e2ee_device_id'] as String? ??
+          '',
+      sessionId:
+          json['session_id'] as String? ?? json['e2ee_session_id'] as String?,
     );
   }
 }
@@ -343,7 +360,8 @@ class DeviceKeyInfo {
 
 /// Claimed one-time key.
 class ClaimedKey {
-  const ClaimedKey({required this.keyId, required this.keyData, this.fallback = false});
+  const ClaimedKey(
+      {required this.keyId, required this.keyData, this.fallback = false});
 
   final String keyId;
   final String keyData;

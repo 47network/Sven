@@ -499,7 +499,9 @@ void main() {
         await _settle($, const Duration(seconds: 2));
 
         expect(
-          $('Memories').exists || $('Instructions').exists || find.byType(Scaffold).evaluate().length > 1,
+          $('Memories').exists ||
+              $('Instructions').exists ||
+              find.byType(Scaffold).evaluate().length > 1,
           isTrue,
           reason: 'Memory page not visible',
         );
@@ -532,7 +534,9 @@ void main() {
         await $.tester.tap(find.text('Notifications'));
         await _settle($, const Duration(seconds: 2));
         // Navigate back regardless.
-        try { await $.tester.pageBack(); } catch (_) {}
+        try {
+          await $.tester.pageBack();
+        } catch (_) {}
         await _settle($);
       }
     },
@@ -558,7 +562,9 @@ void main() {
         await _settle($, const Duration(seconds: 2));
         expect(find.byType(Scaffold).evaluate().isNotEmpty, isTrue,
             reason: 'Privacy page did not render');
-        try { await $.tester.pageBack(); } catch (_) {}
+        try {
+          await $.tester.pageBack();
+        } catch (_) {}
         await _settle($);
       }
     },
@@ -585,7 +591,9 @@ void main() {
         await _settle($, const Duration(seconds: 2));
         expect(find.byType(Scaffold).evaluate().isNotEmpty, isTrue,
             reason: 'Devices page did not render');
-        try { await $.tester.pageBack(); } catch (_) {}
+        try {
+          await $.tester.pageBack();
+        } catch (_) {}
         await _settle($);
       }
     },
@@ -606,7 +614,8 @@ void main() {
       }
 
       if ($('Two-factor authentication').exists) {
-        await $.tester.ensureVisible(find.text('Two-factor authentication').last);
+        await $.tester
+            .ensureVisible(find.text('Two-factor authentication').last);
         await $.tester.tap(find.text('Two-factor authentication').last);
         await _settle($, const Duration(seconds: 2));
         expect(
@@ -617,7 +626,9 @@ void main() {
           isTrue,
           reason: 'MFA setup/display not shown',
         );
-        try { await $.tester.pageBack(); } catch (_) {}
+        try {
+          await $.tester.pageBack();
+        } catch (_) {}
         await _settle($);
       }
     },
@@ -643,7 +654,9 @@ void main() {
         await _settle($, const Duration(seconds: 2));
         expect(find.byType(TextField).evaluate().isNotEmpty, isTrue,
             reason: 'Change password form not rendered');
-        try { await $.tester.pageBack(); } catch (_) {}
+        try {
+          await $.tester.pageBack();
+        } catch (_) {}
         await _settle($);
       }
     },

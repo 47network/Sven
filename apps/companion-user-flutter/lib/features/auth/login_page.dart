@@ -168,7 +168,8 @@ class _LoginPageState extends State<LoginPage>
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _serverError = e is StateError ? e.message : e.toString());
+        setState(
+            () => _serverError = e is StateError ? e.message : e.toString());
       }
     } finally {
       if (mounted) setState(() => _serverDiscovering = false);
@@ -426,7 +427,8 @@ class _LoginPageState extends State<LoginPage>
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
-                            onPressed: _bioLoading ? null : _handleBiometricLogin,
+                            onPressed:
+                                _bioLoading ? null : _handleBiometricLogin,
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -476,7 +478,8 @@ class _LoginPageState extends State<LoginPage>
                         discoveryResult: _discoveryResult,
                         serverInput: _serverInput,
                         isDark: isDark,
-                        onToggle: () => setState(() => _serverExpanded = !_serverExpanded),
+                        onToggle: () =>
+                            setState(() => _serverExpanded = !_serverExpanded),
                         onDiscover: _discoverServer,
                         onReset: _resetServer,
                       ),
@@ -778,7 +781,8 @@ class _ServerPickerSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final muted = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.45);
+    final muted =
+        Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.45);
     final serverHost = Uri.tryParse(currentServer)?.host ?? currentServer;
 
     return Column(

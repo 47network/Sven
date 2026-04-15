@@ -245,8 +245,10 @@ class _AiHubPageState extends State<AiHubPage> {
 
   Widget _buildPipelineCards(bool isDark) {
     final imgTotal = (_imageStats['total_jobs'] as num?)?.toInt() ?? 0;
-    final scribeSessions = (_scribeStats['total_sessions'] as num?)?.toInt() ?? 0;
-    final actionExecs = (_actionStats['total_executions'] as num?)?.toInt() ?? 0;
+    final scribeSessions =
+        (_scribeStats['total_sessions'] as num?)?.toInt() ?? 0;
+    final actionExecs =
+        (_actionStats['total_executions'] as num?)?.toInt() ?? 0;
 
     return Column(
       children: [
@@ -290,7 +292,8 @@ class _AiHubPageState extends State<AiHubPage> {
 
   Widget _buildSettingsCards(bool isDark) {
     final localPct = (_routingStats['local_percentage'] as num?)?.toInt() ?? 0;
-    final moduleInstalled = (_moduleStats['installed_count'] as num?)?.toInt() ?? 0;
+    final moduleInstalled =
+        (_moduleStats['installed_count'] as num?)?.toInt() ?? 0;
 
     return Column(
       children: [
@@ -428,8 +431,8 @@ class _AiHubPageState extends State<AiHubPage> {
                               vertical: 3,
                             ),
                             decoration: BoxDecoration(
-                              color: (badgeColor ?? color)
-                                  .withValues(alpha: 0.2),
+                              color:
+                                  (badgeColor ?? color).withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(

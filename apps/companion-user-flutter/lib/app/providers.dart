@@ -217,7 +217,8 @@ final brainServiceProvider = ChangeNotifierProvider<BrainService>(
 /// The [OnDeviceInferenceService] (local Gemma 4 inference).
 ///
 /// Overridden in [_SvenUserAppState] with the live `_inferenceService` instance.
-final inferenceServiceProvider = ChangeNotifierProvider<OnDeviceInferenceService>(
+final inferenceServiceProvider =
+    ChangeNotifierProvider<OnDeviceInferenceService>(
   (ref) => throw StateError(
     'inferenceServiceProvider must be overridden by the root ProviderScope.',
   ),
@@ -275,4 +276,3 @@ final federationServiceProvider = Provider<FederationService>(
   (ref) => sl<FederationService>(),
   name: 'federationServiceProvider',
 );
-

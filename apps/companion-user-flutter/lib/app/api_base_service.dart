@@ -12,7 +12,9 @@ abstract final class ApiBaseService {
     if (_loaded) return _current;
     final prefs = await SharedPreferences.getInstance();
     final override = prefs.getString(_overrideKey);
-    _current = _normalize(override) ?? _normalize(EnvConfig.apiBase) ?? EnvConfig.apiBase;
+    _current = _normalize(override) ??
+        _normalize(EnvConfig.apiBase) ??
+        EnvConfig.apiBase;
     _loaded = true;
     return _current;
   }
@@ -22,7 +24,8 @@ abstract final class ApiBaseService {
   static Future<String> setOverride(String rawUrl) async {
     final normalized = _normalize(rawUrl);
     if (normalized == null) {
-      throw ArgumentError.value(rawUrl, 'rawUrl', 'Expected a valid absolute http/https URL');
+      throw ArgumentError.value(
+          rawUrl, 'rawUrl', 'Expected a valid absolute http/https URL');
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_overrideKey, normalized);

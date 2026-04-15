@@ -23,8 +23,7 @@ class CommunityAgentsService {
     return (jsonDecode(r.body)['data'] as List<dynamic>?) ?? [];
   }
 
-  Future<Map<String, dynamic>> createPersona(
-      Map<String, dynamic> body) async {
+  Future<Map<String, dynamic>> createPersona(Map<String, dynamic> body) async {
     final base = ApiBaseService.currentSync();
     final r = await _client.postJson(
       Uri.parse('$base/v1/admin/community-agents/personas'),
@@ -70,8 +69,7 @@ class CommunityAgentsService {
   Future<bool> publishChangelog(String entryId) async {
     final base = ApiBaseService.currentSync();
     final r = await _client.postJson(
-      Uri.parse(
-          '$base/v1/admin/community-agents/changelog/$entryId/publish'),
+      Uri.parse('$base/v1/admin/community-agents/changelog/$entryId/publish'),
       {},
     );
     return r.statusCode == 200;

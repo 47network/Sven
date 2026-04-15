@@ -860,8 +860,7 @@ class AuthService {
 
     // Store PIN locally if set
     if (pin != null && pin.length >= 4) {
-      final pinHash =
-          sha256.convert(utf8.encode(pin + userId)).toString();
+      final pinHash = sha256.convert(utf8.encode(pin + userId)).toString();
       await _store.writeAccountPin(userId, pinHash);
     }
 

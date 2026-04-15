@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 import '../../app/authenticated_client.dart';
 import 'ai_policy_service.dart';
 
@@ -108,8 +107,7 @@ class _AiModulesPageState extends State<AiModulesPage>
         children: [
           _miniStat('Installed', '${_stats['installed_count'] ?? 0}', isDark),
           _miniStat('Available', '${_catalog.length}', isDark),
-          _miniStat(
-              'Storage', '${_stats['total_size_mb'] ?? 0} MB', isDark),
+          _miniStat('Storage', '${_stats['total_size_mb'] ?? 0} MB', isDark),
         ],
       ),
     );
@@ -186,8 +184,7 @@ class _AiModulesPageState extends State<AiModulesPage>
           borderRadius: BorderRadius.circular(14),
           border: installed
               ? Border.all(
-                  color:
-                      const Color(0xFFAB47BC).withValues(alpha: 0.4))
+                  color: const Color(0xFFAB47BC).withValues(alpha: 0.4))
               : null,
         ),
         child: Row(

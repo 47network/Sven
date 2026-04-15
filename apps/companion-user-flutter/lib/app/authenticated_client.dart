@@ -61,7 +61,9 @@ class AuthenticatedClient {
     final hasAuthToken = token != null && token.isNotEmpty;
     try {
       final response = await fn(hasAuthToken ? token : null);
-      if (response.statusCode == 401 && hasAuthToken && !suppressSessionExpiryHandling) {
+      if (response.statusCode == 401 &&
+          hasAuthToken &&
+          !suppressSessionExpiryHandling) {
         final newToken = await _refreshIfPossible();
         if (newToken != null && newToken.isNotEmpty) {
           await _store.writeAccessToken(newToken);

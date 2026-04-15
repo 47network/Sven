@@ -135,9 +135,7 @@ class _PrivacyControlsPageState extends State<PrivacyControlsPage> {
       child: Column(
         children: [
           Icon(
-            verified
-                ? Icons.check_circle_rounded
-                : Icons.warning_amber_rounded,
+            verified ? Icons.check_circle_rounded : Icons.warning_amber_rounded,
             color: color,
             size: 48,
           ),
@@ -259,10 +257,10 @@ class _PrivacyControlsPageState extends State<PrivacyControlsPage> {
               '${_auditStats['total_audited'] ?? 0}', isDark),
           _statRow('Blocked outbound',
               '${_auditStats['blocked_outbound'] ?? 0}', isDark),
-          _statRow('Local-processed',
-              '${_auditStats['local_processed'] ?? 0}', isDark),
-          _statRow('Policy violations',
-              '${_auditStats['violations'] ?? 0}', isDark),
+          _statRow('Local-processed', '${_auditStats['local_processed'] ?? 0}',
+              isDark),
+          _statRow(
+              'Policy violations', '${_auditStats['violations'] ?? 0}', isDark),
         ],
       ),
     );
@@ -309,8 +307,7 @@ class _PrivacyControlsPageState extends State<PrivacyControlsPage> {
                     child: Row(
                       children: [
                         Icon(Icons.block_rounded,
-                            size: 14,
-                            color: Colors.red.withValues(alpha: 0.6)),
+                            size: 14, color: Colors.red.withValues(alpha: 0.6)),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(

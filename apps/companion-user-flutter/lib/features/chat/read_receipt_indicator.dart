@@ -25,11 +25,14 @@ class ReadReceiptIndicator extends StatelessWidget {
 
     switch (status) {
       case ReadStatus.sending:
-        return Icon(Icons.access_time, size: size, color: tok.onSurface.withValues(alpha: 0.3));
+        return Icon(Icons.access_time,
+            size: size, color: tok.onSurface.withValues(alpha: 0.3));
       case ReadStatus.sent:
-        return Icon(Icons.check, size: size, color: tok.onSurface.withValues(alpha: 0.4));
+        return Icon(Icons.check,
+            size: size, color: tok.onSurface.withValues(alpha: 0.4));
       case ReadStatus.delivered:
-        return Icon(Icons.done_all, size: size, color: tok.onSurface.withValues(alpha: 0.4));
+        return Icon(Icons.done_all,
+            size: size, color: tok.onSurface.withValues(alpha: 0.4));
       case ReadStatus.read:
         return Icon(Icons.done_all, size: size, color: tok.primary);
     }

@@ -20,8 +20,7 @@ import 'package:home_widget/home_widget.dart';
 const _kIosAppGroupId = 'group.com.fortyseven.thesven.widget';
 
 /// Android widget provider class path.
-const _kAndroidWidgetProvider =
-    'com.fortyseven.thesven.SvenWidgetProvider';
+const _kAndroidWidgetProvider = 'com.fortyseven.thesven.SvenWidgetProvider';
 
 /// Key names mirrored in the native layouts.
 const _kKeyLastMessage = 'sven_last_message';

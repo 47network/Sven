@@ -19,8 +19,7 @@ Widget? buildCouncilAccordion(
 }) {
   if (blocks == null) return null;
   for (final block in blocks) {
-    if (block is Map &&
-        (block['type']?.toString() == 'council')) {
+    if (block is Map && (block['type']?.toString() == 'council')) {
       final content = block['content'];
       if (content is Map<String, dynamic>) {
         return CouncilAccordion(
@@ -65,9 +64,7 @@ class _CouncilAccordionState extends State<CouncilAccordion> {
   List<Map<String, dynamic>> get opinions {
     final list = c['opinions'];
     if (list is List) {
-      return list
-          .whereType<Map<String, dynamic>>()
-          .toList();
+      return list.whereType<Map<String, dynamic>>().toList();
     }
     return [];
   }
@@ -75,9 +72,7 @@ class _CouncilAccordionState extends State<CouncilAccordion> {
   List<Map<String, dynamic>> get peerReviews {
     final list = c['peer_reviews'];
     if (list is List) {
-      return list
-          .whereType<Map<String, dynamic>>()
-          .toList();
+      return list.whereType<Map<String, dynamic>>().toList();
     }
     return [];
   }
@@ -106,8 +101,7 @@ class _CouncilAccordionState extends State<CouncilAccordion> {
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
             child: Row(
               children: [
-                Icon(Icons.groups_rounded,
-                    size: 16, color: tokens.primary),
+                Icon(Icons.groups_rounded, size: 16, color: tokens.primary),
                 const SizedBox(width: 6),
                 Text(
                   'Council Deliberation',
@@ -190,14 +184,12 @@ class _CouncilAccordionState extends State<CouncilAccordion> {
               ...opinions.map((op) => _OpinionTile(
                     opinion: op,
                     scores: scores,
-                    expanded: _expandedModel ==
-                        (op['model'] as String? ?? ''),
+                    expanded: _expandedModel == (op['model'] as String? ?? ''),
                     tokens: tokens,
                     onTap: () {
                       final model = op['model'] as String? ?? '';
                       setState(() {
-                        _expandedModel =
-                            _expandedModel == model ? null : model;
+                        _expandedModel = _expandedModel == model ? null : model;
                       });
                     },
                   )),
@@ -210,8 +202,7 @@ class _CouncilAccordionState extends State<CouncilAccordion> {
               icon: Icons.rate_review_rounded,
               expanded: _reviewsExpanded,
               tokens: tokens,
-              onTap: () =>
-                  setState(() => _reviewsExpanded = !_reviewsExpanded),
+              onTap: () => setState(() => _reviewsExpanded = !_reviewsExpanded),
             ),
             if (_reviewsExpanded)
               ...peerReviews.map((pr) => _ReviewTile(
@@ -277,8 +268,8 @@ class _AccordionHeader extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
-            Icon(icon, size: 14,
-                color: tokens.onSurface.withValues(alpha: 0.6)),
+            Icon(icon,
+                size: 14, color: tokens.onSurface.withValues(alpha: 0.6)),
             const SizedBox(width: 6),
             Text(
               title,
@@ -325,8 +316,7 @@ class _OpinionTile extends StatelessWidget {
     final model = opinion['model'] as String? ?? 'Unknown';
     final response = opinion['response'] as String? ?? '';
     final latency = (opinion['latency_ms'] as num?)?.toInt();
-    final tokensCompletion =
-        (opinion['tokens_completion'] as num?)?.toInt();
+    final tokensCompletion = (opinion['tokens_completion'] as num?)?.toInt();
     final score = (scores[model] as num?)?.toDouble();
 
     return Column(

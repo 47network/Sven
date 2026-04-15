@@ -111,7 +111,8 @@ class _FederationPageState extends State<FederationPage>
   // ── Identity ──────────────────────────────────────────────────────────
 
   Widget _buildIdentityTab(ColorScheme cs) {
-    final hasId = _identity['public_key'] != null || _identity['key_id'] != null;
+    final hasId =
+        _identity['public_key'] != null || _identity['key_id'] != null;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -181,14 +182,14 @@ class _FederationPageState extends State<FederationPage>
             style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         _statRow('Region', '${_sovereignty['data_residency'] ?? 'Not set'}'),
-        _statRow('Jurisdiction', '${_sovereignty['jurisdiction'] ?? 'Not set'}'),
+        _statRow(
+            'Jurisdiction', '${_sovereignty['jurisdiction'] ?? 'Not set'}'),
         _statRow('Enforce Residency',
             _sovereignty['enforce_residency'] == true ? 'Yes' : 'No'),
         _statRow('Cross-border',
             _sovereignty['allow_cross_border'] == true ? 'Allowed' : 'Blocked'),
         const SizedBox(height: 12),
-        Text('Export Policy',
-            style: Theme.of(context).textTheme.titleMedium),
+        Text('Export Policy', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         _statRow('Format', '${_exportPolicy['format'] ?? 'JSON'}'),
         _statRow('Encryption', '${_exportPolicy['encryption'] ?? 'AES-256'}'),
@@ -237,16 +238,15 @@ class _FederationPageState extends State<FederationPage>
                   child:
                       const Icon(Icons.people, color: Colors.white, size: 18),
                 ),
-                title: Text(
-                    '${peer['name'] ?? peer['peer_id'] ?? 'Peer'}'),
+                title: Text('${peer['name'] ?? peer['peer_id'] ?? 'Peer'}'),
                 subtitle: Text(
                     '${peer['endpoint'] ?? peer['url'] ?? ''}\nLast seen: ${peer['last_seen'] ?? 'never'}'),
                 isThreeLine: true,
                 trailing: trust == 'pending'
                     ? IconButton(
                         onPressed: () async {
-                          final ok = await widget.service
-                              .handshakePeer('${peer['peer_id'] ?? peer['id']}');
+                          final ok = await widget.service.handshakePeer(
+                              '${peer['peer_id'] ?? peer['id']}');
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                 content: Text(ok
@@ -288,9 +288,12 @@ class _FederationPageState extends State<FederationPage>
 
   Color _trustColor(String trust) {
     switch (trust) {
-      case 'verified': return Colors.green;
-      case 'blocked': return Colors.red;
-      default: return Colors.amber.shade700;
+      case 'verified':
+        return Colors.green;
+      case 'blocked':
+        return Colors.red;
+      default:
+        return Colors.amber.shade700;
     }
   }
 
@@ -335,8 +338,8 @@ class _FederationPageState extends State<FederationPage>
                     color: conn['status'] == 'connected'
                         ? Colors.green
                         : Colors.grey),
-                title: Text(
-                    '${conn['server_name'] ?? conn['host'] ?? 'Server'}'),
+                title:
+                    Text('${conn['server_name'] ?? conn['host'] ?? 'Server'}'),
                 subtitle: Text('${conn['endpoint'] ?? conn['url'] ?? ''}'),
                 trailing: Text('${conn['status'] ?? 'unknown'}',
                     style: TextStyle(
@@ -366,14 +369,14 @@ class _FederationPageState extends State<FederationPage>
         Text('Consent Settings',
             style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
-        _consentSwitch('Allow Federation',
-            _consent['allow_federation'] == true),
-        _consentSwitch('Allow Data Sharing',
-            _consent['allow_data_sharing'] == true),
+        _consentSwitch(
+            'Allow Federation', _consent['allow_federation'] == true),
+        _consentSwitch(
+            'Allow Data Sharing', _consent['allow_data_sharing'] == true),
         _consentSwitch('Allow Identity Disclosure',
             _consent['allow_identity_disclosure'] == true),
-        _consentSwitch('Allow Message Relay',
-            _consent['allow_message_relay'] == true),
+        _consentSwitch(
+            'Allow Message Relay', _consent['allow_message_relay'] == true),
       ],
     );
   }
@@ -408,8 +411,7 @@ class _FederationPageState extends State<FederationPage>
           ),
         ),
         const SizedBox(height: 16),
-        Text('Peer Health',
-            style: Theme.of(context).textTheme.titleMedium),
+        Text('Peer Health', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         if (peerList.isEmpty)
           const Text('Run a health check to see mesh status.')
@@ -432,8 +434,7 @@ class _FederationPageState extends State<FederationPage>
                           ? Colors.amber
                           : Colors.red,
                 ),
-                title: Text(
-                    '${peer['name'] ?? peer['peer_id'] ?? 'Peer'}'),
+                title: Text('${peer['name'] ?? peer['peer_id'] ?? 'Peer'}'),
                 subtitle: Text(
                     'Latency: ${peer['latency_ms'] ?? '?'}ms · Last: ${peer['last_check'] ?? 'never'}'),
               ),
@@ -460,11 +461,10 @@ class _FederationPageState extends State<FederationPage>
       child: Column(
         children: [
           Text(value,
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold, fontSize: 18)),
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           const SizedBox(height: 2),
-          Text(label,
-              style: const TextStyle(fontSize: 11, color: Colors.grey)),
+          Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
         ],
       ),
     );
@@ -478,8 +478,8 @@ class _FederationPageState extends State<FederationPage>
         children: [
           Text(label, style: const TextStyle(fontSize: 13)),
           Text(value,
-              style: const TextStyle(
-                  fontSize: 13, fontWeight: FontWeight.w600)),
+              style:
+                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
         ],
       ),
     );

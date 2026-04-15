@@ -10,8 +10,7 @@ import '../../app/api_base_service.dart';
 /// clipboard_copy.  Gemma 4 function-calling routes natural language
 /// commands to the appropriate action.
 class DeviceActionService {
-  DeviceActionService({required AuthenticatedClient client})
-      : _client = client;
+  DeviceActionService({required AuthenticatedClient client}) : _client = client;
 
   final AuthenticatedClient _client;
 

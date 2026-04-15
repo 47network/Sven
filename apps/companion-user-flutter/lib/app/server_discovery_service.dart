@@ -41,7 +41,8 @@ abstract final class ServerDiscoveryService {
   static Future<ServerDiscoveryResult> discover(String input) async {
     final trimmed = input.trim();
     if (trimmed.isEmpty) {
-      throw ArgumentError.value(input, 'input', 'Server address cannot be empty');
+      throw ArgumentError.value(
+          input, 'input', 'Server address cannot be empty');
     }
 
     // Normalize to a base URL.
@@ -63,7 +64,9 @@ abstract final class ServerDiscoveryService {
     }
 
     // Step 3: Common subdomain patterns — try app.{domain} if bare domain was given.
-    if (!trimmed.contains('/') && !trimmed.contains(':') && !trimmed.startsWith('http')) {
+    if (!trimmed.contains('/') &&
+        !trimmed.contains(':') &&
+        !trimmed.startsWith('http')) {
       final appSubdomain = 'https://app.$trimmed';
       final appWk = await _tryWellKnown(appSubdomain);
       if (appWk != null) return appWk;

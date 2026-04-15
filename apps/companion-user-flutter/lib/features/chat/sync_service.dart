@@ -224,7 +224,8 @@ class SyncService extends ChangeNotifier with WidgetsBindingObserver {
         try {
           await chatService.listMessages(thread.id, limit: 30);
         } catch (e) {
-          debugPrint('[SyncService] refreshInboxCache thread ${thread.id} failed: $e');
+          debugPrint(
+              '[SyncService] refreshInboxCache thread ${thread.id} failed: $e');
         }
       }
     } catch (e) {

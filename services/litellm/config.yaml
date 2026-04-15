@@ -145,6 +145,39 @@ model_list:
       model: mistral/mistral-large-latest
       api_key: os.environ/MISTRAL_API_KEY
 
+  # ── OpenRouter (free tier — no API key required, or use key for higher limits)
+  # These models cost $0/token on OpenRouter. Rate-limited without an API key.
+  # See: https://openrouter.ai/models?q=free
+  - model_name: openrouter-nemotron-super
+    litellm_params:
+      model: openrouter/nvidia/nemotron-3-super-120b-a12b:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: openrouter-gpt-oss-120b
+    litellm_params:
+      model: openrouter/openai/gpt-oss-120b:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: openrouter-gemma-4-31b
+    litellm_params:
+      model: openrouter/google/gemma-4-31b-it:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: openrouter-minimax-m2.5
+    litellm_params:
+      model: openrouter/minimax/minimax-m2.5:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: openrouter-nemotron-nano-9b
+    litellm_params:
+      model: openrouter/nvidia/nemotron-nano-9b-v2:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: openrouter-glm-4.5-air
+    litellm_params:
+      model: openrouter/z-ai/glm-4.5-air:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
   # ── Semantic Routers ─────────────────────────────────────────────────────
   # Fallback chains are in router_settings below — not inline in litellm_params.
 
@@ -182,11 +215,18 @@ model_list:
       model: ollama/qwen2.5:7b
       api_base: http://10.47.47.13:11434
 
+  # `free` — OpenRouter free tier models only, no paid fallback
+  - model_name: free
+    litellm_params:
+      model: openrouter/nvidia/nemotron-3-super-120b-a12b:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
 router_settings:
   fallbacks:
     - coding:      ["copilot-claude-opus-4", "gemini-2.5-pro", "gpt-4.1"]
     - coding-fast: ["gemini-2.5-flash", "gpt-4o-mini", "local-fast"]
     - reasoning:   ["copilot-o3-mini", "gemini-2.5-pro", "claude-sonnet-4-20250514"]
+    - free:        ["openrouter-gpt-oss-120b", "openrouter-gemma-4-31b", "openrouter-minimax-m2.5"]
 
 litellm_settings:
   drop_params: true

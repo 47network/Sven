@@ -35,7 +35,9 @@ class PresenceService {
     if (response.statusCode != 200) return [];
     final data = jsonDecode(response.body)['data'] as Map<String, dynamic>;
     final receipts = data['receipts'] as List;
-    return receipts.map((r) => ReadReceipt.fromJson(r as Map<String, dynamic>)).toList();
+    return receipts
+        .map((r) => ReadReceipt.fromJson(r as Map<String, dynamic>))
+        .toList();
   }
 
   Future<List<UnreadCount>> getUnreadCounts() async {
@@ -46,10 +48,13 @@ class PresenceService {
     if (response.statusCode != 200) return [];
     final data = jsonDecode(response.body)['data'] as Map<String, dynamic>;
     final chats = data['chats'] as List;
-    return chats.map((c) => UnreadCount.fromJson(c as Map<String, dynamic>)).toList();
+    return chats
+        .map((c) => UnreadCount.fromJson(c as Map<String, dynamic>))
+        .toList();
   }
 
-  Future<bool> setPresence(PresenceStatus status, {String? statusMessage}) async {
+  Future<bool> setPresence(PresenceStatus status,
+      {String? statusMessage}) async {
     final base = ApiBaseService.currentSync();
     final body = <String, dynamic>{
       'status': status.name,
@@ -99,11 +104,13 @@ class ReadReceipt {
   final DateTime? readAt;
 
   factory ReadReceipt.fromJson(Map<String, dynamic> json) => ReadReceipt(
-    userId: json['user_id'] as String? ?? '',
-    lastReadMessageId: json['last_read_message_id'] as String? ?? '',
-    displayName: json['display_name'] as String?,
-    readAt: json['read_at'] != null ? DateTime.tryParse(json['read_at'] as String) : null,
-  );
+        userId: json['user_id'] as String? ?? '',
+        lastReadMessageId: json['last_read_message_id'] as String? ?? '',
+        displayName: json['display_name'] as String?,
+        readAt: json['read_at'] != null
+            ? DateTime.tryParse(json['read_at'] as String)
+            : null,
+      );
 }
 
 class UnreadCount {
@@ -113,10 +120,10 @@ class UnreadCount {
   final String? chatName;
 
   factory UnreadCount.fromJson(Map<String, dynamic> json) => UnreadCount(
-    chatId: json['chat_id'] as String? ?? '',
-    count: json['unread_count'] as int? ?? 0,
-    chatName: json['chat_name'] as String?,
-  );
+        chatId: json['chat_id'] as String? ?? '',
+        count: json['unread_count'] as int? ?? 0,
+        chatName: json['chat_name'] as String?,
+      );
 }
 
 class PresenceInfo {
@@ -142,7 +149,9 @@ class PresenceInfo {
       userId: json['user_id'] as String? ?? '',
       status: status,
       statusMessage: json['status_message'] as String?,
-      lastActive: json['last_active'] != null ? DateTime.tryParse(json['last_active'] as String) : null,
+      lastActive: json['last_active'] != null
+          ? DateTime.tryParse(json['last_active'] as String)
+          : null,
     );
   }
 }

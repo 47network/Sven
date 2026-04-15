@@ -22,7 +22,6 @@ import '../notifications/reminder_service.dart';
 
 part 'chat_composer_widgets.dart';
 
-
 class _SendIntent extends Intent {
   const _SendIntent();
 }
@@ -812,10 +811,7 @@ class _ChatComposerState extends State<ChatComposer>
     }
     widget.onSend(
       sendText,
-      _attachedImages
-          .map((f) => f.path)
-          .where((p) => p.isNotEmpty)
-          .toList(),
+      _attachedImages.map((f) => f.path).where((p) => p.isNotEmpty).toList(),
     );
     _controller.clear();
     _clearDraft(); // remove saved draft now that message is sent

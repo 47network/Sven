@@ -9,6 +9,15 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Fixed
+- CI: release-gates-sync — Added missing `Keycloak live interop gate` and `selfcheck:local` checkbox targets to the 2026 parity checklist so the sync script can find them.
+- CI: security-baseline — Created `.detect-secrets.cfg` and generated `.secrets.baseline` (149 audited findings, all false positives in config/docs) so the detect-secrets workflow has its required baseline.
+- CI: Flutter formatting — Ran `dart format .` on `apps/companion-user-flutter/` (90 files reformatted to pass `--set-exit-if-changed` gate).
+
+### Added
+- OpenRouter free models — Added 6 zero-cost models to `services/litellm/config.yaml`: Nemotron Super 120B, GPT-OSS 120B, Gemma 4 31B, MiniMax M2.5, Nemotron Nano 9B, GLM 4.5 Air. New `free` semantic router with fallback chain. `OPENROUTER_API_KEY` env var added to `docker-compose.yml` and `.env.production.example`.
+- Sven self-awareness — Updated Sven Core soul (seed.ts) with "Your Identity & Presence" section: name, version 0.1.0, website sven.systems, repo github.com/47network/sven, MIT license, architecture summary, existential awareness. Added 7 new platform services and 8 new packages to codebase knowledge. Updated all fallback identity strings in agent-runtime, self-correction, and community agents migration from generic "helpful AI assistant" to platform-aware identity. Added platform identity line to dynamic capability prompt.
+
 ### Changed
 - README.md — Complete rewrite. Repositioned Sven as a full-scale self-hosted AI platform (not just a family companion). New structure: Platform Overview with collapsible sections, Service Port Map, Use Cases table spanning personal to enterprise to research, expanded comparison matrix (22 rows including document intel, security scanning, quantum sim, compute mesh, model routing, marketing intel). Fixed all repository URLs from `47network/thesven` to `47network/sven` (badges, clone URL, stars). Removed "Live Entry Points" section with example.com placeholder URLs. Condensed docs table. Upgraded stars badge to `for-the-badge` style. Tightened deployment guides into a dedicated subsection. Compact 4-column messaging adapter grid.
 

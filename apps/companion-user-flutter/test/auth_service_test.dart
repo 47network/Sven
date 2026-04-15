@@ -35,8 +35,7 @@ class _InMemoryTokenStore extends TokenStore {
   @override
   Future<String?> readUserId() async => _store[_userIdKey];
   @override
-  Future<void> writeUserId(String userId) async =>
-      _store[_userIdKey] = userId;
+  Future<void> writeUserId(String userId) async => _store[_userIdKey] = userId;
   @override
   Future<String?> readUsername() async => _store[_usernameKey];
   @override
@@ -52,10 +51,7 @@ class _InMemoryTokenStore extends TokenStore {
   Future<({String username, String password})?> readAutoLogin() async {
     final user = _store[_autoLoginUserKey];
     final pass = _store[_autoLoginPassKey];
-    if (user != null &&
-        user.isNotEmpty &&
-        pass != null &&
-        pass.isNotEmpty) {
+    if (user != null && user.isNotEmpty && pass != null && pass.isNotEmpty) {
       return (username: user, password: pass);
     }
     return null;
@@ -86,7 +82,8 @@ void main() {
   late _InMemoryTokenStore store;
 
   setUp(() async {
-    SharedPreferences.setMockInitialValues({'sven.api_base': 'https://test.api'});
+    SharedPreferences.setMockInitialValues(
+        {'sven.api_base': 'https://test.api'});
     await ApiBaseService.load();
     store = _InMemoryTokenStore();
   });
@@ -110,8 +107,7 @@ void main() {
           }));
       final svc = buildService(client);
 
-      final result =
-          await svc.login(username: 'alice', password: 'secret');
+      final result = await svc.login(username: 'alice', password: 'secret');
 
       expect(result.token, 'tok');
       expect(result.userId, 'u1');
@@ -131,8 +127,7 @@ void main() {
           }));
       final svc = buildService(client);
 
-      final result =
-          await svc.login(username: 'bob', password: 'pass');
+      final result = await svc.login(username: 'bob', password: 'pass');
 
       expect(result.mfaRequired, isTrue);
       expect(result.mfaToken, 'mfa-token-1');
@@ -141,8 +136,7 @@ void main() {
     });
 
     test('401 throws invalidCredentials', () async {
-      final client =
-          MockClient((_) async => _json(401, {'error': 'nope'}));
+      final client = MockClient((_) async => _json(401, {'error': 'nope'}));
       final svc = buildService(client);
 
       expect(
@@ -153,14 +147,13 @@ void main() {
     });
 
     test('403 throws accountLocked', () async {
-      final client =
-          MockClient((_) async => _json(403, {'error': 'locked'}));
+      final client = MockClient((_) async => _json(403, {'error': 'locked'}));
       final svc = buildService(client);
 
       expect(
         () => svc.login(username: 'x', password: 'y'),
-        throwsA(isA<AuthException>().having(
-            (e) => e.failure, 'failure', AuthFailure.accountLocked)),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.accountLocked)),
       );
     });
 
@@ -171,14 +164,13 @@ void main() {
 
       expect(
         () => svc.login(username: 'x', password: 'y'),
-        throwsA(isA<AuthException>().having(
-            (e) => e.failure, 'failure', AuthFailure.rateLimited)),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.rateLimited)),
       );
     });
 
     test('500 throws server error', () async {
-      final client =
-          MockClient((_) async => _json(500, {'error': 'boom'}));
+      final client = MockClient((_) async => _json(500, {'error': 'boom'}));
       final svc = buildService(client);
 
       expect(
@@ -189,8 +181,7 @@ void main() {
     });
 
     test('malformed JSON body throws server error', () async {
-      final client = MockClient(
-          (_) async => http.Response('not json', 200));
+      final client = MockClient((_) async => http.Response('not json', 200));
       final svc = buildService(client);
 
       expect(
@@ -250,14 +241,13 @@ void main() {
 
     test('401 throws sessionExpired', () async {
       await store.writeRefreshToken('expired-ref');
-      final client =
-          MockClient((_) async => _json(401, {'error': 'expired'}));
+      final client = MockClient((_) async => _json(401, {'error': 'expired'}));
       final svc = buildService(client);
 
       expect(
         () => svc.refresh(),
-        throwsA(isA<AuthException>().having(
-            (e) => e.failure, 'failure', AuthFailure.sessionExpired)),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.sessionExpired)),
       );
     });
 
@@ -267,8 +257,8 @@ void main() {
 
       expect(
         () => svc.refresh(),
-        throwsA(isA<AuthException>().having(
-            (e) => e.failure, 'failure', AuthFailure.sessionExpired)),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.sessionExpired)),
       );
     });
 
@@ -311,8 +301,7 @@ void main() {
     test('clears tokens even when server returns error', () async {
       await store.writeAccessToken('tok');
       await store.writeRefreshToken('ref');
-      final client =
-          MockClient((_) async => _json(500, {'error': 'oops'}));
+      final client = MockClient((_) async => _json(500, {'error': 'oops'}));
       final svc = buildService(client);
 
       // logout rethrows, but tokens should still be cleared
@@ -350,20 +339,19 @@ void main() {
       final client = MockClient((_) async => _json(200, {}));
       final svc = buildService(client);
 
-      final result = await svc.changePassword(
-          currentPassword: 'old', newPassword: 'new');
+      final result =
+          await svc.changePassword(currentPassword: 'old', newPassword: 'new');
 
       expect(result, isNull);
     });
 
     test('returns null on 204 success', () async {
       await store.writeAccessToken('tok');
-      final client =
-          MockClient((_) async => http.Response('', 204));
+      final client = MockClient((_) async => http.Response('', 204));
       final svc = buildService(client);
 
-      final result = await svc.changePassword(
-          currentPassword: 'old', newPassword: 'new');
+      final result =
+          await svc.changePassword(currentPassword: 'old', newPassword: 'new');
 
       expect(result, isNull);
     });
@@ -372,8 +360,8 @@ void main() {
       final client = MockClient((_) async => _json(200, {}));
       final svc = buildService(client);
 
-      final result = await svc.changePassword(
-          currentPassword: 'old', newPassword: 'new');
+      final result =
+          await svc.changePassword(currentPassword: 'old', newPassword: 'new');
 
       expect(result, 'Not authenticated');
     });
@@ -385,8 +373,8 @@ void main() {
           }));
       final svc = buildService(client);
 
-      final result = await svc.changePassword(
-          currentPassword: 'old', newPassword: 'weak');
+      final result =
+          await svc.changePassword(currentPassword: 'old', newPassword: 'weak');
 
       expect(result, 'Password too weak');
     });
@@ -396,8 +384,8 @@ void main() {
       final client = MockClient((_) async => _json(422, {}));
       final svc = buildService(client);
 
-      final result = await svc.changePassword(
-          currentPassword: 'old', newPassword: 'new');
+      final result =
+          await svc.changePassword(currentPassword: 'old', newPassword: 'new');
 
       expect(result, contains('422'));
     });
@@ -422,8 +410,7 @@ void main() {
       });
       final svc = buildService(client);
 
-      final result =
-          await svc.verifyMfa(mfaToken: 'pre-sess', code: '123456');
+      final result = await svc.verifyMfa(mfaToken: 'pre-sess', code: '123456');
 
       expect(result.token, 'mfa-tok');
       expect(result.userId, 'u1');
@@ -449,34 +436,31 @@ void main() {
       });
       final svc = buildService(client);
 
-      final result =
-          await svc.verifyMfa(mfaToken: 'pre-sess', code: '654321');
+      final result = await svc.verifyMfa(mfaToken: 'pre-sess', code: '654321');
 
       expect(result.token, 'fallback-tok');
       expect(callIndex, 2, reason: 'should have called both endpoints');
     });
 
     test('invalid code throws mfaInvalidCode', () async {
-      final client =
-          MockClient((_) async => _json(401, {'error': 'bad code'}));
+      final client = MockClient((_) async => _json(401, {'error': 'bad code'}));
       final svc = buildService(client);
 
       expect(
         () => svc.verifyMfa(mfaToken: 'pre', code: '000000'),
-        throwsA(isA<AuthException>().having(
-            (e) => e.failure, 'failure', AuthFailure.mfaInvalidCode)),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.mfaInvalidCode)),
       );
     });
 
     test('400 also throws mfaInvalidCode', () async {
-      final client =
-          MockClient((_) async => _json(400, {'error': 'bad code'}));
+      final client = MockClient((_) async => _json(400, {'error': 'bad code'}));
       final svc = buildService(client);
 
       expect(
         () => svc.verifyMfa(mfaToken: 'pre', code: '000000'),
-        throwsA(isA<AuthException>().having(
-            (e) => e.failure, 'failure', AuthFailure.mfaInvalidCode)),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.mfaInvalidCode)),
       );
     });
 
@@ -550,8 +534,7 @@ void main() {
     });
 
     test('500 throws server error', () async {
-      final client =
-          MockClient((_) async => _json(500, {'error': 'down'}));
+      final client = MockClient((_) async => _json(500, {'error': 'down'}));
       final svc = buildService(client);
 
       expect(

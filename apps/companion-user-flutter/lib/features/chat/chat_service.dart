@@ -390,7 +390,8 @@ class ChatService {
     }
     final respBody = jsonDecode(response.body) as Map<String, dynamic>;
     final data = respBody['data'] as Map<String, dynamic>?;
-    if (data == null) throw ChatServiceException('Invalid response from server');
+    if (data == null)
+      throw ChatServiceException('Invalid response from server');
     return data['id'] as String;
   }
 
@@ -585,8 +586,10 @@ class ChatService {
   // ─── Reactions (Batch 7.3) ───
 
   /// Add an emoji reaction to a message.
-  Future<Map<String, dynamic>> addReaction(String chatId, String messageId, String emoji) async {
-    final uri = Uri.parse('$_apiBase/v1/chats/$chatId/messages/$messageId/reactions');
+  Future<Map<String, dynamic>> addReaction(
+      String chatId, String messageId, String emoji) async {
+    final uri =
+        Uri.parse('$_apiBase/v1/chats/$chatId/messages/$messageId/reactions');
     final r = await _client.postJson(uri, {'emoji': emoji});
     if (r.statusCode != 200 && r.statusCode != 201) {
       throw ChatServiceException('Failed to add reaction (${r.statusCode})');
@@ -596,8 +599,10 @@ class ChatService {
   }
 
   /// Remove an emoji reaction from a message.
-  Future<void> removeReaction(String chatId, String messageId, String emoji) async {
-    final uri = Uri.parse('$_apiBase/v1/chats/$chatId/messages/$messageId/reactions?emoji=${Uri.encodeComponent(emoji)}');
+  Future<void> removeReaction(
+      String chatId, String messageId, String emoji) async {
+    final uri = Uri.parse(
+        '$_apiBase/v1/chats/$chatId/messages/$messageId/reactions?emoji=${Uri.encodeComponent(emoji)}');
     final r = await _client.delete(uri);
     if (r.statusCode != 200 && r.statusCode != 204) {
       throw ChatServiceException('Failed to remove reaction (${r.statusCode})');
@@ -606,7 +611,8 @@ class ChatService {
 
   /// Get reactions for a message.
   Future<List<dynamic>> getReactions(String chatId, String messageId) async {
-    final uri = Uri.parse('$_apiBase/v1/chats/$chatId/messages/$messageId/reactions');
+    final uri =
+        Uri.parse('$_apiBase/v1/chats/$chatId/messages/$messageId/reactions');
     final r = await _client.get(uri);
     if (r.statusCode != 200) {
       throw ChatServiceException('Failed to get reactions (${r.statusCode})');
@@ -641,7 +647,8 @@ class ChatService {
     final uri = Uri.parse('$_apiBase/v1/chats/$chatId/pinned');
     final r = await _client.get(uri);
     if (r.statusCode != 200) {
-      throw ChatServiceException('Failed to get pinned messages (${r.statusCode})');
+      throw ChatServiceException(
+          'Failed to get pinned messages (${r.statusCode})');
     }
     final body = jsonDecode(r.body) as Map<String, dynamic>;
     final data = body['data'] as Map<String, dynamic>? ?? {};

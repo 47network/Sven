@@ -47,7 +47,8 @@ AuthenticatedClient _mockClient([
   Future<http.Response> Function(http.Request)? handler,
 ]) {
   return AuthenticatedClient(
-    client: MockClient(handler ?? (_) async => http.Response('{"data":{}}', 200)),
+    client:
+        MockClient(handler ?? (_) async => http.Response('{"data":{}}', 200)),
   );
 }
 
@@ -459,8 +460,7 @@ void main() {
       expect(find.byType(ChatComposer), findsOneWidget);
     });
 
-    testWidgets('renders with editPrefillText without error',
-        (tester) async {
+    testWidgets('renders with editPrefillText without error', (tester) async {
       await tester.binding.setSurfaceSize(const Size(412, 892));
       addTearDown(() => tester.binding.setSurfaceSize(null));
 

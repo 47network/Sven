@@ -6,8 +6,7 @@ import '../../app/api_base_service.dart';
 /// Client for the Federation subsystem — identity, peers, homeserver,
 /// community topics, delegations, consent, sovereignty, and health.
 class FederationService {
-  FederationService({required AuthenticatedClient client})
-      : _client = client;
+  FederationService({required AuthenticatedClient client}) : _client = client;
 
   final AuthenticatedClient _client;
 

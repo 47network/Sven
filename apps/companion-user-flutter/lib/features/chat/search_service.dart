@@ -35,7 +35,8 @@ class SearchService {
       Uri.parse('$base/v1/search/messages'),
       body,
     );
-    if (response.statusCode != 200) return const SearchResults(results: [], total: 0);
+    if (response.statusCode != 200)
+      return const SearchResults(results: [], total: 0);
     final data = jsonDecode(response.body)['data'] as Map<String, dynamic>;
     return SearchResults.fromJson(data);
   }
@@ -58,7 +59,8 @@ class SearchService {
       Uri.parse('$base/v1/search/semantic'),
       body,
     );
-    if (response.statusCode != 200) return const SearchResults(results: [], total: 0);
+    if (response.statusCode != 200)
+      return const SearchResults(results: [], total: 0);
     final data = jsonDecode(response.body)['data'] as Map<String, dynamic>;
     return SearchResults.fromJson(data);
   }
@@ -93,11 +95,12 @@ class SearchResults {
   final int total;
 
   factory SearchResults.fromJson(Map<String, dynamic> json) => SearchResults(
-    results: (json['results'] as List?)
-        ?.map((r) => SearchResult.fromJson(r as Map<String, dynamic>))
-        .toList() ?? [],
-    total: json['total'] as int? ?? 0,
-  );
+        results: (json['results'] as List?)
+                ?.map((r) => SearchResult.fromJson(r as Map<String, dynamic>))
+                .toList() ??
+            [],
+        total: json['total'] as int? ?? 0,
+      );
 }
 
 class SearchResult {
@@ -120,59 +123,75 @@ class SearchResult {
   final double? score;
 
   factory SearchResult.fromJson(Map<String, dynamic> json) => SearchResult(
-    messageId: json['message_id'] as String? ?? json['id'] as String? ?? '',
-    chatId: json['chat_id'] as String? ?? '',
-    text: json['text'] as String?,
-    headline: json['headline'] as String?,
-    senderName: json['sender_name'] as String?,
-    sentAt: json['sent_at'] != null ? DateTime.tryParse(json['sent_at'] as String) : null,
-    score: (json['score'] as num?)?.toDouble(),
-  );
+        messageId: json['message_id'] as String? ?? json['id'] as String? ?? '',
+        chatId: json['chat_id'] as String? ?? '',
+        text: json['text'] as String?,
+        headline: json['headline'] as String?,
+        senderName: json['sender_name'] as String?,
+        sentAt: json['sent_at'] != null
+            ? DateTime.tryParse(json['sent_at'] as String)
+            : null,
+        score: (json['score'] as num?)?.toDouble(),
+      );
 }
 
 class UnifiedSearchResults {
-  const UnifiedSearchResults({required this.messages, required this.files, required this.contacts});
+  const UnifiedSearchResults(
+      {required this.messages, required this.files, required this.contacts});
   final List<SearchResult> messages;
   final List<FileSearchResult> files;
   final List<ContactSearchResult> contacts;
 
-  factory UnifiedSearchResults.fromJson(Map<String, dynamic> json) => UnifiedSearchResults(
-    messages: (json['messages'] as List?)
-        ?.map((r) => SearchResult.fromJson(r as Map<String, dynamic>))
-        .toList() ?? [],
-    files: (json['files'] as List?)
-        ?.map((f) => FileSearchResult.fromJson(f as Map<String, dynamic>))
-        .toList() ?? [],
-    contacts: (json['contacts'] as List?)
-        ?.map((c) => ContactSearchResult.fromJson(c as Map<String, dynamic>))
-        .toList() ?? [],
-  );
+  factory UnifiedSearchResults.fromJson(Map<String, dynamic> json) =>
+      UnifiedSearchResults(
+        messages: (json['messages'] as List?)
+                ?.map((r) => SearchResult.fromJson(r as Map<String, dynamic>))
+                .toList() ??
+            [],
+        files: (json['files'] as List?)
+                ?.map(
+                    (f) => FileSearchResult.fromJson(f as Map<String, dynamic>))
+                .toList() ??
+            [],
+        contacts: (json['contacts'] as List?)
+                ?.map((c) =>
+                    ContactSearchResult.fromJson(c as Map<String, dynamic>))
+                .toList() ??
+            [],
+      );
 }
 
 class FileSearchResult {
-  const FileSearchResult({required this.mediaId, required this.fileName, this.mimeType, this.chatId});
+  const FileSearchResult(
+      {required this.mediaId,
+      required this.fileName,
+      this.mimeType,
+      this.chatId});
   final String mediaId;
   final String fileName;
   final String? mimeType;
   final String? chatId;
 
-  factory FileSearchResult.fromJson(Map<String, dynamic> json) => FileSearchResult(
-    mediaId: json['media_id'] as String? ?? json['id'] as String? ?? '',
-    fileName: json['file_name'] as String? ?? '',
-    mimeType: json['mime_type'] as String?,
-    chatId: json['chat_id'] as String?,
-  );
+  factory FileSearchResult.fromJson(Map<String, dynamic> json) =>
+      FileSearchResult(
+        mediaId: json['media_id'] as String? ?? json['id'] as String? ?? '',
+        fileName: json['file_name'] as String? ?? '',
+        mimeType: json['mime_type'] as String?,
+        chatId: json['chat_id'] as String?,
+      );
 }
 
 class ContactSearchResult {
-  const ContactSearchResult({required this.userId, required this.displayName, this.email});
+  const ContactSearchResult(
+      {required this.userId, required this.displayName, this.email});
   final String userId;
   final String displayName;
   final String? email;
 
-  factory ContactSearchResult.fromJson(Map<String, dynamic> json) => ContactSearchResult(
-    userId: json['user_id'] as String? ?? json['id'] as String? ?? '',
-    displayName: json['display_name'] as String? ?? '',
-    email: json['email'] as String?,
-  );
+  factory ContactSearchResult.fromJson(Map<String, dynamic> json) =>
+      ContactSearchResult(
+        userId: json['user_id'] as String? ?? json['id'] as String? ?? '',
+        displayName: json['display_name'] as String? ?? '',
+        email: json['email'] as String?,
+      );
 }

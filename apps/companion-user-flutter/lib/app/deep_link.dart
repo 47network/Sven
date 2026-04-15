@@ -43,7 +43,8 @@ DeepLinkTarget? parseDeepLink(Uri uri) {
       segments[1] == 'connect') {
     final url = uri.queryParameters['url']?.trim() ?? '';
     final parsed = Uri.tryParse(url);
-    if (parsed != null && (parsed.isScheme('http') || parsed.isScheme('https'))) {
+    if (parsed != null &&
+        (parsed.isScheme('http') || parsed.isScheme('https'))) {
       return DeepLinkTarget.gatewayConnect(url);
     }
     return null;

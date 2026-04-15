@@ -189,8 +189,7 @@ class _BrainPageState extends State<BrainPage> with TickerProviderStateMixin {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final canvasSize =
-            Size(constraints.maxWidth, constraints.maxHeight);
+        final canvasSize = Size(constraints.maxWidth, constraints.maxHeight);
 
         return GestureDetector(
           onScaleUpdate: (details) {
@@ -245,7 +244,13 @@ class _BrainPageState extends State<BrainPage> with TickerProviderStateMixin {
 
     for (final node in _service.filteredNodes) {
       final projected = _projectNode(
-        node.x, node.y, node.z, rotY, rotX, canvasSize, _service.zoom,
+        node.x,
+        node.y,
+        node.z,
+        rotY,
+        rotX,
+        canvasSize,
+        _service.zoom,
       );
       final dist = (projected - tapPos).distance;
       if (dist < 30 && dist < closestDist) {
@@ -258,9 +263,13 @@ class _BrainPageState extends State<BrainPage> with TickerProviderStateMixin {
   }
 
   static Offset _projectNode(
-    double x, double y, double z,
-    double rotY, double rotX,
-    Size canvasSize, double zoom,
+    double x,
+    double y,
+    double z,
+    double rotY,
+    double rotX,
+    Size canvasSize,
+    double zoom,
   ) {
     final cosY = cos(rotY);
     final sinY = sin(rotY);
@@ -608,9 +617,15 @@ class _Brain3DPainter extends CustomPainter {
   // ── 3D → 2D projection ────────────────────────────────────────────────
 
   _Projected3D _transform(
-    double x, double y, double z,
-    double cosY, double sinY, double cosX, double sinX,
-    double cx, double cy,
+    double x,
+    double y,
+    double z,
+    double cosY,
+    double sinY,
+    double cosX,
+    double sinX,
+    double cx,
+    double cy,
   ) {
     // Rotate around Y.
     final rx = x * cosY + z * sinY;

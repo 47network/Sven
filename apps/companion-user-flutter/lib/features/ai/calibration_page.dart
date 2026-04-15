@@ -249,7 +249,8 @@ class _CalibrationPageState extends State<CalibrationPage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${s['date'] ?? s['snapshot_date'] ?? 'Snapshot ${i + 1}'}',
+                Text(
+                    '${s['date'] ?? s['snapshot_date'] ?? 'Snapshot ${i + 1}'}',
                     style: const TextStyle(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
                 Row(
@@ -285,11 +286,10 @@ class _CalibrationPageState extends State<CalibrationPage>
       child: Column(
         children: [
           Text(value,
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold, fontSize: 18)),
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           const SizedBox(height: 2),
-          Text(label,
-              style: const TextStyle(fontSize: 11, color: Colors.grey)),
+          Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
         ],
       ),
     );
@@ -300,9 +300,9 @@ class _CalibrationPageState extends State<CalibrationPage>
       child: Column(
         children: [
           Text(value,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-          Text(label,
-              style: const TextStyle(fontSize: 10, color: Colors.grey)),
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
         ],
       ),
     );

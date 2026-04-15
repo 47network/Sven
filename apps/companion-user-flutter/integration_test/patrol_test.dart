@@ -49,7 +49,8 @@ Future<void> _advanceOnboardingIfVisible(PatrolIntegrationTester $) async {
   }
 }
 
-Future<void> _completeDeploymentSetupIfVisible(PatrolIntegrationTester $) async {
+Future<void> _completeDeploymentSetupIfVisible(
+    PatrolIntegrationTester $) async {
   if ($('How will you use Sven?').exists && $('Continue').exists) {
     await $('Continue').tap();
     await $.pumpAndSettle();

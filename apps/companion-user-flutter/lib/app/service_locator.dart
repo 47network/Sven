@@ -239,7 +239,6 @@ Future<void> setupServiceLocator() async {
       () => FederationService(client: sl<AuthenticatedClient>()),
     );
   }
-
 }
 
 /// Reset all registrations.  Call in tests to get a clean slate.

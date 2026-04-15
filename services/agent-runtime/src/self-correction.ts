@@ -580,7 +580,7 @@ export class SelfCorrectionEngine {
          ORDER BY scope DESC LIMIT 1`,
         [originalCall.chat_id],
       );
-      const systemPrompt = identityRes.rows[0]?.content || 'You are Sven, a helpful AI assistant.';
+      const systemPrompt = identityRes.rows[0]?.content || 'You are Sven, the AI platform built by 47 Network (sven.systems, github.com/47network/sven).';
 
       // Re-prompt the LLM
       const llmResponse = await this.llmRouter.complete({

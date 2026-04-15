@@ -40,7 +40,8 @@ class FakeDeviceService extends DeviceService {
   }
 
   @override
-  Future<DeviceDetail?> fetchDevice(String deviceId) async => _detailsState[deviceId];
+  Future<DeviceDetail?> fetchDevice(String deviceId) async =>
+      _detailsState[deviceId];
 
   @override
   Future<Device?> registerDevice({
@@ -56,7 +57,8 @@ class FakeDeviceService extends DeviceService {
       capabilities: capabilities,
       config: const <String, dynamic>{},
       pairingCode: 'ABC123',
-      pairingExpires: DateTime.now().add(const Duration(minutes: 15)).toIso8601String(),
+      pairingExpires:
+          DateTime.now().add(const Duration(minutes: 15)).toIso8601String(),
       createdAt: DateTime.now(),
     );
     _devicesState.insert(0, device);
@@ -88,8 +90,10 @@ class FakeDeviceService extends DeviceService {
     _devicesState[index] = updated;
     _detailsState[deviceId] = DeviceDetail(
       device: updated,
-      recentEvents: _detailsState[deviceId]?.recentEvents ?? const <DeviceEvent>[],
-      recentCommands: _detailsState[deviceId]?.recentCommands ?? const <DeviceCommand>[],
+      recentEvents:
+          _detailsState[deviceId]?.recentEvents ?? const <DeviceEvent>[],
+      recentCommands:
+          _detailsState[deviceId]?.recentCommands ?? const <DeviceCommand>[],
     );
     notifyListeners();
     return 'sven_dev_test_key';
@@ -170,7 +174,9 @@ Device sampleDevice({
     capabilities: capabilities,
     config: const <String, dynamic>{},
     pairingCode: pairingCode,
-    pairingExpires: pairingCode == null ? null : DateTime.now().add(const Duration(minutes: 15)).toIso8601String(),
+    pairingExpires: pairingCode == null
+        ? null
+        : DateTime.now().add(const Duration(minutes: 15)).toIso8601String(),
     createdAt: DateTime.now(),
     lastSeenAt: status == DeviceStatus.online ? DateTime.now() : null,
     pairedAt: status == DeviceStatus.online ? DateTime.now() : null,
@@ -185,7 +191,8 @@ void main() {
   });
 
   group('Batch 5 companion screens', () {
-    testWidgets('device manager shows registered devices and pairing dialog', (tester) async {
+    testWidgets('device manager shows registered devices and pairing dialog',
+        (tester) async {
       final pairingDevice = sampleDevice(
         id: 'pairing-1',
         name: 'Kitchen Mirror',
@@ -215,7 +222,8 @@ void main() {
       );
 
       await tester.pumpWidget(
-        wrapPage(DeviceManagerPage(deviceService: service, visualMode: VisualMode.cinematic)),
+        wrapPage(DeviceManagerPage(
+            deviceService: service, visualMode: VisualMode.cinematic)),
       );
       await tester.pumpAndSettle();
 
@@ -232,7 +240,8 @@ void main() {
       expect(find.text('Expires in 15 minutes'), findsOneWidget);
     });
 
-    testWidgets('device control quick ping issues command and shows feedback', (tester) async {
+    testWidgets('device control quick ping issues command and shows feedback',
+        (tester) async {
       final device = sampleDevice(
         id: 'online-2',
         name: 'Hallway Mirror',
@@ -291,7 +300,9 @@ void main() {
       expect(find.text('Command sent: ping'), findsOneWidget);
     });
 
-    testWidgets('device control open url normalizes host-only input and queues command', (tester) async {
+    testWidgets(
+        'device control open url normalizes host-only input and queues command',
+        (tester) async {
       final device = sampleDevice(
         id: 'online-open-url',
         name: 'Desk Screen Live',
@@ -339,7 +350,8 @@ void main() {
       expect(find.text('Command sent: open_url'), findsOneWidget);
     });
 
-    testWidgets('device control display sends plain text as text content', (tester) async {
+    testWidgets('device control display sends plain text as text content',
+        (tester) async {
       final device = sampleDevice(
         id: 'online-display',
         name: 'Desk Screen Live',
@@ -387,7 +399,8 @@ void main() {
       expect(find.text('Command sent: display'), findsOneWidget);
     });
 
-    testWidgets('device control type text trims input before queueing command', (tester) async {
+    testWidgets('device control type text trims input before queueing command',
+        (tester) async {
       final device = sampleDevice(
         id: 'online-type',
         name: 'Desk Screen Live',
@@ -435,7 +448,8 @@ void main() {
       expect(find.text('Command sent: type_text'), findsOneWidget);
     });
 
-    testWidgets('deployment setup completes and returns submitted credentials', (tester) async {
+    testWidgets('deployment setup completes and returns submitted credentials',
+        (tester) async {
       final service = FakeDeploymentService();
       DeploymentMode? completedMode;
       String? completedUsername;
@@ -463,9 +477,12 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
 
-      await tester.enterText(find.widgetWithText(TextField, 'Display name (optional)'), 'Stan');
-      await tester.enterText(find.widgetWithText(TextField, 'Username'), 'stan');
-      await tester.enterText(find.widgetWithText(TextField, 'Password'), 'StrongTemp#2026');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Display name (optional)'), 'Stan');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Username'), 'stan');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Password'), 'StrongTemp#2026');
       await tester.tap(find.text('Create'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
@@ -485,7 +502,8 @@ void main() {
       expect(completedPassword, 'StrongTemp#2026');
     });
 
-    testWidgets('mirror mode renders gateway channel and motion state', (tester) async {
+    testWidgets('mirror mode renders gateway channel and motion state',
+        (tester) async {
       await tester.pumpWidget(
         wrapPage(
           const MirrorModeScreen(

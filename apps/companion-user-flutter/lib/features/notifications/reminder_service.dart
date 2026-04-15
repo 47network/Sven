@@ -20,8 +20,7 @@ class ReminderService {
     if (_initialized) return;
     try {
       tz.initializeTimeZones();
-      const androidInit = AndroidInitializationSettings(
-          '@mipmap/ic_launcher');
+      const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
       const iosInit = DarwinInitializationSettings(
         requestAlertPermission: false,
         requestBadgePermission: false,

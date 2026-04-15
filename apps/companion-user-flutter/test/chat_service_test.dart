@@ -33,8 +33,7 @@ class _InMemoryTokenStore extends TokenStore {
   @override
   Future<String?> readUserId() async => _store[_userIdKey];
   @override
-  Future<void> writeUserId(String userId) async =>
-      _store[_userIdKey] = userId;
+  Future<void> writeUserId(String userId) async => _store[_userIdKey] = userId;
   @override
   Future<String?> readUsername() async => _store[_usernameKey];
   @override
@@ -295,9 +294,7 @@ void main() {
       }));
 
       await svc.sendMessage('c1', 'Hi',
-          mode: 'creative',
-          personality: 'formal',
-          responseLength: 'long');
+          mode: 'creative', personality: 'formal', responseLength: 'long');
       expect(body!['mode'], 'creative');
       expect(body!['personality'], 'formal');
       expect(body!['response_length'], 'long');

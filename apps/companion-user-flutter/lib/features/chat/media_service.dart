@@ -37,7 +37,8 @@ class MediaService {
     // Finalize multipart into a regular Request for sendStreamed
     final finalized = await multipart.finalize().toBytes();
     final request = http.Request('POST', uri)
-      ..headers['Content-Type'] = multipart.headers['content-type'] ?? 'multipart/form-data'
+      ..headers['Content-Type'] =
+          multipart.headers['content-type'] ?? 'multipart/form-data'
       ..bodyBytes = finalized;
 
     final streamed = await _client.sendStreamed(request);
@@ -67,7 +68,8 @@ class MediaService {
 
     final finalized = await multipart.finalize().toBytes();
     final request = http.Request('POST', uri)
-      ..headers['Content-Type'] = multipart.headers['content-type'] ?? 'multipart/form-data'
+      ..headers['Content-Type'] =
+          multipart.headers['content-type'] ?? 'multipart/form-data'
       ..bodyBytes = finalized;
 
     final streamed = await _client.sendStreamed(request);
@@ -93,7 +95,9 @@ class MediaService {
     final params = <String, String>{};
     if (width != null) params['w'] = '$width';
     if (height != null) params['h'] = '$height';
-    final qs = params.isNotEmpty ? '?${params.entries.map((e) => '${e.key}=${e.value}').join('&')}' : '';
+    final qs = params.isNotEmpty
+        ? '?${params.entries.map((e) => '${e.key}=${e.value}').join('&')}'
+        : '';
     return '/v1/media/$mediaId/thumbnail$qs';
   }
 
@@ -147,11 +151,11 @@ class MediaService {
     final response = await _client.get(
       Uri.parse('$base/v1/chats/$chatId/media?$qs'),
     );
-    if (response.statusCode != 200) return const MediaGallery(items: [], total: 0);
+    if (response.statusCode != 200)
+      return const MediaGallery(items: [], total: 0);
     final body = jsonDecode(response.body)['data'] as Map<String, dynamic>;
     return MediaGallery.fromJson(body);
   }
-
 }
 
 // ── Models ─────────────────────────────────────────────────────
@@ -176,14 +180,16 @@ class MediaUpload {
   final DateTime? createdAt;
 
   factory MediaUpload.fromJson(Map<String, dynamic> json) => MediaUpload(
-    id: json['id'] as String? ?? '',
-    fileName: json['file_name'] as String? ?? '',
-    mimeType: json['mime_type'] as String? ?? '',
-    sizeBytes: json['size_bytes'] as int? ?? 0,
-    checksum: json['checksum'] as String?,
-    thumbnailPath: json['thumbnail_path'] as String?,
-    createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) : null,
-  );
+        id: json['id'] as String? ?? '',
+        fileName: json['file_name'] as String? ?? '',
+        mimeType: json['mime_type'] as String? ?? '',
+        sizeBytes: json['size_bytes'] as int? ?? 0,
+        checksum: json['checksum'] as String?,
+        thumbnailPath: json['thumbnail_path'] as String?,
+        createdAt: json['created_at'] != null
+            ? DateTime.tryParse(json['created_at'] as String)
+            : null,
+      );
 }
 
 class MediaGallery {
@@ -192,9 +198,10 @@ class MediaGallery {
   final int total;
 
   factory MediaGallery.fromJson(Map<String, dynamic> json) => MediaGallery(
-    items: (json['items'] as List?)
-        ?.map((m) => MediaUpload.fromJson(m as Map<String, dynamic>))
-        .toList() ?? [],
-    total: json['total'] as int? ?? 0,
-  );
+        items: (json['items'] as List?)
+                ?.map((m) => MediaUpload.fromJson(m as Map<String, dynamic>))
+                .toList() ??
+            [],
+        total: json['total'] as int? ?? 0,
+      );
 }

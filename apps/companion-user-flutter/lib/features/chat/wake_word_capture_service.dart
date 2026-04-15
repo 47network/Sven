@@ -40,14 +40,16 @@ class WakeWordCaptureService {
     String audioMime = 'audio/wav',
   }) async {
     final chatId = await _ensureWakeChatId();
-    final firstAttempt = await _postWakeWord(chatId, wakePhrase, audioBase64, audioMime);
+    final firstAttempt =
+        await _postWakeWord(chatId, wakePhrase, audioBase64, audioMime);
     if (firstAttempt.$1 != 403 && firstAttempt.$1 != 404) {
       return _parseResult(firstAttempt.$2);
     }
 
     await _clearWakeChatId();
     final freshChatId = await _ensureWakeChatId();
-    final secondAttempt = await _postWakeWord(freshChatId, wakePhrase, audioBase64, audioMime);
+    final secondAttempt =
+        await _postWakeWord(freshChatId, wakePhrase, audioBase64, audioMime);
     return _parseResult(secondAttempt.$2);
   }
 
@@ -57,7 +59,8 @@ class WakeWordCaptureService {
     String audioBase64,
     String audioMime,
   ) async {
-    final uri = Uri.parse('${ApiBaseService.currentSync()}/v1/chats/$chatId/wake-word');
+    final uri =
+        Uri.parse('${ApiBaseService.currentSync()}/v1/chats/$chatId/wake-word');
     final response = await _client.postJson(uri, <String, dynamic>{
       'wake_word': wakePhrase,
       'audio_base64': audioBase64,
@@ -73,8 +76,7 @@ class WakeWordCaptureService {
       final decoded = jsonDecode(rawBody) as Map<String, dynamic>;
       final outer = decoded['data'] as Map<String, dynamic>?;
       final nested = outer != null ? outer['data'] : null;
-      final data =
-          nested is Map<String, dynamic> ? nested : outer;
+      final data = nested is Map<String, dynamic> ? nested : outer;
       final topScoresRaw = data?['top_scores'];
       final topScores = topScoresRaw is List
           ? topScoresRaw
@@ -110,10 +112,12 @@ class WakeWordCaptureService {
       'type': 'dm',
     });
     if (response.statusCode != 201) {
-      throw StateError('Unable to create wake-word chat (${response.statusCode})');
+      throw StateError(
+          'Unable to create wake-word chat (${response.statusCode})');
     }
     final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-    final data = decoded['data'] as Map<String, dynamic>? ?? const <String, dynamic>{};
+    final data =
+        decoded['data'] as Map<String, dynamic>? ?? const <String, dynamic>{};
     final chatId = '${data['id'] ?? ''}'.trim();
     if (chatId.isEmpty) {
       throw StateError('Wake-word chat create response missing id');
