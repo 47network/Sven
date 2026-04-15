@@ -72,7 +72,7 @@ describe('community status policy', () => {
     expect(publicView.readiness.verified_persona_provider).toBe(true);
   });
 
-  it('normalizes 47matrix https links to external TLS port', () => {
+  it('normalizes example https links to external TLS port', () => {
     process.env.SVEN_EXTERNAL_TLS_PORT = '44747';
     process.env.SVEN_COMMUNITY_DOCS_URL = 'https://app.sven.example.com/docs';
 

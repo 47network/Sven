@@ -234,7 +234,7 @@ Sven: [executes cert renewal]
 "Done. Cert renewed, expires 2026-07-09. Nginx reloaded. Webchat widget
 loading in 1.2 seconds. Monitoring config committed to the repo.
 
-I also noticed the 47dynamics cert expires in 14 days — want me to renew
+I also noticed the infrastructure cert expires in 14 days — want me to renew
 that too while I'm at it?"
 ```
 

@@ -2,7 +2,7 @@
 name: ab-copywriter
 description: Generate A/B test copy variants — headlines, CTAs, email subjects, and ad copy with scoring.
 version: 0.1.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 when-to-use: Use when the user wants to create A/B test copy variants, compare headlines, or optimize CTAs.

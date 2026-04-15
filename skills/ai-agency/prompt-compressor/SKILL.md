@@ -2,7 +2,7 @@
 name: prompt-compressor
 description: Compress long prompts and contexts while preserving semantic meaning — reduce token count without losing information.
 version: 0.1.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 when-to-use: Use when the user has a long prompt or context that needs to be shorter, or when hitting token limits.

@@ -7,7 +7,7 @@ Scope: Section I hardening follow-up (`strict transport`, `CSP/sanitization`, `i
 
 - Gateway API:
   - Enabled strict helmet policy with CSP, HSTS, frameguard, referrer policy, and no-sniff.
-  - Replaced permissive default CORS with explicit allowlist defaults (`*.47matrix.online`, localhost loopback).
+  - Replaced permissive default CORS with explicit allowlist defaults (`*.47network.online`, localhost loopback).
   - File: `services/gateway-api/src/index.ts`
 
 - Canvas UI:

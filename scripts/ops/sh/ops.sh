@@ -57,7 +57,7 @@ Groups:
     auto-approve-ui          (uses env vars for DEVICE_ID/MODE/...)
 
   ingress
-    smoke-47matrix [install_host] [app_host]
+    smoke-domains [install_host] [app_host]
     quickstart-publish [target_dir]
     quickstart-publish-smoke [target_dir] [install_host] [app_host]
     install-systemd-core [compose_workdir]
@@ -213,8 +213,8 @@ case "$group" in
     if [ "$#" -lt 1 ]; then usage; exit 2; fi
     cmd="$1"; shift
     case "$cmd" in
-      smoke-47matrix)
-        exec sh "$DIR/smoke-47matrix-domains.sh" "$@"
+      smoke-domains)
+        exec sh "$DIR/smoke-domains.sh" "$@"
         ;;
       quickstart-publish)
         exec sh "$DIR/publish-quickstart.sh" "$@"

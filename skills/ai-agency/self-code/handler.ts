@@ -146,7 +146,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
             'name: my-skill-name',
             'description: Brief description of what this skill does',
             'version: 0.1.0',
-            'publisher: 47dynamics',
+            'publisher: 47network',
             'handler_language: typescript',
             'handler_file: handler.ts',
             'inputs_schema:',

@@ -2,7 +2,7 @@
 name: document-reader
 description: Extracts text from documents and images using GLM-OCR with multi-language, table, handwriting, math, and code detection.
 version: 0.1.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

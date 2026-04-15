@@ -22,4 +22,4 @@ Configured directives:
 
 ## Notes
 
-- Existing `config/nginx/sven-47matrix.conf` already enforced `ssl_protocols TLSv1.2 TLSv1.3`; this update aligns the remaining edge configs.
+- Existing `config/nginx/sven-47network.conf` already enforced `ssl_protocols TLSv1.2 TLSv1.3`; this update aligns the remaining edge configs.

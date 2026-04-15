@@ -2,7 +2,7 @@
 name: model-router
 description: Routes inference requests to the optimal available model based on task type, quality priority, latency budget, and VRAM constraints.
 version: 0.1.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

@@ -2,7 +2,7 @@
 name: self-knowledge
 description: Introspects Sven's own architecture, capabilities, codebase structure, service topology, and current operational state. Use when Sven needs to describe himself, explain what he can do, or reference his own systems.
 version: 0.1.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

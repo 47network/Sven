@@ -2,7 +2,7 @@
 name: email-reply
 description: Generate contextual email replies — analyze incoming email and produce an appropriate response.
 version: 0.1.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 when-to-use: Use when the user wants to reply to an email, respond to an email thread, or draft a follow-up.

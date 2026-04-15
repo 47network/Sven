@@ -3,7 +3,7 @@
 Use this only if Traefik is your ingress controller.
 
 If you are not using Traefik:
-- standalone Nginx: `docs/deploy/nginx-47matrix-domains.md`
+- standalone Nginx: `docs/deploy/nginx-47network-domains.md`
 - external+internal split: `docs/deploy/ingress-topologies.md`
 
 Canonical host/route ownership lives in:

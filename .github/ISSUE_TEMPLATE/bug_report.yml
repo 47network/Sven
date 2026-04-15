@@ -1,0 +1,95 @@
+name: Bug Report
+description: Report a bug in Sven
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please fill in the details below so we can reproduce and fix it.
+
+  - type: input
+    id: version
+    attributes:
+      label: Sven version
+      description: "Output of `docker compose exec gateway-api node -e \"console.log(require('./package.json').version)\"`"
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected component
+      options:
+        - Gateway API
+        - Agent Runtime
+        - Admin UI
+        - Canvas UI
+        - Flutter Mobile App
+        - Desktop Companion (Tauri)
+        - Messaging Adapter (specify in description)
+        - Voice Pipeline
+        - RAG / Search
+        - Skill Runner
+        - Docker / Deployment
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps to reproduce the behaviour.
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: What you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: What actually happened.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: "Paste any relevant log output. Use `docker compose logs <service> --tail 50` to get recent logs."
+      render: shell
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: |
+        - OS:
+        - Docker version:
+        - Node version (if running without Docker):
+        - Browser (if UI bug):
+      value: |
+        - OS:
+        - Docker version:
+        - Node version:
+        - Browser:

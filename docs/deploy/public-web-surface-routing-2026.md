@@ -27,7 +27,7 @@ Use real deployment hostnames:
 - `app.sven.systems`
 - `admin.sven.systems` only if an operator deliberately separates admin onto a dedicated host
 
-Concrete `47matrix.online` and `glyph` files in this repo are deployment examples, not the public release contract.
+Concrete `47network.online` and `glyph` files in this repo are deployment examples, not the public release contract.
 
 ---
 

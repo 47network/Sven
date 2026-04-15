@@ -2,7 +2,7 @@
 name: quantum-simulate
 description: Build and run quantum circuits on the Sven quantum simulator. Supports all standard gates, measurement histograms, noise models, and circuit visualization.
 version: 0.1.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

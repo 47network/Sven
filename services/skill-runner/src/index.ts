@@ -2174,7 +2174,7 @@ async function main(): Promise<void> {
           if (!claimed) { logger.info('Code fix approval already claimed', { approval_id: approvalId }); continue; }
 
           logger.info('Executing approved code fix', { approval_id: approvalId, file_path: details.file_path });
-          const repoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+          const repoRoot = process.env.SVEN_REPO_ROOT || '/opt/sven';
 
           try {
             // Build change list — support single or multi-file fixes
@@ -2347,7 +2347,7 @@ async function main(): Promise<void> {
           if (!claimed) { logger.info('Deploy approval already claimed', { approval_id: approvalId }); continue; }
 
           logger.info('Executing approved deployment', { approval_id: approvalId, target: details.target });
-          const repoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+          const repoRoot = process.env.SVEN_REPO_ROOT || '/opt/sven';
           const composePrimary = process.env.SVEN_COMPOSE_FILE || 'docker-compose.yml';
           const deployTarget = details.target || 'all';
           const restartsSelf = deployTarget === 'all' || deployTarget === 'skill-runner';
@@ -2648,7 +2648,7 @@ async function main(): Promise<void> {
       //    Only when circuit breaker is closed and no stale escalations
       if (!proactiveScanCooldown && cbState === 'closed') {
         proactiveScanCooldown = 4; // skip next 4 cycles (= run every 5th = ~5 min)
-        const repoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+        const repoRoot = process.env.SVEN_REPO_ROOT || '/opt/sven';
         const tscErrors = proactiveTscScan(repoRoot);
         if (tscErrors.length > 0) {
           healTelemetry.proactive_detections++;
@@ -2694,7 +2694,7 @@ async function main(): Promise<void> {
       if (!v9CheckpointCleanupCooldown) {
         v9CheckpointCleanupCooldown = 9;
         try {
-          const diagRepoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+          const diagRepoRoot = process.env.SVEN_REPO_ROOT || '/opt/sven';
           const pruneResult = cleanupOldCheckpoints(diagRepoRoot);
           if (pruneResult.pruned > 0) {
             logger.info('Self-diagnostics: pruned old checkpoint tags', { count: pruneResult.pruned, remaining: pruneResult.remaining });
@@ -2708,7 +2708,7 @@ async function main(): Promise<void> {
       if (!v9DepAuditCooldown) {
         v9DepAuditCooldown = 19;
         try {
-          const diagRepoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+          const diagRepoRoot = process.env.SVEN_REPO_ROOT || '/opt/sven';
           const depAudit = scanDependencyVulnerabilities(diagRepoRoot);
           if (depAudit.high > 0 || depAudit.critical > 0) {
             logger.warn('Self-diagnostics: dependency vulnerabilities detected', {
@@ -9642,7 +9642,7 @@ end tell
 
       const isExecutableFix = changes.length > 0;
       const proposalId = generateTaskId('tool_run');
-      const repoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+      const repoRoot = process.env.SVEN_REPO_ROOT || '/opt/sven';
 
       // v8: File quarantine check — block fixes on quarantined files
       if (isExecutableFix) {
@@ -10142,7 +10142,7 @@ end tell
 
       if (action === 'plan') {
         // Check which compose files exist on the system
-        const repoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+        const repoRoot = process.env.SVEN_REPO_ROOT || '/opt/sven';
         const composePrimary = process.env.SVEN_COMPOSE_FILE || 'docker-compose.yml';
         const composeProfiles = process.env.SVEN_COMPOSE_PROFILES || 'docker-compose.profiles.yml';
 
@@ -10189,7 +10189,7 @@ end tell
         const claimed = await claimApproval(pool, approvalId);
         if (!claimed) return { outputs: {}, error: `Approval ${approvalId} was already claimed by another process.` };
 
-        const repoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+        const repoRoot = process.env.SVEN_REPO_ROOT || '/opt/sven';
         const composePrimary = process.env.SVEN_COMPOSE_FILE || 'docker-compose.yml';
         const deployTarget = appr.details?.target || targetService;
         const deployEnv = appr.details?.environment || environment;
@@ -10687,7 +10687,7 @@ end tell
 
       const count = Math.min(Math.max(Number(inputs.count) || 1, 1), 5);
       const dryRun = inputs.dry_run === true;
-      const repoRoot = process.env.SVEN_REPO_ROOT || '/home/hantz/47/47Network/TheSven/thesven_v0.1.0';
+      const repoRoot = process.env.SVEN_REPO_ROOT || '/opt/sven';
 
       // Preview: show what would be rolled back
       const logResult = spawnSync('git', ['log', `--max-count=${count}`, '--pretty=%H %s'], {

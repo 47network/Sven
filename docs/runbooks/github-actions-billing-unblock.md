@@ -28,7 +28,7 @@ Fail signature:
 
 ## Unblock Steps
 
-1. Open GitHub `Billing & plans` for the org/account that owns `47network/thesven`.
+1. Open GitHub `Billing & plans` for the org/account that owns `47network/sven`.
 2. Resolve failed payment method or increase Actions spending limit.
 3. Re-run a lightweight workflow (`deployment-pipeline`) and confirm jobs actually start.
 4. Re-run release gate sync workflow after billing is fixed.

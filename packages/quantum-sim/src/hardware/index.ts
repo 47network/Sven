@@ -210,7 +210,7 @@ const BACKEND_PROFILES: BackendProfile[] = [
     gateErrorRate: 0,
     isAvailable: true,
     region: 'local',
-    provider: '47dynamics',
+    provider: '47network',
   },
   {
     id: 'ibm-brisbane',

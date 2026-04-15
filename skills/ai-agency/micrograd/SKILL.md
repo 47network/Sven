@@ -2,7 +2,7 @@
 name: micrograd
 description: Interactive educational autograd engine — port of Karpathy's micrograd. Build, train, and visualise tiny neural networks step-by-step to learn how backpropagation works.
 version: 0.1.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

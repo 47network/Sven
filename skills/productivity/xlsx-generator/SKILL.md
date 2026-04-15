@@ -2,7 +2,7 @@
 name: xlsx-generator
 description: Create Excel-compatible spreadsheets (.xlsx) with data, formulas, formatting, and multiple sheets.
 version: 0.1.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 when-to-use: Use when the user asks to create a spreadsheet, Excel file, CSV export, or tabular data document.

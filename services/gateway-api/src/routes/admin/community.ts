@@ -246,7 +246,7 @@ function normalizeHttpUrl(raw: string | undefined): string | null {
     const externalTlsPort = String(process.env.SVEN_EXTERNAL_TLS_PORT || '44747').trim();
     const host = String(url.hostname || '').toLowerCase();
     const isManagedExternalHost =
-      host.endsWith('.47matrix.online')
+      host.endsWith('.example.com')
       || host === 'sven.systems'
       || host.endsWith('.sven.systems');
     const shouldForceExternalPort = url.protocol === 'https:'

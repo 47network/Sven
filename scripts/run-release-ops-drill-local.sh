@@ -78,7 +78,7 @@ node -e "const fs=require('fs'); fs.writeFileSync('migration-drill-scope.json', 
 
 export GITHUB_RUN_ID="${GITHUB_RUN_ID:-local-release-ops-drill-$(date +%s)}"
 export GITHUB_SHA="${GITHUB_SHA:-$(git rev-parse HEAD)}"
-export GITHUB_REPOSITORY="${GITHUB_REPOSITORY:-local/thesven}"
+export GITHUB_REPOSITORY="${GITHUB_REPOSITORY:-local/sven}"
 export GITHUB_SERVER_URL="${GITHUB_SERVER_URL:-https://github.com}"
 export SVEN_OPS_DRILL_PATH_CLASS="${SVEN_OPS_DRILL_PATH_CLASS:-migration_backup_restore_change}"
 

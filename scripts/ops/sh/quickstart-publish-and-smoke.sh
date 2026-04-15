@@ -9,7 +9,7 @@ APP_HOST="${3:-app.sven.systems}"
 echo "Publishing quickstart assets..."
 sh "$DIR/publish-quickstart.sh" "$TARGET_DIR"
 
-echo "Running 47matrix domain smoke checks..."
-sh "$DIR/smoke-47matrix-domains.sh" "$INSTALL_HOST" "$APP_HOST"
+echo "Running domain smoke checks..."
+sh "$DIR/smoke-domains.sh" "$INSTALL_HOST" "$APP_HOST"
 
 echo "Quickstart publish + smoke complete."

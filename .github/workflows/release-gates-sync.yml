@@ -636,6 +636,6 @@ jobs:
           git add "${required_targets[@]}"
           git commit -m "chore(release): sync CI gate status"
           if ! git push; then
-            git pull --rebase origin "${GITHUB_REF_NAME:-thesven}"
+            git pull --rebase origin "${GITHUB_REF_NAME:-sven}"
             git push
           fi

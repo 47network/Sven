@@ -2,7 +2,7 @@
 name: agent-spawner
 description: Spawns, manages lifecycle, and terminates autonomous AI agents from the 40+ built-in agent catalog.
 version: 0.1.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

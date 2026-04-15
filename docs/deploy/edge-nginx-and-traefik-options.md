@@ -2,7 +2,7 @@
 
 Use this doc only when an external Nginx already fronts your domains and handles certificates.
 If not, use standalone Nginx setup:
-- `docs/deploy/nginx-47matrix-domains.md`
+- `docs/deploy/nginx-47network-domains.md`
 
 Canonical host/route ownership lives in:
 
@@ -18,7 +18,7 @@ This supports external-nginx deployments with two internal layouts for Sven:
 
 Use:
 
-- `config/nginx/sven-47matrix-behind-edge.conf`
+- `config/nginx/sven-47network-behind-edge.conf`
 - or Dockerized internal ingress:
   - `docker-compose.yml` service `sven-internal-nginx`
   - `config/nginx/sven-internal-ingress.docker.conf`
@@ -35,7 +35,7 @@ Recommended edge routes:
 
 Use:
 
-- `config/traefik/sven-47matrix.dynamic.yml`
+- `config/traefik/sven-47network.dynamic.yml`
 
 ### Important
 
@@ -97,7 +97,7 @@ For the thin external pattern:
 Given you already run a central edge Nginx and cert lifecycle there:
 
 1. Keep certificates only at edge Nginx.
-2. Run Sven behind it with internal Nginx first (`sven-47matrix-behind-edge.conf`).
+2. Run Sven behind it with internal Nginx first (`sven-47network-behind-edge.conf`).
 3. Keep Traefik template available for future migration or service-specific dynamic routing.
 
 Canonical external-nginx config split for this repo:

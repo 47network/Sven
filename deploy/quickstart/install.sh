@@ -2,7 +2,7 @@
 set -eu
 
 REPO_URL="${SVEN_REPO_URL:-}"
-SOURCE_ARCHIVE_URL="${SVEN_SOURCE_ARCHIVE_URL:-https://sven.systems/source/thesven-src.tar.gz}"
+SOURCE_ARCHIVE_URL="${SVEN_SOURCE_ARCHIVE_URL:-https://sven.systems/source/sven-src.tar.gz}"
 BRANCH="${SVEN_BRANCH:-main}"
 INSTALL_DIR="${SVEN_INSTALL_DIR:-$HOME/.sven-src}"
 GATEWAY_URL="${SVEN_GATEWAY_URL:-https://app.sven.systems}"

@@ -30,7 +30,7 @@ This plan transforms Sven from a self-healing AI assistant into a **full-spectru
 All pillars integrate into the existing Sven monorepo:
 
 ```
-thesven_v0.1.0/
+sven/
 ├── services/
 │   ├── gateway-api/          — REST/WS API, auth, chat
 │   ├── agent-runtime/        — LLM orchestration, tool dispatch

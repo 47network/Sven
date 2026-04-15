@@ -30,9 +30,7 @@ tmp/
 .cache/
 
 # ─── IDE / Editor ───────────────────────────────────────────────
-.vscode/*
-!.vscode/settings.json
-!.vscode/extensions.json
+.vscode/
 .idea/
 *.swp
 *.swo

@@ -1,0 +1,43 @@
+# Default owners for everything
+* @47network/core
+
+# Gateway API & backend services
+services/gateway-api/ @47network/core
+services/agent-runtime/ @47network/core
+services/skill-runner/ @47network/core
+
+# Mobile app
+apps/companion-user-flutter/ @47network/mobile
+
+# Desktop app
+apps/companion-desktop-tauri/ @47network/desktop
+
+# Admin & Canvas UI
+apps/admin-ui/ @47network/core
+apps/canvas-ui/ @47network/core
+
+# Messaging adapters
+services/adapter-*/ @47network/core
+
+# Voice pipeline
+services/faster-whisper/ @47network/core
+services/piper/ @47network/core
+services/wake-word/ @47network/core
+
+# Shared packages
+packages/ @47network/core
+
+# Skills
+skills/ @47network/core
+
+# Infrastructure & deployment
+docker-compose*.yml @47network/ops
+deploy/ @47network/ops
+config/ @47network/ops
+
+# CI/CD
+.github/ @47network/core
+
+# Documentation
+docs/ @47network/core
+*.md @47network/core

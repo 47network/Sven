@@ -2,7 +2,7 @@
 # ─────────────────────────────────────────────────────────────
 #  sven-mirror-agent — one-line installer for any Linux device
 #
-#  curl -sSL https://raw.githubusercontent.com/47matrix/sven/main/services/sven-mirror-agent/install.sh | bash
+#  curl -sSL https://raw.githubusercontent.com/47network/sven/main/services/sven-mirror-agent/install.sh | bash
 #  wget -qO- ... | bash
 #
 #  Supports: x86_64, aarch64/arm64, armv7l (Raspberry Pi, cloud VMs, NUCs, etc.)
@@ -110,7 +110,7 @@ if [[ -f "$SCRIPT_DIR/requirements.txt" ]]; then
     cp -r "$SCRIPT_DIR/sven_mirror_agent" "$INSTALL_DIR/"
 else
     info "Downloading latest release..."
-    REPO_URL="https://raw.githubusercontent.com/47matrix/sven/main/services/sven-mirror-agent"
+    REPO_URL="https://raw.githubusercontent.com/47network/sven/main/services/sven-mirror-agent"
     curl -sSL "$REPO_URL/requirements.txt" -o "$INSTALL_DIR/requirements.txt"
     mkdir -p "$INSTALL_DIR/sven_mirror_agent"
     for f in __init__.py __main__.py config.py api_client.py pairing.py agent.py; do

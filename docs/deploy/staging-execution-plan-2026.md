@@ -139,7 +139,7 @@ Recommended checkout:
 
 ```bash
 cd /srv/sven/staging/app
-git clone https://github.com/47network/thesven.git .
+git clone https://github.com/47network/sven.git .
 git checkout main
 ```
 

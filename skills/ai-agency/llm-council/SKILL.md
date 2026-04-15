@@ -6,7 +6,7 @@ description: >
   synthesizes the best answer. Supports configurable council composition, voting
   strategies, and cost tracking.
 version: 0.1.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

@@ -15,7 +15,7 @@ Only the latest release receives security fixes. We recommend always running the
 
 Use one of the following private channels:
 
-1. **GitHub Security Advisories (preferred)** — [Open a private advisory](https://github.com/47network/thesven/security/advisories/new). This allows structured, confidential discussion with maintainers and results in a tracked CVE if warranted.
+1. **GitHub Security Advisories (preferred)** — [Open a private advisory](https://github.com/47network/sven/security/advisories/new). This allows structured, confidential discussion with maintainers and results in a tracked CVE if warranted.
 
 2. **Email** — Send details to `security@the47network.com`.
 

@@ -14,15 +14,15 @@ Many questions are answered in the documentation:
 
 ## 🐛 Found a Bug?
 
-[Open a bug report](https://github.com/47network/thesven/issues/new?template=bug_report.yml) — please fill in the template completely, including the affected component and reproduction steps.
+[Open a bug report](https://github.com/47network/sven/issues/new?template=bug_report.yml) — please fill in the template completely, including the affected component and reproduction steps.
 
 ## 💡 Have a Feature Request?
 
-[Open a feature request](https://github.com/47network/thesven/issues/new?template=feature_request.yml) — describe the problem you're solving, not just the solution.
+[Open a feature request](https://github.com/47network/sven/issues/new?template=feature_request.yml) — describe the problem you're solving, not just the solution.
 
 ## 🔒 Security Vulnerability?
 
-Do **not** open a public issue. Follow the [Security Policy](SECURITY.md) and report privately via [GitHub Security Advisories](https://github.com/47network/thesven/security/advisories/new).
+Do **not** open a public issue. Follow the [Security Policy](SECURITY.md) and report privately via [GitHub Security Advisories](https://github.com/47network/sven/security/advisories/new).
 
 ## 📫 Contact Addresses
 
@@ -32,7 +32,7 @@ Do **not** open a public issue. Follow the [Security Policy](SECURITY.md) and re
 
 ## 💬 General Questions
 
-For general questions and community discussion, browse [existing issues](https://github.com/47network/thesven/issues) before opening a new one — your question may already be answered.
+For general questions and community discussion, browse [existing issues](https://github.com/47network/sven/issues) before opening a new one — your question may already be answered.
 
 ## ⏱️ Response Time
 

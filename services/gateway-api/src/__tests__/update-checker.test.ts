@@ -30,7 +30,7 @@ describe('UpdateCheckerService feed URL safety policy', () => {
   });
 
   it('accepts public https targets and enforces optional host allowlist', () => {
-    const publicResult = validateUpdateFeedUrl('https://api.github.com/repos/47matrix/openclaw-sven/releases/latest', []);
+    const publicResult = validateUpdateFeedUrl('https://api.github.com/repos/47network/sven/releases/latest', []);
     expect(publicResult.ok).toBe(true);
 
     const allowedResult = validateUpdateFeedUrl('https://updates.example.com/feed.json', ['updates.example.com']);

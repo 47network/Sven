@@ -2,7 +2,7 @@
 name: table-extractor
 description: Detects and extracts tables from documents, outputting structured data or Markdown-formatted tables.
 version: 0.1.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

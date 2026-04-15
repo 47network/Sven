@@ -72,10 +72,10 @@
     if (hostname === 'sven.example.com') {
       return [`${protocol}//app.sven.example.com${port}`];
     }
-    if (hostname === 'sven.47matrix.online') {
+    if (hostname === 'sven.example.com') {
       return uniqueOrigins([
-        `${protocol}//sven.glyph.47matrix.online${port}`,
-        `${protocol}//app.47matrix.online${port}`,
+        `${protocol}//sven.glyph.example.com${port}`,
+        `${protocol}//app.example.com${port}`,
         `${protocol}//${hostname}${port}`,
       ]);
     }

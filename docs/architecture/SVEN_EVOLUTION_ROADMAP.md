@@ -34,7 +34,7 @@ Batch 2 (Memory + EQ) ────┼──→ Batch 4 (Calibrated Intelligence)
 |---|------|---------|--------|
 | 1.1 | Configure Documentation URL | Set `SVEN_COMMUNITY_DOCS_URL` → `https://sven.systems/docs` | [x] |
 | 1.2 | Configure Discord URL | Discord server already exists, bot deployed on VM7 via `adapter-discord`. Set `SVEN_COMMUNITY_DISCORD_URL` env var | [x] |
-| 1.3 | Configure GitHub Discussions URL | Enable GitHub Discussions on `47network/thesven` repo, set `SVEN_COMMUNITY_GITHUB_DISCUSSIONS_URL` | [x] |
+| 1.3 | Configure GitHub Discussions URL | Enable GitHub Discussions on `47network/sven` repo, set `SVEN_COMMUNITY_GITHUB_DISCUSSIONS_URL` | [x] |
 | 1.4 | Configure Marketplace URL | Create marketplace page on suite site, set `SVEN_COMMUNITY_MARKETPLACE_URL` | [x] |
 | 1.5 | Configure Verified Persona Provider | Set up SSO-backed persona verification (OIDC provider), set `SVEN_COMMUNITY_PERSONA_PROVIDER` + `SVEN_COMMUNITY_ACCESS_MODE=verified_persona_only` | [x] |
 | 1.6 | Seed Persona Allowlist | Populate initial allowlist: admin accounts, bot accounts, first community members. Set `SVEN_COMMUNITY_PERSONA_ALLOWLIST` | [x] |

@@ -2,7 +2,7 @@
 name: quantum-benchmark
 description: Benchmark quantum circuits — quantum volume estimation, gate timing, simulator performance, and backend comparison across different hardware profiles.
 version: 0.1.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

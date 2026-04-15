@@ -12,7 +12,7 @@ Canonical route ownership and auth boundaries live in:
 1. Standalone Nginx (default)
 - Use this when Sven host itself terminates TLS/public traffic.
 - Required files:
-  - `config/nginx/sven-47matrix.conf`
+  - `config/nginx/sven-47network.conf`
 - External proxy files (`extnginx-*`) are not required.
 
 2. External Nginx + Internal Sven Nginx (optional)
@@ -93,7 +93,7 @@ curl -I https://app.example.com/admin47
 Automated checks:
 
 ```bash
-sh scripts/ops/sh/smoke-47matrix-domains.sh example.com app.example.com
+sh scripts/ops/sh/smoke-47network-domains.sh example.com app.example.com
 npm run release:edge:network:check
 ```
 

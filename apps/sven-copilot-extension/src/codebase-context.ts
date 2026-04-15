@@ -16,7 +16,7 @@ export async function buildCodebaseContext(): Promise<string> {
   const root = workspaceFolders[0].uri;
   const sections: string[] = [];
 
-  sections.push('### Sven Monorepo (thesven_v0.1.0)\n');
+  sections.push('### Sven Monorepo (sven)\n');
 
   // Check which services exist
   const services = await listDir(root, 'services');
@@ -37,7 +37,6 @@ export async function buildCodebaseContext(): Promise<string> {
       'searxng': 'SearXNG private meta search engine',
       'litellm': 'LiteLLM OpenAI-compatible proxy, model routing',
       'sso': 'Single sign-on identity provider',
-      'bridge-47dynamics': '47Dynamics cross-platform bridge',
       'faster-whisper': 'Speech-to-text (Whisper)',
       'piper': 'Text-to-speech (Piper TTS)',
       'wake-word': 'Voice activation detection',

@@ -2,7 +2,7 @@
 name: mesh-device-manager
 description: Manages the compute mesh device registry — register, query, heartbeat, opt-in/out, and view aggregate mesh stats.
 version: 0.1.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

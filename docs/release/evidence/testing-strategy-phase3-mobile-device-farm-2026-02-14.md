@@ -40,7 +40,7 @@ npm run mobile:devicefarm:results:check -- --strict
 
 ## Latest Attempt
 
-- Run URL: `https://github.com/47matrix/thesven/actions/runs/22025581436`
+- Run URL: `https://github.com/47network/sven/actions/runs/22025581436`
 - Result: workflow succeeded with both jobs skipped
 - Reason: `MAESTRO_CLOUD_API_KEY` is missing; smoke steps were not executed
 - Gate impact: remains blocked until both Android and iOS smoke steps execute and pass on the same commit

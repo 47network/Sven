@@ -89,9 +89,9 @@ For the chosen public split:
 
 Follow:
 
-- `docs/deploy/nginx-47matrix-domains.md`
+- `docs/deploy/nginx-47network-domains.md`
 - `docs/deploy/ingress-topologies.md`
-- `config/nginx/sven-47matrix.conf`
+- `config/nginx/sven-47network.conf`
 - `docs/deploy/edge-nginx-and-traefik-options.md`
 
 ## 6) Boot Auto-Start (systemd)

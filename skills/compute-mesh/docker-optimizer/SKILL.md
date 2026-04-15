@@ -2,7 +2,7 @@
 name: docker-optimizer
 description: Analyze and optimize Dockerfiles — reduce image size, improve layer caching, fix security issues.
 version: 0.1.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 when-to-use: Use when the user wants to optimize a Dockerfile, reduce Docker image size, or improve build caching.

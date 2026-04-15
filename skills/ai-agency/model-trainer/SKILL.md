@@ -6,7 +6,7 @@ description: >
   or custom datasets. Pre-built recipes for writing style, codebase conventions,
   and domain vocabulary. Exports to LiteLLM for immediate use.
 version: 1.0.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 

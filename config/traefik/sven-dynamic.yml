@@ -14,21 +14,21 @@
 http:
   routers:
     sven-api:
-      rule: "Host(`sven.glyph.47matrix.online`) && PathPrefix(`/v1`)"
+      rule: "Host(`sven.glyph.example.com`) && PathPrefix(`/v1`)"
       service: sven-gateway
       middlewares:
         - sven-forwarded-headers
       priority: 200
 
     sven-ready:
-      rule: "Host(`sven.glyph.47matrix.online`) && (Path(`/healthz`) || Path(`/readyz`))"
+      rule: "Host(`sven.glyph.example.com`) && (Path(`/healthz`) || Path(`/readyz`))"
       service: sven-gateway
       middlewares:
         - sven-forwarded-headers
       priority: 210
 
     sven-admin:
-      rule: "Host(`sven.glyph.47matrix.online`) && PathPrefix(`/admin47`)"
+      rule: "Host(`sven.glyph.example.com`) && PathPrefix(`/admin47`)"
       service: sven-admin
       middlewares:
         - sven-forwarded-headers
@@ -37,7 +37,7 @@ http:
       priority: 190
 
     sven-canvas:
-      rule: "Host(`sven.glyph.47matrix.online`)"
+      rule: "Host(`sven.glyph.example.com`)"
       service: sven-canvas
       middlewares:
         - sven-forwarded-headers

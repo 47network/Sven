@@ -1,0 +1,62 @@
+name: Feature Request
+description: Suggest a new feature or improvement
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea for Sven? We'd love to hear it. Please describe the feature and why it would be useful.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Feature area
+      options:
+        - Messaging / Adapters
+        - Voice / Wake Word
+        - AI / LLM / Inference
+        - RAG / Knowledge
+        - Skills / Plugins
+        - Admin UI / Dashboard
+        - Mobile App (Flutter)
+        - Desktop App (Tauri)
+        - Deployment / Docker
+        - Federation
+        - Compute Mesh
+        - Security / Auth
+        - Observability / Logging
+        - API / SDK
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What problem does this solve? Why is it needed?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe your ideal solution. Include examples, mockups, or references if helpful.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any alternative solutions or workarounds you've considered.
+
+  - type: dropdown
+    id: contribution
+    attributes:
+      label: Would you be willing to contribute this?
+      options:
+        - "Yes — I can submit a PR"
+        - "Partially — I can help with design or testing"
+        - "No — just suggesting"

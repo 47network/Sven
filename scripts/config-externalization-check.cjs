@@ -8,8 +8,8 @@ const outDir = path.join(root, 'docs', 'release', 'status');
 const strict = process.argv.includes('--strict');
 
 const prodDomainPatterns = [
-  /https?:\/\/sven\.glyph\.47matrix\.online/gi,
-  /https?:\/\/sven\.47matrix\.online/gi,
+  /https?:\/\/sven\.glyph\.example\.com/gi,
+  /https?:\/\/sven\.example\.com/gi,
 ];
 
 function walk(dir, list = []) {

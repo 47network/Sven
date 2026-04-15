@@ -33,14 +33,14 @@ Checklist target: `docs/release/checklists/sven-production-parity-checklist-2026
     - `docs/release/status/mobile-legal-urls-android-<host>-latest.md`
     - keeps `mobile-legal-urls-android-latest.*` as compatibility alias
 - Added ingress diagnose evidence capture helper:
-  - `scripts/ops/mobile/capture-47matrix-ingress-diagnose.ps1`
+  - `scripts/ops/mobile/capture-47network-ingress-diagnose.ps1`
   - npm command: `npm run ops:mobile:legal:ingress-evidence`
 
 ## Validation
 
 - Command run:
   - `node scripts/mobile-legal-urls-check.cjs`
-  - `npm run ops:sh:diagnose:47matrix`
+  - `npm run ops:sh:diagnose:47network`
 - Status artifacts:
   - `docs/release/status/mobile-legal-urls-latest.json`
   - `docs/release/status/mobile-legal-urls-latest.md`
@@ -168,7 +168,7 @@ Checklist target: `docs/release/checklists/sven-production-parity-checklist-2026
 ### Consolidated ingress diagnostic run (2026-02-22)
 
 - Command:
-  - `npm run ops:sh:diagnose:47matrix`
+  - `npm run ops:sh:diagnose:47network`
 - Key output:
   - DNS resolves both hosts to `86.122.81.64`
   - All HTTP/HTTPS probes returned timeout (`status=000`)
@@ -198,7 +198,7 @@ Checklist target: `docs/release/checklists/sven-production-parity-checklist-2026
 - Validation tooling is in place, but live publication cannot be confirmed from this environment yet.
 - Checklist items remain unchecked pending successful HTTP verification.
 - Remediation runbook for edge host execution:
-  - `docs/ops/47matrix-ingress-remediation-c8-1.md`
+  - `docs/ops/47network-ingress-remediation-c8-1.md`
 
 ### Latest ingress capture artifact
 

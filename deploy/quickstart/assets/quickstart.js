@@ -87,7 +87,7 @@
     const base = installOrigin().replace(/\/+$/, '');
     const sh = `curl -fsSL ${base}/install.sh | sh`;
     const ps = `iwr -useb ${base}/install.ps1 | iex`;
-    const docker = `SVEN_REPO_URL=https://<your-source-mirror>/thesven.git \\
+    const docker = `SVEN_REPO_URL=https://<your-source-mirror>/sven.git \\
 SVEN_INSTALL_BOOTSTRAP=1 \\
 curl -fsSL ${base}/install.sh | sh`;
 

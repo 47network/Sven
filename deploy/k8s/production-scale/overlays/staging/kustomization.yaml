@@ -20,11 +20,11 @@ patches:
   - path: admin-ui.yaml
   - path: image-pull-secrets.yaml
 images:
-  - name: ghcr.io/47network/thesven-gateway-api
+  - name: ghcr.io/47network/sven-gateway-api
     newTag: staging
-  - name: ghcr.io/47network/thesven-agent-runtime
+  - name: ghcr.io/47network/sven-agent-runtime
     newTag: staging
-  - name: ghcr.io/47network/thesven-canvas-ui
+  - name: ghcr.io/47network/sven-canvas-ui
     newTag: staging
-  - name: ghcr.io/47network/thesven-admin-ui
+  - name: ghcr.io/47network/sven-admin-ui
     newTag: staging

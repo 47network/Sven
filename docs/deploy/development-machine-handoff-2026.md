@@ -21,7 +21,7 @@ Clean merge lanes:
 
 ## Merge Order
 
-Apply the clean lanes into `thesven` in this order:
+Apply the clean lanes into `sven` in this order:
 
 1. `lane/runtime-core`
 2. `lane/admin-canvas-ui`
@@ -64,8 +64,8 @@ These are machine-local runtime or cache artifacts and should be rebuilt or reis
 ## First Commands On The New Machine
 
 ```powershell
-git clone https://github.com/47network/thesven.git
-cd thesven
+git clone https://github.com/47network/sven.git
+cd sven
 git fetch --all --prune
 git branch -r
 ```

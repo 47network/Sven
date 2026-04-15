@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: gateway-api
-          image: ghcr.io/47network/thesven-gateway-api:RELEASE_TAG
+          image: ghcr.io/47network/sven-gateway-api:RELEASE_TAG
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000

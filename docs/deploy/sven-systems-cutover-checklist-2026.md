@@ -97,7 +97,7 @@ This host must own:
 
 ### Transitional note
 
-The current `47matrix.online` deployment still exposes some runtime paths on the static host during transition. That is acceptable only as a temporary bridge. Do not treat it as the final public contract.
+The current `47network.online` deployment still exposes some runtime paths on the static host during transition. That is acceptable only as a temporary bridge. Do not treat it as the final public contract.
 
 ---
 

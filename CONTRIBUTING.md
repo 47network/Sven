@@ -3,8 +3,8 @@
 Thank you for taking the time to contribute! Sven is a large monorepo — this guide covers everything from first-time setup to submitting production-quality PRs.
 
 **Quick links**
-- [Reporting a bug](https://github.com/47network/thesven/issues/new?template=bug_report.yml)
-- [Requesting a feature](https://github.com/47network/thesven/issues/new?template=feature_request.yml)
+- [Reporting a bug](https://github.com/47network/sven/issues/new?template=bug_report.yml)
+- [Requesting a feature](https://github.com/47network/sven/issues/new?template=feature_request.yml)
 - [Security vulnerabilities](SECURITY.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 
@@ -44,8 +44,8 @@ Thank you for taking the time to contribute! Sven is a large monorepo — this g
 ## Getting the Code
 
 ```bash
-git clone https://github.com/47network/thesven.git
-cd thesven
+git clone https://github.com/47network/sven.git
+cd sven
 ```
 
 Create a feature branch immediately — never commit directly to `master`:
@@ -129,7 +129,7 @@ All services read from environment. Copy `.env.example` and fill in the required
 ## Project Layout
 
 ```
-thesven/
+sven/
 ├── apps/
 │   ├── admin-ui/                  # React admin dashboard
 │   ├── canvas-ui/                 # Real-time chat (KaTeX, tool traces)
@@ -274,9 +274,9 @@ Maintainers aim to give initial feedback within **2 business days**. If you have
 
 ## Good First Issues
 
-Looking for somewhere to start? Check issues labelled [`good first issue`](https://github.com/47network/thesven/issues?q=is%3Aopen+label%3A%22good+first+issue%22) — these are scoped to be approachable for new contributors and have clear acceptance criteria.
+Looking for somewhere to start? Check issues labelled [`good first issue`](https://github.com/47network/sven/issues?q=is%3Aopen+label%3A%22good+first+issue%22) — these are scoped to be approachable for new contributors and have clear acceptance criteria.
 
-Higher-complexity work is labelled [`help wanted`](https://github.com/47network/thesven/issues?q=is%3Aopen+label%3A%22help+wanted%22).
+Higher-complexity work is labelled [`help wanted`](https://github.com/47network/sven/issues?q=is%3Aopen+label%3A%22help+wanted%22).
 
 ---
 

@@ -93,13 +93,13 @@ Example:
 
 ```yaml
 images:
-  - name: ghcr.io/47network/thesven-gateway-api
+  - name: ghcr.io/47network/sven-gateway-api
     digest: sha256:REPLACE_WITH_REAL_DIGEST
-  - name: ghcr.io/47network/thesven-agent-runtime
+  - name: ghcr.io/47network/sven-agent-runtime
     digest: sha256:REPLACE_WITH_REAL_DIGEST
-  - name: ghcr.io/47network/thesven-canvas-ui
+  - name: ghcr.io/47network/sven-canvas-ui
     digest: sha256:REPLACE_WITH_REAL_DIGEST
-  - name: ghcr.io/47network/thesven-admin-ui
+  - name: ghcr.io/47network/sven-admin-ui
     digest: sha256:REPLACE_WITH_REAL_DIGEST
 ```
 

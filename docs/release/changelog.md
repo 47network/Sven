@@ -1,7 +1,7 @@
 # Sven Changelog
 
 ## v0.1.1-rc (2026-03-16)
-- Consolidated all recovery/data-preservation work into `thesven` and reduced remote to a single branch.
+- Consolidated all recovery/data-preservation work into `sven` and reduced remote to a single branch.
 - Added stash preservation provenance and lossless proof artifacts (`4029/4029` covered, `0` uncovered).
 - Hardened parity/release governance lanes and kept Wave 8 parity gates wired into strict release flow.
 - Restored calendar OAuth recovery files/migration and fixed shared crypto export regression.

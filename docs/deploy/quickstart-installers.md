@@ -1,7 +1,7 @@
 # QuickStart Installers (`example.com`)
 
 Topology note:
-- If you use standalone Nginx on the Sven host, follow `docs/deploy/nginx-47matrix-domains.md`.
+- If you use standalone Nginx on the Sven host, follow `docs/deploy/nginx-47network-domains.md`.
 - If you use an external proxy (external Nginx/Caddy/Traefik), follow `docs/deploy/ingress-topologies.md`.
 
 These files back the one-liners:
@@ -12,7 +12,7 @@ These files back the one-liners:
 
 Default installer source repo:
 
-- `https://github.com/47network/thesven.git`
+- `https://github.com/47network/sven.git`
 
 Default installer branch:
 
@@ -121,7 +121,7 @@ See also:
 Run cross-domain smoke checks:
 
 ```sh
-sh scripts/ops/sh/ops.sh ingress smoke-47matrix
+sh scripts/ops/sh/ops.sh ingress smoke-47network
 ```
 
 Publish quickstart files and immediately smoke-check both domains:

@@ -3,7 +3,7 @@
 ## Release
 - Version: `0.1.1-rc`
 - Date: `2026-03-16`
-- Branch: `thesven`
+- Branch: `sven`
 - Commit: `cfbb5e9`
 - State: `RC prepared, soak closeout pending`
 
@@ -22,7 +22,7 @@ This RC consolidates parity hardening, mobile release-readiness improvements, op
 - Gateway and runtime hardening across auth/admin/routes, scheduling, replay, and integrations.
 
 ## Data Safety and Recovery
-- Stash recovery lane completed and merged into `thesven`.
+- Stash recovery lane completed and merged into `sven`.
 - Lossless preservation proof generated:
   - `docs/release/status/stash0-lossless-proof-latest.md`
   - `docs/release/status/stash0-lossless-proof-latest.json`

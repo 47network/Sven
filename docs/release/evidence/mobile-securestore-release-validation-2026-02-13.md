@@ -23,9 +23,9 @@ Date: 2026-02-13
   - Branch CI run succeeded (pull_request): `21991844825`
   - Branch CI run succeeded after `logout-all` integration: `21992091511`
   - URLs:
-    - `https://github.com/47matrix/thesven/actions/runs/21991843375`
-    - `https://github.com/47matrix/thesven/actions/runs/21991844825`
-    - `https://github.com/47matrix/thesven/actions/runs/21992091511`
+    - `https://github.com/47network/sven/actions/runs/21991843375`
+    - `https://github.com/47network/sven/actions/runs/21991844825`
+    - `https://github.com/47network/sven/actions/runs/21992091511`
 
 ## Remaining Validation (Device/Release Path)
 

@@ -126,7 +126,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
     case 'codebase_map': {
       return {
         result: {
-          monorepo: 'thesven_v0.1.0',
+          monorepo: 'sven',
           structure: {
             'services/gateway-api/': 'Fastify API — trading engine, all HTTP routes, Binance integration, news aggregator, Kronos, MiroFish, GPU fleet, messaging, souls, goals',
             'services/agent-runtime/': 'Chat sessions, LLM routing, soul loading, memory recall, session stitching, token budgeting',

@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: agent-runtime
-          image: ghcr.io/47network/thesven-agent-runtime:RELEASE_TAG
+          image: ghcr.io/47network/sven-agent-runtime:RELEASE_TAG
           imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:

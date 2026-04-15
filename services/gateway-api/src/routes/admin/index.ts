@@ -52,7 +52,6 @@ import { registerTunnelRoutes } from './tunnel.js';
 import { registerIntegrationRuntimeRoutes } from './integration-runtime.js';
 import { registerAgentAnalyticsRoutes } from './agent-analytics.js';
 import { registerIntegrationsCatalogRoutes } from './integrations-catalog.js';
-import { registerBridgeTenantMappingRoutes } from './bridge-tenant-mappings.js';
 import { registerCommunityRoutes } from './community.js';
 import { registerObsidianSyncRoutes } from './obsidian-sync.js';
 import { registerA2AAdminRoutes } from './a2a.js';
@@ -359,7 +358,6 @@ export async function registerAdminRoutes(
       await mountAdminRoutes((scopedApp) => registerIntegrationRuntimeRoutes(scopedApp, pool));
       await mountAdminRoutes((scopedApp) => registerAgentAnalyticsRoutes(scopedApp, pool));
       await mountAdminRoutes((scopedApp) => registerIntegrationsCatalogRoutes(scopedApp, pool));
-      await mountAdminRoutes((scopedApp) => registerBridgeTenantMappingRoutes(scopedApp, pool));
       await mountAdminRoutes((scopedApp) => registerCommunityRoutes(scopedApp, pool));
       await mountAdminRoutes((scopedApp) => registerObsidianSyncRoutes(scopedApp, pool));
       await mountAdminRoutes((scopedApp) => registerA2AAdminRoutes(scopedApp, pool));

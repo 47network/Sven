@@ -6,7 +6,7 @@ description: >
   evolves algorithms: trading strategies, routing policies, RAG retrieval,
   scheduling heuristics, and prompt engineering.
 version: 1.0.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 

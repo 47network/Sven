@@ -2,7 +2,7 @@
 name: document-search
 description: Searches across processed documents for keywords, entities, and semantic matches.
 version: 0.1.0
-publisher: 47dynamics
+publisher: 47network
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

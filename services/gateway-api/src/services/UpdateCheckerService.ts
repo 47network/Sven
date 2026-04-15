@@ -31,7 +31,7 @@ const UPDATE_CHECKER_BLOCKED_IP_LITERALS = new Set([
 ]);
 const DEFAULT_FEED_URL =
   process.env.SVEN_UPDATE_FEED_URL ||
-  'https://api.github.com/repos/47matrix/openclaw-sven/releases/latest';
+  'https://api.github.com/repos/47network/sven/releases/latest';
 
 type UpdateFeedPayload = {
   version?: string;

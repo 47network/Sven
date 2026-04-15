@@ -16,11 +16,11 @@
 ---
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Build](https://github.com/47network/thesven/actions/workflows/deployment-pipeline.yml/badge.svg)](https://github.com/47network/thesven/actions)
-[![Security](https://github.com/47network/thesven/actions/workflows/security-baseline.yml/badge.svg)](https://github.com/47network/thesven/actions)
-[![Flutter CI](https://github.com/47network/thesven/actions/workflows/flutter-user-app-ci.yml/badge.svg)](https://github.com/47network/thesven/actions)
-[![E2E](https://github.com/47network/thesven/actions/workflows/parity-e2e.yml/badge.svg)](https://github.com/47network/thesven/actions)
-[![Release Gates](https://github.com/47network/thesven/actions/workflows/release-gates-sync.yml/badge.svg)](https://github.com/47network/thesven/actions)
+[![Build](https://github.com/47network/sven/actions/workflows/deployment-pipeline.yml/badge.svg)](https://github.com/47network/sven/actions)
+[![Security](https://github.com/47network/sven/actions/workflows/security-baseline.yml/badge.svg)](https://github.com/47network/sven/actions)
+[![Flutter CI](https://github.com/47network/sven/actions/workflows/flutter-user-app-ci.yml/badge.svg)](https://github.com/47network/sven/actions)
+[![E2E](https://github.com/47network/sven/actions/workflows/parity-e2e.yml/badge.svg)](https://github.com/47network/sven/actions)
+[![Release Gates](https://github.com/47network/sven/actions/workflows/release-gates-sync.yml/badge.svg)](https://github.com/47network/sven/actions)
 [![Version](https://img.shields.io/badge/version-0.1.0-blue)](CHANGELOG.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
@@ -274,7 +274,7 @@ Sven ships **20 messaging platform adapters** out of the box:
 ### Monorepo Layout
 
 ```
-thesven/
+sven/
 ├── apps/
 │   ├── admin-ui/                  # React admin dashboard
 │   ├── canvas-ui/                 # Real-time chat canvas (KaTeX, tool traces)
@@ -326,8 +326,8 @@ thesven/
 ### 1 · Clone
 
 ```bash
-git clone https://github.com/47network/thesven.git
-cd thesven
+git clone https://github.com/47network/sven.git
+cd sven
 ```
 
 ### 2 · Configure
@@ -500,7 +500,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 If Sven is useful to you — or to someone you care about — consider starring the repo. It helps others discover the project.
 
-[![Star on GitHub](https://img.shields.io/github/stars/47network/thesven?style=social)](https://github.com/47network/thesven)
+[![Star on GitHub](https://img.shields.io/github/stars/47network/sven?style=social)](https://github.com/47network/sven)
 
 ---
 

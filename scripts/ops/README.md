@@ -60,8 +60,8 @@ sh scripts/ops/sh/ops.sh list
 sh scripts/ops/sh/ops.sh release soak status
 sh scripts/ops/sh/ops.sh qa lint
 sh scripts/ops/sh/ops.sh dev gateway
-sh scripts/ops/sh/ops.sh ingress smoke-47matrix
-sh scripts/ops/sh/diagnose-47matrix-ingress.sh
+sh scripts/ops/sh/ops.sh ingress smoke-47network
+sh scripts/ops/sh/diagnose-47network-ingress.sh
 sh scripts/ops/sh/ops.sh ingress install-systemd-core /opt/sven/app
 ```
 

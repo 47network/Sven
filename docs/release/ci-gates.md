@@ -119,7 +119,7 @@ npm run ops:release:bridge-ci-lanes:check:local:strict
 Fast GitHub-backed bridge-only evidence (without full required-workflows sweep):
 
 ```bash
-export BRIDGE_CI_LANES_GH_REPO=47network/thesven
+export BRIDGE_CI_LANES_GH_REPO=47network/sven
 npm run ops:release:bridge-ci-lanes:remote:strict
 cat docs/release/status/bridge-ci-lanes-remote-latest.json
 ```
@@ -131,17 +131,17 @@ npm run ops:release:bridge-vm-ci-lanes:strict:skip-remote
 cat docs/release/status/bridge-vm-ci-lanes-latest.json
 
 # post VM evidence summary to PR
-npm run ops:release:bridge-vm-ci-lanes:pr-comment -- --repo 47network/thesven --pr <number>
+npm run ops:release:bridge-vm-ci-lanes:pr-comment -- --repo 47network/sven --pr <number>
 
 # one-command VM run + PR evidence comment
-npm run ops:release:bridge-vm-ci-lanes:run-and-comment -- --repo 47network/thesven --pr <number>
+npm run ops:release:bridge-vm-ci-lanes:run-and-comment -- --repo 47network/sven --pr <number>
 ```
 
 Self-hosted runner dispatch for bridge lanes (manual run):
 
 ```bash
-gh workflow run bridge-runtime-tests.yml -R 47network/thesven --ref <branch> -f runner_target=self-hosted
-gh workflow run gateway-bridge-contract-tests.yml -R 47network/thesven --ref <branch> -f runner_target=self-hosted
+gh workflow run bridge-runtime-tests.yml -R 47network/sven --ref <branch> -f runner_target=self-hosted
+gh workflow run gateway-bridge-contract-tests.yml -R 47network/sven --ref <branch> -f runner_target=self-hosted
 ```
 
 `release:ci:required:check:local` is for local/offline validation only. CI must use the default remote-aware gate.

@@ -43,7 +43,7 @@ Within 15 minutes:
    - Session refresh uses new key material.
 5. Restart affected adapters/workers that cache credentials.
 6. Run smoke checks:
-   - `npm run ops:sh:smoke:47matrix`
+   - `npm run ops:sh:smoke:47network`
    - `npm run release:status`
 
 ## 5. Recovery Validation
