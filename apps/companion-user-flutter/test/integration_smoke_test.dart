@@ -332,7 +332,8 @@ void main() {
 
   // ─── 5. SSO + MFA contract flows ──────────────────────────────────────────
   group('SSO and MFA', () {
-    test('loginWithSso posts to /v1/auth/sso and stores returned tokens', () async {
+    test('loginWithSso posts to /v1/auth/sso and stores returned tokens',
+        () async {
       bool sawSsoPath = false;
       final client = MockClient((request) async {
         if (request.url.path.contains('/v1/auth/sso')) {
@@ -348,7 +349,8 @@ void main() {
             headers: {'content-type': 'application/json'},
           );
         }
-        return http.Response('{"error":"not_found"}', 404, headers: {'content-type': 'application/json'});
+        return http.Response('{"error":"not_found"}', 404,
+            headers: {'content-type': 'application/json'});
       });
 
       final auth = _auth(client);
@@ -369,13 +371,15 @@ void main() {
       expect(await auth.readRefreshToken(), 'sso-refresh-token-1');
     });
 
-    test('verifyMfa falls back to /mfa/verify when /totp/verify returns 404', () async {
+    test('verifyMfa falls back to /mfa/verify when /totp/verify returns 404',
+        () async {
       bool hitTotp = false;
       bool hitFallback = false;
       final client = MockClient((request) async {
         if (request.url.path.contains('/v1/auth/totp/verify')) {
           hitTotp = true;
-          return http.Response('{"error":"not_found"}', 404, headers: {'content-type': 'application/json'});
+          return http.Response('{"error":"not_found"}', 404,
+              headers: {'content-type': 'application/json'});
         }
         if (request.url.path.contains('/v1/auth/mfa/verify')) {
           hitFallback = true;
@@ -388,11 +392,13 @@ void main() {
             headers: {'content-type': 'application/json'},
           );
         }
-        return http.Response('{"error":"not_found"}', 404, headers: {'content-type': 'application/json'});
+        return http.Response('{"error":"not_found"}', 404,
+            headers: {'content-type': 'application/json'});
       });
 
       final auth = _auth(client);
-      final result = await auth.verifyMfa(mfaToken: 'mfa-pre-session-1', code: '123456');
+      final result =
+          await auth.verifyMfa(mfaToken: 'mfa-pre-session-1', code: '123456');
 
       expect(hitTotp, isTrue);
       expect(hitFallback, isTrue);

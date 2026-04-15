@@ -32,16 +32,17 @@ class MessagesRepository {
     DbEncryption? encryption,
     Future<DbEncryption?>? encryptionFuture,
     bool requireEncryption = true,
-  })
-      : assert(
+  })  : assert(
           encryption == null || encryptionFuture == null,
           'Provide either encryption or encryptionFuture, not both.',
         ),
         _db = db,
-        _encFuture = encryptionFuture ?? Future<DbEncryption?>.value(encryption),
+        _encFuture =
+            encryptionFuture ?? Future<DbEncryption?>.value(encryption),
         _requireEncryption = requireEncryption {
     if (!_requireEncryption && kReleaseMode) {
-      throw StateError('Plaintext repository mode is not allowed in release builds');
+      throw StateError(
+          'Plaintext repository mode is not allowed in release builds');
     }
   }
 
@@ -119,7 +120,9 @@ class MessagesRepository {
   ) async {
     final enc = await _resolveEnc();
     await _db.upsertMessages(
-      messages.map((message) => _messageToCompanion(chatId, message, enc)).toList(),
+      messages
+          .map((message) => _messageToCompanion(chatId, message, enc))
+          .toList(),
     );
   }
 

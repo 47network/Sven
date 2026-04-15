@@ -553,7 +553,8 @@ class _UserKeyRefsPageState extends State<_UserKeyRefsPage> {
         : await widget.service.setValue(key, value);
     if (!mounted) return;
     setState(() => _saving = false);
-    final snackBar = SnackBar(content: Text(ok ? 'Saved $key' : 'Failed to save $key'));
+    final snackBar =
+        SnackBar(content: Text(ok ? 'Saved $key' : 'Failed to save $key'));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
@@ -606,7 +607,8 @@ class _UserKeyRefsPageState extends State<_UserKeyRefsPage> {
                               borderRadius: BorderRadius.circular(8),
                               borderSide: BorderSide.none,
                             ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 8),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -736,9 +738,8 @@ class _ServerTileState extends State<_ServerTile> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cinematic
-            ? tokens.primary.withValues(alpha: 0.06)
-            : tokens.surface,
+        color:
+            cinematic ? tokens.primary.withValues(alpha: 0.06) : tokens.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: tokens.primary.withValues(alpha: 0.12),
@@ -1287,13 +1288,15 @@ String _voiceDisplayName(String raw) {
 
 /// Show a dialog to optionally set a PIN for the saved account.
 /// Returns the PIN string if set, or null if skipped.
-Future<String?> _showSetPinDialog(BuildContext context, SvenModeTokens tokens) async {
+Future<String?> _showSetPinDialog(
+    BuildContext context, SvenModeTokens tokens) async {
   final controller = TextEditingController();
   return showDialog<String?>(
     context: context,
     builder: (ctx) => AlertDialog(
       backgroundColor: tokens.surface,
-      title: Text('Protect with PIN?', style: TextStyle(color: tokens.onSurface)),
+      title:
+          Text('Protect with PIN?', style: TextStyle(color: tokens.onSurface)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -1313,8 +1316,8 @@ Future<String?> _showSetPinDialog(BuildContext context, SvenModeTokens tokens) a
             decoration: InputDecoration(
               labelText: 'PIN (optional)',
               hintText: '4-8 digits',
-              labelStyle: TextStyle(
-                  color: tokens.onSurface.withValues(alpha: 0.6)),
+              labelStyle:
+                  TextStyle(color: tokens.onSurface.withValues(alpha: 0.6)),
             ),
             style: TextStyle(
                 color: tokens.onSurface, fontSize: 24, letterSpacing: 8),
@@ -1325,8 +1328,7 @@ Future<String?> _showSetPinDialog(BuildContext context, SvenModeTokens tokens) a
         TextButton(
           onPressed: () => Navigator.pop(ctx, null),
           child: Text('Skip',
-              style: TextStyle(
-                  color: tokens.onSurface.withValues(alpha: 0.6))),
+              style: TextStyle(color: tokens.onSurface.withValues(alpha: 0.6))),
         ),
         FilledButton(
           onPressed: () {
@@ -1348,7 +1350,8 @@ Color? _parseHex(String hex) {
   return Color(0xFF000000 | v);
 }
 
-void _showHexColorPicker(BuildContext context, AppState state, SvenModeTokens tokens) {
+void _showHexColorPicker(
+    BuildContext context, AppState state, SvenModeTokens tokens) {
   final controller = TextEditingController(text: state.customAccentHex ?? '#');
   showDialog<String>(
     context: context,

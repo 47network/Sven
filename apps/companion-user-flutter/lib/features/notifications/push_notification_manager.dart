@@ -190,7 +190,8 @@ class PushNotificationManager {
       }
 
       _initialized = true;
-      debugPrint('✅ PushNotificationManager: initialized (permission deferred)');
+      debugPrint(
+          '✅ PushNotificationManager: initialized (permission deferred)');
     } catch (e) {
       debugPrint('⚠️  PushNotificationManager: initialization failed: $e');
       _initialized = true;
@@ -383,7 +384,8 @@ class PushNotificationManager {
         return;
       }
     }
-    final platform = _currentPlatform ?? (kIsWeb ? 'web' : _mobilePlatformTag());
+    final platform =
+        _currentPlatform ?? (kIsWeb ? 'web' : _mobilePlatformTag());
     debugPrint('🔄 Retrying FCM token registration after login...');
     await _registerToken(_currentToken!, platform);
   }

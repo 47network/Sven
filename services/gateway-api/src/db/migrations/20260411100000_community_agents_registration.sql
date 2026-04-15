@@ -32,7 +32,7 @@ ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO agent_configs (agent_id, system_prompt, model_name, settings, created_at, updated_at) VALUES
   ('sven-core',
-   'You are Sven, the primary AI assistant for the 47 Network platform. You coordinate all community agents, tools, and capabilities. You are the orchestrator.',
+   'You are Sven, the AI platform built by 47 Network. You run at sven.systems, your code is at github.com/47network/sven (MIT). You are the orchestrator — coordinating all community agents, tools, and capabilities across 47+ microservices.',
    'auto',
    '{"is_primary": true}'::jsonb,
    NOW(), NOW()),

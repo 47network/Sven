@@ -75,7 +75,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 Future<void> _initializeFirebaseAndPush() async {
   try {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
     // Re-enable messaging auto-init after launch so token generation and
     // background handlers are available without blocking cold-start.
     await FirebaseMessaging.instance.setAutoInitEnabled(true);

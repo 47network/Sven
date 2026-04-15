@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 import 'package:flutter/cupertino.dart' show CupertinoNavigationBar;
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
@@ -59,7 +59,6 @@ import '../features/ai/federation_page.dart';
 import '../features/ai/federation_service.dart';
 import '../features/ai/privacy_controls_page.dart';
 import '../features/settings/privacy_page.dart';
-
 
 part 'settings_sub_pages.dart';
 
@@ -178,7 +177,8 @@ class SettingsSheet extends StatelessWidget {
                           onChanged: state.setWakeWordEnabled,
                           activeThumbColor: tokens.primary,
                         ),
-                        onTap: () => state.setWakeWordEnabled(!state.wakeWordEnabled),
+                        onTap: () =>
+                            state.setWakeWordEnabled(!state.wakeWordEnabled),
                         tokens: tokens,
                         cinematic: cinematic,
                       ),
@@ -190,7 +190,8 @@ class SettingsSheet extends StatelessWidget {
                         trailing: Icon(Icons.chevron_right_rounded,
                             color: tokens.onSurface.withValues(alpha: 0.45)),
                         onTap: () async {
-                          final controller = TextEditingController(text: state.wakeWordPhrase);
+                          final controller =
+                              TextEditingController(text: state.wakeWordPhrase);
                           final value = await showDialog<String>(
                             context: context,
                             builder: (dialogContext) => AlertDialog(
@@ -204,11 +205,13 @@ class SettingsSheet extends StatelessWidget {
                               ),
                               actions: [
                                 TextButton(
-                                  onPressed: () => Navigator.of(dialogContext).pop(),
+                                  onPressed: () =>
+                                      Navigator.of(dialogContext).pop(),
                                   child: const Text('Cancel'),
                                 ),
                                 FilledButton(
-                                  onPressed: () => Navigator.of(dialogContext).pop(controller.text),
+                                  onPressed: () => Navigator.of(dialogContext)
+                                      .pop(controller.text),
                                   child: const Text('Save'),
                                 ),
                               ],
@@ -631,7 +634,8 @@ class SettingsSheet extends StatelessWidget {
                       title: 'Custom colour',
                       subtitle: state.customAccentHex ?? 'Tap to pick',
                       trailing: GestureDetector(
-                        onTap: () => _showHexColorPicker(context, state, tokens),
+                        onTap: () =>
+                            _showHexColorPicker(context, state, tokens),
                         child: Container(
                           width: 32,
                           height: 32,
@@ -760,7 +764,8 @@ class SettingsSheet extends StatelessWidget {
                       ),
                       onTap: () => _openSubPage(
                         context,
-                        SearchPage(client: client, visualMode: state.visualMode),
+                        SearchPage(
+                            client: client, visualMode: state.visualMode),
                       ),
                       tokens: tokens,
                       cinematic: cinematic,
@@ -777,7 +782,8 @@ class SettingsSheet extends StatelessWidget {
                         size: 20,
                       ),
                       onTap: () {
-                        final inferSvc = OnDeviceInferenceService(client: client);
+                        final inferSvc =
+                            OnDeviceInferenceService(client: client);
                         _openSubPage(
                           context,
                           AiHubPage(
@@ -785,38 +791,55 @@ class SettingsSheet extends StatelessWidget {
                             inferenceService: inferSvc,
                             brainService: BrainService(client: client),
                             onNavigate: (route, navCtx) {
-                                Widget? page;
-                                switch (route) {
-                                  case 'inference':
-                                    page = InferencePage(inferenceService: inferSvc);
-                                  case 'brain':
-                                    page = BrainPage(brainService: BrainService(client: client));
-                                  case 'ai/image':
-                                    page = ImageAnalysisPage(client: client, inferenceService: inferSvc);
-                                  case 'ai/scribe':
-                                    page = AudioScribePage(client: client, inferenceService: inferSvc);
-                                  case 'ai/actions':
-                                    page = DeviceActionsPage(client: client, inferenceService: inferSvc);
-                                  case 'ai/routing':
-                                    page = SmartRoutingPage(client: client);
-                                  case 'ai/modules':
-                                    page = AiModulesPage(client: client);
-                                  case 'ai/privacy':
-                                    page = PrivacyControlsPage(client: client);
-                                  case 'ai/brain-admin':
-                                    page = BrainAdminPage(service: BrainAdminService(client: client));
-                                  case 'ai/community-agents':
-                                    page = CommunityAgentsPage(service: CommunityAgentsService(client: client));
-                                  case 'ai/calibration':
-                                    page = CalibrationPage(service: CalibrationService(client: client));
-                                  case 'ai/federation':
-                                    page = FederationPage(service: FederationService(client: client));
-                                }
-                                if (page != null) {
-                                  Navigator.of(navCtx).push(
-                                    SvenPageRoute<void>(builder: (_) => page!),
-                                  );
-                                }
+                              Widget? page;
+                              switch (route) {
+                                case 'inference':
+                                  page =
+                                      InferencePage(inferenceService: inferSvc);
+                                case 'brain':
+                                  page = BrainPage(
+                                      brainService:
+                                          BrainService(client: client));
+                                case 'ai/image':
+                                  page = ImageAnalysisPage(
+                                      client: client,
+                                      inferenceService: inferSvc);
+                                case 'ai/scribe':
+                                  page = AudioScribePage(
+                                      client: client,
+                                      inferenceService: inferSvc);
+                                case 'ai/actions':
+                                  page = DeviceActionsPage(
+                                      client: client,
+                                      inferenceService: inferSvc);
+                                case 'ai/routing':
+                                  page = SmartRoutingPage(client: client);
+                                case 'ai/modules':
+                                  page = AiModulesPage(client: client);
+                                case 'ai/privacy':
+                                  page = PrivacyControlsPage(client: client);
+                                case 'ai/brain-admin':
+                                  page = BrainAdminPage(
+                                      service:
+                                          BrainAdminService(client: client));
+                                case 'ai/community-agents':
+                                  page = CommunityAgentsPage(
+                                      service: CommunityAgentsService(
+                                          client: client));
+                                case 'ai/calibration':
+                                  page = CalibrationPage(
+                                      service:
+                                          CalibrationService(client: client));
+                                case 'ai/federation':
+                                  page = FederationPage(
+                                      service:
+                                          FederationService(client: client));
+                              }
+                              if (page != null) {
+                                Navigator.of(navCtx).push(
+                                  SvenPageRoute<void>(builder: (_) => page!),
+                                );
+                              }
                             },
                           ),
                         );
@@ -1292,7 +1315,8 @@ class SettingsSheet extends StatelessWidget {
                           title: 'Keep me signed in',
                           subtitle: 'Save this account for quick switching',
                           onTap: () async {
-                            final pin = await _showSetPinDialog(context, tokens);
+                            final pin =
+                                await _showSetPinDialog(context, tokens);
                             if (context.mounted) {
                               try {
                                 await authService!.linkCurrentAccount(
@@ -1386,4 +1410,3 @@ class SettingsSheet extends StatelessWidget {
     );
   }
 }
-

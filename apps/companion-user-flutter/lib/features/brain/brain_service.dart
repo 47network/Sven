@@ -36,9 +36,7 @@ class BrainService extends ChangeNotifier {
   /// Nodes after applying the active type filter.
   List<BrainNode> get filteredNodes {
     if (_graph == null) return [];
-    return _graph!.nodes
-        .where((n) => _activeFilters.contains(n.type))
-        .toList();
+    return _graph!.nodes.where((n) => _activeFilters.contains(n.type)).toList();
   }
 
   /// Edges where both endpoints are in the filtered node set.
@@ -66,7 +64,8 @@ class BrainService extends ChangeNotifier {
 
     try {
       final base = ApiBaseService.currentSync();
-      final response = await _client.get(Uri.parse('$base/v1/admin/brain/graph'));
+      final response =
+          await _client.get(Uri.parse('$base/v1/admin/brain/graph'));
       if (response.statusCode != 200) {
         _error = 'Failed to load brain graph (${response.statusCode})';
         _loading = false;

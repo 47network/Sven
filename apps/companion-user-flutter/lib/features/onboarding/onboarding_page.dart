@@ -690,9 +690,7 @@ class _LetsGoPageState extends State<_LetsGoPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            hasName
-                ? 'Sven is ready when you are.'
-                : 'Let\u2019s get started.',
+            hasName ? 'Sven is ready when you are.' : 'Let\u2019s get started.',
             style: TextStyle(
               color: tokens.onSurface.withValues(alpha: 0.55),
               fontSize: 15,
@@ -724,8 +722,8 @@ class _LetsGoPageState extends State<_LetsGoPage> {
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
@@ -756,9 +754,8 @@ class _LetsGoPageState extends State<_LetsGoPage> {
                                 ? tokens.primary
                                 : tokens.onSurface.withValues(alpha: 0.7),
                             fontSize: 14,
-                            fontWeight: selected
-                                ? FontWeight.w600
-                                : FontWeight.normal,
+                            fontWeight:
+                                selected ? FontWeight.w600 : FontWeight.normal,
                           ),
                         ),
                       ),

@@ -673,7 +673,9 @@ class VoiceService extends ChangeNotifier {
     for (final candidate in candidates) {
       final index = normalizedTranscript.indexOf(candidate);
       if (index < 0) continue;
-      return normalizedTranscript.substring(index + candidate.length).trimLeft();
+      return normalizedTranscript
+          .substring(index + candidate.length)
+          .trimLeft();
     }
     return normalizedTranscript;
   }

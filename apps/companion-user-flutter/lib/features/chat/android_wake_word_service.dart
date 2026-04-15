@@ -24,14 +24,16 @@ class AndroidWakeWordService {
       EventChannel('com.fortyseven.thesven/wake_word_events');
 
   final _matchesController = StreamController<WakeWordMatch>.broadcast();
-  final _audioWindowsController = StreamController<WakeWordAudioWindow>.broadcast();
+  final _audioWindowsController =
+      StreamController<WakeWordAudioWindow>.broadcast();
   StreamSubscription<dynamic>? _eventsSubscription;
 
   static bool get isSupported =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
   Stream<WakeWordMatch> get matches => _matchesController.stream;
-  Stream<WakeWordAudioWindow> get audioWindows => _audioWindowsController.stream;
+  Stream<WakeWordAudioWindow> get audioWindows =>
+      _audioWindowsController.stream;
 
   Future<void> initialize() async {
     if (!isSupported || _eventsSubscription != null) return;

@@ -28,13 +28,16 @@ class $AssetsImagesGen {
   const $AssetsImagesGen();
 
   /// File path: assets/images/onboarding_features.svg
-  SvgGenImage get onboardingFeatures => const SvgGenImage('assets/images/onboarding_features.svg');
+  SvgGenImage get onboardingFeatures =>
+      const SvgGenImage('assets/images/onboarding_features.svg');
 
   /// File path: assets/images/onboarding_voice.svg
-  SvgGenImage get onboardingVoice => const SvgGenImage('assets/images/onboarding_voice.svg');
+  SvgGenImage get onboardingVoice =>
+      const SvgGenImage('assets/images/onboarding_voice.svg');
 
   /// File path: assets/images/onboarding_welcome.svg
-  SvgGenImage get onboardingWelcome => const SvgGenImage('assets/images/onboarding_welcome.svg');
+  SvgGenImage get onboardingWelcome =>
+      const SvgGenImage('assets/images/onboarding_welcome.svg');
 
   /// File path: assets/images/sven_logo.svg
   SvgGenImage get svenLogo => const SvgGenImage('assets/images/sven_logo.svg');
@@ -95,7 +98,8 @@ class $AssetsTrayGen {
   String get trayIconIco => 'assets/tray/tray_icon.ico';
 
   /// File path: assets/tray/tray_icon.png
-  AssetGenImage get trayIconPng => const AssetGenImage('assets/tray/tray_icon.png');
+  AssetGenImage get trayIconPng =>
+      const AssetGenImage('assets/tray/tray_icon.png');
 
   /// List of all assets
   List<dynamic> get values => [trayIconIco, trayIconPng];
@@ -272,7 +276,8 @@ class SvgGenImage {
       placeholderBuilder: placeholderBuilder,
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
-      colorFilter: colorFilter ?? (color == null ? null : ColorFilter.mode(color, colorBlendMode)),
+      colorFilter: colorFilter ??
+          (color == null ? null : ColorFilter.mode(color, colorBlendMode)),
       clipBehavior: clipBehavior,
       cacheColorFilter: cacheColorFilter,
     );

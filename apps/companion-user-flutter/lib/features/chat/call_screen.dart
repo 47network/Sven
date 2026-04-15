@@ -268,9 +268,11 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
 
   Widget _buildStatus(SvenModeTokens tok) {
     final text = switch (_phase) {
-      CallPhase.ringing => widget.isIncoming ? 'Incoming call...' : 'Calling...',
+      CallPhase.ringing =>
+        widget.isIncoming ? 'Incoming call...' : 'Calling...',
       CallPhase.connecting => 'Connecting...',
-      CallPhase.active => widget.callType == 'video' ? 'Video call' : 'Voice call',
+      CallPhase.active =>
+        widget.callType == 'video' ? 'Video call' : 'Voice call',
       CallPhase.ended => 'Call ended',
     };
 
@@ -319,7 +321,8 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
             _controlButton(
               icon: _micMuted ? Icons.mic_off : Icons.mic,
               label: _micMuted ? 'Unmute' : 'Mute',
-              color: _micMuted ? tok.error : tok.onSurface.withValues(alpha: 0.7),
+              color:
+                  _micMuted ? tok.error : tok.onSurface.withValues(alpha: 0.7),
               onTap: _toggleMic,
               tok: tok,
               small: true,
@@ -327,7 +330,9 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
             _controlButton(
               icon: _videoEnabled ? Icons.videocam : Icons.videocam_off,
               label: _videoEnabled ? 'Camera' : 'Camera Off',
-              color: _videoEnabled ? tok.primary : tok.onSurface.withValues(alpha: 0.7),
+              color: _videoEnabled
+                  ? tok.primary
+                  : tok.onSurface.withValues(alpha: 0.7),
               onTap: _toggleVideo,
               tok: tok,
               small: true,
@@ -335,7 +340,9 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
             _controlButton(
               icon: _speakerOn ? Icons.volume_up : Icons.volume_down,
               label: _speakerOn ? 'Speaker' : 'Earpiece',
-              color: _speakerOn ? tok.primary : tok.onSurface.withValues(alpha: 0.7),
+              color: _speakerOn
+                  ? tok.primary
+                  : tok.onSurface.withValues(alpha: 0.7),
               onTap: _toggleSpeaker,
               tok: tok,
               small: true,

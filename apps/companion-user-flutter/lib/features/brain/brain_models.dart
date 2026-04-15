@@ -116,8 +116,7 @@ class BrainGraph {
           .cast<Map<String, dynamic>>()
           .map(BrainEdge.fromJson)
           .toList(),
-      stats: BrainStats.fromJson(
-          json['stats'] as Map<String, dynamic>? ?? {}),
+      stats: BrainStats.fromJson(json['stats'] as Map<String, dynamic>? ?? {}),
     );
   }
 

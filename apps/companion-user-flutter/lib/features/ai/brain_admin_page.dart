@@ -128,8 +128,14 @@ class _BrainAdminPageState extends State<BrainAdminPage>
   // ── Emotional Intelligence ────────────────────────────────────────────
 
   Widget _buildEmotionalTab(ColorScheme cs) {
-    final emotions = ['joy', 'sadness', 'frustration', 'excitement',
-        'confusion', 'neutral'];
+    final emotions = [
+      'joy',
+      'sadness',
+      'frustration',
+      'excitement',
+      'confusion',
+      'neutral'
+    ];
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -148,22 +154,22 @@ class _BrainAdminPageState extends State<BrainAdminPage>
             return Chip(
               avatar: CircleAvatar(
                 backgroundColor: _emotionColor(e),
-                child: Text('$val', style: const TextStyle(fontSize: 10, color: Colors.white)),
+                child: Text('$val',
+                    style: const TextStyle(fontSize: 10, color: Colors.white)),
               ),
               label: Text(e),
             );
           }).toList(),
         ),
         const SizedBox(height: 16),
-        Text('Recent History',
-            style: Theme.of(context).textTheme.titleMedium),
+        Text('Recent History', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         ..._emotionalHistory.take(20).map((h) {
           final entry = h as Map<String, dynamic>? ?? {};
           return ListTile(
             dense: true,
-            leading: Icon(Icons.circle, size: 10,
-                color: _emotionColor('${entry['emotion'] ?? ''}')),
+            leading: Icon(Icons.circle,
+                size: 10, color: _emotionColor('${entry['emotion'] ?? ''}')),
             title: Text('${entry['emotion'] ?? 'unknown'}'),
             subtitle: Text('${entry['timestamp'] ?? ''}'),
             trailing: Text('${entry['intensity'] ?? ''}'),
@@ -175,12 +181,18 @@ class _BrainAdminPageState extends State<BrainAdminPage>
 
   Color _emotionColor(String emotion) {
     switch (emotion.toLowerCase()) {
-      case 'joy': return Colors.amber;
-      case 'sadness': return Colors.blue;
-      case 'frustration': return Colors.red;
-      case 'excitement': return Colors.orange;
-      case 'confusion': return Colors.purple;
-      default: return Colors.grey;
+      case 'joy':
+        return Colors.amber;
+      case 'sadness':
+        return Colors.blue;
+      case 'frustration':
+        return Colors.red;
+      case 'excitement':
+        return Colors.orange;
+      case 'confusion':
+        return Colors.purple;
+      default:
+        return Colors.grey;
     }
   }
 
@@ -256,21 +268,19 @@ class _BrainAdminPageState extends State<BrainAdminPage>
           ),
         ),
         const SizedBox(height: 16),
-        _consentSwitch('Allow consolidation',
-            _consent['allow_consolidation'] == true),
+        _consentSwitch(
+            'Allow consolidation', _consent['allow_consolidation'] == true),
         _consentSwitch('Allow emotional tracking',
             _consent['allow_emotional_tracking'] == true),
         _consentSwitch('Allow reasoning capture',
             _consent['allow_reasoning_capture'] == true),
         const SizedBox(height: 8),
-        _statRow('Retention days',
-            '${_consent['retention_days'] ?? 'N/A'}'),
+        _statRow('Retention days', '${_consent['retention_days'] ?? 'N/A'}'),
         const SizedBox(height: 24),
         const Divider(),
         const SizedBox(height: 8),
         Text('Danger Zone',
-            style: TextStyle(
-                fontWeight: FontWeight.bold, color: cs.error)),
+            style: TextStyle(fontWeight: FontWeight.bold, color: cs.error)),
         const SizedBox(height: 8),
         FilledButton.tonal(
           style: FilledButton.styleFrom(
@@ -282,17 +292,16 @@ class _BrainAdminPageState extends State<BrainAdminPage>
               context: context,
               builder: (ctx) => AlertDialog(
                 title: const Text('Forget All Data?'),
-                content: const Text(
-                    'This will permanently erase all memory data. '
-                    'This action cannot be undone.'),
+                content:
+                    const Text('This will permanently erase all memory data. '
+                        'This action cannot be undone.'),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, false),
                     child: const Text('Cancel'),
                   ),
                   FilledButton(
-                    style: FilledButton.styleFrom(
-                        backgroundColor: cs.error),
+                    style: FilledButton.styleFrom(backgroundColor: cs.error),
                     onPressed: () => Navigator.pop(ctx, true),
                     child: const Text('Erase Everything'),
                   ),
@@ -304,9 +313,8 @@ class _BrainAdminPageState extends State<BrainAdminPage>
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(ok
-                        ? 'All memory data erased.'
-                        : 'Erase failed.'),
+                    content:
+                        Text(ok ? 'All memory data erased.' : 'Erase failed.'),
                   ),
                 );
               }
@@ -340,7 +348,8 @@ class _BrainAdminPageState extends State<BrainAdminPage>
         children: [
           Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
-          Text(body, style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+          Text(body,
+              style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
         ],
       ),
     );
@@ -363,8 +372,8 @@ class _BrainAdminPageState extends State<BrainAdminPage>
         children: [
           Text(label, style: const TextStyle(fontSize: 13)),
           Text(value,
-              style: const TextStyle(
-                  fontSize: 13, fontWeight: FontWeight.w600)),
+              style:
+                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
         ],
       ),
     );

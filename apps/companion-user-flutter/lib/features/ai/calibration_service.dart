@@ -6,8 +6,7 @@ import '../../app/api_base_service.dart';
 /// Client for Calibrated Intelligence — confidence scoring,
 /// corrections pipeline, feedback loops, and self-improvement metrics.
 class CalibrationService {
-  CalibrationService({required AuthenticatedClient client})
-      : _client = client;
+  CalibrationService({required AuthenticatedClient client}) : _client = client;
 
   final AuthenticatedClient _client;
 

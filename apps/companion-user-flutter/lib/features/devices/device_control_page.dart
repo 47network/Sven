@@ -68,7 +68,9 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
           IconButton(
             icon: const Icon(Icons.security_rounded),
             tooltip: 'Desktop policy',
-            onPressed: _loading || _error != null ? null : () => _showDesktopPolicyEditor(device),
+            onPressed: _loading || _error != null
+                ? null
+                : () => _showDesktopPolicyEditor(device),
           ),
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
@@ -173,7 +175,8 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Capture from source camera and display on this device'),
+              const Text(
+                  'Capture from source camera and display on this device'),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: selected.id,
@@ -232,7 +235,8 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
                         return;
                       }
 
-                      final result = await widget.deviceService.waitForCommandResult(
+                      final result =
+                          await widget.deviceService.waitForCommandResult(
                         selected.id,
                         snapCmd.id,
                         timeout: const Duration(seconds: 25),
@@ -240,14 +244,15 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
                       if (!mounted) return;
 
                       final imageB64 =
-                          result?.resultPayload?['image_base64']?.toString() ?? '';
+                          result?.resultPayload?['image_base64']?.toString() ??
+                              '';
                       if (imageB64.isEmpty ||
                           (result?.status.toLowerCase() == 'failed')) {
                         navigator.pop();
                         messenger.showSnackBar(
                           SnackBar(
-                            content:
-                                Text(result?.errorMessage ?? 'Snapshot relay failed'),
+                            content: Text(result?.errorMessage ??
+                                'Snapshot relay failed'),
                             backgroundColor: Colors.red,
                           ),
                         );
@@ -292,7 +297,8 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
 
   Future<void> _showDesktopPolicyEditor(Device device) async {
     final raw = device.config['desktop_control'];
-    final desktop = raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
+    final desktop =
+        raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
 
     var enabled = desktop['enabled'] == true;
     final selectedActions = <String>{
@@ -302,7 +308,9 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
     };
     final hotkeysCtrl = TextEditingController(
       text: ((desktop['allowed_hotkeys'] is List)
-              ? (desktop['allowed_hotkeys'] as List).map((e) => e.toString()).toList()
+              ? (desktop['allowed_hotkeys'] as List)
+                  .map((e) => e.toString())
+                  .toList()
               : const <String>[])
           .join(', '),
     );
@@ -353,140 +361,145 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
           }
 
           return AlertDialog(
-          title: const Text('Desktop Control Policy'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('Enable Desktop Control'),
-                  subtitle: const Text('Required for high-risk actions'),
-                  value: enabled,
-                  onChanged: (v) => setDialogState(() => enabled = v),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Presets',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    ChoiceChip(
-                      label: const Text('Safe'),
-                      selected: selectedPreset == 'safe',
-                      onSelected: (_) => applyPreset('safe'),
+            title: const Text('Desktop Control Policy'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Enable Desktop Control'),
+                    subtitle: const Text('Required for high-risk actions'),
+                    value: enabled,
+                    onChanged: (v) => setDialogState(() => enabled = v),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Presets',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      ChoiceChip(
+                        label: const Text('Safe'),
+                        selected: selectedPreset == 'safe',
+                        onSelected: (_) => applyPreset('safe'),
+                      ),
+                      ChoiceChip(
+                        label: const Text('Balanced'),
+                        selected: selectedPreset == 'balanced',
+                        onSelected: (_) => applyPreset('balanced'),
+                      ),
+                      ChoiceChip(
+                        label: const Text('Full Control'),
+                        selected: selectedPreset == 'full',
+                        onSelected: (_) => applyPreset('full'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Allowed Actions',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: availableActions.map((action) {
+                      final selected = selectedActions.contains(action);
+                      return FilterChip(
+                        label: Text(action),
+                        selected: selected,
+                        onSelected: (on) => setDialogState(() {
+                          if (on) {
+                            selectedActions.add(action);
+                          } else {
+                            selectedActions.remove(action);
+                          }
+                        }),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Allowed Hotkeys (comma-separated, optional)',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: hotkeysCtrl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'ctrl+s, ctrl+r, cmd+s',
                     ),
-                    ChoiceChip(
-                      label: const Text('Balanced'),
-                      selected: selectedPreset == 'balanced',
-                      onSelected: (_) => applyPreset('balanced'),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Leave actions/hotkeys empty to allow all actions permitted by backend safety checks.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(ctx)
+                          .colorScheme
+                          .onSurface
+                          .withValues(alpha: 0.7),
                     ),
-                    ChoiceChip(
-                      label: const Text('Full Control'),
-                      selected: selectedPreset == 'full',
-                      onSelected: (_) => applyPreset('full'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Allowed Actions',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: availableActions.map((action) {
-                    final selected = selectedActions.contains(action);
-                    return FilterChip(
-                      label: Text(action),
-                      selected: selected,
-                      onSelected: (on) => setDialogState(() {
-                        if (on) {
-                          selectedActions.add(action);
-                        } else {
-                          selectedActions.remove(action);
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: saving ? null : () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: saving
+                    ? null
+                    : () async {
+                        setDialogState(() => saving = true);
+                        final hotkeys = hotkeysCtrl.text
+                            .split(',')
+                            .map((e) => e.trim().toLowerCase())
+                            .where((e) => e.isNotEmpty)
+                            .toList();
+
+                        final newConfig =
+                            Map<String, dynamic>.from(device.config);
+                        newConfig['desktop_control'] = {
+                          'enabled': enabled,
+                          if (selectedActions.isNotEmpty)
+                            'allowed_actions': selectedActions.toList()..sort(),
+                          if (hotkeys.isNotEmpty) 'allowed_hotkeys': hotkeys,
+                        };
+
+                        final ok = await widget.deviceService.updateDevice(
+                          device.id,
+                          config: newConfig,
+                        );
+                        if (!mounted) return;
+                        Navigator.of(context).pop();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(ok
+                                ? 'Desktop policy updated'
+                                : (widget.deviceService.error ??
+                                    'Failed to update policy')),
+                            backgroundColor: ok ? Colors.green : Colors.red,
+                          ),
+                        );
+                        if (ok) {
+                          await _load();
                         }
-                      }),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Allowed Hotkeys (comma-separated, optional)',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: hotkeysCtrl,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'ctrl+s, ctrl+r, cmd+s',
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Leave actions/hotkeys empty to allow all actions permitted by backend safety checks.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: saving ? null : () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: saving
-                  ? null
-                  : () async {
-                      setDialogState(() => saving = true);
-                      final hotkeys = hotkeysCtrl.text
-                          .split(',')
-                          .map((e) => e.trim().toLowerCase())
-                          .where((e) => e.isNotEmpty)
-                          .toList();
-
-                      final newConfig = Map<String, dynamic>.from(device.config);
-                      newConfig['desktop_control'] = {
-                        'enabled': enabled,
-                        if (selectedActions.isNotEmpty)
-                          'allowed_actions': selectedActions.toList()..sort(),
-                        if (hotkeys.isNotEmpty) 'allowed_hotkeys': hotkeys,
-                      };
-
-                      final ok = await widget.deviceService.updateDevice(
-                        device.id,
-                        config: newConfig,
-                      );
-                      if (!mounted) return;
-                      Navigator.of(context).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(ok
-                              ? 'Desktop policy updated'
-                              : (widget.deviceService.error ?? 'Failed to update policy')),
-                          backgroundColor: ok ? Colors.green : Colors.red,
-                        ),
-                      );
-                      if (ok) {
-                        await _load();
-                      }
-                    },
-              child: const Text('Save'),
-            ),
-          ],
-        );
+                      },
+                child: const Text('Save'),
+              ),
+            ],
+          );
         },
       ),
     );
@@ -664,7 +677,9 @@ class _QuickActions extends StatelessWidget {
 
     final withHttps = 'https://$trimmed';
     final normalized = Uri.tryParse(withHttps);
-    if (normalized == null || !normalized.hasScheme || normalized.host.isEmpty) {
+    if (normalized == null ||
+        !normalized.hasScheme ||
+        normalized.host.isEmpty) {
       return null;
     }
     return normalized.toString();
@@ -675,7 +690,9 @@ class _QuickActions extends StatelessWidget {
     if (value.isEmpty) return null;
 
     final looksLikeUrl = !value.contains(RegExp(r'\s')) &&
-        (value.contains('.') || value.contains('localhost') || value.contains('/'));
+        (value.contains('.') ||
+            value.contains('localhost') ||
+            value.contains('/'));
     final normalized = looksLikeUrl ? _normalizeUrlInput(value) : null;
     if (normalized != null) {
       return <String, dynamic>{'type': 'url', 'content': normalized};
@@ -700,7 +717,8 @@ class _QuickActions extends StatelessWidget {
           cap: null),
       const _ActionDef(Icons.keyboard_command_key_rounded, 'Hotkey', 'hotkey',
           cap: null),
-      const _ActionDef(Icons.filter_center_focus_rounded, 'Focus', 'focus_window',
+      const _ActionDef(
+          Icons.filter_center_focus_rounded, 'Focus', 'focus_window',
           cap: null),
       const _ActionDef(Icons.camera_alt_rounded, 'Camera', 'camera_snapshot',
           cap: 'camera'),
@@ -804,7 +822,8 @@ class _QuickActions extends StatelessWidget {
               decoration: const InputDecoration(
                 labelText: 'URL or content to display',
                 hintText: 'https://example.com or text',
-                helperText: 'URLs open directly. Plain text is shown on screen.',
+                helperText:
+                    'URLs open directly. Plain text is shown on screen.',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -957,7 +976,8 @@ class _QuickActions extends StatelessWidget {
               Navigator.pop(ctx);
               onCommand('open_app', payload: {
                 'app': appCtrl.text.trim(),
-                if (argsCtrl.text.trim().isNotEmpty) 'args': argsCtrl.text.trim(),
+                if (argsCtrl.text.trim().isNotEmpty)
+                  'args': argsCtrl.text.trim(),
               });
             },
             child: const Text('Open'),

@@ -542,7 +542,8 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
       final accounts = await _auth.getLinkedAccounts();
       if (accounts.isEmpty) return;
       // Prefer the most recently active account.
-      final active = accounts.where((a) => a.isActive).firstOrNull ?? accounts.first;
+      final active =
+          accounts.where((a) => a.isActive).firstOrNull ?? accounts.first;
       _savedAccountUserId = active.userId;
       _savedAccountName = active.username;
     } catch (_) {
@@ -692,7 +693,9 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
     }
     await _memoryService.bindUser(_scopedPrefs!);
     // Auto-populate display name from login username if not set yet.
-    if (_memoryService.userName.isEmpty && username != null && username.isNotEmpty) {
+    if (_memoryService.userName.isEmpty &&
+        username != null &&
+        username.isNotEmpty) {
       await _memoryService.setUserName(username);
     }
     // Proactive token refresh: refresh 10 minutes before the 1-hour access
@@ -724,7 +727,8 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
       }
     } catch (_) {
       // Refresh failed — the next API call will trigger the 401 → retry flow.
-      debugPrint('[auth] proactive token refresh failed (will retry on next API call)');
+      debugPrint(
+          '[auth] proactive token refresh failed (will retry on next API call)');
     }
   }
 
@@ -1105,7 +1109,8 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
             onSsoSignIn: _loginWithSso,
             initialMessage: _state.authMessage,
             savedAccountName: _savedAccountName,
-            onBiometricLogin: _savedAccountUserId != null ? _biometricLogin : null,
+            onBiometricLogin:
+                _savedAccountUserId != null ? _biometricLogin : null,
             onServerChanged: (_) {
               // API base is already updated by ServerDiscoveryService;
               // AuthService reads it dynamically via ApiBaseService.currentSync().
@@ -1149,7 +1154,8 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
             // On-device inference (local model management)
             GoRoute(
               path: 'inference',
-              builder: (_, __) => InferencePage(inferenceService: _inferenceService),
+              builder: (_, __) =>
+                  InferencePage(inferenceService: _inferenceService),
             ),
 
             // Deep-link: sven://chat/<id>
@@ -1226,9 +1232,11 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
               path: 'call/:chatId',
               builder: (ctx, routeState) {
                 final chatId = routeState.pathParameters['chatId']!;
-                final callType = routeState.uri.queryParameters['type'] ?? 'voice';
+                final callType =
+                    routeState.uri.queryParameters['type'] ?? 'voice';
                 final callId = routeState.uri.queryParameters['callId'];
-                final incoming = routeState.uri.queryParameters['incoming'] == 'true';
+                final incoming =
+                    routeState.uri.queryParameters['incoming'] == 'true';
                 final caller = routeState.uri.queryParameters['caller'];
                 return CallScreen(
                   client: _authClient,
@@ -1294,15 +1302,18 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
               routes: [
                 GoRoute(
                   path: 'image',
-                  builder: (_, __) => ImageAnalysisPage(client: _authClient, inferenceService: _inferenceService),
+                  builder: (_, __) => ImageAnalysisPage(
+                      client: _authClient, inferenceService: _inferenceService),
                 ),
                 GoRoute(
                   path: 'scribe',
-                  builder: (_, __) => AudioScribePage(client: _authClient, inferenceService: _inferenceService),
+                  builder: (_, __) => AudioScribePage(
+                      client: _authClient, inferenceService: _inferenceService),
                 ),
                 GoRoute(
                   path: 'actions',
-                  builder: (_, __) => DeviceActionsPage(client: _authClient, inferenceService: _inferenceService),
+                  builder: (_, __) => DeviceActionsPage(
+                      client: _authClient, inferenceService: _inferenceService),
                 ),
                 GoRoute(
                   path: 'routing',

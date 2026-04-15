@@ -359,7 +359,8 @@ class AppState extends ChangeNotifier {
     dndEndMinute = (await _getDouble(_kDndEndMinute))?.toInt() ?? 0;
     notifSound = (await _getString(_kNotifSound)) ?? 'default';
     customAccentHex = await _getString(_kCustomAccentHex);
-    if (customAccentHex != null && customAccentHex!.isEmpty) customAccentHex = null;
+    if (customAccentHex != null && customAccentHex!.isEmpty)
+      customAccentHex = null;
     final fontFam = await _getString(_kFontFamily);
     fontFamily = FontFamily.values.firstWhere(
       (f) => f.name == fontFam,

@@ -167,10 +167,8 @@ class OnDeviceInferenceService extends ChangeNotifier {
     final modelsJson = prefs.getString(_kModelsInstalled);
     if (modelsJson != null) {
       final list = jsonDecode(modelsJson) as List<dynamic>;
-      _installedModels = list
-          .cast<Map<String, dynamic>>()
-          .map(ModelProfile.fromJson)
-          .toList();
+      _installedModels =
+          list.cast<Map<String, dynamic>>().map(ModelProfile.fromJson).toList();
     }
 
     final activeId = prefs.getString(_kActiveModelId);
@@ -204,7 +202,8 @@ class OnDeviceInferenceService extends ChangeNotifier {
     if (_client == null) return;
     try {
       final base = ApiBaseService.currentSync();
-      final response = await _client.get(Uri.parse('$base/v1/admin/gemma4/modules/installed'));
+      final response = await _client
+          .get(Uri.parse('$base/v1/admin/gemma4/modules/installed'));
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body) as Map<String, dynamic>;
         final data = body['data'] as Map<String, dynamic>? ?? body;
@@ -272,7 +271,9 @@ class OnDeviceInferenceService extends ChangeNotifier {
       // Staged progress gives the user visual feedback proportional to
       // model size: ~3s for the smallest, ~8s for the largest.
       const steps = 20;
-      final baseDurationMs = (variant.estimatedSizeBytes / 1200000000 * 3000).clamp(2000, 8000).toInt();
+      final baseDurationMs = (variant.estimatedSizeBytes / 1200000000 * 3000)
+          .clamp(2000, 8000)
+          .toInt();
       final stepDuration = Duration(milliseconds: baseDurationMs ~/ steps);
       for (var i = 1; i <= steps; i++) {
         if (_disposed) return ModelInstallResult.downloadFailed;
@@ -302,8 +303,7 @@ class OnDeviceInferenceService extends ChangeNotifier {
 
   /// Remove an installed model and free disk space.
   Future<void> uninstallModel(String modelId) async {
-    _installedModels =
-        _installedModels.where((m) => m.id != modelId).toList();
+    _installedModels = _installedModels.where((m) => m.id != modelId).toList();
     if (_activeModel?.id == modelId) {
       _activeModel = null;
       _state = InferenceState.idle;
@@ -533,20 +533,20 @@ enum ModelVariant {
   String get description => switch (this) {
         ModelVariant.e2b =>
           'Lightweight 2-billion parameter model optimized for mobile devices. '
-          'Best for quick text responses, basic vision tasks, and voice commands. '
-          'Runs efficiently on most modern phones with minimal battery impact.',
+              'Best for quick text responses, basic vision tasks, and voice commands. '
+              'Runs efficiently on most modern phones with minimal battery impact.',
         ModelVariant.e4b =>
           'Mid-range 4-billion parameter model with enhanced reasoning. '
-          'Stronger at multi-step tasks, image understanding, and multilingual conversations. '
-          'Recommended for flagship phones and tablets.',
+              'Stronger at multi-step tasks, image understanding, and multilingual conversations. '
+              'Recommended for flagship phones and tablets.',
         ModelVariant.moe26b =>
           'Large 26-billion Mixture-of-Experts model for advanced tasks. '
-          'Excellent at complex reasoning, structured JSON output, and detailed analysis. '
-          'Requires a high-end device with 8+ GB RAM. Download may take several minutes.',
+              'Excellent at complex reasoning, structured JSON output, and detailed analysis. '
+              'Requires a high-end device with 8+ GB RAM. Download may take several minutes.',
         ModelVariant.dense31b =>
           'Largest 31-billion dense model with full capabilities including fine-tuning support. '
-          'Best-in-class accuracy for all tasks. Supports custom model adaptation. '
-          'Requires 12+ GB RAM and significant storage. Recommended for desktop/tablet only.',
+              'Best-in-class accuracy for all tasks. Supports custom model adaptation. '
+              'Requires 12+ GB RAM and significant storage. Recommended for desktop/tablet only.',
       };
 
   static ModelVariant fromString(String s) => switch (s) {
@@ -587,10 +587,9 @@ class ModelProfile {
         variant: ModelVariant.fromString(json['variant'] as String? ?? ''),
         sizeBytes: json['size_bytes'] as int? ?? 0,
         contextWindow: json['context_window'] as int? ?? 0,
-        capabilities: (json['capabilities'] as List<dynamic>?)
-                ?.cast<String>()
-                .toList() ??
-            [],
+        capabilities:
+            (json['capabilities'] as List<dynamic>?)?.cast<String>().toList() ??
+                [],
         installedAt: DateTime.tryParse(json['installed_at'] as String? ?? '') ??
             DateTime.now().toUtc(),
         status: ModelStatus.fromString(json['status'] as String? ?? ''),
@@ -652,8 +651,7 @@ class InferenceModule {
         description: json['description'] as String? ?? '',
         sizeBytes: json['size_bytes'] as int? ?? 0,
         installed: json['installed'] as bool? ?? false,
-        downloadProgress:
-            (json['download_progress'] as num?)?.toDouble(),
+        downloadProgress: (json['download_progress'] as num?)?.toDouble(),
       );
 
   final String id;

@@ -100,8 +100,7 @@ void main() {
       await tester.pump();
 
       expect(find.byIcon(Icons.check_circle_rounded), findsOneWidget);
-      final icon =
-          tester.widget<Icon>(find.byIcon(Icons.check_circle_rounded));
+      final icon = tester.widget<Icon>(find.byIcon(Icons.check_circle_rounded));
       expect(icon.color, Colors.green);
     });
 

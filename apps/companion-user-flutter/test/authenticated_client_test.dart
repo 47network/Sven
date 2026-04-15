@@ -21,10 +21,12 @@ class _InMemoryTokenStore extends TokenStore {
   Future<String?> readRefreshToken() async => _store[_refreshKey];
 
   @override
-  Future<void> writeAccessToken(String token) async => _store[_accessKey] = token;
+  Future<void> writeAccessToken(String token) async =>
+      _store[_accessKey] = token;
 
   @override
-  Future<void> writeRefreshToken(String token) async => _store[_refreshKey] = token;
+  Future<void> writeRefreshToken(String token) async =>
+      _store[_refreshKey] = token;
 
   @override
   Future<String?> readUserId() async => null;
@@ -54,7 +56,8 @@ class _InMemoryTokenStore extends TokenStore {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('401 without auth token does not trigger session-expired handling', () async {
+  test('401 without auth token does not trigger session-expired handling',
+      () async {
     final store = _InMemoryTokenStore();
     var sessionExpired = false;
     final client = AuthenticatedClient(
@@ -71,14 +74,16 @@ void main() {
       onSessionExpired: () => sessionExpired = true,
     );
 
-    final response = await client.get(Uri.parse('https://example.test/v1/chats'));
+    final response =
+        await client.get(Uri.parse('https://example.test/v1/chats'));
 
     expect(response.statusCode, 401);
     expect(sessionExpired, isFalse);
     expect(await store.readAccessToken(), isNull);
   });
 
-  test('401 with auth token clears session and raises session-expired', () async {
+  test('401 with auth token clears session and raises session-expired',
+      () async {
     final store = _InMemoryTokenStore();
     await store.writeAccessToken('access-token');
     await store.writeRefreshToken('refresh-token');

@@ -70,7 +70,8 @@ class DeploymentConfig {
 /// Caches the last-known config in SharedPreferences so the app can
 /// render the correct flow even when offline.
 class DeploymentService {
-  DeploymentService({http.Client? client}) : _client = client ?? DioHttpClient();
+  DeploymentService({http.Client? client})
+      : _client = client ?? DioHttpClient();
 
   static String get _apiBase => ApiBaseService.currentSync();
 

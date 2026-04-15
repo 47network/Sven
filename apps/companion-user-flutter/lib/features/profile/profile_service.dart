@@ -22,7 +22,8 @@ class ProfileService {
   }
 
   /// Update the current user's profile fields.
-  Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> fields) async {
+  Future<Map<String, dynamic>> updateProfile(
+      Map<String, dynamic> fields) async {
     final r = await _client.patchJson(
       Uri.parse('$_base/v1/users/me'),
       fields,

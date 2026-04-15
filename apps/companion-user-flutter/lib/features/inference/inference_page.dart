@@ -158,15 +158,12 @@ class _InferencePageState extends State<InferencePage> {
 
           // Available to install
           for (final variant in ModelVariant.values)
-            if (!_service.installedModels
-                .any((m) => m.variant == variant)) ...[
+            if (!_service.installedModels.any((m) => m.variant == variant)) ...[
               Builder(builder: (context) {
                 final compat = _service.checkCompatibility(variant);
-                final isCompatible =
-                    compat == ModelCompatibility.compatible ||
+                final isCompatible = compat == ModelCompatibility.compatible ||
                     compat == ModelCompatibility.unknown;
-                final isRecommended =
-                    variant == _service.recommendedVariant;
+                final isRecommended = variant == _service.recommendedVariant;
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Row(
@@ -187,7 +184,8 @@ class _InferencePageState extends State<InferencePage> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF10b981).withValues(alpha: 0.15),
+                            color:
+                                const Color(0xFF10b981).withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: const Text(
@@ -206,7 +204,8 @@ class _InferencePageState extends State<InferencePage> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFef4444).withValues(alpha: 0.12),
+                            color:
+                                const Color(0xFFef4444).withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
@@ -260,7 +259,9 @@ class _InferencePageState extends State<InferencePage> {
             decoration: BoxDecoration(
               color: isActive
                   ? const Color(0xFF3b82f6).withValues(alpha: 0.2)
-                  : (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05)),
+                  : (isDark
+                      ? Colors.white10
+                      : Colors.black.withValues(alpha: 0.05)),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -310,7 +311,8 @@ class _InferencePageState extends State<InferencePage> {
                       ),
                     if (isActive)
                       IconButton(
-                        icon: const Icon(Icons.stop, size: 20, color: Colors.orange),
+                        icon: const Icon(Icons.stop,
+                            size: 20, color: Colors.orange),
                         onPressed: _service.unloadModel,
                         tooltip: 'Unload',
                       ),
@@ -452,8 +454,7 @@ class _InferencePageState extends State<InferencePage> {
                   trailing: m.installed
                       ? const Icon(Icons.check_circle,
                           color: Color(0xFF10b981), size: 20)
-                      : const Icon(Icons.cloud_download_outlined,
-                          size: 20),
+                      : const Icon(Icons.cloud_download_outlined, size: 20),
                 ))
             .toList(),
       ),
@@ -515,9 +516,12 @@ class _InferencePageState extends State<InferencePage> {
                 ),
               ),
               const SizedBox(height: 16),
-              _dialogInfoRow('Download Size', _formatBytes(variant.estimatedSizeBytes), isDark),
-              _dialogInfoRow('Context Window', '${variant.contextWindow ~/ 1000}K tokens', isDark),
-              _dialogInfoRow('Minimum RAM', '${variant.minRamMb ~/ 1024} GB', isDark),
+              _dialogInfoRow('Download Size',
+                  _formatBytes(variant.estimatedSizeBytes), isDark),
+              _dialogInfoRow('Context Window',
+                  '${variant.contextWindow ~/ 1000}K tokens', isDark),
+              _dialogInfoRow(
+                  'Minimum RAM', '${variant.minRamMb ~/ 1024} GB', isDark),
               if (cap != null)
                 _dialogInfoRow('Your RAM', cap.ramLabel, isDark,
                     valueColor: cap.totalRamMb >= variant.minRamMb
@@ -526,11 +530,12 @@ class _InferencePageState extends State<InferencePage> {
               if (cap != null)
                 _dialogInfoRow('Free Storage', cap.storageLabel, isDark,
                     valueColor: cap.freeStorageMb >=
-                            (variant.estimatedSizeBytes / (1024 * 1024)).ceil() + 500
+                            (variant.estimatedSizeBytes / (1024 * 1024))
+                                    .ceil() +
+                                500
                         ? const Color(0xFF10b981)
                         : const Color(0xFFef4444)),
               const SizedBox(height: 12),
-
               if (!isCompatible) ...[
                 Container(
                   padding: const EdgeInsets.all(10),
@@ -550,9 +555,9 @@ class _InferencePageState extends State<InferencePage> {
                         child: Text(
                           compat == ModelCompatibility.insufficientRam
                               ? 'Your device does not have enough RAM to run this model. '
-                                'Try a smaller variant.'
+                                  'Try a smaller variant.'
                               : 'Not enough free storage to download this model. '
-                                'Free up space or choose a smaller variant.',
+                                  'Free up space or choose a smaller variant.',
                           style: TextStyle(
                             fontSize: 11,
                             color: isDark ? Colors.white60 : Colors.black45,
@@ -564,7 +569,6 @@ class _InferencePageState extends State<InferencePage> {
                 ),
                 const SizedBox(height: 12),
               ],
-
               Text(
                 'Capabilities',
                 style: TextStyle(
@@ -592,7 +596,8 @@ class _InferencePageState extends State<InferencePage> {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white70 : const Color(0xFF3b82f6),
+                        color:
+                            isDark ? Colors.white70 : const Color(0xFF3b82f6),
                       ),
                     ),
                   );
@@ -685,8 +690,7 @@ class _InferencePageState extends State<InferencePage> {
 
   // ── Helpers ────────────────────────────────────────────────────────────
 
-  Widget _card(bool isDark,
-      {required String title, required Widget child}) {
+  Widget _card(bool isDark, {required String title, required Widget child}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),

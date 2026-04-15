@@ -192,9 +192,8 @@ class CustomShapeSpec {
         allowedEyeShapes.contains(rawEyeShape) ? rawEyeShape : 'round';
 
     final rawPatternType = ((j['pattern_type'] as String?) ?? 'none').trim();
-    final patternType = allowedPatternTypes.contains(rawPatternType)
-        ? rawPatternType
-        : 'none';
+    final patternType =
+        allowedPatternTypes.contains(rawPatternType) ? rawPatternType : 'none';
 
     final rawAuraStyle = ((j['aura_style'] as String?) ?? 'glow').trim();
     final auraStyle =
@@ -215,22 +214,18 @@ class CustomShapeSpec {
       name: ((j['name'] as String?) ?? 'Entity').trim().isEmpty
           ? 'Entity'
           : ((j['name'] as String?) ?? 'Entity').trim(),
-      description: ((j['description'] as String?) ?? 'A custom form')
-              .trim()
-              .isEmpty
-          ? 'A custom form'
-          : ((j['description'] as String?) ?? 'A custom form').trim(),
+      description:
+          ((j['description'] as String?) ?? 'A custom form').trim().isEmpty
+              ? 'A custom form'
+              : ((j['description'] as String?) ?? 'A custom form').trim(),
       bodyType: bodyType,
-      bodySegments:
-          ((j['body_segments'] as num?)?.toInt() ?? 1).clamp(1, 8),
-      limbCount:
-          ((j['limb_count'] as num?)?.toInt() ?? 0).clamp(0, 8),
+      bodySegments: ((j['body_segments'] as num?)?.toInt() ?? 1).clamp(1, 8),
+      limbCount: ((j['limb_count'] as num?)?.toInt() ?? 0).clamp(0, 8),
       hasWings: (j['has_wings'] as bool?) ?? false,
       hasTail: (j['has_tail'] as bool?) ?? false,
       hasHorns: (j['has_horns'] as bool?) ?? false,
       hasAntennae: (j['has_antennae'] as bool?) ?? false,
-      eyeCount:
-          ((j['eye_count'] as num?)?.toInt() ?? 2).clamp(0, 6),
+      eyeCount: ((j['eye_count'] as num?)?.toInt() ?? 2).clamp(0, 6),
       eyeShape: eyeShape,
       extraFeatures: features,
       primaryHue:
@@ -243,12 +238,10 @@ class CustomShapeSpec {
           (((j['glow_intensity'] as num?)?.toDouble() ?? 0.5).clamp(0.0, 1.0))
               .toDouble(),
       symmetry: ((j['symmetry'] as num?)?.toInt() ?? 1).clamp(1, 6),
-      spikiness:
-          (((j['spikiness'] as num?)?.toDouble() ?? 0.3).clamp(0.0, 1.0))
-              .toDouble(),
-      roundness:
-          (((j['roundness'] as num?)?.toDouble() ?? 0.6).clamp(0.0, 1.0))
-              .toDouble(),
+      spikiness: (((j['spikiness'] as num?)?.toDouble() ?? 0.3).clamp(0.0, 1.0))
+          .toDouble(),
+      roundness: (((j['roundness'] as num?)?.toDouble() ?? 0.6).clamp(0.0, 1.0))
+          .toDouble(),
       patternType: patternType,
       auraStyle: auraStyle,
       icon: ((j['icon'] as String?) ?? '🔮').trim().isEmpty

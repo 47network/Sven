@@ -51,7 +51,12 @@ ThemeData buildSvenTheme(
 
   // Apply user-selected font family via google_fonts (or system default).
   TextTheme Function(TextTheme) applyFont;
-  TextStyle Function({TextStyle? textStyle, FontWeight? fontWeight, double? fontSize, Color? color, double? letterSpacing}) fontStyle;
+  TextStyle Function(
+      {TextStyle? textStyle,
+      FontWeight? fontWeight,
+      double? fontSize,
+      Color? color,
+      double? letterSpacing}) fontStyle;
 
   final gfName = fontFamily.googleFontsName;
   if (gfName == null) {

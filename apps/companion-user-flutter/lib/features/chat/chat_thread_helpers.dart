@@ -519,8 +519,6 @@ class _ThinkingIndicatorState extends State<_ThinkingIndicator>
   }
 }
 
-
-
 // ═══════════════════════════════════════════════════════════════════════════
 // Keyboard-aware composer wrapper
 // Smoothly slides with the software keyboard using AnimatedContainer driven

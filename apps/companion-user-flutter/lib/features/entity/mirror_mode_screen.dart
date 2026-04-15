@@ -49,7 +49,10 @@ class MirrorModeScreen extends StatelessWidget {
                         Expanded(
                           child: Text(
                             'Mirror Mode',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -57,7 +60,8 @@ class MirrorModeScreen extends StatelessWidget {
                         ),
                         IconButton(
                           onPressed: () => Navigator.of(context).maybePop(),
-                          icon: const Icon(Icons.close_rounded, color: Colors.white),
+                          icon: const Icon(Icons.close_rounded,
+                              color: Colors.white),
                         ),
                       ],
                     ),

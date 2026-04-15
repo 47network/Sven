@@ -302,9 +302,11 @@ class TokenStore {
         await prefs.setString('$prefix.username', username);
       }
     } else {
-      await _secureStorage.write(key: '$prefix.access_token', value: accessToken);
+      await _secureStorage.write(
+          key: '$prefix.access_token', value: accessToken);
       if (refreshToken != null) {
-        await _secureStorage.write(key: '$prefix.refresh_token', value: refreshToken);
+        await _secureStorage.write(
+            key: '$prefix.refresh_token', value: refreshToken);
       }
       if (username != null) {
         await _secureStorage.write(key: '$prefix.username', value: username);
@@ -328,9 +330,12 @@ class TokenStore {
       refresh = await _secureStorage.read(key: '$prefix.refresh_token');
       username = await _secureStorage.read(key: '$prefix.username');
       // Migrate plaintext fallbacks to SecureStorage.
-      access = await _migrateAccountField(prefs, '$prefix.access_token', access);
-      refresh = await _migrateAccountField(prefs, '$prefix.refresh_token', refresh);
-      username = await _migrateAccountField(prefs, '$prefix.username', username);
+      access =
+          await _migrateAccountField(prefs, '$prefix.access_token', access);
+      refresh =
+          await _migrateAccountField(prefs, '$prefix.refresh_token', refresh);
+      username =
+          await _migrateAccountField(prefs, '$prefix.username', username);
     }
     return (accessToken: access, refreshToken: refresh, username: username);
   }

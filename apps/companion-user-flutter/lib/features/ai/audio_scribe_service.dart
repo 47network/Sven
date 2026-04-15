@@ -8,8 +8,7 @@ import '../../app/api_base_service.dart';
 /// Local speech-to-text orchestration leveraging faster-whisper with
 /// 13 high-accuracy languages, configurable local/server routing.
 class AudioScribeService {
-  AudioScribeService({required AuthenticatedClient client})
-      : _client = client;
+  AudioScribeService({required AuthenticatedClient client}) : _client = client;
 
   final AuthenticatedClient _client;
 
@@ -70,7 +69,19 @@ class AudioScribeService {
   }
 
   static const highAccuracyLanguages = [
-    'en', 'es', 'fr', 'de', 'it', 'pt', 'nl', 'pl', 'ru', 'zh', 'ja', 'ko', 'ar',
+    'en',
+    'es',
+    'fr',
+    'de',
+    'it',
+    'pt',
+    'nl',
+    'pl',
+    'ru',
+    'zh',
+    'ja',
+    'ko',
+    'ar',
   ];
 
   static const languageLabels = <String, String>{

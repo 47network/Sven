@@ -32,8 +32,7 @@ class CouncilConfig {
               .toList() ??
           [],
       councilChairman: json['council_chairman'] as String?,
-      councilStrategy:
-          (json['council_strategy'] as String?) ?? 'weighted',
+      councilStrategy: (json['council_strategy'] as String?) ?? 'weighted',
       councilRounds: (json['council_rounds'] as num?)?.toInt() ?? 1,
     );
   }

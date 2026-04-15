@@ -195,7 +195,8 @@ class _NotificationPrefsPageState extends State<NotificationPrefsPage> {
                     const SizedBox(height: 8),
                     SwitchListTile(
                       title: const Text('Enable DND'),
-                      subtitle: const Text('Silence notifications during scheduled hours'),
+                      subtitle: const Text(
+                          'Silence notifications during scheduled hours'),
                       value: _dndEnabled,
                       onChanged: (v) => setState(() => _dndEnabled = v),
                     ),
@@ -209,7 +210,8 @@ class _NotificationPrefsPageState extends State<NotificationPrefsPage> {
                         onTap: () async {
                           final t = await showTimePicker(
                             context: context,
-                            initialTime: TimeOfDay(hour: _dndStartHour, minute: _dndStartMinute),
+                            initialTime: TimeOfDay(
+                                hour: _dndStartHour, minute: _dndStartMinute),
                           );
                           if (t != null) {
                             setState(() {
@@ -228,7 +230,8 @@ class _NotificationPrefsPageState extends State<NotificationPrefsPage> {
                         onTap: () async {
                           final t = await showTimePicker(
                             context: context,
-                            initialTime: TimeOfDay(hour: _dndEndHour, minute: _dndEndMinute),
+                            initialTime: TimeOfDay(
+                                hour: _dndEndHour, minute: _dndEndMinute),
                           );
                           if (t != null) {
                             setState(() {
@@ -251,18 +254,21 @@ class _NotificationPrefsPageState extends State<NotificationPrefsPage> {
                       return Card(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
                                 children: [
                                   Expanded(
-                                    child: Text(label, style: theme.textTheme.titleSmall),
+                                    child: Text(label,
+                                        style: theme.textTheme.titleSmall),
                                   ),
                                   Switch(
                                     value: isEnabled,
-                                    onChanged: (v) => setState(() => _enabled[ch] = v),
+                                    onChanged: (v) =>
+                                        setState(() => _enabled[ch] = v),
                                   ),
                                 ],
                               ),
@@ -273,18 +279,21 @@ class _NotificationPrefsPageState extends State<NotificationPrefsPage> {
                                     Expanded(
                                       child: _SoundPicker(
                                         value: _sound[ch] ?? 'default',
-                                        onChanged: (v) => setState(() => _sound[ch] = v),
+                                        onChanged: (v) =>
+                                            setState(() => _sound[ch] = v),
                                       ),
                                     ),
                                     const SizedBox(width: 16),
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Text('Vibrate', style: theme.textTheme.bodySmall),
+                                        Text('Vibrate',
+                                            style: theme.textTheme.bodySmall),
                                         const SizedBox(width: 4),
                                         Switch(
                                           value: _vibrate[ch] ?? true,
-                                          onChanged: (v) => setState(() => _vibrate[ch] = v),
+                                          onChanged: (v) =>
+                                              setState(() => _vibrate[ch] = v),
                                         ),
                                       ],
                                     ),
@@ -310,7 +319,10 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+      style: Theme.of(context)
+          .textTheme
+          .titleMedium
+          ?.copyWith(fontWeight: FontWeight.w600),
     );
   }
 }

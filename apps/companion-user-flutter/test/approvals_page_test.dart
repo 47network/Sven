@@ -25,7 +25,9 @@ class _FakeApprovalsService extends ApprovalsService {
   @override
   Future<List<ApprovalItem>> list({String? status}) async {
     listCalls += 1;
-    return status == 'pending' ? List<ApprovalItem>.from(pending) : List<ApprovalItem>.from(all);
+    return status == 'pending'
+        ? List<ApprovalItem>.from(pending)
+        : List<ApprovalItem>.from(all);
   }
 
   @override
@@ -35,7 +37,9 @@ class _FakeApprovalsService extends ApprovalsService {
 }
 
 void main() {
-  testWidgets('fallback polling re-fetches approvals after backend state changes', (tester) async {
+  testWidgets(
+      'fallback polling re-fetches approvals after backend state changes',
+      (tester) async {
     final service = _FakeApprovalsService();
     final approval = ApprovalItem(
       id: 'approval-1',

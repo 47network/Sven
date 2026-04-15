@@ -33,9 +33,9 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
   Future<void> _load({String? before}) async {
     try {
       final data = await widget.service.getEvents(before: before);
-      final events = (data['events'] as List<dynamic>?)
-              ?.cast<Map<String, dynamic>>() ??
-          [];
+      final events =
+          (data['events'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ??
+              [];
       setState(() {
         if (before == null) _events.clear();
         _events.addAll(events);
@@ -93,7 +93,8 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: Text('Activity',
-            style: TextStyle(color: tokens.onSurface, fontWeight: FontWeight.w600)),
+            style: TextStyle(
+                color: tokens.onSurface, fontWeight: FontWeight.w600)),
         iconTheme: IconThemeData(color: tokens.onSurface),
         actions: [
           if (_unreadCount > 0)
@@ -112,7 +113,8 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.inbox_outlined,
-                          size: 48, color: tokens.onSurface.withValues(alpha: 0.3)),
+                          size: 48,
+                          color: tokens.onSurface.withValues(alpha: 0.3)),
                       const SizedBox(height: 12),
                       Text('No activity yet',
                           style: TextStyle(
@@ -124,7 +126,8 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
               : RefreshIndicator(
                   onRefresh: () => _load(),
                   child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemCount: _events.length + (_hasMore ? 1 : 0),
                     itemBuilder: (context, i) {
                       if (i == _events.length) {
@@ -134,7 +137,8 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
                           child: Center(
                             child: TextButton(
                               onPressed: () {
-                                final last = _events.last['created_at'] as String?;
+                                final last =
+                                    _events.last['created_at'] as String?;
                                 _load(before: last);
                               },
                               child: Text('Load more',
@@ -178,7 +182,8 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
                             title,
                             style: TextStyle(
                               color: tokens.onSurface,
-                              fontWeight: read ? FontWeight.w400 : FontWeight.w600,
+                              fontWeight:
+                                  read ? FontWeight.w400 : FontWeight.w600,
                               fontSize: 14,
                             ),
                           ),
@@ -188,7 +193,8 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    color: tokens.onSurface.withValues(alpha: 0.55),
+                                    color: tokens.onSurface
+                                        .withValues(alpha: 0.55),
                                     fontSize: 12,
                                   ),
                                 )

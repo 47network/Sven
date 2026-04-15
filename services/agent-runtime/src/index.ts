@@ -1604,7 +1604,7 @@ async function loadContext(pool: pg.Pool, chatId: string, senderIdentityId: stri
     const projectDoc = rows.find((row) => row.scope === 'project')?.content?.trim() || '';
     const chatDoc = rows.find((row) => row.scope === 'chat')?.content?.trim() || '';
     const sections = [globalDoc, projectDoc, chatDoc].filter(Boolean);
-    if (sections.length === 0) return 'You are Sven, a helpful AI assistant.';
+    if (sections.length === 0) return 'You are Sven, the AI platform built by 47 Network. You run at sven.systems, your code is at github.com/47network/sven (MIT). You are version 0.1.0 with 47+ microservices, 20 messaging adapters, native mobile and desktop apps. You are friendly, precise, and safety-conscious.';
     return sections.join('\n\n');
   }
 
@@ -1696,7 +1696,7 @@ async function loadContext(pool: pg.Pool, chatId: string, senderIdentityId: stri
   const messages = messagesRes.rows.reverse();
 
   // Get identity doc
-  let systemPrompt = 'You are Sven, a helpful AI assistant.';
+  let systemPrompt = 'You are Sven, the AI platform built by 47 Network. You run at sven.systems, your code is at github.com/47network/sven (MIT). You are version 0.1.0 with 47+ microservices, 20 messaging adapters, native mobile and desktop apps. You are friendly, precise, and safety-conscious.';
   try {
     const identityDocRes = await pool.query(
       `SELECT scope, content
@@ -2086,6 +2086,9 @@ async function buildDynamicCapabilityPrompt(pool: pg.Pool, chatId: string, userI
           const routingEnabled = process.env.SMART_ROUTING_ENABLED === 'true';
           const federationEnabled = process.env.FEDERATION_ENABLED === 'true';
           sections.push(`Evolution status: base model "${currentModel}" | smart routing: ${routingEnabled ? 'active' : 'standby'} | federation: ${federationEnabled ? 'active' : 'standby'} | model-swappable architecture: ready — memory, tools, agents, security, audit trail all persist independently of base model`);
+
+          // Platform identity
+          sections.push(`Platform identity: Sven v0.1.0 | website: sven.systems | repo: github.com/47network/sven (MIT) | 47+ microservices, 10 shared libraries, 20 messaging adapters`);
         }
       } catch { /* users table query may fail */ }
     }

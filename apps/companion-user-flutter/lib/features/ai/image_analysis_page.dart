@@ -102,7 +102,8 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Could not access ${source == ImageSource.camera ? 'camera' : 'gallery'}: ${e.message}'),
+          content: Text(
+              'Could not access ${source == ImageSource.camera ? 'camera' : 'gallery'}: ${e.message}'),
           behavior: SnackBarBehavior.floating,
           backgroundColor: Colors.red,
         ),
@@ -141,7 +142,8 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
       _service.submitJob(
         imageRef: 'local:${imageFile.path.split('/').last}',
         category: _selectedCategory,
-        context: 'on-device analysis completed in ${stopwatch.elapsedMilliseconds}ms',
+        context:
+            'on-device analysis completed in ${stopwatch.elapsedMilliseconds}ms',
       );
 
       _load();
@@ -164,13 +166,20 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
 
   String _buildVisionPrompt(String category, String sizeKb, String base64Data) {
     final taskDesc = switch (category) {
-      'describe' => 'Describe this image in detail. Include objects, scene, colors, and context.',
-      'caption' => 'Write a concise, descriptive caption for this image suitable for social media.',
-      'classify' => 'Classify this image into categories. List the main subjects and themes.',
-      'ocr' => 'Extract all visible text from this image. Preserve formatting where possible.',
-      'handwriting' => 'Read and transcribe any handwritten text in this image.',
-      'chart' => 'Interpret this chart or graph. Describe the data, axes, trends, and key takeaways.',
-      'diagram' => 'Analyze this diagram. Describe its components, connections, and purpose.',
+      'describe' =>
+        'Describe this image in detail. Include objects, scene, colors, and context.',
+      'caption' =>
+        'Write a concise, descriptive caption for this image suitable for social media.',
+      'classify' =>
+        'Classify this image into categories. List the main subjects and themes.',
+      'ocr' =>
+        'Extract all visible text from this image. Preserve formatting where possible.',
+      'handwriting' =>
+        'Read and transcribe any handwritten text in this image.',
+      'chart' =>
+        'Interpret this chart or graph. Describe the data, axes, trends, and key takeaways.',
+      'diagram' =>
+        'Analyze this diagram. Describe its components, connections, and purpose.',
       _ => 'Analyze this image and provide a detailed description.',
     };
 
@@ -240,8 +249,12 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
       child: Row(
         children: [
           Icon(
-            (isReady && hasVision) ? Icons.check_circle_rounded : Icons.info_outline_rounded,
-            color: (isReady && hasVision) ? const Color(0xFF10b981) : Colors.orange,
+            (isReady && hasVision)
+                ? Icons.check_circle_rounded
+                : Icons.info_outline_rounded,
+            color: (isReady && hasVision)
+                ? const Color(0xFF10b981)
+                : Colors.orange,
             size: 20,
           ),
           const SizedBox(width: 10),
@@ -307,8 +320,8 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
   }
 
   Widget _buildSubmitCard(bool isDark) {
-    final canAnalyse = widget.inferenceService.state == InferenceState.ready &&
-        !_analysing;
+    final canAnalyse =
+        widget.inferenceService.state == InferenceState.ready && !_analysing;
 
     return _card(
       isDark: isDark,
@@ -336,7 +349,8 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
             children: [
               Expanded(
                 child: FilledButton.icon(
-                  onPressed: canAnalyse ? () => _pickImage(ImageSource.gallery) : null,
+                  onPressed:
+                      canAnalyse ? () => _pickImage(ImageSource.gallery) : null,
                   icon: const Icon(Icons.photo_library_rounded, size: 18),
                   label: const Text('Gallery'),
                 ),
@@ -344,7 +358,8 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
               const SizedBox(width: 12),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: canAnalyse ? () => _pickImage(ImageSource.camera) : null,
+                  onPressed:
+                      canAnalyse ? () => _pickImage(ImageSource.camera) : null,
                   icon: const Icon(Icons.camera_alt_rounded, size: 18),
                   label: const Text('Camera'),
                 ),
@@ -497,8 +512,8 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
           const SizedBox(height: 8),
           Row(
             children: [
-              Icon(Icons.memory_rounded, size: 14,
-                  color: isDark ? Colors.white30 : Colors.black26),
+              Icon(Icons.memory_rounded,
+                  size: 14, color: isDark ? Colors.white30 : Colors.black26),
               const SizedBox(width: 4),
               Text(
                 'Processed on-device with ${widget.inferenceService.activeModel?.name ?? 'Gemma 4'}',
@@ -549,8 +564,7 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
           child: Column(
             children: [
               Icon(Icons.image_not_supported_rounded,
-                  size: 48,
-                  color: isDark ? Colors.white24 : Colors.black26),
+                  size: 48, color: isDark ? Colors.white24 : Colors.black26),
               const SizedBox(height: 8),
               Text(
                 'No analysis jobs yet',

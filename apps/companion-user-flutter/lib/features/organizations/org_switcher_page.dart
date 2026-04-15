@@ -86,7 +86,8 @@ class _OrgSwitcherPageState extends State<OrgSwitcherPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: Text('Workspaces',
-            style: TextStyle(color: tokens.onSurface, fontWeight: FontWeight.w600)),
+            style: TextStyle(
+                color: tokens.onSurface, fontWeight: FontWeight.w600)),
         iconTheme: IconThemeData(color: tokens.onSurface),
       ),
       body: _loading
@@ -95,7 +96,8 @@ class _OrgSwitcherPageState extends State<OrgSwitcherPage> {
               ? Center(
                   child: Text(
                     'No organisations found',
-                    style: TextStyle(color: tokens.onSurface.withValues(alpha: 0.6)),
+                    style: TextStyle(
+                        color: tokens.onSurface.withValues(alpha: 0.6)),
                   ),
                 )
               : ListView.separated(
@@ -126,9 +128,12 @@ class _OrgSwitcherPageState extends State<OrgSwitcherPage> {
                         ),
                       ),
                       child: ListTile(
-                        onTap: _switching ? null : () => _switch(org['id'] as String),
+                        onTap: _switching
+                            ? null
+                            : () => _switch(org['id'] as String),
                         leading: CircleAvatar(
-                          backgroundColor: tokens.primary.withValues(alpha: 0.15),
+                          backgroundColor:
+                              tokens.primary.withValues(alpha: 0.15),
                           child: Text(
                             name.isNotEmpty ? name[0].toUpperCase() : '?',
                             style: TextStyle(

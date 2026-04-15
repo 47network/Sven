@@ -160,15 +160,15 @@ class _AudioScribePageState extends State<AudioScribePage> {
     if (!mounted) return;
     setState(() => _recording = false);
 
-    final transcript = _finalTranscript.isNotEmpty
-        ? _finalTranscript
-        : _currentTranscript;
+    final transcript =
+        _finalTranscript.isNotEmpty ? _finalTranscript : _currentTranscript;
 
     if (transcript.isNotEmpty) {
       setState(() {
         _localSessions.insert(0, {
           'transcript': transcript,
-          'language': AudioScribeService.languageLabels[_selectedLang] ?? _selectedLang,
+          'language':
+              AudioScribeService.languageLabels[_selectedLang] ?? _selectedLang,
           'confidence': '${(_confidence * 100).toStringAsFixed(0)}%',
           'status': 'completed',
         });
@@ -225,7 +225,8 @@ class _AudioScribePageState extends State<AudioScribePage> {
                   _buildSpeechStatusBanner(isDark),
                   const SizedBox(height: 16),
                   _buildRecordCard(isDark),
-                  if (_currentTranscript.isNotEmpty || _finalTranscript.isNotEmpty) ...[
+                  if (_currentTranscript.isNotEmpty ||
+                      _finalTranscript.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     _buildLiveTranscript(isDark),
                   ],
@@ -262,7 +263,9 @@ class _AudioScribePageState extends State<AudioScribePage> {
       child: Row(
         children: [
           Icon(
-            _speechAvailable ? Icons.check_circle_rounded : Icons.mic_off_rounded,
+            _speechAvailable
+                ? Icons.check_circle_rounded
+                : Icons.mic_off_rounded,
             color: _speechAvailable ? const Color(0xFF10b981) : Colors.orange,
             size: 20,
           ),
@@ -314,7 +317,9 @@ class _AudioScribePageState extends State<AudioScribePage> {
           ),
           const SizedBox(height: 12),
           Text(
-            _recording ? 'Listening... Tap to stop' : 'Tap to start transcription',
+            _recording
+                ? 'Listening... Tap to stop'
+                : 'Tap to start transcription',
             style: TextStyle(
               fontWeight: FontWeight.w600,
               color: isDark ? Colors.white : Colors.black87,
@@ -508,8 +513,7 @@ class _AudioScribePageState extends State<AudioScribePage> {
                   HapticFeedback.selectionClick();
                   setState(() => _selectedLang = lang);
                 },
-                selectedColor:
-                    const Color(0xFFFFA726).withValues(alpha: 0.25),
+                selectedColor: const Color(0xFFFFA726).withValues(alpha: 0.25),
                 labelStyle: TextStyle(
                   fontSize: 11,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
@@ -540,10 +544,10 @@ class _AudioScribePageState extends State<AudioScribePage> {
           ),
           const SizedBox(height: 12),
           _statRow('Sessions', '${_stats['total_sessions'] ?? 0}', isDark),
-          _statRow('Total duration',
-              '${_stats['total_duration_sec'] ?? 0}s', isDark),
-          _statRow('Avg accuracy',
-              '${_stats['avg_accuracy'] ?? 'N/A'}', isDark),
+          _statRow('Total duration', '${_stats['total_duration_sec'] ?? 0}s',
+              isDark),
+          _statRow(
+              'Avg accuracy', '${_stats['avg_accuracy'] ?? 'N/A'}', isDark),
           _statRow(
             'Engine',
             _config['engine'] ?? 'gemma4-scribe',
@@ -562,8 +566,7 @@ class _AudioScribePageState extends State<AudioScribePage> {
           child: Column(
             children: [
               Icon(Icons.mic_off_rounded,
-                  size: 48,
-                  color: isDark ? Colors.white24 : Colors.black26),
+                  size: 48, color: isDark ? Colors.white24 : Colors.black26),
               const SizedBox(height: 8),
               Text(
                 'No transcription sessions yet',

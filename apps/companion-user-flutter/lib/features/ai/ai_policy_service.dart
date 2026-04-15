@@ -10,8 +10,7 @@ import '../../app/api_base_service.dart';
 /// defaults: local inference only, telemetry blocking, outbound
 /// request verification.
 class AiPolicyService {
-  AiPolicyService({required AuthenticatedClient client})
-      : _client = client;
+  AiPolicyService({required AuthenticatedClient client}) : _client = client;
 
   final AuthenticatedClient _client;
 

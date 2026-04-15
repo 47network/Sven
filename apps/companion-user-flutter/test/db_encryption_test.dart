@@ -107,7 +107,8 @@ void main() {
       expect(failureCodes.contains('legacy_decrypt_failed'), isTrue);
     });
 
-    test('decrypt with wrong key fails closed for legacy structured payload', () {
+    test('decrypt with wrong key fails closed for legacy structured payload',
+        () {
       const plain = 'secret message';
       final stored = enc.encryptLegacyCbcForTest(plain);
 

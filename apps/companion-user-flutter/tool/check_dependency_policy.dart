@@ -5,7 +5,8 @@ void main(List<String> args) {
   final inputPath = args.isNotEmpty ? args.first : 'pub-deps.json';
   final inputFile = File(inputPath);
   if (!inputFile.existsSync()) {
-    stderr.writeln('Dependency policy check failed: file not found: $inputPath');
+    stderr
+        .writeln('Dependency policy check failed: file not found: $inputPath');
     exit(1);
   }
 

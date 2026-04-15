@@ -15,7 +15,8 @@ class DefaultFirebaseOptions {
   static const _storageBucket = 'thesven.firebasestorage.app';
 
   static const _androidProdApiKey = 'AIzaSyBKcUhOTMjv--pHr_Qmhc-jASMcrwiohNk';
-  static const _androidProdAppId = '1:379390504662:android:b710bbdc33ffa150606377';
+  static const _androidProdAppId =
+      '1:379390504662:android:b710bbdc33ffa150606377';
 
   static const _androidDevApiKey = String.fromEnvironment(
     'SVEN_FIREBASE_ANDROID_DEV_API_KEY',
