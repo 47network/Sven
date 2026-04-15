@@ -75,7 +75,7 @@ jobs:
           --dart-define=SVEN_ENV=production
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sven-release-apk
           path: apps/companion-user-flutter/build/app/outputs/flutter-apk/app-release.apk

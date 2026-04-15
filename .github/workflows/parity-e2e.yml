@@ -464,7 +464,7 @@ jobs:
 
       - name: Upload MCP/A2A compatibility artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: parity-e2e-compat-status
           path: |
@@ -683,7 +683,7 @@ jobs:
 
       - name: Upload gateway log on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gateway-log-parity-e2e
           path: gateway.log
