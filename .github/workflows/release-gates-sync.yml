@@ -68,7 +68,7 @@ jobs:
           pnpm run release:a2a:compat:check:local || true
 
       - name: Build gate status from synchronized sources
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const owner = context.repo.owner;
