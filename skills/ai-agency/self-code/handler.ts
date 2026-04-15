@@ -227,7 +227,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
           },
           typescript: {
             strict: 'strict mode enabled',
-            imports: 'Prefer workspace packages (@sven/shared, @sven/trading-platform, etc.)',
+            imports: 'Prefer workspace packages (@sven/shared, etc.)',
             types: 'Export interfaces/types from types.ts files, share via packages/shared',
           },
         },

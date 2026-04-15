@@ -601,6 +601,32 @@ services:
         condition: service_healthy
     logging: *default-logging
 
+  # ── Compute Mesh Coordinator ─────────────────────────────────────────────────────────
+  compute-mesh:
+    build:
+      context: .
+      dockerfile: services/compute-mesh/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - MESH_PORT=9470
+      - MESH_HEARTBEAT_INTERVAL_MS=${MESH_HEARTBEAT_INTERVAL_MS:-30000}
+      - MESH_DEVICE_TIMEOUT_MS=${MESH_DEVICE_TIMEOUT_MS:-90000}
+      - MESH_SCHEDULE_INTERVAL_MS=${MESH_SCHEDULE_INTERVAL_MS:-5000}
+      - MESH_DEFAULT_ORG_ID=${MESH_DEFAULT_ORG_ID:-default}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "9470:9470"
+    networks:
+      - core
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
   # ── Voice Services (STT/TTS/Wake Word) ───────────────────────────────────────────────
   faster-whisper:
     build:

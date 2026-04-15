@@ -25,6 +25,7 @@ export const NATS_STREAMS = {
   REVENUE: 'REVENUE',
   INFRA: 'INFRA',
   XLVII_BRAND: 'XLVII_BRAND',
+  MESH: 'MESH',
 } as const;
 
 export const NATS_SUBJECTS = {
@@ -133,6 +134,20 @@ export const NATS_SUBJECTS = {
   BRAND_FULFILLMENT_STATUS: 'brand.fulfillment.status',
   BRAND_CAMPAIGN_ACTIVATED: 'brand.campaign.activated',
   BRAND_DESIGN_APPROVED: 'brand.design.approved',
+
+  // Compute Mesh (distributed workload orchestration)
+  MESH_DEVICE_REGISTER: 'mesh.device.register',
+  MESH_DEVICE_HEARTBEAT: 'mesh.device.heartbeat',
+  MESH_DEVICE_CAPABILITIES: 'mesh.device.capabilities',
+  MESH_DEVICE_DEREGISTER: 'mesh.device.deregister',
+  MESH_JOB_SUBMIT: 'mesh.job.submit',
+  MESH_JOB_CANCEL: 'mesh.job.cancel',
+  meshJobStatus: (jobId: string) => `mesh.job.status.${jobId}`,
+  meshUnitAssign: (deviceId: string) => `mesh.unit.assign.${deviceId}`,
+  meshUnitResult: (jobId: string) => `mesh.unit.result.${jobId}`,
+  meshUnitStatus: (unitId: string) => `mesh.unit.status.${unitId}`,
+  meshUnitError: (unitId: string) => `mesh.unit.error.${unitId}`,
+  MESH_METRICS: 'mesh.metrics',
 } as const;
 
 export const STREAM_CONFIGS = {
@@ -263,6 +278,12 @@ export const STREAM_CONFIGS = {
     subjects: ['brand.>'] as string[],
     retention: RetentionPolicy.Limits,
     max_age: 365 * 24 * 60 * 60 * 1_000_000_000, // 1 year — e-commerce order retention
+    storage: StorageType.File,
+  },
+  MESH: {
+    name: NATS_STREAMS.MESH,
+    subjects: ['mesh.>'] as string[],
+    retention: RetentionPolicy.Workqueue,
     storage: StorageType.File,
   },
 } as const;

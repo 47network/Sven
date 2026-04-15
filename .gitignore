@@ -24,6 +24,8 @@ build/
 # Keep: migration SQL files (nested in services/gateway-api)
 !services/gateway-api/src/db/migrations/*.sql
 !services/gateway-api/migrations/*.sql
+# Keep: compute-mesh migration SQL files
+!services/compute-mesh/migrations/*.sql
 
 # ─── Temporary / scratch ────────────────────────────────────────
 tmp/
