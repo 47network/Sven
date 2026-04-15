@@ -1,0 +1,36 @@
+{
+  "name": "@sven/compute-mesh",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Distributed compute mesh — scatter workloads across VMs, phones, desktops, and federated devices with job decomposition, scheduling, layer-split inference, and result aggregation.",
+  "exports": {
+    "./device-registry": {
+      "types": "./src/device-registry/index.ts",
+      "import": "./dist/device-registry/index.js",
+      "default": "./dist/device-registry/index.js"
+    },
+    "./scheduler": {
+      "types": "./src/scheduler/index.ts",
+      "import": "./dist/scheduler/index.js",
+      "default": "./dist/scheduler/index.js"
+    },
+    "./job-manager": {
+      "types": "./src/job-manager/index.ts",
+      "import": "./dist/job-manager/index.js",
+      "default": "./dist/job-manager/index.js"
+    },
+    "./layer-inference": {
+      "types": "./src/layer-inference/index.ts",
+      "import": "./dist/layer-inference/index.js",
+      "default": "./dist/layer-inference/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "name": "@sven/marketing-intel",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Marketing & Business Intelligence toolkit for Sven — competitive analysis, brand voice, content generation, campaign planning, analytics, and communication coaching.",
+  "exports": {
+    "./competitive-intel": {
+      "types": "./src/competitive-intel/index.ts",
+      "import": "./dist/competitive-intel/index.js",
+      "default": "./dist/competitive-intel/index.js"
+    },
+    "./brand-voice": {
+      "types": "./src/brand-voice/index.ts",
+      "import": "./dist/brand-voice/index.js",
+      "default": "./dist/brand-voice/index.js"
+    },
+    "./content-generator": {
+      "types": "./src/content-generator/index.ts",
+      "import": "./dist/content-generator/index.js",
+      "default": "./dist/content-generator/index.js"
+    },
+    "./campaign-planner": {
+      "types": "./src/campaign-planner/index.ts",
+      "import": "./dist/campaign-planner/index.js",
+      "default": "./dist/campaign-planner/index.js"
+    },
+    "./communication-coach": {
+      "types": "./src/communication-coach/index.ts",
+      "import": "./dist/communication-coach/index.js",
+      "default": "./dist/communication-coach/index.js"
+    },
+    "./analytics": {
+      "types": "./src/analytics/index.ts",
+      "import": "./dist/analytics/index.js",
+      "default": "./dist/analytics/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

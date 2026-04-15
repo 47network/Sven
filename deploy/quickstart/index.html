@@ -1,0 +1,2609 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sven — AI Runtime, Community, and Control Surface.</title>
+  <meta name="description"
+    content="Sven is a full self-hosted AI platform: multi-agent runtime, memory/RAG, voice, mobile, desktop, admin control, and verified community ecosystem." />
+  <meta property="og:title" content="Sven — AI Runtime, Community, and Control Surface." />
+  <meta property="og:description"
+    content="Deploy once. Run AI for family, teams, and operators across messaging, web, mobile, desktop, and voice. Private, self-hosted, production-ready." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sven.systems/" />
+  <meta property="og:image" content="https://sven.systems/suite/assets/sven-logo.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Sven — AI Runtime, Community, and Control Surface." />
+  <meta name="twitter:description"
+    content="Deploy once. Run AI for family, teams, and operators across messaging, web, mobile, desktop, and voice. Private, self-hosted, production-ready." />
+  <meta name="twitter:image" content="https://sven.systems/suite/assets/sven-logo.png" />
+  <meta name="theme-color" content="#050814" />
+  <link rel="canonical" href="https://sven.systems/" />
+  <link rel="apple-touch-icon" href="/suite/assets/sven-logo.png" />
+  <link rel="icon" href="/suite/assets/sven-logo.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #050814;
+      --panel: #0b1328;
+      --border: #1a2a4a;
+      --text: #e6ecff;
+      --muted: #7a8fc0;
+      --dim: #3a4d7a;
+      --cyan: #4ed7ff;
+      --purple: #ff4fcb;
+      --green: #6ff1c2;
+      --orange: #ffbe78
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(255, 255, 255, .02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .02) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: radial-gradient(circle at center, #000 38%, transparent 85%);
+      opacity: .32;
+      z-index: 0
+    }
+
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      z-index: 180;
+      background: linear-gradient(90deg, var(--purple), var(--cyan));
+      box-shadow: 0 0 14px rgba(255, 79, 203, .45)
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(16px, 4vw, 48px);
+      height: 60px;
+      background: rgba(5, 8, 20, .88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(26, 42, 74, .55)
+    }
+
+    .nl {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 17px;
+      letter-spacing: -.4px;
+      color: var(--text)
+    }
+
+    .nl img {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 18px rgba(255, 67, 199, .35)
+    }
+
+    .nl span {
+      color: var(--text)
+    }
+
+    .nr {
+      display: flex;
+      gap: 22px;
+      align-items: center
+    }
+
+    .nr a {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 500;
+      transition: color .15s, border-color .15s, background .15s;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 4px 8px
+    }
+
+    .nr a:hover {
+      color: var(--text);
+      border-color: rgba(255, 79, 203, .35);
+      background: rgba(255, 79, 203, .08)
+    }
+
+    .nc {
+      background: linear-gradient(135deg, var(--purple), var(--cyan)) !important;
+      color: #14081f !important;
+      padding: 7px 16px !important;
+      border-radius: 8px;
+      font-weight: 700 !important;
+      font-size: 13px !important
+    }
+
+    .nc,
+    .bp,
+    .bs,
+    .itab,
+    .cb {
+      outline: none
+    }
+
+    .nc:focus-visible,
+    .bp:focus-visible,
+    .bs:focus-visible,
+    .itab:focus-visible,
+    .cb:focus-visible,
+    .nr a:focus-visible {
+      outline: 2px solid rgba(78, 215, 255, .9);
+      outline-offset: 2px
+    }
+
+    .nc:hover {
+      opacity: .85
+    }
+
+    @media(max-width:580px) {
+      .nh {
+        display: none
+      }
+    }
+
+    .hero {
+      min-height: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: center;
+      padding: 126px clamp(16px, 5vw, 64px) 28px;
+      position: relative;
+      overflow: hidden
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse 80% 55% at 20% -5%, rgba(255, 79, 203, .18) 0%, transparent 65%), radial-gradient(ellipse 60% 50% at 90% 5%, rgba(78, 215, 255, .16) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 50% 110%, rgba(5, 8, 20, .9) 0%, transparent 55%)
+    }
+
+    .ey {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 79, 203, .12);
+      border: 1px solid rgba(255, 79, 203, .35);
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .4px;
+      color: var(--cyan);
+      margin-bottom: 28px
+    }
+
+    .ed {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      animation: blink 2s infinite
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: .4;
+        transform: scale(.7)
+      }
+    }
+
+    h1 {
+      font-size: clamp(38px, 7vw, 84px);
+      font-weight: 900;
+      line-height: 1.06;
+      letter-spacing: -2px;
+      max-width: 880px
+    }
+
+    h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .hs {
+      margin-top: 22px;
+      font-size: clamp(15px, 2vw, 19px);
+      color: var(--muted);
+      max-width: 580px;
+      line-height: 1.7
+    }
+
+    .hb {
+      margin-top: 34px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center
+    }
+
+    .ht {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px
+    }
+
+    .ht a {
+      font-size: 12.5px;
+      color: var(--muted);
+      font-weight: 600;
+      transition: color .15s
+    }
+
+    .ht a:hover {
+      color: var(--text)
+    }
+
+    .bp {
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      color: #14081f;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 14px 28px;
+      border-radius: 10px;
+      transition: opacity .15s, transform .15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 12px 26px rgba(255, 79, 203, .2)
+    }
+
+    .bp:hover {
+      opacity: .86;
+      transform: translateY(-1px)
+    }
+
+    .bs {
+      background: rgba(255, 255, 255, .02);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 14px;
+      padding: 13px 20px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      transition: border-color .15s, background .15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .bs:hover {
+      border-color: var(--muted);
+      background: rgba(255, 255, 255, .03)
+    }
+
+    .iw {
+      width: min(100%, 100%);
+      margin-top: 28px
+    }
+
+    .itabs {
+      display: flex;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 10px 10px 0 0;
+      overflow: hidden;
+      background: #070d1e
+    }
+
+    .itab {
+      flex: 1;
+      padding: 10px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--muted);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: background .15s, color .15s
+    }
+
+    .itab.on {
+      background: #0e1830;
+      color: var(--cyan);
+      border-bottom: 2px solid var(--cyan)
+    }
+
+    .ibox {
+      background: #070d1e;
+      border: 1px solid var(--border);
+      border-radius: 0 0 10px 10px;
+      padding: 18px 18px 16px;
+      position: relative;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      color: var(--green);
+      white-space: pre;
+      overflow-x: auto;
+      min-height: 72px
+    }
+
+    .ipanel {
+      display: none
+    }
+
+    .ipanel.on {
+      display: block
+    }
+
+    .cb {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255, 255, 255, .06);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 9px;
+      font-size: 11px;
+      font-family: 'Inter', sans-serif;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background .15s
+    }
+
+    .cb:hover {
+      background: rgba(255, 255, 255, .1)
+    }
+
+    .ih {
+      margin-top: 12px;
+      font-size: 11.5px;
+      color: var(--dim);
+      text-align: left
+    }
+
+    section {
+      padding: clamp(48px, 7vw, 88px) clamp(16px, 5vw, 60px)
+    }
+
+    section:not(.hero) {
+      border-top: 1px solid rgba(26, 42, 74, .35)
+    }
+
+    .si {
+      max-width: 1080px;
+      margin: 0 auto
+    }
+
+    .sl {
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 10px
+    }
+
+    h2 {
+      font-size: clamp(26px, 4vw, 46px);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #fff 18%, #ffd2f2 58%, #b9eeff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .sd {
+      margin-top: 10px;
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 540px;
+      line-height: 1.7
+    }
+
+    .sb {
+      padding: 10px clamp(16px, 5vw, 60px) 8px
+    }
+
+    .sr {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px
+    }
+
+    .sr > div {
+      border: 1px solid rgba(26, 42, 74, .72);
+      border-radius: 14px;
+      padding: 16px 18px;
+      background: linear-gradient(180deg, rgba(11, 19, 40, .82), rgba(8, 13, 28, .88));
+      box-shadow: 0 10px 22px rgba(3, 8, 18, .24)
+    }
+
+    .snum {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: var(--text);
+      line-height: 1.1
+    }
+
+    .slb {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .7px
+    }
+
+    .fg {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 18px;
+      margin-top: 34px
+    }
+
+    .fc {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 26px;
+      transition: border-color .2s, transform .2s;
+      position: relative;
+      overflow: hidden
+    }
+
+    .fc::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(380px at 0% 0%, rgba(255, 255, 255, .022) 0%, transparent 80%);
+      pointer-events: none
+    }
+
+    .fc:hover {
+      border-color: var(--dim);
+      transform: translateY(-2px)
+    }
+
+    .fi2 {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 21px;
+      margin-bottom: 14px
+    }
+
+    .fc h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 7px
+    }
+
+    .fc p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.65
+    }
+
+    .ft {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(34, 211, 238, .1);
+      color: var(--cyan)
+    }
+
+    .abg {
+      background-image: radial-gradient(circle, #1a2a4a 1px, transparent 1px);
+      background-size: 28px 28px
+    }
+
+    .ag {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 10px;
+      margin-top: 44px
+    }
+
+    .ap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 16px 10px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-align: center;
+      transition: border-color .15s, color .15s, background .15s
+    }
+
+    .ap:hover {
+      border-color: var(--dim);
+      color: var(--text);
+      background: rgba(255, 255, 255, .025)
+    }
+
+    .ap .i {
+      font-size: 22px
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 28px;
+      margin-top: 44px
+    }
+
+    .step {
+      display: flex;
+      gap: 18px
+    }
+
+    .sn2 {
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1.5px solid var(--purple);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--purple);
+      margin-top: 2px
+    }
+
+    .step h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 5px
+    }
+
+    .step p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.65
+    }
+
+    .ct {
+      overflow-x: auto;
+      margin-top: 44px;
+      border-radius: 13px;
+      border: 1px solid var(--border)
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px
+    }
+
+    thead {
+      background: #0b1328
+    }
+
+    thead th {
+      padding: 14px 18px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 12.5px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    thead th.hl {
+      color: var(--cyan)
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(26, 42, 74, .45)
+    }
+
+    tbody tr:last-child {
+      border-bottom: none
+    }
+
+    td {
+      padding: 12px 18px;
+      color: var(--muted)
+    }
+
+    td:first-child {
+      color: var(--text);
+      font-weight: 500
+    }
+
+    .yes {
+      color: var(--green);
+      font-weight: 700
+    }
+
+    .no {
+      color: var(--dim)
+    }
+
+    .par {
+      color: var(--orange);
+      font-weight: 600
+    }
+
+    .db {
+      padding: 18px 18px 14px
+    }
+
+    .db .c {
+      color: var(--muted)
+    }
+
+    .db .k {
+      color: var(--text);
+      font-weight: 700
+    }
+
+    .db .v {
+      color: var(--green)
+    }
+
+    .installgrid {
+      margin-top: 34px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr);
+      gap: 18px;
+      align-items: start
+    }
+
+    .installstack {
+      display: grid;
+      gap: 14px
+    }
+
+    .installcard {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(11, 19, 40, .94), rgba(8, 13, 28, .9));
+      box-shadow: 0 12px 28px rgba(3, 8, 18, .22)
+    }
+
+    .installcard h3 {
+      font-size: 15px;
+      margin-bottom: 8px
+    }
+
+    .installcard p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.65
+    }
+
+    .installsteps {
+      margin-top: 14px;
+      display: grid;
+      gap: 10px
+    }
+
+    .installstep {
+      border: 1px solid rgba(26, 42, 74, .76);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, .02)
+    }
+
+    .installstep .n {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: rgba(78, 215, 255, .14);
+      color: var(--cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700
+    }
+
+    .installstep h4 {
+      margin-top: 10px;
+      font-size: 13px
+    }
+
+    .installstep p {
+      margin-top: 5px;
+      font-size: 12.5px;
+      color: #b7c7ed;
+      line-height: 1.6
+    }
+
+    .installmini {
+      margin-top: 12px;
+      display: grid;
+      gap: 9px
+    }
+
+    .installmini div {
+      border: 1px solid rgba(26, 42, 74, .7);
+      border-radius: 12px;
+      padding: 11px 12px;
+      background: rgba(255, 255, 255, .02)
+    }
+
+    .installmini .k {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .75px;
+      color: var(--dim);
+      font-weight: 700
+    }
+
+    .installmini .v {
+      display: block;
+      margin-top: 4px;
+      color: #dce7ff;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.55
+    }
+
+    .proof {
+      display: grid;
+      gap: 12px
+    }
+
+    .proof .pi {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, .02);
+      border-radius: 10px;
+      padding: 10px 12px
+    }
+
+    .proof .pk {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      color: var(--dim);
+      font-weight: 700
+    }
+
+    .proof .pv {
+      margin-top: 5px;
+      font-weight: 700;
+      color: var(--cyan);
+      font-size: 14px
+    }
+
+    .proofstage {
+      margin-top: 22px;
+      border: 1px solid rgba(26, 42, 74, .76);
+      border-radius: 20px;
+      padding: 18px;
+      background:
+        radial-gradient(260px 140px at 8% -10%, rgba(255, 79, 203, .16), transparent 74%),
+        radial-gradient(280px 160px at 100% 0%, rgba(78, 215, 255, .14), transparent 76%),
+        linear-gradient(180deg, rgba(11, 19, 40, .92), rgba(7, 12, 26, .96));
+      box-shadow: 0 18px 36px rgba(2, 6, 16, .28)
+    }
+
+    .proofhero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(260px, .8fr);
+      gap: 18px;
+      align-items: end
+    }
+
+    .proofeyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: .9px;
+      color: #ffc6ea;
+      font-weight: 700
+    }
+
+    .proofeyebrow::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      box-shadow: 0 0 14px rgba(255, 79, 203, .45)
+    }
+
+    .proofhero h3 {
+      margin-top: 10px;
+      font-size: clamp(22px, 3vw, 34px);
+      letter-spacing: -1px;
+      line-height: 1.08
+    }
+
+    .proofhero p {
+      margin-top: 10px;
+      max-width: 620px;
+      font-size: 14px;
+      color: #bfd0f2;
+      line-height: 1.7
+    }
+
+    .proofconfig {
+      display: grid;
+      gap: 10px
+    }
+
+    .proofconfig .pi {
+      border-radius: 14px;
+      padding: 14px;
+      background: rgba(255, 255, 255, .03)
+    }
+
+    .proofmeta {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px
+    }
+
+    .proofmeta .pi {
+      border-radius: 14px;
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .02));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04)
+    }
+
+    .rv {
+      opacity: 0;
+      transform: translateY(16px);
+      filter: blur(2px);
+      transition: opacity .52s ease, transform .52s ease, filter .52s ease;
+      transition-delay: var(--rvd, 0ms)
+    }
+
+    .rv.in {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0)
+    }
+
+    .capg {
+      margin-top: 44px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px
+    }
+
+    .capc {
+      border: 1px solid var(--border);
+      background: linear-gradient(160deg, rgba(11, 19, 40, .98), rgba(10, 16, 34, .95));
+      border-radius: 14px;
+      padding: 20px 20px 18px
+    }
+
+    .capc h3 {
+      font-size: 15px;
+      margin-bottom: 10px
+    }
+
+    .capc p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6
+    }
+
+    .capc ul {
+      margin-top: 12px;
+      list-style: none;
+      display: grid;
+      gap: 6px
+    }
+
+    .capc li {
+      font-size: 12.5px;
+      color: #b9c9f3;
+      position: relative;
+      padding-left: 16px
+    }
+
+    .capc li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--cyan)
+    }
+
+    .instl {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px
+    }
+
+    .instl a {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: #c8d6ff;
+      background: rgba(255, 255, 255, .02);
+      transition: border-color .15s, transform .15s, background .15s
+    }
+
+    .instl a:hover {
+      border-color: var(--muted);
+      background: rgba(255, 255, 255, .05);
+      transform: translateY(-1px)
+    }
+
+    .stack-list {
+      list-style: none;
+      display: grid;
+      gap: 12px
+    }
+
+    .stack-list li {
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(58, 77, 122, .22)
+    }
+
+    .stack-list li:last-child {
+      border-bottom: none;
+      padding-bottom: 0
+    }
+
+    .installsurfaces {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px
+    }
+
+    .installsurfaces a {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(11, 19, 40, .86), rgba(8, 13, 28, .92));
+      transition: border-color .15s, transform .15s, background .15s
+    }
+
+    .installsurfaces a:hover {
+      border-color: var(--muted);
+      transform: translateY(-1px);
+      background: linear-gradient(180deg, rgba(15, 25, 48, .92), rgba(8, 13, 28, .98))
+    }
+
+    .installsurfaces .k {
+      display: block;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 13px
+    }
+
+    .installsurfaces .v {
+      display: block;
+      margin-top: 5px;
+      color: #b8c8ee;
+      font-size: 12.5px;
+      line-height: 1.55
+    }
+
+    .suitebar {
+      margin-top: 34px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: linear-gradient(180deg, rgba(34, 211, 238, .06), rgba(11, 19, 40, .75));
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px
+    }
+
+    .suitebar .si2 {
+      border: 1px solid rgba(26, 42, 74, .8);
+      border-radius: 9px;
+      padding: 9px 10px;
+      background: rgba(6, 10, 22, .7)
+    }
+
+    .suitebar .sk {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      color: var(--dim);
+      font-weight: 700
+    }
+
+    .suitebar .sv {
+      margin-top: 4px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    .surfaceg {
+      margin-top: 34px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+      gap: 14px
+    }
+
+    .surface {
+      border: 1px solid var(--border);
+      background: rgba(11, 19, 40, .95);
+      border-radius: 13px;
+      padding: 18px
+    }
+
+    .surface .tt {
+      font-size: 15px;
+      font-weight: 700
+    }
+
+    .surface .mm {
+      margin-top: 7px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6
+    }
+
+    .surface .ln {
+      margin-top: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--cyan);
+      font-weight: 600
+    }
+
+    .surfacepreview {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px
+    }
+
+    .previewcard {
+      border: 1px solid rgba(58, 77, 122, .62);
+      border-radius: 16px;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(11, 19, 40, .96), rgba(8, 13, 28, .94));
+      box-shadow: 0 16px 30px rgba(3, 8, 18, .22)
+    }
+
+    .previewtop {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(58, 77, 122, .32);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, .02)
+    }
+
+    .previewtop .pt {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text)
+    }
+
+    .previewtop .pr {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--dim);
+      font-weight: 700
+    }
+
+    .previewbody {
+      padding: 14px
+    }
+
+    .previewrow {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      margin-top: 10px
+    }
+
+    .previewrow:first-child {
+      margin-top: 0
+    }
+
+    .previewpill {
+      min-width: 62px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(78, 215, 255, .12);
+      color: var(--cyan);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .75px;
+      font-weight: 700;
+      text-align: center
+    }
+
+    .previewcopy {
+      color: #c3d2f5;
+      font-size: 12.5px;
+      line-height: 1.55
+    }
+
+    .previewrail {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px
+    }
+
+    .previewrail span {
+      padding: 5px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(58, 77, 122, .46);
+      background: rgba(255, 255, 255, .02);
+      color: #dce6ff;
+      font-size: 11px;
+      font-weight: 600
+    }
+
+    .realitystage {
+      margin-top: 34px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.2fr);
+      gap: 18px;
+      align-items: stretch
+    }
+
+    .realitycopy {
+      border: 1px solid rgba(26, 42, 74, .7);
+      border-radius: 18px;
+      padding: 28px;
+      background:
+        radial-gradient(circle at top left, rgba(78, 215, 255, .08), transparent 36%),
+        linear-gradient(180deg, rgba(11, 19, 40, .95), rgba(6, 11, 24, .98));
+      box-shadow: 0 18px 38px rgba(3, 8, 18, .22)
+    }
+
+    .realitycopy h3 {
+      font-size: 24px;
+      line-height: 1.18;
+      letter-spacing: -.7px
+    }
+
+    .realitycopy p {
+      margin-top: 12px;
+      font-size: 14.5px;
+      line-height: 1.7;
+      color: var(--muted)
+    }
+
+    .realitylist {
+      margin-top: 18px;
+      display: grid;
+      gap: 10px
+    }
+
+    .realityitem {
+      border: 1px solid rgba(58, 77, 122, .42);
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, .02)
+    }
+
+    .realityitem .rk {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .9px;
+      color: var(--cyan);
+      font-weight: 700
+    }
+
+    .realityitem .rv {
+      margin-top: 5px;
+      font-size: 13px;
+      color: #dce6ff;
+      line-height: 1.6
+    }
+
+    .shotgrid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px
+    }
+
+    .shotcard {
+      border: 1px solid rgba(58, 77, 122, .56);
+      border-radius: 20px;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(10, 17, 35, .98), rgba(5, 9, 20, .98));
+      box-shadow: 0 18px 34px rgba(3, 8, 18, .26)
+    }
+
+    .shotchrome {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(58, 77, 122, .28);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, .025)
+    }
+
+    .shotchrome strong {
+      font-size: 11.5px;
+      letter-spacing: .2px
+    }
+
+    .shotchrome span {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .9px;
+      color: var(--dim);
+      font-weight: 700
+    }
+
+    .shotframe {
+      padding: 14px
+    }
+
+    .shotframe img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 18px;
+      border: 1px solid rgba(58, 77, 122, .44);
+      background: #04101d
+    }
+
+    .shotmeta {
+      padding: 0 14px 14px
+    }
+
+    .shotmeta .smk {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text)
+    }
+
+    .shotmeta .smv {
+      margin-top: 5px;
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: var(--muted)
+    }
+
+    .layerg {
+      margin-top: 34px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 14px
+    }
+
+    .layer {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 17px;
+      background: rgba(7, 13, 30, .95)
+    }
+
+    .layer h3 {
+      font-size: 15px;
+      margin-bottom: 8px
+    }
+
+    .layer p {
+      font-size: 13px;
+      color: var(--muted)
+    }
+
+    .layer ul {
+      margin-top: 10px;
+      list-style: none;
+      display: grid;
+      gap: 6px
+    }
+
+    .layer li {
+      font-size: 12.5px;
+      color: #c2d0f6;
+      padding-left: 14px;
+      position: relative
+    }
+
+    .layer li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--cyan)
+    }
+
+    .docg {
+      margin-top: 34px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px
+    }
+
+    .docc {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      background: rgba(11, 19, 40, .94)
+    }
+
+    .docc h3 {
+      font-size: 15px;
+      margin-bottom: 7px
+    }
+
+    .docc p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6
+    }
+
+    .docc a {
+      display: inline-flex;
+      margin-top: 10px;
+      font-size: 12.5px;
+      color: var(--cyan);
+      font-weight: 600
+    }
+
+    .sg {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px
+    }
+
+    .sg .sc {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      background: rgba(11, 19, 40, .95)
+    }
+
+    .sg .k {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--dim);
+      font-weight: 700
+    }
+
+    .sg .v {
+      margin-top: 6px;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 14px
+    }
+
+    .sg .d {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    .proofstage {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr);
+      gap: 16px;
+      align-items: stretch
+    }
+
+    .proofhero {
+      border: 1px solid rgba(58, 77, 122, .6);
+      border-radius: 18px;
+      padding: 20px 22px;
+      background: radial-gradient(240px 150px at 0% 0%, rgba(255, 79, 203, .12), transparent 72%), radial-gradient(280px 150px at 100% 0%, rgba(78, 215, 255, .12), transparent 74%), linear-gradient(180deg, rgba(11, 19, 40, .96), rgba(8, 13, 28, .94));
+      box-shadow: 0 18px 34px rgba(3, 8, 18, .25)
+    }
+
+    .proofeyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .85px;
+      color: #ffc7ee;
+      font-weight: 700
+    }
+
+    .proofeyebrow::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple), var(--cyan))
+    }
+
+    .proofhero h3 {
+      margin-top: 12px;
+      font-size: 26px;
+      line-height: 1.14;
+      letter-spacing: -1px
+    }
+
+    .proofhero p {
+      margin-top: 10px;
+      color: #bfd0f2;
+      font-size: 14px;
+      line-height: 1.7;
+      max-width: 560px
+    }
+
+    .proofmeta {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px
+    }
+
+    .proofmeta .mi {
+      border: 1px solid rgba(58, 77, 122, .56);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(255, 255, 255, .02)
+    }
+
+    .proofmeta .mk {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--dim);
+      font-weight: 700
+    }
+
+    .proofmeta .mv {
+      margin-top: 5px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.5
+    }
+
+    .proofconfig {
+      display: grid;
+      gap: 10px
+    }
+
+    .proofcfg {
+      border: 1px solid rgba(58, 77, 122, .6);
+      border-radius: 16px;
+      padding: 16px;
+      background: linear-gradient(180deg, rgba(11, 19, 40, .94), rgba(8, 13, 28, .9))
+    }
+
+    .proofcfg .ck {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .75px;
+      color: var(--dim);
+      font-weight: 700
+    }
+
+    .proofcfg .cv {
+      margin-top: 6px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.45
+    }
+
+    .proofcfg .cd {
+      margin-top: 6px;
+      color: #b8c8ee;
+      font-size: 12.5px;
+      line-height: 1.55
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 36px clamp(16px, 5vw, 60px)
+    }
+
+    .fot {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .fb2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--cyan)
+    }
+
+    .fb2 span {
+      color: var(--text)
+    }
+
+    .fl {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px
+    }
+
+    .fl a {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+      transition: color .15s
+    }
+
+    .fl a:hover {
+      color: var(--text)
+    }
+
+    .fc2 {
+      font-size: 11.5px;
+      color: var(--dim);
+      width: 100%;
+      margin-top: 4px
+    }
+
+    .pgrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 18px;
+      margin-top: 30px
+    }
+
+    .pc {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 26px;
+      transition: border-color .2s, transform .2s;
+      position: relative;
+      overflow: hidden
+    }
+
+    .pc::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(380px at 100% 100%, rgba(167, 139, 250, .04) 0%, transparent 80%);
+      pointer-events: none
+    }
+
+    .pc:hover {
+      border-color: var(--dim);
+      transform: translateY(-2px)
+    }
+
+    .pem {
+      font-size: 36px;
+      margin-bottom: 14px;
+      line-height: 1
+    }
+
+    .pc h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text)
+    }
+
+    .pc p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.7
+    }
+
+    .pq {
+      margin-top: 14px;
+      padding: 10px 14px;
+      background: rgba(34, 211, 238, .05);
+      border-left: 2px solid var(--cyan);
+      border-radius: 0 6px 6px 0;
+      font-size: 12.5px;
+      color: var(--dim);
+      font-style: italic
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rv,
+      .rv.in,
+      .bp,
+      .bs,
+      .fc,
+      .pc,
+      .ap {
+        transition: none !important;
+        transform: none !important;
+        filter: none !important
+      }
+    }
+
+    @media(max-width:860px) {
+      .nr {
+        gap: 10px
+      }
+
+      .nr a.nh {
+        display: none
+      }
+    }
+
+    @media(max-width:720px) {
+      nav {
+        height: auto;
+        min-height: 60px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        align-items: flex-start
+      }
+
+      .nr {
+        justify-content: flex-end;
+        flex-wrap: wrap
+      }
+
+      .hero {
+        padding-top: 102px;
+        padding-bottom: 18px
+      }
+
+      .proofhero {
+        grid-template-columns: 1fr
+      }
+
+      .hb,
+      .ht {
+        justify-content: flex-start
+      }
+
+      .bp {
+        width: 100%;
+        justify-content: center
+      }
+
+      .iw {
+        margin-top: 32px
+      }
+
+      .installgrid,
+      .proofstage,
+      .realitystage {
+        grid-template-columns: 1fr
+      }
+
+      .sr {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+
+    @media(max-width:560px) {
+      .hero {
+        padding-top: 94px;
+        padding-bottom: 14px
+      }
+
+      .sr {
+        grid-template-columns: 1fr
+      }
+
+      .itabs {
+        flex-direction: column
+      }
+
+      .ibox {
+        font-size: 12.5px
+      }
+
+      .shotgrid {
+        grid-template-columns: 1fr
+      }
+
+      .fc,
+      .pc,
+      .capc,
+      .surface,
+      .layer,
+      .docc,
+      .sg .sc {
+        padding: 18px
+      }
+
+      .db,
+      .proof .pi {
+        padding: 15px
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main-content" style="position:absolute;top:-100%;left:16px;z-index:200;padding:8px 16px;background:#4ed7ff;color:#050814;font-weight:700;font-size:14px;border-radius:0 0 8px 8px;text-decoration:none;transition:top .15s ease" onfocus="this.style.top='0'" onblur="this.style.top='-100%'">Skip to content</a>
+  <div class="scroll-progress" id="scroll-progress"></div>
+  <nav aria-label="Main navigation">
+    <a class="nl" href="/"><img src="/suite/assets/sven-logo.png" alt="Sven logo" /><span>Sven</span></a>
+    <div class="nr">
+      <a href="/suite" class="nh">Suite</a>
+      <a href="#capabilities" class="nh">Capabilities</a>
+      <a href="#surfaces" class="nh">Surfaces</a>
+      <a href="#docs-center" class="nh">Docs</a>
+      <a href="#for-everyone" class="nh">Deployments</a>
+      <a href="https://app.sven.systems/community" class="nh" data-runtime-path="/community">Community</a>
+      <a href="#install">Get Started</a>
+      <a href="/suite/docs" class="nc">Read Docs</a>
+    </div>
+  </nav>
+
+  <section class="hero" id="main-content">
+    <div class="ey"><span class="ed"></span>v0.1.0 &nbsp;&middot;&nbsp; Open Source &nbsp;&middot;&nbsp; Evidence-Backed Runtime</div>
+    <h1>Self-hosted AI,<br><em>with real operational control.</em></h1>
+    <p class="hs">Sven is a full AI runtime for operators, teams, and advanced home deployments: multi-agent execution,
+      memory and retrieval, voice, messaging, mobile and desktop surfaces, and a release process tied to evidence instead of claims.</p>
+    <div class="hb">
+      <a href="#install" class="bp">&#9889; Get Sven Free</a>
+      <a href="/suite" class="bs">Explore Full Suite &rarr;</a>
+    </div>
+    <div class="ht">
+      <a href="https://app.sven.systems/community" data-runtime-path="/community">Open community</a>
+      <a href="/suite/docs">Browse docs</a>
+    </div>
+    <div class="iw">
+      <div class="itabs">
+        <button class="itab on" type="button" data-segment-group="h" data-segment-id="hl">Linux / macOS</button>
+        <button class="itab" type="button" data-segment-group="h" data-segment-id="hp">PowerShell</button>
+        <button class="itab" type="button" data-segment-group="h" data-segment-id="hd">Source Bootstrap</button>
+      </div>
+      <div class="ibox">
+        <div id="h-hl" class="ipanel on">curl -fsSL https://sven.systems/install.sh | sh</div>
+        <div id="h-hp" class="ipanel">iwr -useb https://sven.systems/install.ps1 | iex</div>
+        <div id="h-hd" class="ipanel">SVEN_REPO_URL=https://&lt;your-source-mirror&gt;/thesven.git \
+          SVEN_INSTALL_BOOTSTRAP=1 \
+          curl -fsSL https://sven.systems/install.sh | sh</div>
+        <button class="cb" type="button" data-copy-group="h">copy</button>
+      </div>
+    </div>
+    <p class="ih">Works on any Linux host &middot; Docker &middot; macOS &middot; Windows WSL</p>
+  </section>
+
+  <div class="sb">
+    <div class="sr">
+      <div>
+        <div class="snum">20</div>
+        <div class="slb">Messaging Reach</div>
+      </div>
+      <div>
+        <div class="snum">Public proof</div>
+        <div class="slb">Capability Coverage</div>
+      </div>
+      <div>
+        <div class="snum">Strict gates</div>
+        <div class="slb">Verified Delivery</div>
+      </div>
+      <div>
+        <div class="snum">100%</div>
+        <div class="slb">Self-Hosted Runtime</div>
+      </div>
+    </div>
+  </div>
+
+  <section id="capabilities" class="abg">
+    <div class="si">
+      <div class="sl">What Sven Is</div>
+      <h2>A serious AI stack,<br>run from one controlled platform.</h2>
+      <p class="sd">Sven brings runtime, knowledge, channels, governance, and operational proof into one self-hosted system with clear boundaries and live evidence.</p>
+      <div class="capg">
+        <div class="capc">
+          <h3>Runtime and orchestration</h3>
+          <p>Production service mesh for multi-agent execution, workflow routing, retries, approvals, and policy checks.</p>
+          <ul>
+            <li>Agent runtime + workflow builder + scheduler</li>
+            <li>Human-in-the-loop approvals and incident controls</li>
+            <li>Tool dispatch with policy-gated execution</li>
+          </ul>
+        </div>
+        <div class="capc">
+          <h3>Knowledge and memory</h3>
+          <p>Persistent memory and retrieval pipeline across documents, repos, notes, and internal knowledge stores.</p>
+          <ul>
+            <li>Hybrid retrieval (BM25 + vectors)</li>
+            <li>Per-user private memory boundaries</li>
+            <li>Knowledge graph extraction and evidence trails</li>
+          </ul>
+        </div>
+        <div class="capc">
+          <h3>Channel and client coverage</h3>
+          <p>Meet users where they are while operators keep full visibility in dedicated control surfaces.</p>
+          <ul>
+            <li>20 messaging adapters and local voice pipeline</li>
+            <li>Web admin and canvas collaboration UI</li>
+            <li>Flutter mobile app and desktop companion</li>
+          </ul>
+        </div>
+        <div class="capc">
+          <h3>Security and governance</h3>
+          <p>Security-first defaults with explicit governance workflows and hardened release gates.</p>
+          <ul>
+            <li>OIDC/SSO, RBAC, audit-ready controls</li>
+            <li>Sandboxed skill execution and secret isolation</li>
+            <li>Release evidence lanes and strict CI gates</li>
+          </ul>
+        </div>
+        <div class="capc">
+          <h3>Community and ecosystem</h3>
+          <p>Verified-persona community operations for high-signal collaboration between humans and agents.</p>
+          <ul>
+            <li>Public community hub with gated participation</li>
+            <li>Public proof feed and capability proof</li>
+            <li>Reputation and moderation-aware operations</li>
+          </ul>
+        </div>
+        <div class="capc">
+          <h3>Capability proof and release evidence</h3>
+          <p>Public product claims are tied to generated artifacts, runtime checks, and release controls.</p>
+          <ul>
+            <li>287/287 proven capability rows in the current proof set</li>
+            <li>Public evidence endpoints for capability, community, and readiness</li>
+            <li>CI and release gates that block unsupported completion claims</li>
+          </ul>
+        </div>
+      </div>
+      <div class="proofstage">
+        <div class="proofhero">
+          <div>
+            <div class="proofeyebrow">Trust Surface</div>
+            <h3>Public proof that feels like product trust, not a raw status dump.</h3>
+            <p>Sven exposes generated proof, verification posture, and readiness signals so teams can inspect what supports the product story without hunting through internal process language.</p>
+          </div>
+          <div class="proofconfig">
+            <div class="pi">
+              <div class="pk">Deployment label</div>
+              <div class="pv" id="cfg-deployment">Loading...</div>
+            </div>
+            <div class="pi">
+              <div class="pk">Declared origins</div>
+              <div class="pv"><span id="cfg-install">Loading...</span> install<br><span id="cfg-runtime">Loading...</span> runtime<br><span id="cfg-proof">Loading...</span> proof</div>
+            </div>
+          </div>
+        </div>
+        <div class="proofmeta">
+          <div class="pi">
+            <div class="pk">Capability proof</div>
+            <div class="pv">Generated artifacts back the current public capability story.</div>
+          </div>
+          <div class="pi">
+            <div class="pk">Verification posture</div>
+            <div class="pv">Release, program, and runtime checks stay visible as part of the shipping surface.</div>
+          </div>
+          <div class="pi">
+            <div class="pk">Evidence source</div>
+            <div class="pv">/v1/public/community/capability-proof and related public proof endpoints.</div>
+          </div>
+        </div>
+      </div>
+      <div class="suitebar" id="suite">
+        <div class="si2">
+          <div class="sk">Proof module</div>
+          <div class="sv">Capability, release posture, community, readiness</div>
+        </div>
+        <div class="si2">
+          <div class="sk">Capability proof</div>
+          <div class="sv" id="ev-parity">Loading capability proof...</div>
+        </div>
+        <div class="si2">
+          <div class="sk">Verification lanes</div>
+          <div class="sv" id="ev-waves">Loading verification status...</div>
+        </div>
+        <div class="si2">
+          <div class="sk">Community feed</div>
+          <div class="sv" id="ev-feed">Loading proof feed...</div>
+        </div>
+        <div class="si2">
+          <div class="sk">Readiness</div>
+          <div class="sv" id="ev-ready">Loading readiness...</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="surfaces">
+    <div class="si">
+      <div class="sl">Client Surfaces</div>
+      <h2>Every Sven surface in one map.</h2>
+      <p class="sd">Use whichever interface fits the user: operations teams, daily users, mobile users, or verified community members.</p>
+      <div class="surfaceg">
+        <div class="surface">
+          <div class="tt">Admin Control Center</div>
+          <div class="mm">Operations, incidents, approvals, workflows, policy controls, observability, and release-readiness views.</div>
+          <a class="ln" href="https://app.sven.systems/login?redirect=%2Fadmin47" data-runtime-path="/login?redirect=%2Fadmin47">Open admin surface &rarr;</a>
+        </div>
+        <div class="surface">
+          <div class="tt">Canvas Collaboration</div>
+          <div class="mm">Daily conversation and agent collaboration space with runtime-aware context and approval-safe actions.</div>
+          <a class="ln" href="https://app.sven.systems/" data-runtime-path="/">Open canvas surface &rarr;</a>
+        </div>
+        <div class="surface">
+          <div class="tt">Mobile Companion</div>
+          <div class="mm">Flutter app with identity-aware sessions, privacy controls, and production release tracks.</div>
+          <a class="ln" href="/suite/features">Open mobile surface summary &rarr;</a>
+        </div>
+        <div class="surface">
+          <div class="tt">Desktop Companion</div>
+          <div class="mm">Desktop runtime with secure local storage, gateway connectivity, and enterprise desktop controls.</div>
+          <a class="ln" href="/suite/platform">Open desktop surface summary &rarr;</a>
+        </div>
+        <div class="surface">
+          <div class="tt">Community Platform</div>
+          <div class="mm">Verified-persona ecosystem with trust model, public proof feed, and moderated collaboration.</div>
+          <a class="ln" href="https://app.sven.systems/community" data-runtime-path="/community">Open community hub &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="abg" id="product-preview">
+    <div class="si">
+      <div class="sl">Product Preview</div>
+      <h2>What the current mobile build actually looks like.</h2>
+      <p class="sd">These screens were captured from the current Android build in this repo, installed to a connected device and pointed at the live Sven host.</p>
+      <div class="realitystage">
+        <div class="realitycopy">
+          <h3>Real product surfaces make the platform story easier to trust.</h3>
+          <p>Sven already had a lot of depth in runtime and proof infrastructure. This section makes the public site show more of the shipped experience directly, instead of asking visitors to infer it from architecture copy alone.</p>
+          <div class="realitylist">
+            <div class="realityitem">
+              <div class="rk">Current build</div>
+              <div class="rv">Captured from the latest local Android build, not a mockup or stale marketing render.</div>
+            </div>
+            <div class="realityitem">
+              <div class="rk">Real host wiring</div>
+              <div class="rv">The mobile app now defaults to <code>app.sven.systems</code> and uses the current Sven privacy and terms routes.</div>
+            </div>
+            <div class="realityitem">
+              <div class="rk">Useful coverage</div>
+              <div class="rv">Onboarding, feature framing, and live sign-in give visitors a better feel for the shipped product path.</div>
+            </div>
+          </div>
+        </div>
+        <div class="shotgrid">
+          <div class="shotcard">
+            <div class="shotchrome">
+              <strong>Mobile companion</strong>
+              <span>Onboarding</span>
+            </div>
+            <div class="shotframe">
+              <img src="/assets/shots/mobile-onboarding.png" alt="Sven mobile onboarding screen" loading="lazy" />
+            </div>
+            <div class="shotmeta">
+              <div class="smk">Meet Sven</div>
+              <div class="smv">A cleaner first-run screen with the current identity, visual tone, and product framing.</div>
+            </div>
+          </div>
+          <div class="shotcard">
+            <div class="shotchrome">
+              <strong>Mobile companion</strong>
+              <span>Capabilities</span>
+            </div>
+            <div class="shotframe">
+              <img src="/assets/shots/mobile-capabilities.png" alt="Sven mobile capabilities screen" loading="lazy" />
+            </div>
+            <div class="shotmeta">
+              <div class="smk">What Sven can do</div>
+              <div class="smv">A product-level summary of conversations, code, media, and privacy in the mobile flow.</div>
+            </div>
+          </div>
+          <div class="shotcard">
+            <div class="shotchrome">
+              <strong>Mobile companion</strong>
+              <span>Auth</span>
+            </div>
+            <div class="shotframe">
+              <img src="/assets/shots/mobile-auth.png" alt="Sven mobile sign-in screen" loading="lazy" />
+            </div>
+            <div class="shotmeta">
+              <div class="smk">Live sign-in surface</div>
+              <div class="smv">The current app ships a real auth flow with first-party sign-in plus Google, Apple, and GitHub continuation paths.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="abg" id="architecture">
+    <div class="si">
+      <div class="sl">Architecture</div>
+      <h2>Layered by design for scale, trust, and control.</h2>
+      <p class="sd">Sven is built as a composable production stack so capabilities remain auditable, testable, and replaceable.</p>
+      <div class="layerg">
+        <div class="layer">
+          <h3>Ingress and gateway layer</h3>
+          <p>Unified API and routing surface for users, apps, and adapters.</p>
+          <ul>
+            <li>REST + WebSocket gateway</li>
+            <li>OIDC/JWT auth boundaries</li>
+            <li>Public and private endpoint partitioning</li>
+          </ul>
+        </div>
+        <div class="layer">
+          <h3>Runtime and workflow layer</h3>
+          <p>Deterministic orchestration for tools, agents, and approvals.</p>
+          <ul>
+            <li>Agent runtime and policy checks</li>
+            <li>Workflow builder and execution DAGs</li>
+            <li>Retries, self-correction, and HITL stops</li>
+          </ul>
+        </div>
+        <div class="layer">
+          <h3>Knowledge and memory layer</h3>
+          <p>Context persistence with per-user and shared scopes.</p>
+          <ul>
+            <li>Hybrid retrieval with ranking</li>
+            <li>Repo/notes/NAS ingestion</li>
+            <li>Evidence and traceability outputs</li>
+          </ul>
+        </div>
+        <div class="layer">
+          <h3>Interaction layer</h3>
+          <p>Multi-channel experience endpoints.</p>
+          <ul>
+            <li>20 adapters + local voice stack</li>
+            <li>Admin, canvas, mobile, desktop, community</li>
+            <li>Per-user memory and identity continuity</li>
+          </ul>
+        </div>
+        <div class="layer">
+          <h3>Trust and security layer</h3>
+          <p>Enterprise-grade controls for safe production operation.</p>
+          <ul>
+            <li>RBAC, SSO/OIDC, auditability</li>
+            <li>Sandboxed skill execution</li>
+            <li>Release evidence gates and lifecycle checks</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="docs-center">
+    <div class="si">
+      <div class="sl">Docs Center</div>
+      <h2>Documentation paths for every user type.</h2>
+      <p class="sd">Operators, developers, security reviewers, and product users each get focused entry points.</p>
+      <div class="docg">
+        <div class="docc">
+          <h3>Platform overview</h3>
+          <p>Current features, setup patterns, and platform map.</p>
+          <a href="/suite/docs">Open docs center &rarr;</a>
+        </div>
+        <div class="docc">
+          <h3>Release and readiness</h3>
+          <p>Strict release status, evidence lanes, and lifecycle blockers.</p>
+          <a href="/suite/roadmap">Open release roadmap &rarr;</a>
+        </div>
+        <div class="docc">
+          <h3>Capability proof</h3>
+          <p>Capability proof matrices, supporting artifacts, and release evidence references.</p>
+          <a href="/suite/features">Open capability overview &rarr;</a>
+        </div>
+        <div class="docc">
+          <h3>Community governance</h3>
+          <p>Verified persona model, moderation policy, trust and submission model.</p>
+          <a href="https://app.sven.systems/community" data-runtime-path="/community">Open community hub &rarr;</a>
+        </div>
+        <div class="docc">
+          <h3>Developer implementation</h3>
+          <p>Services, APIs, contracts, and implementation references.</p>
+          <a href="/suite/platform">Open service architecture &rarr;</a>
+        </div>
+        <div class="docc">
+          <h3>Security and compliance</h3>
+          <p>Security baseline, hardening, and supply-chain controls.</p>
+          <a href="/suite/security">Open security guide &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="si">
+      <div class="sl">Product Depth</div>
+      <h2>Built for real deployments,<br>not just prompt demos.</h2>
+      <p class="sd">Sven is designed to be operated over time: integrated with the channels people already use, governed with clear controls, and flexible about models, memory, and interaction surfaces.</p>
+      <div class="fg">
+        <div class="fc">
+          <div class="fi2" style="background:rgba(34,211,238,.1)">&#128172;</div>
+          <h3>20 Messaging Adapters</h3>
+          <p>WhatsApp, Telegram, iMessage, Discord, Signal, Slack, Teams, Matrix, LINE, Zalo and more. Sven reaches people in the tools they already use instead of forcing a single client surface.</p>
+          <span class="ft">ADAPTERS</span>
+        </div>
+        <div class="fc">
+          <div class="fi2" style="background:rgba(167,139,250,.1)">&#129504;</div>
+          <h3>Built-in RAG Memory</h3>
+          <p>Index Git repos, NAS file shares, Obsidian vaults, Apple Notes, Bear, and Notion. BM25 + vector search with
+            temporal decay &mdash; agents never forget relevant context.</p>
+          <span class="ft">KNOWLEDGE</span>
+        </div>
+        <div class="fc">
+          <div class="fi2" style="background:rgba(52,211,153,.1)">&#127897;&#65039;</div>
+          <h3>100% Local Voice Stack</h3>
+          <p>Faster-Whisper STT, Piper TTS, and always-on wake word detection run on your server so voice interaction can stay private and local.</p>
+          <span class="ft">VOICE</span>
+        </div>
+        <div class="fc">
+          <div class="fi2" style="background:rgba(251,146,60,.1)">&#128274;</div>
+          <h3>Private &amp; Secure by Design</h3>
+          <p>Conversations, memories, and automation stay under your control. Sandboxed skill execution, automatic key rotation, and role-based access keep the platform governable as it grows.</p>
+          <span class="ft">PRIVACY</span>
+        </div>
+        <div class="fc">
+          <div class="fi2" style="background:rgba(34,211,238,.08)">&#9881;&#65039;</div>
+          <h3>Any LLM, Any Provider</h3>
+          <p>Built-in LiteLLM proxy routes to OpenAI, Anthropic, Google, Mistral, Ollama, LM Studio, or any
+            OpenAI-compatible endpoint. Swap models without touching agent logic.</p>
+          <span class="ft">MODELS</span>
+        </div>
+        <div class="fc">
+          <div class="fi2" style="background:rgba(167,139,250,.08)">&#129309;</div>
+          <h3>Agents That Remember Everyone</h3>
+          <p>Each person gets their own private memory boundaries. Sven can preserve preferences, context, and routines without collapsing everyone into one shared state.</p>
+          <span class="ft">MEMORY</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="for-everyone">
+    <div class="si">
+      <div class="sl">Deployment Modes</div>
+      <h2>One platform,<br>several operating contexts.</h2>
+      <p class="sd">Sven can start as a private deployment and grow into a team or community runtime without changing the core architecture.</p>
+      <div class="pgrid">
+        <div class="pc">
+          <div class="pem">&#128106;</div>
+          <h3>Private household deployment</h3>
+          <p>Run Sven at home with messaging adapters, local voice, and per-person private memory while keeping data and automation inside your own infrastructure.</p>
+          <div class="pq">Best when you want one trusted runtime for a household without pushing everyone into a new app.</div>
+        </div>
+        <div class="pc">
+          <div class="pem">&#127968;</div>
+          <h3>Voice-enabled environment</h3>
+          <p>Use wake-word and voice services for shared spaces, local audio handling, and identity-aware interactions across the home or office.</p>
+          <div class="pq">Best when Sven needs to feel ambient and accessible instead of living only behind keyboards and dashboards.</div>
+        </div>
+        <div class="pc">
+          <div class="pem">&#128101;</div>
+          <h3>Shared group runtime</h3>
+          <p>Connect community or group channels while preserving private memory boundaries, moderation posture, and operational visibility.</p>
+          <div class="pq">Best when one runtime needs to serve many people without collapsing identity, state, or trust boundaries.</div>
+        </div>
+        <div class="pc">
+          <div class="pem">&#128188;</div>
+          <h3>Team and operator deployment</h3>
+          <p>Move into Slack, Teams, admin governance, shared knowledge, approval flows, and role-based controls without replacing the platform underneath.</p>
+          <div class="pq">Best when you need a runtime that can support operators, end users, and policy owners at the same time.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="abg">
+    <div class="si">
+      <div class="sl">Integrations</div>
+      <h2>Reach users in the tools they already use.</h2>
+      <p class="sd">Sven connects into messaging and communication channels so deployment does not require a full behavior change from the people using it.</p>
+      <div class="ag">
+        <div class="ap"><span class="i">&#129001;</span>Slack</div>
+        <div class="ap"><span class="i">&#128311;</span>Teams</div>
+        <div class="ap"><span class="i">&#9992;&#65039;</span>Telegram</div>
+        <div class="ap"><span class="i">&#127918;</span>Discord</div>
+        <div class="ap"><span class="i">&#128241;</span>WhatsApp</div>
+        <div class="ap"><span class="i">&#128276;</span>Signal</div>
+        <div class="ap"><span class="i">&#9638;</span>Matrix</div>
+        <div class="ap"><span class="i">&#128172;</span>Google Chat</div>
+        <div class="ap"><span class="i">&#127822;</span>iMessage</div>
+        <div class="ap"><span class="i">&#9889;</span>Mattermost</div>
+        <div class="ap"><span class="i">#&#65038;</span>IRC</div>
+        <div class="ap"><span class="i">&#127760;</span>Nostr</div>
+        <div class="ap"><span class="i">&#127918;</span>Twitch</div>
+        <div class="ap"><span class="i">&#128172;</span>LINE</div>
+        <div class="ap"><span class="i">&#127463;&#127475;</span>Zalo</div>
+        <div class="ap"><span class="i">&#129782;</span>Feishu</div>
+        <div class="ap"><span class="i">&#9729;&#65039;</span>Nextcloud</div>
+        <div class="ap"><span class="i">&#129680;</span>Tlon/Urbit</div>
+        <div class="ap"><span class="i">&#127758;</span>WebChat</div>
+        <div class="ap"><span class="i">&#128222;</span>Voice Call</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="si">
+      <div class="sl">How It Works</div>
+      <h2>Deploy once. Integrate everything.</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="sn2">1</div>
+          <div>
+            <h3>Run the stack</h3>
+            <p>One trusted source bootstrap brings up the gateway, agent runtime, RAG indexers, voice stack, and adapter services from the deployment path you control.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="sn2">2</div>
+          <div>
+            <h3>Connect channels and identity</h3>
+            <p>Attach the channels your users already live in, provision identities, and apply the access boundaries that fit your environment.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="sn2">3</div>
+          <div>
+            <h3>Shape behavior and controls</h3>
+            <p>Define personas, tools, policies, and knowledge. Extend Sven through sandboxed skills and keep the result observable and reviewable.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="si">
+      <div class="sl">Operating Model</div>
+      <h2>Built for serious deployment.</h2>
+      <p class="sd">Sven is designed as a product you can actually operate: clear surfaces, controlled runtime boundaries,
+        public proof endpoints, and self-hosted deployment paths that stay under your ownership.</p>
+      <div class="ct">
+        <table>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th class="hl">What ships</th>
+              <th>How it is governed</th>
+              <th>Why it matters</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Public and operator surfaces</td>
+              <td>Canvas, community, admin, mobile, desktop</td>
+              <td>Route ownership and auth boundaries</td>
+              <td>Users and operators get clear, purpose-built entry points</td>
+            </tr>
+            <tr>
+              <td>Knowledge and memory</td>
+              <td>Persistent memory with retrieval and evidence trails</td>
+              <td>Scoped access, provenance, and release checks</td>
+              <td>Context stays useful without becoming opaque or unsafe</td>
+            </tr>
+            <tr>
+              <td>Voice and channel reach</td>
+              <td>Local voice stack plus broad messaging coverage</td>
+              <td>Adapter configuration and runtime health checks</td>
+              <td>People can use Sven in the channels they already trust</td>
+            </tr>
+            <tr>
+              <td>Self-hosted deployment</td>
+              <td>Installers, source-bootstrap paths, and production docs</td>
+              <td>Release runbooks and environment-specific guidance</td>
+              <td>You can run the platform on infra you control</td>
+            </tr>
+            <tr>
+              <td>Access and governance</td>
+              <td>RBAC, SSO/OIDC, admin controls, reviewable actions</td>
+              <td>Policy checks, audit trails, and gated release lanes</td>
+              <td>Operational trust scales with the surface area</td>
+            </tr>
+            <tr>
+              <td>Proof and status</td>
+              <td>Capability, community, and readiness endpoints</td>
+              <td>Generated artifacts and CI-backed evidence</td>
+              <td>Public claims can be checked against current status</td>
+            </tr>
+            <tr>
+              <td>Extensibility</td>
+              <td>Skills, workflows, adapters, and multi-surface clients</td>
+              <td>Contracts, docs, and operational controls</td>
+              <td>The platform can expand without turning into a black box</td>
+            </tr>
+            <tr>
+              <td>Release readiness</td>
+              <td>Status refresh, soak, drills, and signoff lanes</td>
+              <td>Lifecycle validation and evidence retention</td>
+              <td>Shipping quality is treated as part of the product</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="abg">
+    <div class="si">
+      <div class="sl">Operational Proof</div>
+      <h2>Public evidence, tied to the running system.</h2>
+      <p class="sd">These indicators are loaded from Sven public proof and status endpoints so the product surface can show current operational posture.</p>
+      <div class="proofstage">
+        <div class="proofhero">
+          <span class="proofeyebrow">Trust Surface</span>
+          <h3>Proof is part of the product surface, not a hidden checklist.</h3>
+          <p>Sven exposes capability proof, community posture, and readiness from public endpoints so teams can inspect what is shipping and where the evidence comes from.</p>
+          <div class="proofmeta">
+            <div class="mi">
+              <div class="mk">Capability</div>
+              <div class="mv" id="ev2-capability-hero">Loading...</div>
+            </div>
+            <div class="mi">
+              <div class="mk">Community</div>
+              <div class="mv" id="ev2-community-hero">Loading...</div>
+            </div>
+            <div class="mi">
+              <div class="mk">Proof Feed</div>
+              <div class="mv" id="ev2-feed-hero">Loading...</div>
+            </div>
+          </div>
+        </div>
+        <div class="proofconfig">
+          <div class="proofcfg">
+            <div class="ck">Deployment Profile</div>
+            <div class="cv" id="cfg-deployment">Loading...</div>
+            <div class="cd">The quickstart surface can declare which environment it targets instead of relying only on hostname guesses.</div>
+          </div>
+          <div class="proofcfg">
+            <div class="ck">Install Origin</div>
+            <div class="cv" id="cfg-install">Loading...</div>
+            <div class="cd">Install commands are generated from this origin so copy-and-run flows stay consistent across environments.</div>
+          </div>
+          <div class="proofcfg">
+            <div class="ck">Runtime Origin</div>
+            <div class="cv" id="cfg-runtime">Loading...</div>
+            <div class="cd">Public runtime links use this base when the site needs an explicit deployment contract.</div>
+          </div>
+          <div class="proofcfg">
+            <div class="ck">Proof Origin</div>
+            <div class="cv" id="cfg-proof">Loading...</div>
+            <div class="cd">Evidence can be sourced from a declared proof host so static previews and staged deployments stay predictable.</div>
+          </div>
+        </div>
+      </div>
+      <div class="sg">
+        <div class="sc">
+          <div class="k">Capability coverage</div>
+          <div class="v" id="ev2-capability">Loading...</div>
+          <div class="d">/v1/public/community/capability-proof</div>
+        </div>
+        <div class="sc">
+          <div class="k">Community posture</div>
+          <div class="v" id="ev2-community">Loading...</div>
+          <div class="d">/v1/public/community/status</div>
+        </div>
+        <div class="sc">
+          <div class="k">Proof feed</div>
+          <div class="v" id="ev2-feed">Loading...</div>
+          <div class="d">/v1/public/community/feed</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="si">
+      <div class="sl">Get Started</div>
+      <h2>Start with the path that matches your host.</h2>
+      <p class="sd">Use the public installer for a fast bootstrap, or use the source-bootstrap path when you want a full runtime from infrastructure and source locations you control.</p>
+      <div class="installgrid">
+        <div class="installstack">
+          <div class="installcard">
+            <h3>Install Sven</h3>
+            <p>Pick the entrypoint for your environment, copy the command, and bring the runtime online. The public product links and the self-hosted surfaces stay aligned.</p>
+            <div class="iw" style="max-width:none;margin-top:18px">
+              <div class="itabs">
+                <button class="itab on" type="button" data-segment-group="i" data-segment-id="il">Linux / macOS</button>
+                <button class="itab" type="button" data-segment-group="i" data-segment-id="ip">PowerShell</button>
+                <button class="itab" type="button" data-segment-group="i" data-segment-id="id">Source Bootstrap</button>
+              </div>
+              <div class="ibox">
+                <div id="i-il" class="ipanel on">curl -fsSL https://sven.systems/install.sh | sh</div>
+                <div id="i-ip" class="ipanel">iwr -useb https://sven.systems/install.ps1 | iex</div>
+                <div id="i-id" class="ipanel">SVEN_REPO_URL=https://&lt;your-source-mirror&gt;/thesven.git \
+            SVEN_INSTALL_BOOTSTRAP=1 \
+            curl -fsSL https://sven.systems/install.sh | sh</div>
+                <button class="cb" type="button" data-copy-group="i">copy</button>
+              </div>
+            </div>
+            <p class="ih">Works on Linux, Docker hosts, macOS, and Windows via WSL.</p>
+          </div>
+          <div class="installcard">
+            <h3>What the full stack brings online</h3>
+            <p>The source-bootstrap path installs Sven from a repo mirror you control, then brings up the runtime and post-install checks from the same trusted source base.</p>
+            <div class="db">
+              <span class="c"># What the full Sven runtime brings online</span><br>
+              <span class="k">gateway-api</span> &nbsp;<span class="c"># REST + WebSocket hub &middot; JWT/OIDC auth &middot;
+          :3000</span><br>
+              <span class="k">agent-runtime</span> &nbsp;<span class="c"># LLM orchestration &middot; tool dispatch &middot;
+          self-correction</span><br>
+              <span class="k">skill-runner</span> &nbsp;<span class="c"># gVisor sandboxed skill execution</span><br>
+              <span class="k">rag-indexer</span> &nbsp;<span class="c"># OpenSearch + BM25 + kNN vector embeddings</span><br>
+              <span class="k">litellm</span> &nbsp;<span class="c"># Unified LLM proxy &middot; any provider &middot;
+          :4001</span><br>
+              <span class="k">adapter-slack</span> &nbsp;<span class="c"># &hellip; + 19 more messaging adapters</span><br>
+              <span class="k">faster-whisper</span> &nbsp;<span class="c"># Local STT &middot; no audio leaves your
+          server</span><br>
+              <span class="k">piper</span> &nbsp;<span class="c"># Local TTS &middot; no text leaves your server</span><br>
+              <span class="k">sso</span> &nbsp;<span class="c"># Keycloak OIDC &middot; :8080 (optional)</span><br>
+              <span class="k">admin-ui</span> &nbsp;<span class="c"># Web dashboard &middot; localhost:3000/admin47</span>
+            </div>
+          </div>
+        </div>
+        <div class="installcard">
+          <h3>Recommended onboarding</h3>
+          <p>Use the fast path if you want to evaluate the experience quickly, then move to the full stack when you want a durable, governed deployment.</p>
+          <div class="installsteps">
+            <div class="installstep">
+              <span class="n">01</span>
+              <h4>Bootstrap the runtime</h4>
+              <p>Run the installer or source-bootstrap path on a host you control. Sven keeps the public entrypoints and runtime surfaces consistent.</p>
+            </div>
+            <div class="installstep">
+              <span class="n">02</span>
+              <h4>Open the core surfaces</h4>
+              <p>Verify admin, canvas, and community from the same base origin so operators and end users land on the right surface immediately.</p>
+            </div>
+            <div class="installstep">
+              <span class="n">03</span>
+              <h4>Layer on governance</h4>
+              <p>After first boot, move into release gates, evidence, identity, and operational controls instead of treating them as an afterthought.</p>
+            </div>
+          </div>
+          <div class="installmini">
+            <div>
+              <span class="k">Fast evaluation</span>
+              <span class="v">Install entrypoints and runtime links for a quick first pass.</span>
+            </div>
+            <div>
+              <span class="k">Full deployment</span>
+              <span class="v">Source-bootstrap path for gateway, runtime, voice, knowledge, and admin surfaces.</span>
+            </div>
+            <div>
+              <span class="k">Production follow-through</span>
+              <span class="v">Use the release and proof surfaces to keep trust visible after install.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="proof">
+        <div class="pi">
+          <div class="pk">After deploy</div>
+          <div class="pv">Open the runtime surfaces from the same host.</div>
+        </div>
+      </div>
+      <div class="installsurfaces">
+        <a href="https://app.sven.systems/login?redirect=%2Fadmin47" data-runtime-path="/login?redirect=%2Fadmin47"><span class="k">/login?redirect=%2Fadmin47</span><span class="v">Operator sign-in entry for the governed admin surface.</span></a>
+        <a href="https://app.sven.systems/" data-runtime-path="/"><span class="k">/</span><span class="v">Canvas and chat surfaces for the day-to-day product experience.</span></a>
+        <a href="https://app.sven.systems/community" data-runtime-path="/community"><span class="k">/community</span><span class="v">Verified ecosystem hub with public status and proof-linked community surfaces.</span></a>
+        <a href="https://app.sven.systems/docs" data-runtime-path="/docs"><span class="k">/docs</span><span class="v">Runbooks, deployment guidance, and the documentation routes behind the product.</span></a>
+        <a href="https://app.sven.systems/marketplace" data-runtime-path="/marketplace"><span class="k">/marketplace</span><span class="v">Skills, extensions, and the expansion path beyond the core runtime.</span></a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="fot">
+      <div class="fb2">sven<span>.systems</span></div>
+      <div class="fl">
+        <a href="/suite">Suite</a>
+        <a href="#suite">Proof</a>
+        <a href="#surfaces">Surfaces</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#docs-center">Docs</a>
+        <a href="/suite/docs">Documentation</a>
+        <a href="/suite/roadmap">Roadmap</a>
+        <a href="https://app.sven.systems/community" data-runtime-path="/community">Community</a>
+        <a href="/suite/security">Security</a>
+        <a href="https://app.sven.systems/terms" data-runtime-path="/terms">Terms</a>
+        <a href="https://app.sven.systems/privacy" data-runtime-path="/privacy">Privacy</a>
+      </div>
+      <p class="fc2">Built by 47network and community. Zero telemetry. No tracking. Your data &mdash; and your
+        family&rsquo;s &mdash; stays yours.</p>
+    </div>
+  </footer>
+
+  <script src="/assets/quickstart.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Sven",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Linux",
+    "description": "Self-hosted AI platform with multi-agent runtime, memory/RAG, voice, mobile, desktop, admin control, and verified community ecosystem.",
+    "url": "https://sven.systems/",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "47network"
+    }
+  }
+  </script>
+</body>
+
+</html>

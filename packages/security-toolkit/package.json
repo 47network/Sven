@@ -1,0 +1,50 @@
+{
+  "name": "@sven/security-toolkit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./sast": {
+      "types": "./dist/sast/index.d.ts",
+      "import": "./dist/sast/index.js",
+      "default": "./dist/sast/index.js"
+    },
+    "./dependency-audit": {
+      "types": "./dist/dependency-audit/index.d.ts",
+      "import": "./dist/dependency-audit/index.js",
+      "default": "./dist/dependency-audit/index.js"
+    },
+    "./secret-scanner": {
+      "types": "./dist/secret-scanner/index.d.ts",
+      "import": "./dist/secret-scanner/index.js",
+      "default": "./dist/secret-scanner/index.js"
+    },
+    "./infra-scanner": {
+      "types": "./dist/infra-scanner/index.d.ts",
+      "import": "./dist/infra-scanner/index.js",
+      "default": "./dist/infra-scanner/index.js"
+    },
+    "./pentest": {
+      "types": "./dist/pentest/index.d.ts",
+      "import": "./dist/pentest/index.js",
+      "default": "./dist/pentest/index.js"
+    },
+    "./report": {
+      "types": "./dist/report/index.d.ts",
+      "import": "./dist/report/index.js",
+      "default": "./dist/report/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {}
+}

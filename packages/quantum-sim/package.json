@@ -1,0 +1,35 @@
+{
+  "name": "@sven/quantum-sim",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./gates": {
+      "types": "./src/gates/index.ts",
+      "import": "./dist/gates/index.js",
+      "default": "./dist/gates/index.js"
+    },
+    "./simulator": {
+      "types": "./src/simulator/index.ts",
+      "import": "./dist/simulator/index.js",
+      "default": "./dist/simulator/index.js"
+    },
+    "./algorithms": {
+      "types": "./src/algorithms/index.ts",
+      "import": "./dist/algorithms/index.js",
+      "default": "./dist/algorithms/index.js"
+    },
+    "./hardware": {
+      "types": "./src/hardware/index.ts",
+      "import": "./dist/hardware/index.js",
+      "default": "./dist/hardware/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

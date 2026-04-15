@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sven Companion — Download</title>
+  <meta name="description" content="Download the Sven Companion app for Android." />
+  <meta name="theme-color" content="#050814" />
+  <link rel="icon" href="/suite/assets/sven-logo.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #050814;
+      --panel: #0b1328;
+      --border: #1a2a4a;
+      --text: #e6ecff;
+      --muted: #7a8fc0;
+      --cyan: #4ed7ff;
+      --purple: #ff4fcb;
+      --green: #6ff1c2;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 40px;
+      max-width: 480px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .version {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--cyan);
+      margin-bottom: 24px;
+    }
+
+    .desc {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 32px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      color: #050814;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 1.05rem;
+      padding: 14px 32px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(78, 215, 255, 0.3);
+    }
+
+    .btn svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .meta {
+      margin-top: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .features {
+      margin-top: 28px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .tag {
+      background: rgba(78, 215, 255, 0.08);
+      border: 1px solid rgba(78, 215, 255, 0.2);
+      color: var(--cyan);
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    .back {
+      display: block;
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-decoration: none;
+    }
+
+    .back:hover { color: var(--cyan); }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <img src="/suite/assets/sven-logo.png" alt="Sven" class="logo" />
+    <h1>Sven Companion</h1>
+    <div class="version">v0.1.0 — Android</div>
+    <p class="desc">
+      Your mobile control surface for Sven. AI messaging,
+      notifications, biometric-secured access, and offline cache.
+    </p>
+    <a href="/download/sven-companion.apk" class="btn">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 20h14v-2H5v2zm7-18L5.33 8.67l1.42 1.41L11 5.83V16h2V5.83l4.25 4.25 1.42-1.41L12 2z" transform="rotate(180 12 12)"/></svg>
+      Download APK
+    </a>
+    <div class="meta">119 MB · Release build · arm64/arm32/x86_64</div>
+    <div class="features">
+      <span class="tag">AI Messages</span>
+      <span class="tag">Notifications</span>
+      <span class="tag">Offline Cache</span>
+      <span class="tag">Biometric Auth</span>
+    </div>
+    <a href="/" class="back">&larr; sven.systems</a>
+  </div>
+</body>
+
+</html>

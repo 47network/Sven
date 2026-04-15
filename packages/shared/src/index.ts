@@ -1,0 +1,38 @@
+export * from './types/events.js';
+export * from './types/models.js';
+export * from './types/nats-subjects.js';
+export * from './types/api.js';
+export * from './logger.js';
+export * from './health.js';
+export * from './hash.js';
+export * from './crypto/index.js';
+export * from './integrations/index.js';
+export * from './adapter/index.js';
+export * from './secrets.js';
+export * from './nats/streams.js';
+export * from './sdk/index.js';
+export * from './contracts/api-contract.js';
+export * from './community/release-narrative.js';
+
+// ──── Architectural patterns ─────────────────────────────────────
+export * from './task-id.js';
+export * from './token-budget.js';
+export * from './tool-executor.js';
+export * from './skill-loader.js';
+export * from './coordinator.js';
+export * from './permission-hierarchy.js';
+export * from './query-chain.js';
+export * from './permission-hooks.js';
+export * from './file-history.js';
+export * from './feature-flags.js';
+export * from './proxy-detect.js';
+
+// ──── Advanced feature modules ───────────────────────────────────
+export * from './stealth-commit.js';
+export * from './memory-extractor.js';
+export * from './prompt-guard.js';
+export * from './client-attestation.js';
+export * from './anti-distillation.js';
+export * from './background-session.js';
+export * from './personality-engine.js';
+export * from './visual-companion.js';
