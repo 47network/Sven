@@ -30,6 +30,8 @@ build/
 !services/model-router/migrations/*.sql
 # Keep: security-toolkit migration SQL files
 !services/security-toolkit/migrations/*.sql
+# Keep: document-intel migration SQL files
+!services/document-intel/migrations/*.sql
 
 # ─── Temporary / scratch ────────────────────────────────────────
 tmp/

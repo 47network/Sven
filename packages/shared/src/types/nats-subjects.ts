@@ -28,6 +28,7 @@ export const NATS_STREAMS = {
   MESH: 'MESH',
   MODEL: 'MODEL',
   SECURITY: 'SECURITY',
+  DOCUMENT: 'DOCUMENT',
 } as const;
 
 export const NATS_SUBJECTS = {
@@ -173,6 +174,15 @@ export const NATS_SUBJECTS = {
   SECURITY_PENTEST_COMPLETE: 'security.pentest.complete',
   SECURITY_POSTURE_GENERATED: 'security.posture.generated',
   SECURITY_CRITICAL_FINDING: 'security.critical.finding',
+
+  // Document Intelligence (OCR, pipeline, entity extraction, summarisation)
+  DOCUMENT_OCR_COMPLETE: 'document.ocr.complete',
+  DOCUMENT_PIPELINE_COMPLETE: 'document.pipeline.complete',
+  DOCUMENT_PIPELINE_FAILED: 'document.pipeline.failed',
+  DOCUMENT_BATCH_COMPLETE: 'document.batch.complete',
+  DOCUMENT_ENTITIES_EXTRACTED: 'document.entities.extracted',
+  DOCUMENT_SUMMARY_GENERATED: 'document.summary.generated',
+  DOCUMENT_PII_DETECTED: 'document.pii.detected',
 } as const;
 
 export const STREAM_CONFIGS = {
@@ -323,6 +333,13 @@ export const STREAM_CONFIGS = {
     subjects: ['security.>'] as string[],
     retention: RetentionPolicy.Limits,
     max_age: 90 * 24 * 60 * 60 * 1_000_000_000, // 90 days — security scan audit trail
+    storage: StorageType.File,
+  },
+  DOCUMENT: {
+    name: NATS_STREAMS.DOCUMENT,
+    subjects: ['document.>'] as string[],
+    retention: RetentionPolicy.Limits,
+    max_age: 30 * 24 * 60 * 60 * 1_000_000_000, // 30 days — document processing audit trail
     storage: StorageType.File,
   },
 } as const;
