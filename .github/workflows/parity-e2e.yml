@@ -61,7 +61,7 @@ jobs:
       SVEN_A2A_FORWARD_ALLOW_PRIVATE_HOSTS: 'true'
       SVEN_A2A_FORWARD_ALLOW_HTTP: 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Enable corepack
         run: corepack enable
