@@ -198,7 +198,7 @@ export function simulateSpring(config: SpringConfig, fromValue: number = 0, toVa
 
 // ──── Animation Composition ──────────────────────────────────────
 
-function buildKeyframes(intent: AnimationIntent): { name: string; css: string } {
+function getFadeKeyframes(intent: AnimationIntent): { name: string; css: string } | null {
   switch (intent) {
     case 'enter':
     case 'fade-in':
@@ -212,6 +212,13 @@ function buildKeyframes(intent: AnimationIntent): { name: string; css: string } 
         name: 'sven-fade-out',
         css: '@keyframes sven-fade-out {\n  from { opacity: 1; }\n  to { opacity: 0; }\n}',
       };
+    default:
+      return null;
+  }
+}
+
+function getSlideKeyframes(intent: AnimationIntent): { name: string; css: string } | null {
+  switch (intent) {
     case 'slide-up':
       return {
         name: 'sven-slide-up',
@@ -232,6 +239,13 @@ function buildKeyframes(intent: AnimationIntent): { name: string; css: string } 
         name: 'sven-slide-right',
         css: '@keyframes sven-slide-right {\n  from { opacity: 0; transform: translateX(-16px); }\n  to { opacity: 1; transform: translateX(0); }\n}',
       };
+    default:
+      return null;
+  }
+}
+
+function getScaleKeyframes(intent: AnimationIntent): { name: string; css: string } | null {
+  switch (intent) {
     case 'scale-up':
       return {
         name: 'sven-scale-up',
@@ -242,6 +256,13 @@ function buildKeyframes(intent: AnimationIntent): { name: string; css: string } 
         name: 'sven-scale-down',
         css: '@keyframes sven-scale-down {\n  from { opacity: 1; transform: scale(1); }\n  to { opacity: 0; transform: scale(0.95); }\n}',
       };
+    default:
+      return null;
+  }
+}
+
+function getMiscKeyframes(intent: AnimationIntent): { name: string; css: string } | null {
+  switch (intent) {
     case 'attention':
       return {
         name: 'sven-attention',
@@ -253,8 +274,22 @@ function buildKeyframes(intent: AnimationIntent): { name: string; css: string } 
         css: '@keyframes sven-loading {\n  0% { opacity: 0.4; }\n  50% { opacity: 1; }\n  100% { opacity: 0.4; }\n}',
       };
     default:
-      throw new Error(`Unknown animation intent: ${intent}`);
+      return null;
   }
+}
+
+function buildKeyframes(intent: AnimationIntent): { name: string; css: string } {
+  const result =
+    getFadeKeyframes(intent) ||
+    getSlideKeyframes(intent) ||
+    getScaleKeyframes(intent) ||
+    getMiscKeyframes(intent);
+
+  if (!result) {
+    throw new Error(`Unknown animation intent: ${intent}`);
+  }
+
+  return result;
 }
 
 const EXIT_INTENTS = new Set<AnimationIntent>(['exit', 'fade-out', 'scale-down']);
