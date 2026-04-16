@@ -272,7 +272,7 @@ export default function McpServersPage() {
     }
   }
 
-  function useTemplatePreset(preset: McpPreset) {
+  function applyTemplatePreset(preset: McpPreset) {
     setName(preset.name);
     setTransport(preset.transport);
     setUrl(preset.url);
@@ -488,7 +488,7 @@ export default function McpServersPage() {
                       </button>
                     )
                   ) : (
-                    <button className="btn-secondary btn-sm" onClick={() => useTemplatePreset(preset)}>
+                    <button className="btn-secondary btn-sm" onClick={() => applyTemplatePreset(preset)}>
                       Use template
                     </button>
                   )}

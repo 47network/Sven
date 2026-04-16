@@ -81,8 +81,6 @@ export default function SkillsPage() {
   const installSkill = useInstallSkill();
   const createSource = useCreateRegistrySource();
 
-  if (isLoading || catalogLoading) return <PageSpinner />;
-
   const rows = toSkillRows(data?.rows);
   const catalogRows = Array.isArray((catalogData as Record<string, unknown> | undefined)?.rows)
     ? ((catalogData as Record<string, unknown>).rows as Array<Record<string, unknown>>)
@@ -119,6 +117,8 @@ export default function SkillsPage() {
     }
     return byPack;
   }, [catalogRows]);
+
+  if (isLoading || catalogLoading) return <PageSpinner />;
 
   async function installCatalogBatch(targets: Array<Record<string, unknown>>, label: string) {
     if (targets.length === 0) {

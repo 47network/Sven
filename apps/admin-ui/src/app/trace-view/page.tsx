@@ -19,8 +19,6 @@ function TraceViewPageContent() {
   const [copiedTarget, setCopiedTarget] = useState<'params' | 'output' | null>(null);
   const { data: detail, isLoading: detailLoading } = useToolRun(selectedId ?? '');
 
-  if (isLoading) return <PageSpinner />;
-
   const rows: ToolRunRecord[] = data?.rows ?? [];
   const detailRecord =
     detail && typeof detail === 'object' ? (detail as Record<string, unknown>) : null;
@@ -94,6 +92,8 @@ function TraceViewPageContent() {
     }
     return undefined;
   }, [selectedStepIndex]);
+
+  if (isLoading) return <PageSpinner />;
 
   async function copyText(target: 'params' | 'output', text: string) {
     try {
