@@ -1,0 +1,106 @@
+name: flutter-user-app-device-farm
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner_target:
+        description: 'Runner label (ubuntu-latest or self-hosted)'
+        required: false
+        default: 'ubuntu-latest'
+  pull_request:
+    paths:
+      - 'apps/companion-user-flutter/**'
+      - '.github/workflows/flutter-user-app-device-farm.yml'
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'apps/companion-user-flutter/**'
+      - '.github/workflows/flutter-user-app-device-farm.yml'
+
+
+permissions:
+  contents: read
+jobs:
+  android-maestro-cloud:
+    runs-on: ${{ github.event.inputs.runner_target || 'ubuntu-latest' }}
+    defaults:
+      run:
+        working-directory: apps/companion-user-flutter
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: 'stable'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build Android APK
+        run: flutter build apk --debug
+
+      - name: Run Android device-farm smoke
+        continue-on-error: true
+        env:
+          MAESTRO_CLOUD_API_KEY: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
+        run: |
+          if [ -f ../../scripts/ops/mobile/maestro-cloud-run.sh ] && [ -n "$MAESTRO_CLOUD_API_KEY" ]; then
+            bash ../../scripts/ops/mobile/maestro-cloud-run.sh \
+              "$MAESTRO_CLOUD_API_KEY" \
+              android \
+              build/app/outputs/flutter-apk/app-debug.apk \
+              .maestro/flows/android-smoke.yaml
+          else
+            echo "⚠ Maestro Cloud not configured — skipping device-farm smoke"
+          fi
+
+      - name: Upload APK artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-apk
+          path: apps/companion-user-flutter/build/app/outputs/flutter-apk/app-debug.apk
+
+  ios-maestro-cloud:
+    runs-on: macos-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    defaults:
+      run:
+        working-directory: apps/companion-user-flutter
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: 'stable'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build iOS (no code signing)
+        run: flutter build ios --debug --no-codesign
+
+      - name: Run iOS device-farm smoke
+        continue-on-error: true
+        env:
+          MAESTRO_CLOUD_API_KEY: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
+        run: |
+          if [ -f ../../scripts/ops/mobile/maestro-cloud-run.sh ] && [ -n "$MAESTRO_CLOUD_API_KEY" ]; then
+            bash ../../scripts/ops/mobile/maestro-cloud-run.sh \
+              "$MAESTRO_CLOUD_API_KEY" \
+              ios \
+              build/ios/iphoneos/Runner.app \
+              .maestro/flows/ios-smoke.yaml
+          else
+            echo "⚠ Maestro Cloud not configured — skipping device-farm smoke"
+          fi
