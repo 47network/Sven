@@ -90,6 +90,13 @@ jobs:
           docker logs sven-nats || true
           exit 1
 
+      - name: Build packages
+        run: |
+          pnpm --filter ./packages/shared run build
+          for pkg in compute-mesh model-router security-toolkit document-intel marketing-intel proactive-notifier quantum-sim design-system; do
+            pnpm --filter ./packages/$pkg run build 2>/dev/null || true
+          done
+
       - name: Typecheck
         run: npx pnpm -r typecheck
 
