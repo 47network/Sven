@@ -78,17 +78,35 @@ function sanitizeA2uiHtml(input: string): string {
   if (!input || typeof window === 'undefined' || typeof DOMParser === 'undefined') return '';
   const parser = new DOMParser();
   const doc = parser.parseFromString(input, 'text/html');
-  doc.querySelectorAll('script, style, iframe, object, embed, link, meta, base').forEach((el) => el.remove());
-  const allowedDataAttrs = new Set(['data-a2ui-action', 'data-a2ui-payload']);
-  doc.querySelectorAll('*').forEach((el) => {
+  const allowedTags = new Set([
+    'p', 'br', 'b', 'i', 'strong', 'em', 'ul', 'ol', 'li', 'table', 'thead', 'tbody',
+    'tr', 'th', 'td', 'div', 'span', 'a', 'img', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'pre', 'code', 'blockquote', 'hr', 'details', 'summary',
+  ]);
+  const allowedAttrs = new Set(['class', 'href', 'src', 'alt', 'title', 'target', 'rel', 'data-a2ui-action', 'data-a2ui-payload']);
+
+  const allElements = Array.from(doc.body.querySelectorAll('*'));
+  for (const el of allElements) {
+    const tag = el.tagName.toLowerCase();
+    if (!allowedTags.has(tag)) {
+      el.remove();
+      continue;
+    }
     for (const attr of Array.from(el.attributes)) {
       const name = attr.name.toLowerCase();
       const value = attr.value.trim().toLowerCase();
-      if (name.startsWith('on') || name === 'style') { el.removeAttribute(attr.name); continue; }
-      if ((name === 'href' || name === 'src') && !/^(https?:|mailto:|tel:|#|\/)/i.test(value)) { el.removeAttribute(attr.name); continue; }
-      if (name.startsWith('data-') && !allowedDataAttrs.has(name)) el.removeAttribute(attr.name);
+      if (!allowedAttrs.has(name)) {
+        el.removeAttribute(attr.name);
+        continue;
+      }
+      if ((name === 'href' || name === 'src') && !/^(https?:|mailto:|tel:|#|\/)/i.test(value)) {
+        el.removeAttribute(attr.name);
+      }
     }
-  });
+    if (tag === 'a' && el.getAttribute('target')) {
+      el.setAttribute('rel', 'noopener noreferrer');
+    }
+  }
   return doc.body.innerHTML;
 }
 

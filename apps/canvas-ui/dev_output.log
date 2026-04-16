@@ -1,0 +1,15 @@
+
+> @sven/canvas-ui@0.1.0 dev /app/apps/canvas-ui
+> next dev --port 3200
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3200
+   - Network:      http://192.168.0.2:3200
+
+ ✓ Starting...
+ ✓ Ready in 2.1s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1110ms (114 modules)
+ ○ Compiling /login ...
+ ✓ Compiled /login in 10.8s (798 modules)
+ GET /login 200 in 12571ms
