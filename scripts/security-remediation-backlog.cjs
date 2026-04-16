@@ -51,6 +51,33 @@ function toCounts(items, key) {
   return Object.fromEntries(Object.entries(out).sort((a, b) => String(a[0]).localeCompare(String(b[0]))));
 }
 
+function classifyTriage(item) {
+  const severity = String(item.severity || 'unknown').toLowerCase();
+  const source = String(item.source || '').toLowerCase();
+  const owner = String(item.owner || '');
+  const title = String(item.title || '');
+
+  if (severity === 'critical') {
+    return { action: 'fix_now', rationale: 'critical severity' };
+  }
+  if (severity === 'high') {
+    return { action: 'fix_now', rationale: 'high severity' };
+  }
+  if (source === 'plaintext-secrets-check') {
+    if (/__tests__|\.example\.|replace-with|REPLACE_WITH/i.test(`${title} ${JSON.stringify(item.evidence || {})}`)) {
+      return { action: 'defer', rationale: 'likely non-production placeholder/test fixture; review in periodic cleanup' };
+    }
+    return { action: 'review_false_positive', rationale: 'secret-like pattern requires manual validation' };
+  }
+  if (source === 'dependency-audit' && (severity === 'moderate' || severity === 'low' || severity === 'info')) {
+    return { action: 'defer', rationale: 'below immediate threshold; schedule with normal dependency upgrades' };
+  }
+  if (source === 'auth-surface-check' && owner === 'services/gateway-api') {
+    return { action: 'fix_now', rationale: 'internet-facing auth coverage ambiguity' };
+  }
+  return { action: 'defer', rationale: 'non-critical severity; prioritize after critical/high burn-down' };
+}
+
 function main() {
   const dependency = readJsonIfExists(path.join(statusDir, 'dependency-vuln-latest.json'));
   const plaintext = readJsonIfExists(path.join(statusDir, 'security-plaintext-secrets-latest.json'));
@@ -152,19 +179,25 @@ function main() {
     }
   }
 
+  const triaged = items.map((item) => {
+    const triage = classifyTriage(item);
+    return { ...item, triage };
+  });
+
   const summary = {
     generated_at: new Date().toISOString(),
     totals: {
-      findings: items.length,
-      by_source: toCounts(items, 'source'),
-      by_severity: toCounts(items, 'severity'),
-      by_owner: toCounts(items, 'owner'),
+      findings: triaged.length,
+      by_source: toCounts(triaged, 'source'),
+      by_severity: toCounts(triaged, 'severity'),
+      by_owner: toCounts(triaged, 'owner'),
+      by_triage_action: toCounts(triaged.map((item) => ({ action: item.triage.action })), 'action'),
     },
   };
 
   const backlog = {
     ...summary,
-    findings: items,
+    findings: triaged,
   };
 
   const outJson = path.join(statusDir, 'security-remediation-backlog-latest.json');
@@ -187,11 +220,26 @@ function main() {
     '## Findings by owner',
     ...Object.entries(summary.totals.by_owner).map(([k, v]) => `- ${k}: ${v}`),
     '',
+    '## Triage summary',
+    ...Object.entries(summary.totals.by_triage_action).map(([k, v]) => `- ${k}: ${v}`),
+    '',
     '## Top remediation priorities (critical/high)',
-    ...items
+    ...triaged
       .filter((item) => item.severity === 'critical' || item.severity === 'high')
       .slice(0, 50)
       .map((item) => `- [${item.severity}] (${item.source}) ${item.owner}: ${item.title}`),
+    '',
+    '## Deferred with rationale (sample)',
+    ...triaged
+      .filter((item) => item.triage.action === 'defer')
+      .slice(0, 30)
+      .map((item) => `- (${item.source}) ${item.owner}: ${item.title} — ${item.triage.rationale}`),
+    '',
+    '## Review false-positive candidates (sample)',
+    ...triaged
+      .filter((item) => item.triage.action === 'review_false_positive')
+      .slice(0, 30)
+      .map((item) => `- (${item.source}) ${item.owner}: ${item.title} — ${item.triage.rationale}`),
   ];
   fs.writeFileSync(outMd, `${lines.join('\n')}\n`, 'utf8');
 

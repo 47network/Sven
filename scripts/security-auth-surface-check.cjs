@@ -105,6 +105,9 @@ function classifySnippet(routePath, snippet, publicAllowlist) {
 }
 
 function extractRoutes(filePath, content, publicAllowlist) {
+  const relFile = path.relative(root, filePath).replace(/\\/g, '/');
+  const mountedUnderAdminPreHandler = relFile.startsWith('services/gateway-api/src/routes/admin/')
+    && relFile !== 'services/gateway-api/src/routes/admin/index.ts';
   const matches = [];
   let m;
   while ((m = ROUTE_DECL_RE.exec(content)) !== null) {
@@ -125,9 +128,16 @@ function extractRoutes(filePath, content, publicAllowlist) {
     const start = curr.index;
     const end = next ? next.index : content.length;
     const snippet = content.slice(start, end);
-    const cls = classifySnippet(normalizedPath, snippet, publicAllowlist);
+    let cls = classifySnippet(normalizedPath, snippet, publicAllowlist);
+    if (
+      cls.class === 'unknown'
+      && mountedUnderAdminPreHandler
+      && normalizedPath.startsWith('/v1/admin/')
+    ) {
+      cls = { class: 'protected', reason: 'mounted under admin index preHandler hooks' };
+    }
     records.push({
-      file: path.relative(root, filePath).replace(/\\/g, '/'),
+      file: relFile,
       method: curr.method,
       path: normalizedPath,
       route_literal: curr.path,
