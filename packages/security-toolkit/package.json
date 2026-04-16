@@ -46,5 +46,7 @@
     "build": "tsc",
     "dev": "tsc --watch"
   },
-  "dependencies": {}
+  "devDependencies": {
+    "ts-jest": "^29.4.9"
+  }
 }
