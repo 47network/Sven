@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-04-16T10:45:16.950Z",
+  "generated_at": "2026-04-16T10:58:32.572Z",
   "source_branch": "main",
   "source_head_sha": "d6c384a09ff6d56a69cfa160eb8882d700aecddc",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-16T10:44:50.677Z",
+    "captured_at": "2026-04-16T10:58:05.414Z",
     "branch": "main",
     "total_runs": 1000
   },
@@ -89,7 +89,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-16T10:44:40.621Z"
+      "generated_at": "2026-04-16T10:57:55.234Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -119,7 +119,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-16T10:44:45.480Z"
+      "generated_at": "2026-04-16T10:58:00.142Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -134,7 +134,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-16T10:44:50.312Z"
+      "generated_at": "2026-04-16T10:58:05.031Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -611,20 +611,19 @@
       "gate_key": "client_env_governance_ci"
     },
     "deployment-pipeline": {
-      "pass": false,
+      "pass": true,
       "provenance": {
         "run_id": 24505680427,
         "head_sha": "d6c384a09ff6d56a69cfa160eb8882d700aecddc",
         "head_branch": "main",
         "event": "push",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310856,
         "workflow_name": "deployment-pipeline",
         "matched_target_sha": true,
         "gate_key": "deployment_pipeline_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "deployment_pipeline_ci"
     },
@@ -698,20 +697,19 @@
       "gate_key": "release_status_ci"
     },
     "release-supply-chain": {
-      "pass": false,
+      "pass": true,
       "provenance": {
         "run_id": 24505680439,
         "head_sha": "d6c384a09ff6d56a69cfa160eb8882d700aecddc",
         "head_branch": "main",
         "event": "push",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310893,
         "workflow_name": "release-supply-chain",
         "matched_target_sha": true,
         "gate_key": "release_supply_chain_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "release_supply_chain_ci"
     },
