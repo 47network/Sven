@@ -66,25 +66,25 @@ describe('secret-scanner', () => {
 
   describe('scanFileForSecrets', () => {
     it('finds secrets using built-in patterns', () => {
-      const source = `\nconst awsAccessKey = "AKIA` + `1234567890ABCDEF";\nconsole.log(awsAccessKey);\n`;
+      const source = `\nconst awsAccessKey = "AKI` + `A1234567890ABCDEF";\nconsole.log(awsAccessKey);\n`;
       const findings = scanFileForSecrets(source, 'config.js');
       expect(findings).toHaveLength(1);
       expect(findings[0]).toMatchObject({
         type: 'aws-access-key',
-        matchedText: 'AKIA1234567890ABCDEF',
+        matchedText: 'AKI' + 'A1234567890ABCDEF',
         line: 2,
         file: 'config.js',
       });
     });
 
     it('suppresses findings in comments like "example" or "placeholder"', () => {
-      const source = `\n// example AKIA` + `1234567890ABCDEF\n# placeholder AKIA` + `1234567890ABCDEF\n; changeme AKIA` + `1234567890ABCDEF\n`;
+      const source = `\n// example AKI` + `A1234567890ABCDEF\n# placeholder AKI` + `A1234567890ABCDEF\n; changeme AKI` + `A1234567890ABCDEF\n`;
       const findings = scanFileForSecrets(source, 'config.js');
       expect(findings).toHaveLength(0);
     });
 
     it('suppresses findings with inline secret-scan-disable', () => {
-      const source = `\nconst myKey = "AKIA` + `1234567890ABCDEF"; // secret-scan-disable\n`;
+      const source = `\nconst myKey = "AKI` + `A1234567890ABCDEF"; // secret-scan-disable\n`;
       const findings = scanFileForSecrets(source, 'config.js');
       expect(findings).toHaveLength(0);
     });
@@ -114,10 +114,10 @@ const dbPassword = process.env.DB_PASSWORD;
   describe('scanForSecrets', () => {
     it('aggregates findings from multiple files', () => {
       const files = new Map<string, string>([
-        ['src/config.ts', 'const token = "xoxb-' + '1234567890-1234567890";'], // slack-token
-        ['node_modules/test.js', 'const token = "xoxb-' + '1234567890-1234567890";'], // Excluded path
+        ['src/config.ts', 'const token = "xox' + 'b-1234567890-1234567890";'], // slack-token
+        ['node_modules/test.js', 'const token = "xox' + 'b-1234567890-1234567890";'], // Excluded path
         ['src/index.ts', 'console.log("hello");'], // Clean file
-        ['docs/readme.pdf', 'binary data xoxb-' + '1234567890-1234567890'], // Excluded extension
+        ['docs/readme.pdf', 'binary data xox' + 'b-1234567890-1234567890'], // Excluded extension
       ]);
 
       const report = scanForSecrets(files);
