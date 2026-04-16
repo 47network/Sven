@@ -249,7 +249,7 @@ export function mapElitesSelect(nodes: EvolutionNode[], cellCount = 10): Evoluti
   }
 
   // Find least-filled non-empty cell
-  let leastFilled = cells.filter((c) => c.length > 0)
+  const leastFilled = cells.filter((c) => c.length > 0)
     .reduce((a, b) => a.length <= b.length ? a : b);
 
   // Pick best from that cell

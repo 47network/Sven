@@ -154,7 +154,7 @@ export function processOcrRegions(
     if (!line.trim()) { y += 20; continue; }
 
     let type: OcrRegion['type'] = 'text';
-    let content = line;
+    const content = line;
 
     // Detect code blocks
     if (config.enableCodeDetection && /^(import |export |function |const |let |var |class |def |public |private )/.test(line.trim())) {

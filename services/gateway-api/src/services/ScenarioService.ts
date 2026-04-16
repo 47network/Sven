@@ -112,7 +112,7 @@ export async function getAllScenarios(
   organizationId?: string
 ): Promise<Scenario[]> {
   try {
-    let query = `SELECT id, name, description, category, chat_id, user_message,
+    const query = `SELECT id, name, description, category, chat_id, user_message,
                         expected_assistant_response, expected_tool_calls,
                         expected_approvals_required, tags, priority, is_active
                  FROM scenarios`;
