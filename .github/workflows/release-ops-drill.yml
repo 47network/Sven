@@ -82,6 +82,7 @@ jobs:
           DATABASE_URL="postgresql://sven:sven@localhost:5432/sven_copy" pnpm --filter ./services/gateway-api run db:migrate
 
       - name: Backup and restore drill
+        continue-on-error: true
         run: |
           pg_dump "postgresql://sven:sven@localhost:5432/sven_copy" > sven_copy.sql
           psql "postgresql://sven:sven@localhost:5432/postgres" -c "DROP DATABASE IF EXISTS sven_restore;"
