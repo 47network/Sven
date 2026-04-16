@@ -93,9 +93,7 @@ class DefaultFirebaseOptions {
   }
 
   static FirebaseOptions get currentPlatform {
-    if (kIsWeb) {
-      return _webOptions;
-    }
+    if (kIsWeb) return _webOptions;
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return _androidOptions;

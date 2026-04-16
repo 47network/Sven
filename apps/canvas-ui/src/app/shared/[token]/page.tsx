@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, Bot, Copy, Download, User } from 'lucide-react';
 import { MarkdownBlock } from '@/components/blocks/MarkdownBlock';
@@ -39,7 +39,8 @@ function toSharedTranscriptMarkdown(chat: SharedResponse): string {
   return lines.join('\n');
 }
 
-export default function SharedChatPage({ params }: { params: { token: string } }) {
+export default function SharedChatPage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = use(params);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [chat, setChat] = useState<SharedResponse | null>(null);
@@ -77,7 +78,7 @@ export default function SharedChatPage({ params }: { params: { token: string } }
       setLoading(true);
       setError('');
       try {
-        const res = await fetch(`/api/v1/shared/${encodeURIComponent(params.token)}`);
+        const res = await fetch(`/api/v1/shared/${encodeURIComponent(token)}`);
         const body = (await res.json().catch(() => ({}))) as {
           success?: boolean;
           error?: { message?: string };
@@ -102,7 +103,7 @@ export default function SharedChatPage({ params }: { params: { token: string } }
     return () => {
       mounted = false;
     };
-  }, [params.token]);
+  }, [token]);
 
   return (
     <main className="min-h-screen bg-[radial-gradient(1200px_500px_at_50%_-20%,rgba(14,165,168,0.18),transparent_60%),linear-gradient(180deg,#020617_0%,#0b1220_60%,#0f172a_100%)] text-slate-100">
