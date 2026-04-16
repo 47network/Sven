@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@sven/shared": "*",
-    "fastify": "^4.28.1"
+    "fastify": "^5.8.5"
   },
   "devDependencies": {
     "tsx": "^4.7.0"

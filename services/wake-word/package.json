@@ -12,11 +12,11 @@
   "dependencies": {
     "@fastify/static": "^7.0.4",
     "@sven/shared": "*",
-    "fastify": "^4.25.0",
-    "nanoid": "^4.0.0",
+    "fastify": "^5.8.5",
+    "nanoid": "^5.0.9",
     "nats": "^2.19.0",
     "pg": "^8.11.0",
-    "undici": "^6.0.0",
+    "undici": "^6.25.0",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
