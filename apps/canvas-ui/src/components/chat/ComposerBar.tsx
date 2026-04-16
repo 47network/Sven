@@ -22,7 +22,7 @@ type Props = {
     onSubmit: (e: React.FormEvent) => void;
     onApplyCommand: (cmd: ComposerCommand) => void;
     onInsertTemplate: (text: string) => void;
-    inputRef: React.RefObject<HTMLTextAreaElement>;
+    inputRef: React.RefObject<HTMLTextAreaElement | null>;
 };
 
 export default function ComposerBar({

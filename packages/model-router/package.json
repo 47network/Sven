@@ -43,7 +43,7 @@
     "test:coverage": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs --coverage"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.0",
+    "@types/jest": "^29.5.14",
     "typescript": "catalog:"
   }
 }

@@ -11,10 +11,10 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@sven/shared": "*",
-    "discord.js": "^14.14.0"
+    "@sven/shared": "workspace:*",
+    "discord.js": "^14.26.3"
   },
   "devDependencies": {
-    "tsx": "^4.7.0"
+    "tsx": "^4.21.0"
   }
 }

@@ -11,10 +11,10 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@sven/shared": "*",
-    "fastify": "^4.28.1"
+    "@sven/shared": "workspace:*",
+    "fastify": "^5.8.5"
   },
   "devDependencies": {
-    "tsx": "^4.7.0"
+    "tsx": "^4.21.0"
   }
 }

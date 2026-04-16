@@ -11,10 +11,10 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@sven/shared": "*",
-    "telegraf": "^4.15.0"
+    "@sven/shared": "workspace:*",
+    "telegraf": "^4.16.3"
   },
   "devDependencies": {
-    "tsx": "^4.7.0"
+    "tsx": "^4.21.0"
   }
 }
