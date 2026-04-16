@@ -35,7 +35,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
   const pathname = usePathname();
   const esRef = useRef<EventSource | null>(null);
-  const retryRef = useRef<ReturnType<typeof setTimeout>>();
+  const retryRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const normalizedPathname = (() => {
     if (!pathname) return '/';
     if (ADMIN_BASE_PATH && pathname.startsWith(ADMIN_BASE_PATH)) {

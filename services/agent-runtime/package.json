@@ -13,15 +13,15 @@
   },
   "dependencies": {
     "@sven/compute-mesh": "workspace:*",
-    "@sven/shared": "*",
-    "nats": "^2.19.0",
-    "pg": "^8.11.0",
+    "@sven/shared": "workspace:*",
+    "nats": "^2.29.3",
+    "pg": "^8.20.0",
     "uuid": "^10.0.0",
-    "zod": "^3.22.0"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@types/pg": "^8.11.0",
+    "@types/pg": "^8.20.0",
     "@types/uuid": "^10.0.0",
-    "tsx": "^4.7.0"
+    "tsx": "^4.21.0"
   }
 }

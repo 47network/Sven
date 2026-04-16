@@ -9,7 +9,21 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-_No unreleased changes._
+### Security
+- Upgraded Fastify from v4 to v5.8.5 across all 12 services (resolves CVE-2025-32442, CVE-2025-32440, CVE-2024-47764).
+- Upgraded Next.js from v14 to v15.3.4 in admin-ui and canvas-ui (resolves CVE-2025-29927, CVE-2024-46982, CVE-2024-51479).
+- Upgraded React from v18 to v19 across all frontend apps (admin-ui, canvas-ui, companion-desktop-tauri).
+- Upgraded lucide-react from v0.x to v1.8.0 for React 19 peer dep compatibility.
+- Upgraded nanoid from v4 to v5 in wake-word service.
+- Removed unused @fastify/static dependency from wake-word service.
+- Updated all Cargo dependencies via `cargo update` (bumps quinn-proto, glib, rustls-webpki, time, rand, wasm-bindgen, and 100+ transitive deps).
+- Ran `pnpm update --recursive` to patch all semver-compatible transitive dependency vulnerabilities.
+
+### Changed
+- `@types/react` and `@types/react-dom` bumped to v19 across all React apps.
+- `eslint-config-next` bumped to v15.3.4 in admin-ui and canvas-ui.
+- Fixed React 19 `useRef()` breaking change in admin-ui RealtimeProvider and canvas-ui ComposerBar.
+- Added explicit `types` config in canvas-ui tsconfig.json to prevent hoisted type leakage.
 
 ---
 

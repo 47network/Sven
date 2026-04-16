@@ -12,14 +12,14 @@
   },
   "dependencies": {
     "@sven/shared": "workspace:*",
-    "nats": "^2.20.0",
-    "pg": "^8.11.0",
-    "nanoid": "^5.0.0"
+    "nanoid": "^5.1.9",
+    "nats": "^2.29.3",
+    "pg": "^8.20.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/pg": "^8.11.0",
-    "typescript": "^5.0.0",
-    "ts-node": "^10.9.0"
+    "@types/node": "^20.19.39",
+    "@types/pg": "^8.20.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }

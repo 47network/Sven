@@ -11,10 +11,10 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@sven/shared": "*",
+    "@sven/shared": "workspace:*",
     "googleapis": "^130.0.0"
   },
   "devDependencies": {
-    "tsx": "^4.7.0"
+    "tsx": "^4.21.0"
   }
 }
