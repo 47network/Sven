@@ -87,7 +87,7 @@ function main() {
       pushItem(
         items,
         'plaintext-secrets-check',
-        'medium',
+        'moderate',
         inferOwner(file),
         'Potential plaintext secret pattern',
         { file, line: finding.line || null },
@@ -126,7 +126,7 @@ function main() {
   if (Array.isArray(codeScanning)) {
     for (const alert of codeScanning) {
       const file = String(alert?.most_recent_instance?.location?.path || '');
-      const severity = String(alert?.rule?.security_severity_level || alert?.rule?.severity || 'medium').toLowerCase();
+      const severity = String(alert?.rule?.security_severity_level || alert?.rule?.severity || 'unknown').toLowerCase();
       pushItem(
         items,
         'code-scanning',

@@ -8,7 +8,9 @@ import { pipeline } from 'stream/promises';
 import path from 'path';
 
 function resolveStoragePath(baseDir: string, storageKey: unknown): string | null {
-  const base = path.resolve(String(baseDir || '/data/uploads'));
+  const baseDirValue = String(baseDir || '').trim();
+  if (!baseDirValue) return null;
+  const base = path.resolve(baseDirValue);
   const key = String(storageKey || '').trim();
   if (!key) return null;
   const candidate = path.resolve(base, key);
@@ -19,11 +21,11 @@ function resolveStoragePath(baseDir: string, storageKey: unknown): string | null
   return candidate;
 }
 
-function toSafeStorageUserSegment(value: unknown): string {
+function toSafeStorageUserSegment(value: unknown): string | null {
   const trimmed = String(value || '').trim();
   const normalized = trimmed.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 128);
-  if (normalized) return normalized;
-  return createHash('sha256').update(trimmed || 'unknown').digest('hex').slice(0, 32);
+  if (!normalized) return null;
+  return normalized;
 }
 
 export async function registerMediaRoutes(app: FastifyInstance, pool: pg.Pool) {
@@ -75,6 +77,9 @@ export async function registerMediaRoutes(app: FastifyInstance, pool: pg.Pool) {
     const ext = path.extname(originalName) || '';
     const safeExt = ext.replace(/[^a-zA-Z0-9.]/g, '').slice(0, 10);
     const storageUserSegment = toSafeStorageUserSegment(userId);
+    if (!storageUserSegment) {
+      return reply.status(400).send({ success: false, error: 'invalid user context for storage path' });
+    }
     const storageKey = `${storageUserSegment}/${uploadId}${safeExt}`;
 
     // Write to local storage
@@ -86,7 +91,7 @@ export async function registerMediaRoutes(app: FastifyInstance, pool: pg.Pool) {
 
     const filePath = resolveStoragePath(localPath, storageKey);
     if (!filePath) {
-      return reply.status(400).send({ success: false, error: 'invalid storage path' });
+      return reply.status(400).send({ success: false, error: 'invalid upload storage path' });
     }
     const hash = createHash('sha256');
     let totalBytes = 0;
