@@ -11,7 +11,7 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@sven/shared": "*",
+    "@sven/shared": "workspace:*",
     "fake-indexeddb": "^6.0.0",
     "matrix-js-sdk": "^37.8.0"
   },

@@ -11,7 +11,7 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@sven/shared": "*",
+    "@sven/shared": "workspace:*",
     "pg": "^8.11.0",
     "nats": "^2.19.0",
     "undici": "^6.19.8",

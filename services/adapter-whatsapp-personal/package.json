@@ -11,7 +11,7 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@sven/shared": "*",
+    "@sven/shared": "workspace:*",
     "@whiskeysockets/baileys": "^6.7.18",
     "qrcode": "^1.5.4",
     "pino": "^9.5.0"

@@ -10,7 +10,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@sven/shared": "*",
+    "@sven/shared": "workspace:*",
     "js-yaml": "^4.1.0",
     "pg": "^8.11.0"
   },

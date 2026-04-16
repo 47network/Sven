@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@fastify/static": "^7.0.4",
-    "@sven/shared": "*",
+    "@sven/shared": "workspace:*",
     "fastify": "^4.25.0",
     "nanoid": "^4.0.0",
     "nats": "^2.19.0",

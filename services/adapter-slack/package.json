@@ -11,7 +11,7 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@sven/shared": "*",
+    "@sven/shared": "workspace:*",
     "@slack/bolt": "^3.17.0",
     "@slack/web-api": "^6.11.0"
   },

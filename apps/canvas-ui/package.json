@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@sven/shared": "0.1.0",
+    "@sven/shared": "workspace:*",
     "@tanstack/react-query": "^5.17.0",
     "clsx": "^2.1.0",
     "date-fns": "^3.3.0",
