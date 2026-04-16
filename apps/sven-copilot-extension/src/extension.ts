@@ -227,7 +227,7 @@ async function handleCodebase(
 async function handleDeploy(
   api: SvenApiClient,
   stream: vscode.ChatResponseStream,
-  token: vscode.CancellationToken,
+  _token: vscode.CancellationToken,
 ): Promise<SvenChatResult> {
   stream.progress('Checking deployment status...');
 
@@ -396,7 +396,7 @@ async function streamSvenBrain(
     return streamResult;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
-    stream.markdown(`> _Sven\'s brain is offline: ${message}_\n\n`);
+    stream.markdown(`> _Sven's brain is offline: ${message}_\n\n`);
     return null;
   }
 }

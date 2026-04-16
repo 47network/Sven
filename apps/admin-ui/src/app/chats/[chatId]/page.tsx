@@ -245,18 +245,6 @@ export default function AdminChatDetailPage() {
     [messages],
   );
 
-  if (!chatId) {
-    return (
-      <EmptyState
-        icon={MessageSquare}
-        title="Chat not found"
-        description="This route did not resolve a chat id."
-      />
-    );
-  }
-
-  if (chatLoading || messagesLoading) return <PageSpinner />;
-
   const tokenSections = [
     { key: 'system', label: 'System Prompt', tokens: Number(debug?.system_prompt?.tokens || 0), color: 'bg-cyan-500' },
     { key: 'memories', label: 'Memories', tokens: Number(debug?.memories?.tokens || 0), color: 'bg-emerald-500' },
@@ -333,6 +321,18 @@ export default function AdminChatDetailPage() {
     }
     return lines.join('\n');
   }, [debug]);
+
+  if (!chatId) {
+    return (
+      <EmptyState
+        icon={MessageSquare}
+        title="Chat not found"
+        description="This route did not resolve a chat id."
+      />
+    );
+  }
+
+  if (chatLoading || messagesLoading) return <PageSpinner />;
 
   return (
     <>

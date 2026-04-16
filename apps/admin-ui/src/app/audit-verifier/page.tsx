@@ -103,7 +103,7 @@ export default function AuditVerifierPage() {
       {result === null ? (
         <div className="card flex flex-col items-center justify-center py-20 text-center text-slate-400">
           <Link2 className="mb-3 h-12 w-12" />
-          <p className="text-sm">Click "Verify Chain" to check audit log integrity</p>
+          <p className="text-sm">Click &ldquo;Verify Chain&rdquo; to check audit log integrity</p>
           <p className="mt-1 text-xs text-slate-400">
             This verifies hash chain continuity and detects gaps or tampering.
           </p>
