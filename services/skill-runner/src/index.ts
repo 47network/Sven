@@ -9502,7 +9502,7 @@ end tell
       );
       const db = dbStats.rows[0] as { active_connections: number; total_connections: number; db_size_bytes: string };
 
-      let queueDepths: Record<string, number> = {};
+      const queueDepths: Record<string, number> = {};
       try {
         const qRes = await pool.query(
           `SELECT tool_name, count(*)::int AS pending FROM tool_runs WHERE status = 'running' GROUP BY tool_name ORDER BY pending DESC LIMIT 20`,
@@ -9510,7 +9510,7 @@ end tell
         for (const r of qRes.rows) queueDepths[(r as any).tool_name] = (r as any).pending;
       } catch { /* tool_runs may not exist yet */ }
 
-      let errors24h: { total: number; by_status: Record<string, number> } = { total: 0, by_status: {} };
+      const errors24h: { total: number; by_status: Record<string, number> } = { total: 0, by_status: {} };
       try {
         const errRes = await pool.query(
           `SELECT status, count(*)::int AS cnt FROM tool_runs WHERE status IN ('error','timeout','denied') AND created_at >= NOW() - INTERVAL '24 hours' GROUP BY status`,

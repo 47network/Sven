@@ -157,7 +157,7 @@ export function routeRequest(
   const priority = request.qualityPriority ?? 'balanced';
 
   // Get candidate models for this task
-  let candidates = registry.listByTask(task);
+  const candidates = registry.listByTask(task);
 
   // If preferred model specified and available, prioritize it
   if (request.preferredModel) {
