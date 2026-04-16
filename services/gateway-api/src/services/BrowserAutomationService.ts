@@ -132,11 +132,11 @@ export class BrowserAutomationService {
 
     switch (action) {
       case 'click':
-        await page.click(payload.selector);
+        await page.click(this.validateSelector(payload.selector)!);
         await this.persistRuntime(profileId);
         return { ok: true };
       case 'type':
-        await page.fill(payload.selector, payload.text || '');
+        await page.fill(this.validateSelector(payload.selector)!, payload.text || '');
         await this.persistRuntime(profileId);
         return { ok: true };
       case 'fill_form': {
@@ -149,12 +149,12 @@ export class BrowserAutomationService {
         return { ok: true, fields: fields.length };
       }
       case 'select':
-        await page.selectOption(payload.selector, payload.value);
+        await page.selectOption(this.validateSelector(payload.selector)!, payload.value);
         await this.persistRuntime(profileId);
         return { ok: true };
       case 'wait':
         if (payload.selector) {
-          await page.waitForSelector(payload.selector, {
+          await page.waitForSelector(this.validateSelector(payload.selector)!, {
             timeout: Number(payload.timeout_ms || 10000),
           });
         } else {
@@ -163,7 +163,7 @@ export class BrowserAutomationService {
         return { ok: true };
       case 'scroll':
         if (payload.selector) {
-          await page.$eval(payload.selector, (el: any) => el.scrollIntoView());
+          await page.$eval(this.validateSelector(payload.selector)!, (el: any) => el.scrollIntoView());
         } else {
           await page.evaluate(
             ({ x, y }: { x: number; y: number }) => (globalThis as any).window?.scrollTo(Number(x) || 0, Number(y) || 0),
@@ -195,7 +195,7 @@ export class BrowserAutomationService {
         if (resolvedPath !== allowedUploadRoot && !resolvedPath.startsWith(allowedUploadRoot + '/')) {
           throw new Error('file_path must be within the uploads directory');
         }
-        await page.setInputFiles(selector, resolvedPath);
+        await page.setInputFiles(this.validateSelector(selector)!, resolvedPath);
         await this.persistRuntime(profileId);
         return { ok: true };
       }
@@ -289,7 +289,7 @@ export class BrowserAutomationService {
 
         const downloadPromise = page.waitForEvent('download', { timeout: timeoutMs });
         if (selector) {
-          await page.click(selector);
+          await page.click(this.validateSelector(selector)!);
         } else {
           await page.goto(nextUrl, { waitUntil: 'domcontentloaded' });
         }
@@ -331,13 +331,13 @@ export class BrowserAutomationService {
       }
       case 'get_text': {
         const text = payload.selector
-          ? await page.textContent(payload.selector)
+          ? await page.textContent(this.validateSelector(payload.selector)!)
           : await page.evaluate(() => (globalThis as any).document?.body?.innerText || '');
         return { text: text || '' };
       }
       case 'get_html': {
         const html = payload.selector
-          ? await page.$eval(payload.selector, (el: any) => el.outerHTML)
+          ? await page.$eval(this.validateSelector(payload.selector)!, (el: any) => el.outerHTML)
           : await page.content();
         return { html: html || '' };
       }
@@ -539,6 +539,15 @@ export class BrowserAutomationService {
       if (host.endsWith(`.${pattern}`)) return true;
     }
     return false;
+  }
+
+  private validateSelector(selector: any): string | undefined {
+    if (selector === undefined || selector === null) return undefined;
+    const str = String(selector);
+    if (/[<{};]/.test(str)) {
+      throw new Error('Invalid selector: contains unsafe characters');
+    }
+    return str;
   }
 
   private isRawIp(host: string): boolean {
