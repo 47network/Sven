@@ -201,46 +201,12 @@ export function analyzeConversationTurn(
   const lower = message.toLowerCase();
   const wordCount = message.split(/\s+/).length;
 
-  // Check for active language
-  const activeVerbs = ['believe', 'recommend', 'propose', 'suggest', 'expect', 'commit', 'deliver'];
-  if (activeVerbs.some((v) => lower.includes(v))) {
-    strengths.push('Uses active, confident language');
-  }
-
-  // Check for passive/hedging
-  const hedgeWords = ['maybe', 'perhaps', 'sort of', 'kind of', 'i think', 'i guess', 'hopefully'];
-  const hedges = hedgeWords.filter((h) => lower.includes(h));
-  if (hedges.length > 0) {
-    weaknesses.push(`Hedging language detected: ${hedges.join(', ')}`);
-    suggestions.push('Replace hedging phrases with direct statements');
-  }
-
-  // Check for specificity
-  const hasNumbers = /\d+/.test(message);
-  if (hasNumbers) {
-    strengths.push('Includes specific numbers or data points');
-  } else if (scenario.role === 'raise_negotiation') {
-    suggestions.push('Include specific numbers to strengthen your position');
-  }
-
-  // Check for empathy markers
-  const empathyMarkers = ['understand', 'appreciate', 'recognize', 'acknowledge', 'respect'];
-  if (empathyMarkers.some((e) => lower.includes(e))) {
-    strengths.push('Shows empathy and acknowledgment');
-  }
-
-  // Check conciseness
-  if (wordCount > 150) {
-    weaknesses.push('Response is verbose — may lose the listener');
-    suggestions.push('Aim for 50-100 words per turn for maximum impact');
-  } else if (wordCount < 10) {
-    weaknesses.push('Response too brief — may appear disengaged');
-  }
-
-  // Check for questions (good for dialogue)
-  if (message.includes('?')) {
-    strengths.push('Asks questions — keeps dialogue collaborative');
-  }
+  checkActiveLanguage(lower, strengths);
+  checkHedging(lower, weaknesses, suggestions);
+  checkSpecificity(message, scenario.role, strengths, suggestions);
+  checkEmpathy(lower, strengths);
+  checkConciseness(wordCount, weaknesses, suggestions);
+  checkQuestions(message, strengths);
 
   const positives = strengths.length * 20;
   const negatives = weaknesses.length * 15;
@@ -639,4 +605,51 @@ function inferStyle(analyses: TurnAnalysis[]): string {
   if (avgScore >= 60) return 'Balanced and collaborative';
   if (avgScore >= 40) return 'Cautious and measured';
   return 'Tentative — needs more assertiveness';
+}
+
+function checkActiveLanguage(lower: string, strengths: string[]) {
+  const activeVerbs = ['believe', 'recommend', 'propose', 'suggest', 'expect', 'commit', 'deliver'];
+  if (activeVerbs.some((v) => lower.includes(v))) {
+    strengths.push('Uses active, confident language');
+  }
+}
+
+function checkHedging(lower: string, weaknesses: string[], suggestions: string[]) {
+  const hedgeWords = ['maybe', 'perhaps', 'sort of', 'kind of', 'i think', 'i guess', 'hopefully'];
+  const hedges = hedgeWords.filter((h) => lower.includes(h));
+  if (hedges.length > 0) {
+    weaknesses.push(`Hedging language detected: ${hedges.join(', ')}`);
+    suggestions.push('Replace hedging phrases with direct statements');
+  }
+}
+
+function checkSpecificity(message: string, role: string, strengths: string[], suggestions: string[]) {
+  const hasNumbers = /\d+/.test(message);
+  if (hasNumbers) {
+    strengths.push('Includes specific numbers or data points');
+  } else if (role === 'raise_negotiation') {
+    suggestions.push('Include specific numbers to strengthen your position');
+  }
+}
+
+function checkEmpathy(lower: string, strengths: string[]) {
+  const empathyMarkers = ['understand', 'appreciate', 'recognize', 'acknowledge', 'respect'];
+  if (empathyMarkers.some((e) => lower.includes(e))) {
+    strengths.push('Shows empathy and acknowledgment');
+  }
+}
+
+function checkConciseness(wordCount: number, weaknesses: string[], suggestions: string[]) {
+  if (wordCount > 150) {
+    weaknesses.push('Response is verbose — may lose the listener');
+    suggestions.push('Aim for 50-100 words per turn for maximum impact');
+  } else if (wordCount < 10) {
+    weaknesses.push('Response too brief — may appear disengaged');
+  }
+}
+
+function checkQuestions(message: string, strengths: string[]) {
+  if (message.includes('?')) {
+    strengths.push('Asks questions — keeps dialogue collaborative');
+  }
 }
