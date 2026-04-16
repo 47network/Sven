@@ -1,0 +1,66 @@
+name: gateway-bridge-contract-tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner_target:
+        description: 'Runner label (ubuntu-latest or self-hosted)'
+        required: false
+        default: 'ubuntu-latest'
+  pull_request:
+    paths:
+      - 'services/gateway-api/**'
+      - 'scripts/ops/release/bridge-*'
+      - 'config/release/required-workflows.json'
+      - '.github/workflows/gateway-bridge-contract-tests.yml'
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'services/gateway-api/**'
+      - 'scripts/ops/release/bridge-*'
+      - 'config/release/required-workflows.json'
+      - '.github/workflows/gateway-bridge-contract-tests.yml'
+
+
+permissions:
+  contents: read
+jobs:
+  bridge-contract:
+    runs-on: ${{ github.event.inputs.runner_target || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared and pillar packages
+        run: |
+          pnpm --filter ./packages/shared run build
+          for pkg in compute-mesh model-router security-toolkit document-intel marketing-intel proactive-notifier quantum-sim design-system; do
+            pnpm --filter ./packages/$pkg run build
+          done
+
+      - name: Run gateway bridge contract tests
+        run: |
+          pnpm --filter ./services/gateway-api run test -- \
+            --runInBand \
+            --forceExit \
+            --no-coverage \
+            --testPathPattern="(bridge|rag-indexer-query-path\.contract)"
+
+      - name: Upload contract test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gateway-bridge-contract-results
+          path: |
+            docs/release/status/gateway-bridge-*-latest.json
