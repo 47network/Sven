@@ -517,7 +517,7 @@ function parseSamlAssertionXml(xml: string): {
     const nameExtract = attrTag.match(/Name="([^"]+)"/);
     const name = nameExtract ? String(nameExtract[1] || '').trim() : '';
     const block = String(attrMatch[2] || '');
-    const values = Array.from(block.matchAll(/<(?:\w+:)?AttributeValue[^>]*>([\s\S]*?)<\/(?:\w+:)?AttributeValue>/gi))
+    const values = Array.from(block.matchAll(/<(?:\w+:)?AttributeValue[^>]*>([^<]*(?:<(?!\/(?:\w+:)?AttributeValue>)[^<]*)*)<\/(?:\w+:)?AttributeValue>/gi))
       .map((m) => String(m[1] || '').trim())
       .filter(Boolean);
     if (name && values.length > 0) {
@@ -1969,7 +1969,7 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       });
     }
     if (configuredCertBody) {
-      const certMatch = xml.match(/<(?:\w+:)?X509Certificate[^>]*>([\s\S]*?)<\/(?:\w+:)?X509Certificate>/i);
+      const certMatch = xml.match(/<(?:\w+:)?X509Certificate[^>]*>([^<]*(?:<(?!\/(?:\w+:)?X509Certificate>)[^<]*)*)<\/(?:\w+:)?X509Certificate>/i);
       const assertionCertBody = certMatch ? String(certMatch[1] || '').replace(/\s+/g, '').trim() : '';
       if (SSO_STRICT_ASSERTION_VALIDATION && !assertionCertBody) {
         return reply.status(401).send({
