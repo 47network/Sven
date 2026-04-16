@@ -80,7 +80,7 @@ describe('Infrastructure Scanner', () => {
 
     it('should identify hardcoded secrets in compose environment', () => {
       const services: DockerComposeService[] = [
-        { name: 'app', environment: { DB_PASSWORD: 'supersecret', NORMAL_VAR: 'value' } },
+        { name: 'app', environment: { DB_PASSWORD: 'test_password', NORMAL_VAR: 'value' } }, // pragma: allowlist secret
         { name: 'app2', environment: { DB_PASSWORD: '${DB_PASSWORD}' } }, // Safe, using env var
       ];
       const findings = auditDockerCompose(services);
