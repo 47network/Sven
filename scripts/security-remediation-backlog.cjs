@@ -5,6 +5,7 @@ const path = require('node:path');
 
 const root = process.cwd();
 const statusDir = path.join(root, 'docs', 'release', 'status');
+const PLAINTEXT_PLACEHOLDER_OR_TEST_PATTERN = /(__tests__|\.example\.|replace-with|REPLACE_WITH)/i;
 
 function readJsonIfExists(file) {
   if (!fs.existsSync(file)) return null;
@@ -64,7 +65,7 @@ function classifyTriage(item) {
     return { action: 'fix_now', rationale: 'high severity' };
   }
   if (source === 'plaintext-secrets-check') {
-    if (/(__tests__|\.example\.|replace-with|REPLACE_WITH)/i.test(`${title} ${JSON.stringify(item.evidence || {})}`)) {
+    if (PLAINTEXT_PLACEHOLDER_OR_TEST_PATTERN.test(`${title} ${JSON.stringify(item.evidence || {})}`)) {
       return { action: 'defer', rationale: 'likely non-production placeholder/test fixture; review in periodic cleanup' };
     }
     return { action: 'review_false_positive', rationale: 'secret-like pattern requires manual validation' };
