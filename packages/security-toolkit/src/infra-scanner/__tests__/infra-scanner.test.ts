@@ -188,7 +188,7 @@ describe('Infra Scanner', () => {
     });
 
     it('ignores non-debug values in non-dev env files', () => {
-      const content = 'NODE_ENV=production\nDEBUG=false';
+      const content = ['NODE_ENV=production', 'DEBUG=false'].join('\n');
       const findings = auditEnvFile(content, '.env.production');
       expect(findings).toHaveLength(0);
     });
