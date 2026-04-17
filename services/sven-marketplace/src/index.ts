@@ -14,6 +14,8 @@ import { MarketplaceRepository } from './repo.js';
 import { registerPublicRoutes } from './routes/public.js';
 import { registerListingRoutes } from './routes/listings.js';
 import { registerOrderRoutes } from './routes/orders.js';
+import { registerWebhookRoutes } from './routes/webhook.js';
+import { registerCheckoutRoutes } from './routes/checkout.js';
 
 const logger = createLogger('sven-marketplace');
 const PORT = Number(process.env.MARKETPLACE_PORT || 9478);
@@ -45,6 +47,18 @@ async function main() {
   registerPublicRoutes(app, repo);
   registerListingRoutes(app, repo);
   registerOrderRoutes(app, repo);
+  registerCheckoutRoutes(app, repo);
+
+  // Webhook routes need raw body for Stripe signature verification.
+  // Encapsulated plugin scope gets its own content type parser without
+  // affecting the main app's JSON parsing.
+  await app.register(async (webhookScope) => {
+    webhookScope.removeAllContentTypeParsers();
+    webhookScope.addContentTypeParser('application/json', { parseAs: 'string' }, (_req, body, done) => {
+      done(null, body);
+    });
+    registerWebhookRoutes(webhookScope, repo);
+  });
 
   app.setErrorHandler((err, _req, reply) => {
     const e = err as Error;
