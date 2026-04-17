@@ -3938,7 +3938,7 @@ function isOperatorAllowedAdminPath(rawUrl: string): boolean {
 }
 
 function generateUserCode(): string {
-  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // pragma: allowlist secret
   let out = '';
   const alphabetLength = alphabet.length;
   const maxUnbiasedByte = Math.floor(256 / alphabetLength) * alphabetLength;
