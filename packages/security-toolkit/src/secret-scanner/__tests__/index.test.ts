@@ -105,6 +105,23 @@ describe('secret-scanner', () => {
       const findings = scanFileForSecrets(source, 'test.ts');
       expect(findings).toHaveLength(0);
     });
+
+    it('falls back to match[0] when match[1] is undefined (no capture group)', () => {
+      const customPatterns = [
+        {
+          id: 'TEST-NO-GROUP',
+          type: 'generic-secret' as any,
+          title: 'Custom Test Pattern',
+          pattern: /NO_CAPTURE_GROUP_SECRET/,
+          severity: 'high' as const,
+        },
+      ];
+      const source = `const secret = "NO_CAPTURE_GROUP_SECRET";`;
+      const findings = scanFileForSecrets(source, 'test.ts', customPatterns);
+
+      expect(findings).toHaveLength(1);
+      expect(findings[0].matchedText).toBe('NO_CAPTURE_GROUP_SECRET');
+    });
   });
 
   describe('scanForSecrets', () => {
