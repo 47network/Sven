@@ -95,6 +95,21 @@ describe('Infra Scanner', () => {
       const findings = auditDockerCompose(services);
       expect(findings.find((f) => f.title === 'Container may run as root')).toBeDefined();
     });
+
+    it('passes secure service without findings', () => {
+      const services: DockerComposeService[] = [
+        {
+          name: 'secure-svc',
+          cap_add: ['CHOWN', 'SETUID'], // Not dangerous
+          ports: ['127.0.0.1:8080:8080', '[::1]:9090:9090', '8080:127.0.0.1:80'], // Local only, covering branch 146
+          healthcheck: { test: ['CMD', 'curl', '-f', 'http://localhost'] },
+          read_only: true,
+          user: '1000:1000',
+        },
+      ];
+      const findings = auditDockerCompose(services);
+      expect(findings).toHaveLength(0);
+    });
   });
 
   describe('auditTlsCerts', () => {
@@ -164,6 +179,18 @@ describe('Infra Scanner', () => {
       expect(findings).toHaveLength(2);
       expect(findings[0].severity).toBe('medium');
       expect(findings[0].title).toContain('Debug/development mode enabled');
+    });
+
+    it('ignores comments, empty lines, and malformed lines', () => {
+      const content = '\n# This is a comment\n\nINVALID_LINE_WITHOUT_EQUALS\n';
+      const findings = auditEnvFile(content, '.env');
+      expect(findings).toHaveLength(0);
+    });
+
+    it('ignores non-debug values in non-dev env files', () => {
+      const content = 'NODE_ENV=production\nDEBUG=false';
+      const findings = auditEnvFile(content, '.env.production');
+      expect(findings).toHaveLength(0);
     });
   });
 
