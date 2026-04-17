@@ -371,6 +371,84 @@ export class RevenuePipelineRepository {
     }
   }
 
+  /**
+   * Active pipelines bound to a given treasury account (via config.treasuryAccountId).
+   * Used by the automaton lifecycle adapter to answer activePipelineIds().
+   */
+  async findActiveByTreasuryAccount(treasuryAccountId: string): Promise<RevenuePipeline[]> {
+    if (!treasuryAccountId) return [];
+    const res = await this.pool.query<PipelineRow>(
+      `SELECT id, org_id, name, type, status, config, metrics, created_at, updated_at, last_revenue_at
+         FROM revenue_pipelines
+         WHERE status = 'active'
+           AND config ->> 'treasuryAccountId' = $1
+         ORDER BY created_at DESC
+         LIMIT 100`,
+      [treasuryAccountId],
+    );
+    return res.rows.map(rowToPipeline);
+  }
+
+  /**
+   * Sum of net_amount for revenue_events posted to pipelines bound to a given
+   * treasury account since `sinceIso`. Used by the lifecycle adapter to answer
+   * netInflowSince() without hitting the treasury HTTP service.
+   */
+  async sumNetInflowByTreasurySince(treasuryAccountId: string, sinceIso: string): Promise<number> {
+    if (!treasuryAccountId) return 0;
+    const res = await this.pool.query<{ total: string | null }>(
+      `SELECT COALESCE(SUM(e.net_amount), 0)::text AS total
+         FROM revenue_events e
+         JOIN revenue_pipelines p ON p.id = e.pipeline_id
+        WHERE p.config ->> 'treasuryAccountId' = $1
+          AND e.created_at >= $2`,
+      [treasuryAccountId, sinceIso],
+    );
+    return Number(res.rows[0]?.total ?? 0) || 0;
+  }
+
+  /**
+   * Create + activate a default service_marketplace pipeline bound to the
+   * given treasury account. Used by the seed provisioner when a fresh automaton
+   * is born so it has something to earn against immediately.
+   *
+   * Returns the activated pipeline.
+   */
+  async seedServiceMarketplacePipeline(params: {
+    orgId: string;
+    treasuryAccountId: string;
+    automatonId: string;
+    name?: string;
+    config?: Partial<PipelineConfig>;
+  }): Promise<RevenuePipeline> {
+    const pipeline = await this.createPipeline({
+      orgId: params.orgId,
+      name: params.name || `Seed pipeline for ${params.automatonId}`,
+      type: 'service_marketplace',
+      config: {
+        treasuryAccountId: params.treasuryAccountId,
+        payoutSchedule: 'daily',
+        minPayoutThreshold: 1,
+        platformFeePct: 2.9,
+        reinvestPct: 30,
+        typeConfig: { automatonId: params.automatonId, seed: true, ...(params.config?.typeConfig ?? {}) },
+        ...(params.config ?? {}),
+      },
+    });
+    const activated = await this.activatePipeline(pipeline.id);
+    if (!activated) {
+      // Should not happen — createPipeline just inserted the row — but guard anyway.
+      throw new Error(`Seed pipeline ${pipeline.id} disappeared before activation`);
+    }
+    logger.info('Seed service_marketplace pipeline provisioned', {
+      pipelineId: activated.id,
+      orgId: params.orgId,
+      automatonId: params.automatonId,
+      treasuryAccountId: params.treasuryAccountId,
+    });
+    return activated;
+  }
+
   async listRevenueEvents(pipelineId?: string, limit = 100): Promise<RevenueEvent[]> {
     const bounded = Math.min(Math.max(1, limit | 0), MAX_LIMIT);
     if (pipelineId) {
