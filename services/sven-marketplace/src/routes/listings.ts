@@ -29,6 +29,15 @@ const CreateBody = z.object({
   slug: z.string().optional(),
 });
 
+const UpdateBody = z.object({
+  title: z.string().min(1).max(200).optional(),
+  description: z.string().max(10_000).optional(),
+  unitPrice: z.number().nonnegative().max(1_000_000).optional(),
+  tags: z.array(z.string().max(40)).max(20).optional(),
+  coverImageUrl: z.string().url().optional().nullable(),
+  metadata: z.record(z.unknown()).optional(),
+});
+
 export function registerListingRoutes(app: FastifyInstance, repo: MarketplaceRepository) {
   app.post('/v1/market/listings', async (req, reply) => {
     const parsed = CreateBody.safeParse(req.body);
@@ -68,5 +77,20 @@ export function registerListingRoutes(app: FastifyInstance, repo: MarketplaceRep
     const listing = await repo.retireListing(id);
     if (!listing) return reply.status(404).send({ success: false, error: { code: 'NOT_FOUND' } });
     return reply.send({ success: true, data: { listing } });
+  });
+
+  app.put('/v1/market/listings/:id', async (req, reply) => {
+    const id = (req.params as { id: string }).id;
+    const parsed = UpdateBody.safeParse(req.body);
+    if (!parsed.success) {
+      return reply.status(400).send({ success: false, error: { code: 'BAD_BODY', message: parsed.error.message } });
+    }
+    try {
+      const listing = await repo.updateListing(id, parsed.data);
+      if (!listing) return reply.status(404).send({ success: false, error: { code: 'NOT_FOUND' } });
+      return reply.send({ success: true, data: { listing } });
+    } catch (err) {
+      return reply.status(400).send({ success: false, error: { code: 'UPDATE_FAILED', message: (err as Error).message } });
+    }
   });
 }

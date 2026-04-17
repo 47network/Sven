@@ -30,6 +30,7 @@ const EVENT_TO_KIND: Partial<Record<EidolonEventKind, {
   'market.order_paid':         { buildingKind: 'marketplace_listing', color: '#22c55e' }, // green
   'market.listing_published':  { buildingKind: 'marketplace_listing', color: '#22d3ee' }, // cyan
   'market.fulfilled':          { buildingKind: 'marketplace_listing', color: '#a78bfa' }, // violet
+  'market.refunded':           { buildingKind: 'marketplace_listing', color: '#ef4444' }, // red
   'infra.node_change':         { buildingKind: 'infra_node',          color: '#38bdf8' }, // sky
   'agent.spawned':             { buildingKind: 'revenue_service',     color: '#a3e635' }, // lime
   'agent.retired':             { buildingKind: 'revenue_service',     color: '#f43f5e' }, // rose

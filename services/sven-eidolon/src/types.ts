@@ -62,6 +62,7 @@ export type EidolonEventKind =
   | 'market.listing_published'
   | 'market.order_paid'
   | 'market.fulfilled'
+  | 'market.refunded'
   | 'treasury.credit'
   | 'treasury.debit'
   | 'agent.spawned'

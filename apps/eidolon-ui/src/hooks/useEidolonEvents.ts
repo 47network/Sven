@@ -19,7 +19,7 @@ export function useEidolonEvents(): EidolonEvent[] {
       es = new EventSource('/v1/eidolon/events');
       es.onopen = () => { retryMs.current = 1000; };
       es.onmessage = (msg) => handle(msg.data);
-      ['market.listing_published','market.order_paid','market.fulfilled','treasury.credit','treasury.debit','agent.spawned','agent.retired','infra.node_change','heartbeat']
+      ['market.listing_published','market.order_paid','market.fulfilled','market.refunded','treasury.credit','treasury.debit','agent.spawned','agent.retired','infra.node_change','heartbeat']
         .forEach((k) => es?.addEventListener(k, (msg: MessageEvent) => handle(msg.data)));
       es.onerror = () => {
         es?.close();

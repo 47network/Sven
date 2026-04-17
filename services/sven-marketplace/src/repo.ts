@@ -282,6 +282,38 @@ export class MarketplaceRepository {
     return res.rows[0] ? toListing(res.rows[0]) : null;
   }
 
+  async updateListing(id: string, patch: {
+    title?: string;
+    description?: string;
+    unitPrice?: number;
+    tags?: string[];
+    coverImageUrl?: string | null;
+    metadata?: Record<string, unknown>;
+  }): Promise<Listing | null> {
+    const cur = await this.getListing(id);
+    if (!cur) return null;
+    // Only allow price changes on non-published listings
+    if (patch.unitPrice !== undefined && cur.status === 'published') {
+      throw new Error('Cannot change price on a published listing; pause it first');
+    }
+    const sets: string[] = ['updated_at = NOW()'];
+    const values: unknown[] = [];
+    if (patch.title !== undefined) { values.push(patch.title); sets.push(`title = $${values.length}`); }
+    if (patch.description !== undefined) { values.push(patch.description); sets.push(`description = $${values.length}`); }
+    if (patch.unitPrice !== undefined) { values.push(patch.unitPrice); sets.push(`unit_price = $${values.length}`); }
+    if (patch.tags !== undefined) { values.push(patch.tags); sets.push(`tags = $${values.length}`); }
+    if (patch.coverImageUrl !== undefined) { values.push(patch.coverImageUrl); sets.push(`cover_image_url = $${values.length}`); }
+    if (patch.metadata !== undefined) { values.push(JSON.stringify(patch.metadata)); sets.push(`metadata = $${values.length}::jsonb`); }
+    if (values.length === 0) return cur;
+    values.push(id);
+    const res = await this.pool.query<ListingRow>(
+      `UPDATE marketplace_listings SET ${sets.join(', ')} WHERE id = $${values.length} RETURNING *`,
+      values,
+    );
+    logger.info('Listing updated', { id, fields: Object.keys(patch) });
+    return res.rows[0] ? toListing(res.rows[0]) : null;
+  }
+
   /* ---------- orders ---------- */
 
   /**

@@ -19,6 +19,7 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.market.listing_published': 'market.listing_published',
   'sven.market.order_paid': 'market.order_paid',
   'sven.market.fulfilled': 'market.fulfilled',
+  'sven.market.refunded': 'market.refunded',
   'sven.treasury.credit': 'treasury.credit',
   'sven.treasury.debit': 'treasury.debit',
   'sven.agent.spawned': 'agent.spawned',
