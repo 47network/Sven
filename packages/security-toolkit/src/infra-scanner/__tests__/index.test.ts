@@ -165,6 +165,18 @@ describe('Infra Scanner', () => {
       expect(findings[0].severity).toBe('medium');
       expect(findings[0].title).toContain('Debug/development mode enabled');
     });
+
+    it('ignores comments, empty lines, and lines without equals sign', () => {
+      const content = [
+        '# This is a comment',
+        '',
+        '   ',
+        'JUST_A_KEY',
+        'VALID_KEY=value'
+      ].join('\n');
+      const findings = auditEnvFile(content, '.env');
+      expect(findings).toHaveLength(0);
+    });
   });
 
   describe('generateInfraReport', () => {
