@@ -178,6 +178,9 @@ export class AutomatonLifecycle {
     thresholds: LifecycleThresholds;
     clock: LifecycleClock;
   };
+  /** Track consecutive evaluation failures per automaton to prevent tight-loop retries. */
+  private readonly _failCounts = new Map<string, number>();
+  private static readonly MAX_CONSECUTIVE_FAILURES = 5;
 
   constructor(opts: AutomatonLifecycleOptions) {
     this.opts = {
@@ -285,13 +288,44 @@ export class AutomatonLifecycle {
     if (!rec) return null;
     if (rec.status === 'dead') return null;
 
+    // Circuit-breaker: skip evaluation if too many consecutive failures
+    const failCount = this._failCounts.get(id) ?? 0;
+    if (failCount >= AutomatonLifecycle.MAX_CONSECUTIVE_FAILURES) {
+      logger.warn('Skipping evaluation — too many consecutive failures', {
+        automatonId: id,
+        failCount,
+      });
+      // Reset every 5th skip to allow retry
+      if (failCount % 5 === 0) this._failCounts.set(id, failCount - 1);
+      return null;
+    }
+
     const now = this.opts.clock.now();
     const ageMs = now.getTime() - new Date(rec.bornAt).getTime();
-    const revenueUsd = await this.opts.revenue.netInflowSince(
-      rec.treasuryAccountId,
-      rec.bornAt,
-    );
-    const costUsd = await this.opts.infra.costSince(rec.id, rec.bornAt);
+
+    let revenueUsd: number;
+    let costUsd: number;
+    try {
+      revenueUsd = await this.opts.revenue.netInflowSince(
+        rec.treasuryAccountId,
+        rec.bornAt,
+      );
+    } catch (err) {
+      logger.warn('Revenue port call failed', { automatonId: id, err: (err as Error).message });
+      this._failCounts.set(id, failCount + 1);
+      return null;
+    }
+    try {
+      costUsd = await this.opts.infra.costSince(rec.id, rec.bornAt);
+    } catch (err) {
+      logger.warn('Infra port call failed', { automatonId: id, err: (err as Error).message });
+      this._failCounts.set(id, failCount + 1);
+      return null;
+    }
+
+    // Port calls succeeded — reset failure count
+    this._failCounts.set(id, 0);
+
     const roi = costUsd > 0 ? revenueUsd / costUsd : revenueUsd > 0 ? Infinity : 0;
 
     const th = this.opts.thresholds;

@@ -410,6 +410,15 @@ async function main() {
     }
   }
 
+  // Economy skill loader: register economy skills in tools table
+  try {
+    const { registerEconomySkills } = await import('./economy-skill-loader.js');
+    const count = await registerEconomySkills(pool);
+    logger.info(`Economy skill loader registered ${count} tools`);
+  } catch (err) {
+    logger.error('Failed to register economy skills', { err: String(err) });
+  }
+
   // Auto-publisher: scan skills and create marketplace listings
   try {
     const { startAutoPublisher, stopAutoPublisher } = await import('./auto-publisher.js');

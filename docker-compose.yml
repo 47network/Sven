@@ -470,6 +470,15 @@ services:
       - NATS_URL=${NATS_URL}
       - OLLAMA_URL=${OLLAMA_URL}
       - NODE_ENV=${NODE_ENV:-production}
+      # ── Autonomous Economy — Lifecycle Scheduler ──
+      - SVEN_LIFECYCLE_ENABLED=${SVEN_LIFECYCLE_ENABLED:-0}
+      - SVEN_LIFECYCLE_ORG_ID=${SVEN_LIFECYCLE_ORG_ID:-default}
+      - SVEN_LIFECYCLE_INTERVAL_MS=${SVEN_LIFECYCLE_INTERVAL_MS:-600000}
+      - SVEN_LIFECYCLE_STUB_COST_PER_DAY_USD=${SVEN_LIFECYCLE_STUB_COST_PER_DAY_USD:-0.50}
+      - SVEN_AUTO_PUBLISH_ENABLED=${SVEN_AUTO_PUBLISH_ENABLED:-0}
+      - TREASURY_URL=${TREASURY_URL:-http://sven-treasury:9477}
+      - MARKETPLACE_API=${MARKETPLACE_API:-http://sven-marketplace:9478}
+      - EIDOLON_API=${EIDOLON_API:-http://sven-eidolon:9479}
     networks:
       - core
       - monitoring
