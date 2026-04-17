@@ -11,6 +11,9 @@ import pg from 'pg';
 import { connect } from 'nats';
 import { createLogger } from '@sven/shared';
 import { rateLimiterHook, corsHook } from '@sven/shared';
+import { apiAuthHook } from '@sven/shared';
+import { correlationIdHook } from '@sven/shared';
+import { MetricsRegistry, registerMetricsRoute } from '@sven/shared';
 import { Ledger } from '@sven/treasury';
 import { MarketplaceRepository } from './repo.js';
 import { registerPublicRoutes } from './routes/public.js';
@@ -52,8 +55,22 @@ async function main() {
   // CORS — allow marketplace-ui and admin-ui browser requests
   app.addHook('onRequest', corsHook());
 
+  // Correlation ID — propagate or generate per-request
+  app.addHook('onRequest', correlationIdHook());
+
+  // API auth — protect write operations, admin refund needs admin token
+  app.addHook('onRequest', apiAuthHook({
+    adminPaths: ['/v1/market/admin'],
+  }));
+
   // Rate limiting — 100 req/min per IP, health/readyz exempt
   app.addHook('onRequest', rateLimiterHook({ max: 100, windowMs: 60_000 }));
+
+  // Prometheus metrics
+  const metrics = new MetricsRegistry('sven_marketplace');
+  const orderCounter = metrics.counter('orders_total', 'Total marketplace orders', ['status']);
+  const listingGauge = metrics.gauge('listings_active', 'Active published listings');
+  registerMetricsRoute(app, metrics);
 
   app.get('/healthz', async () => ({
     service: 'sven-marketplace',

@@ -20,6 +20,9 @@ import {
 } from '@sven/treasury';
 import { BaseL2Client } from '@sven/treasury/providers/base-l2';
 import { rateLimiterHook, corsHook } from '@sven/shared';
+import { apiAuthHook } from '@sven/shared';
+import { correlationIdHook } from '@sven/shared';
+import { MetricsRegistry, registerMetricsRoute } from '@sven/shared';
 import { registerAccountRoutes } from './routes/accounts.js';
 import { registerTransactionRoutes } from './routes/transactions.js';
 import { registerLimitRoutes } from './routes/limits.js';
@@ -71,8 +74,21 @@ async function main() {
   // CORS — allow marketplace-ui and admin-ui browser requests
   app.addHook('onRequest', corsHook());
 
+  // Correlation ID — propagate or generate per-request
+  app.addHook('onRequest', correlationIdHook());
+
+  // API auth — protect write operations, public reads exempt
+  app.addHook('onRequest', apiAuthHook({
+    adminPaths: ['/admin'],
+  }));
+
   // Rate limiting — 100 req/min per IP, health/readyz exempt
   app.addHook('onRequest', rateLimiterHook({ max: 100, windowMs: 60_000 }));
+
+  // Prometheus metrics
+  const metrics = new MetricsRegistry('sven_treasury');
+  const txnCounter = metrics.counter('transactions_total', 'Total treasury transactions', ['kind']);
+  registerMetricsRoute(app, metrics);
 
   app.get('/health', async () =>
     buildHealthStatus('sven-treasury', VERSION, [

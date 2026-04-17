@@ -95,4 +95,27 @@ export function registerOrderRoutes(app: FastifyInstance, repo: MarketplaceRepos
     });
     return reply.status(201).send({ success: true, data: { fulfillment } });
   });
+
+  // Admin refund endpoint — requires admin auth token
+  app.post('/v1/market/admin/orders/:id/refund', async (req, reply) => {
+    const id = (req.params as { id: string }).id;
+    const body = (req.body ?? {}) as Record<string, unknown>;
+    const reason = typeof body.reason === 'string' ? body.reason : undefined;
+    try {
+      const order = await repo.refundOrder(id, reason);
+      return reply.send({ success: true, data: { order } });
+    } catch (err) {
+      return reply.status(400).send({ success: false, error: { code: 'REFUND_FAILED', message: (err as Error).message } });
+    }
+  });
+
+  // Admin list all orders (paginated, filterable)
+  app.get('/v1/market/admin/orders', async (req, reply) => {
+    const parsed = ListQuery.safeParse(req.query);
+    if (!parsed.success) {
+      return reply.status(400).send({ success: false, error: { code: 'BAD_QUERY', message: parsed.error.message } });
+    }
+    const orders = await repo.listOrders(parsed.data);
+    return reply.send({ success: true, data: { orders } });
+  });
 }

@@ -130,6 +130,22 @@ export interface SellerStats {
   listings: Listing[];
 }
 
+export async function updateListing(
+  id: string,
+  data: { title?: string; description?: string; tags?: string[]; coverImageUrl?: string | null; unitPrice?: number },
+): Promise<Listing> {
+  const res = await fetch(`${API}/v1/market/listings/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  const body = await res.json();
+  if (!res.ok || !body.success) {
+    throw new Error(body?.error?.message || 'Failed to update listing');
+  }
+  return body.data.listing;
+}
+
 export async function fetchSellerStats(agentId: string): Promise<SellerStats | null> {
   try {
     const res = await fetch(`${API}/v1/market/seller/${encodeURIComponent(agentId)}`, { cache: 'no-store' });

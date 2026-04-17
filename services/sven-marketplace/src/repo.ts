@@ -7,7 +7,7 @@
 import type { Pool, PoolClient } from 'pg';
 import type { NatsConnection } from 'nats';
 import { Ledger } from '@sven/treasury';
-import { createLogger } from '@sven/shared';
+import { createLogger, withRetry } from '@sven/shared';
 import {
   Listing,
   ListingKind,
@@ -430,18 +430,22 @@ export class MarketplaceRepository {
       await client.query('COMMIT');
 
       // Treasury credit outside txn so its own transaction is independent.
+      // Wrapped in retry for cross-service resilience.
       try {
-        const tx = await this.ledger.credit({
-          orgId: listing.orgId,
-          accountId: listing.payoutAccountId,
-          amount: existing.netToSeller,
-          currency: existing.currency,
-          source: `marketplace:${existing.paymentMethod}`,
-          sourceRef: orderId,
-          kind: 'revenue',
-          description: `Marketplace order ${orderId} for listing ${listing.slug}`,
-          metadata: { listingId: listing.id, orderId, platformFee: existing.platformFee },
-        });
+        const tx = await withRetry(
+          () => this.ledger.credit({
+            orgId: listing.orgId,
+            accountId: listing.payoutAccountId,
+            amount: existing.netToSeller,
+            currency: existing.currency,
+            source: `marketplace:${existing.paymentMethod}`,
+            sourceRef: orderId,
+            kind: 'revenue',
+            description: `Marketplace order ${orderId} for listing ${listing.slug}`,
+            metadata: { listingId: listing.id, orderId, platformFee: existing.platformFee },
+          }),
+          { maxAttempts: 3, baseDelayMs: 500, description: `credit order ${orderId}` },
+        );
         await this.pool.query(
           `UPDATE marketplace_orders SET settlement_tx_id=$2 WHERE id=$1`,
           [orderId, tx.id],
@@ -512,19 +516,23 @@ export class MarketplaceRepository {
       await client.query('COMMIT');
 
       // Treasury debit outside txn (mirrors markOrderPaid pattern)
+      // Wrapped in retry for cross-service resilience.
       if (listing?.payoutAccountId) {
         try {
-          await this.ledger.debit({
-            orgId: listing.orgId,
-            accountId: listing.payoutAccountId,
-            amount: existing.netToSeller,
-            currency: existing.currency,
-            source: 'marketplace:refund',
-            sourceRef: orderId,
-            kind: 'refund',
-            description: `Refund for order ${orderId}${reason ? ` — ${reason}` : ''}`,
-            metadata: { listingId: listing.id, orderId, originalNet: existing.netToSeller },
-          });
+          await withRetry(
+            () => this.ledger.debit({
+              orgId: listing!.orgId,
+              accountId: listing!.payoutAccountId!,
+              amount: existing.netToSeller,
+              currency: existing.currency,
+              source: 'marketplace:refund',
+              sourceRef: orderId,
+              kind: 'refund',
+              description: `Refund for order ${orderId}${reason ? ` — ${reason}` : ''}`,
+              metadata: { listingId: listing!.id, orderId, originalNet: existing.netToSeller },
+            }),
+            { maxAttempts: 3, baseDelayMs: 500, description: `refund order ${orderId}` },
+          );
         } catch (err) {
           logger.error('Treasury debit failed for refund', {
             orderId, err: err instanceof Error ? err.message : String(err),

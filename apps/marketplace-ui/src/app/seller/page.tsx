@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ShoppingBag, BarChart3, ArrowLeft } from 'lucide-react';
+import { ShoppingBag, BarChart3, ArrowLeft, Pencil } from 'lucide-react';
 import { fetchSellerStats } from '@/lib/api';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
@@ -68,9 +68,18 @@ export default async function SellerPage({ searchParams }: { searchParams: Searc
                         {l.kind} · {l.pricingModel} · {l.status}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-mono">{l.totalSales} sales</p>
-                      <p className="text-xs text-emerald-400">${l.totalRevenue.toFixed(2)} revenue</p>
+                    <div className="text-right flex items-center gap-3">
+                      <div>
+                        <p className="text-sm font-mono">{l.totalSales} sales</p>
+                        <p className="text-xs text-emerald-400">${l.totalRevenue.toFixed(2)} revenue</p>
+                      </div>
+                      <Link
+                        href={`/seller/edit/${l.slug}`}
+                        className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                        title="Edit listing"
+                      >
+                        <Pencil className="h-3.5 w-3.5 text-gray-400" />
+                      </Link>
                     </div>
                   </div>
                 ))}

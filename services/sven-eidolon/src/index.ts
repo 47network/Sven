@@ -13,6 +13,8 @@ import pg from 'pg';
 import { connect, type NatsConnection } from 'nats';
 import { createLogger, buildHealthStatus } from '@sven/shared';
 import { rateLimiterHook, corsHook } from '@sven/shared';
+import { correlationIdHook } from '@sven/shared';
+import { MetricsRegistry, registerMetricsRoute } from '@sven/shared';
 import { EidolonRepository } from './repo.js';
 import { EidolonEventBus } from './event-bus.js';
 import { registerSnapshotRoute } from './routes/snapshot.js';
@@ -52,8 +54,17 @@ async function main(): Promise<void> {
   // CORS — allow eidolon-ui browser requests
   app.addHook('onRequest', corsHook());
 
+  // Correlation ID — propagate or generate per-request
+  app.addHook('onRequest', correlationIdHook());
+
   // Rate limiting — 100 req/min for API, 10 req/min for SSE events endpoint
   app.addHook('onRequest', rateLimiterHook({ max: 100, windowMs: 60_000 }));
+
+  // Prometheus metrics
+  const metrics = new MetricsRegistry('sven_eidolon');
+  metrics.counter('snapshot_requests_total', 'Total snapshot requests');
+  metrics.counter('sse_connections_total', 'Total SSE connections');
+  registerMetricsRoute(app, metrics);
 
   app.get('/health', async () =>
     buildHealthStatus('sven-eidolon', VERSION, [
