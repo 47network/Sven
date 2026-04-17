@@ -1,4 +1,4 @@
-package com.fortyseven.thesven
+package com.sven.companion.user
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider

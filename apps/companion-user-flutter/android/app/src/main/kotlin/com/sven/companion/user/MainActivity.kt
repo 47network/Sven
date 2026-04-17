@@ -1,4 +1,4 @@
-package com.fortyseven.thesven
+package com.sven.companion.user
 
 import android.Manifest
 import android.content.Intent
@@ -14,8 +14,8 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterFragmentActivity() {
     companion object {
-        private const val METHOD_CHANNEL = "com.fortyseven.thesven/wake_word_control"
-        private const val EVENT_CHANNEL = "com.fortyseven.thesven/wake_word_events"
+        private const val METHOD_CHANNEL = "com.sven.companion.user/wake_word_control"
+        private const val EVENT_CHANNEL = "com.sven.companion.user/wake_word_events"
         private val mainHandler = Handler(Looper.getMainLooper())
         private var eventSink: EventChannel.EventSink? = null
         private val pendingWakeEvents = ArrayDeque<Map<String, String>>()

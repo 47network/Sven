@@ -24,7 +24,7 @@ val keystoreProperties = Properties().apply {
 }
 
 android {
-    namespace = "com.fortyseven.thesven"
+    namespace = "com.sven.companion.user"
     compileSdk = 36
     ndkVersion = "28.2.13676358"
 
@@ -39,7 +39,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.fortyseven.thesven"
+        applicationId = "com.sven.companion.user"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 24

@@ -1,4 +1,4 @@
-package com.fortyseven.thesven
+package com.sven.companion.user
 
 import android.Manifest
 import android.app.Notification
@@ -27,9 +27,9 @@ class WakeWordForegroundService : Service() {
     private val logTag = "WakeWordForeground"
 
     companion object {
-        const val ACTION_START = "com.fortyseven.thesven.action.START_WAKE_WORD"
-        const val ACTION_STOP = "com.fortyseven.thesven.action.STOP_WAKE_WORD"
-        const val ACTION_WAKE_TRIGGERED = "com.fortyseven.thesven.action.WAKE_TRIGGERED"
+        const val ACTION_START = "com.sven.companion.user.action.START_WAKE_WORD"
+        const val ACTION_STOP = "com.sven.companion.user.action.STOP_WAKE_WORD"
+        const val ACTION_WAKE_TRIGGERED = "com.sven.companion.user.action.WAKE_TRIGGERED"
         const val EXTRA_WAKE_PHRASE = "wake_phrase"
         const val EXTRA_TRANSCRIPT = "transcript"
         const val EXTRA_REMAINDER = "remainder"

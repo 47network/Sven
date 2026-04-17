@@ -9,7 +9,7 @@
             "client_info": {
                 "mobilesdk_app_id": "1:379390504662:android:e1244ea70978fca4606377",
                 "android_client_info": {
-                    "package_name": "com.fortyseven.thesven.staging"
+                    "package_name": "com.sven.companion.user.staging"
                 }
             },
             "oauth_client": [],

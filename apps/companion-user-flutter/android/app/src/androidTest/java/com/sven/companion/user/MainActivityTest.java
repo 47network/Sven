@@ -1,4 +1,4 @@
-package com.fortyseven.thesven;
+package com.sven.companion.user;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import org.junit.Test;
