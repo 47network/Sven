@@ -105,6 +105,26 @@ describe('secret-scanner', () => {
       const findings = scanFileForSecrets(source, 'test.ts');
       expect(findings).toHaveLength(0);
     });
+
+    it('finds private keys (without capture groups, falling back to full match)', () => {
+      const source = `const myKey = "-----BEGIN PRIVATE KEY-----";`;
+      const findings = scanFileForSecrets(source, 'test.js');
+
+      expect(findings).toHaveLength(1);
+      expect(findings[0].type).toBe('private-key');
+      expect(findings[0].matchedText).toBe('-----BEGIN PRIVATE KEY-----');
+      expect(findings[0].line).toBe(1);
+    });
+
+    it('finds gcp service account pattern (without capture groups, falling back to full match)', () => {
+      const source = `{\n  "type": "service_account",\n  "project_id": "my-project"\n}`;
+      const findings = scanFileForSecrets(source, 'test.json');
+
+      expect(findings).toHaveLength(1);
+      expect(findings[0].type).toBe('gcp-service-account');
+      expect(findings[0].matchedText).toBe('"type": "service_account"');
+      expect(findings[0].line).toBe(2);
+    });
   });
 
   describe('scanForSecrets', () => {
