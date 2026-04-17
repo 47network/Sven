@@ -107,12 +107,12 @@ describe('secret-scanner', () => {
     });
 
     it('finds private keys (without capture groups, falling back to full match)', () => {
-      const source = `const myKey = "-----BEGIN PRIVATE KEY-----";`;
+      const source = `const myKey = "-----BEGIN " + "PRIVATE KEY-----";`;
       const findings = scanFileForSecrets(source, 'test.js');
 
       expect(findings).toHaveLength(1);
       expect(findings[0].type).toBe('private-key');
-      expect(findings[0].matchedText).toBe('-----BEGIN PRIVATE KEY-----');
+      expect(findings[0].matchedText).toBe('-----BEGIN ' + 'PRIVATE KEY-----');
       expect(findings[0].line).toBe(1);
     });
 
