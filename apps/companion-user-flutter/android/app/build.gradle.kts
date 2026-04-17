@@ -77,7 +77,7 @@ android {
 
             // R8 code shrinking + obfuscation for release APK / AAB
             isMinifyEnabled = true
-            isShrinkResources = true
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
