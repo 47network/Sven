@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-04-17T23:28:55.667Z",
+  "generated_at": "2026-04-17T23:30:28.001Z",
   "source_branch": "bolt-chat-render-optimization-10816456320566348853",
   "source_head_sha": "3f5572bcb346eee91540994a381c7b9359259d54",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-17T23:28:54.230Z",
+    "captured_at": "2026-04-17T23:30:26.778Z",
     "branch": "bolt-chat-render-optimization-10816456320566348853",
     "total_runs": 52
   },
@@ -23,7 +23,7 @@
   "backup_restore_api_ci": false,
   "flutter_user_app_device_farm_ci": true,
   "desktop_release_ci": false,
-  "ui_e2e_ci": false,
+  "ui_e2e_ci": true,
   "mobile_coverage_gate_ci": false,
   "csrf_auth_e2e_ci": false,
   "client_env_governance_ci": true,
@@ -41,14 +41,13 @@
       "head_sha": "3f5572bcb346eee91540994a381c7b9359259d54",
       "head_branch": "bolt-chat-render-optimization-10816456320566348853",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "workflow_id": 261310863,
       "workflow_name": "final-dod-e2e",
       "matched_target_sha": true,
       "gate_key": "final_dod_e2e_ci",
-      "decision": "pending_non_final_target_sha",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "parity_e2e_ci": {
       "run_id": 24591098361,
@@ -91,7 +90,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-17T23:28:44.427Z"
+      "generated_at": "2026-04-17T23:30:16.872Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -121,7 +120,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-17T23:28:49.073Z"
+      "generated_at": "2026-04-17T23:30:21.596Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -136,7 +135,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-17T23:28:53.737Z"
+      "generated_at": "2026-04-17T23:30:26.401Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -171,14 +170,13 @@
       "head_sha": "3f5572bcb346eee91540994a381c7b9359259d54",
       "head_branch": "bolt-chat-render-optimization-10816456320566348853",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310889,
       "workflow_name": "release-ops-drill",
       "matched_target_sha": true,
       "gate_key": "release_ops_drill_ci",
-      "decision": "preserved_previous_pass_non_final_target_sha",
-      "previous_gate_value": true
+      "decision": "target_sha_completed_run"
     },
     "mobile_auth_session_smoke_ci": {
       "run_id": null,
@@ -254,14 +252,13 @@
       "head_sha": "3f5572bcb346eee91540994a381c7b9359259d54",
       "head_branch": "bolt-chat-render-optimization-10816456320566348853",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310896,
       "workflow_name": "ui-e2e-accessibility",
       "matched_target_sha": true,
       "gate_key": "ui_e2e_accessibility_ci",
-      "decision": "pending_non_final_target_sha",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "mobile_coverage_gate_ci": {
       "run_id": null,
@@ -445,14 +442,13 @@
         "head_sha": "3f5572bcb346eee91540994a381c7b9359259d54",
         "head_branch": "bolt-chat-render-optimization-10816456320566348853",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310863,
         "workflow_name": "final-dod-e2e",
         "matched_target_sha": true,
         "gate_key": "final_dod_e2e_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "final_dod_e2e_ci"
     },
@@ -499,14 +495,13 @@
         "head_sha": "3f5572bcb346eee91540994a381c7b9359259d54",
         "head_branch": "bolt-chat-render-optimization-10816456320566348853",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310889,
         "workflow_name": "release-ops-drill",
         "matched_target_sha": true,
         "gate_key": "release_ops_drill_ci",
-        "decision": "preserved_previous_pass_non_final_target_sha",
-        "previous_gate_value": true
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "release_ops_drill_ci"
     },
@@ -565,20 +560,19 @@
       "gate_key": "desktop_tauri_release_ci"
     },
     "ui-e2e-accessibility": {
-      "pass": false,
+      "pass": true,
       "provenance": {
         "run_id": 24591098371,
         "head_sha": "3f5572bcb346eee91540994a381c7b9359259d54",
         "head_branch": "bolt-chat-render-optimization-10816456320566348853",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310896,
         "workflow_name": "ui-e2e-accessibility",
         "matched_target_sha": true,
         "gate_key": "ui_e2e_accessibility_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "ui_e2e_accessibility_ci"
     },
