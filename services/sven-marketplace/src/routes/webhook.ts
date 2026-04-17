@@ -12,6 +12,26 @@ import { createLogger } from '@sven/shared';
 
 const logger = createLogger('marketplace-webhook');
 
+// ── Idempotency guard ──────────────────────────────────────────────
+// Stripe may deliver the same event multiple times. We keep a bounded
+// set of recently-processed event IDs to avoid double-crediting.
+const PROCESSED_MAX = 5_000;
+const processedEvents = new Set<string>();
+
+function isAlreadyProcessed(eventId: string): boolean {
+  if (processedEvents.has(eventId)) return true;
+  if (processedEvents.size >= PROCESSED_MAX) {
+    // Evict oldest entries (Set keeps insertion order)
+    const iter = processedEvents.values();
+    for (let i = 0; i < Math.floor(PROCESSED_MAX / 4); i++) {
+      const v = iter.next().value;
+      if (v !== undefined) processedEvents.delete(v);
+    }
+  }
+  processedEvents.add(eventId);
+  return false;
+}
+
 /**
  * Minimal Stripe event shape — we only read what we need instead of
  * importing the full Stripe SDK types. The signature verification is
@@ -117,6 +137,12 @@ export function registerWebhookRoutes(
 
     logger.info('Stripe event received', { type: event.type, id: event.id });
 
+    // Idempotency: skip if we already processed this event
+    if (isAlreadyProcessed(event.id)) {
+      logger.info('Duplicate Stripe event — already processed', { id: event.id });
+      return reply.status(200).send({ received: true, duplicate: true });
+    }
+
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
@@ -178,5 +204,5 @@ export function registerWebhookRoutes(
 }
 
 // Export for testing
-export { verifyStripeSignature };
+export { verifyStripeSignature, isAlreadyProcessed, processedEvents };
 export type { StripeEvent };

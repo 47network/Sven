@@ -178,13 +178,23 @@ export function makeRevenuePg(opts: {
 }
 
 // ─── Infra ─────────────────────────────────────────────────────────
+const STUB_COST_PER_DAY_USD = Number(process.env.SVEN_LIFECYCLE_STUB_COST_PER_DAY_USD || 0.5);
+
 export function makeInfraHttp(adminBaseUrl = process.env.ADMIN_API_URL || 'http://127.0.0.1:4000'): InfraPort {
   return {
     async costSince(automatonId, sinceIso) {
       const url = `${adminBaseUrl}/admin/infra/cost?automatonId=${encodeURIComponent(automatonId)}&since=${encodeURIComponent(sinceIso)}`;
       const data = await fetchJson<{ totalUsd?: number; cost_usd?: number }>(url);
-      if (!data) return 0;
-      return Number(data.totalUsd ?? data.cost_usd ?? 0) || 0;
+      if (data) {
+        const real = Number(data.totalUsd ?? data.cost_usd ?? 0) || 0;
+        if (real > 0) return real;
+      }
+      // Fallback: pro-rata stub cost when admin-api is unreachable or returns 0
+      const sinceMs = new Date(sinceIso).getTime();
+      const elapsedDays = Math.max(0, (Date.now() - sinceMs) / 86_400_000);
+      const stub = elapsedDays * STUB_COST_PER_DAY_USD;
+      logger.debug('infra cost using stub fallback', { automatonId, elapsedDays: elapsedDays.toFixed(2), stubUsd: stub.toFixed(4) });
+      return stub;
     },
 
     async decommission(automatonId) {

@@ -62,6 +62,12 @@ async function main() {
 
   const app = Fastify({ logger: false });
 
+  // Global error handler — structured logging + 500 response
+  app.setErrorHandler((err, _req, reply) => {
+    logger.error('request error', { err: (err as Error).message, stack: (err as Error).stack });
+    reply.code(500).send({ error: 'internal_error', message: 'An unexpected error occurred' });
+  });
+
   // Rate limiting — 100 req/min per IP, health/readyz exempt
   app.addHook('onRequest', rateLimiterHook({ max: 100, windowMs: 60_000 }));
 

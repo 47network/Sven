@@ -72,7 +72,7 @@ async function main(): Promise<void> {
 
   app.setErrorHandler((err, _req, reply) => {
     const e = err as Error;
-    logger.error('request error', { err: e.message });
+    logger.error('request error', { err: e.message, stack: e.stack });
     reply.code(500).send({ error: 'internal_error' });
   });
 
