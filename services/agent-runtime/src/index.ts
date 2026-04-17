@@ -410,6 +410,17 @@ async function main() {
     }
   }
 
+  // Auto-publisher: scan skills and create marketplace listings
+  try {
+    const { startAutoPublisher, stopAutoPublisher } = await import('./auto-publisher.js');
+    startAutoPublisher();
+    const shutdownAutoPublisher = () => { try { stopAutoPublisher(); } catch { /* ignore */ } };
+    process.once('SIGTERM', shutdownAutoPublisher);
+    process.once('SIGINT', shutdownAutoPublisher);
+  } catch (err) {
+    logger.error('Failed to start auto-publisher', { err: String(err) });
+  }
+
   logger.info('Subscribed to inbound messages, processing...');
 
   for await (const msg of sub) {

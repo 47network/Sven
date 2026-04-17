@@ -2497,4 +2497,23 @@ export const api = {
   trading,
   automatons,
   revenuePipelines,
+  economy: {
+    summary: () =>
+      Promise.all([
+        fetch(`${process.env.NEXT_PUBLIC_TREASURY_URL || 'http://localhost:9477'}/economy/summary`)
+          .then(r => r.json()).catch(() => ({ totalBalance: 0, totalRevenue: 0, totalCost: 0, netProfit: 0 })),
+        fetch(`${process.env.NEXT_PUBLIC_MARKETPLACE_URL || 'http://localhost:9478'}/economy/stats`)
+          .then(r => r.json()).catch(() => ({ publishedListings: 0, completedOrders: 0, totalMarketRevenue: 0 })),
+      ]).then(([treasury, market]) => ({ data: { ...treasury, ...market } })),
+    transactions: (opts?: { limit?: number; offset?: number }) => {
+      const qs = new URLSearchParams();
+      if (opts?.limit) qs.set('limit', String(opts.limit));
+      if (opts?.offset) qs.set('offset', String(opts.offset));
+      return fetch(`${process.env.NEXT_PUBLIC_TREASURY_URL || 'http://localhost:9477'}/economy/transactions?${qs}`)
+        .then(r => r.json()).catch(() => ({ transactions: [], total: 0 }));
+    },
+    topListings: () =>
+      fetch(`${process.env.NEXT_PUBLIC_MARKETPLACE_URL || 'http://localhost:9478'}/economy/top-listings`)
+        .then(r => r.json()).catch(() => []),
+  },
 };

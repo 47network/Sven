@@ -24,6 +24,7 @@ import { registerTransactionRoutes } from './routes/transactions.js';
 import { registerLimitRoutes } from './routes/limits.js';
 import { registerWalletRoutes } from './routes/wallets.js';
 import { registerClassifyRoute } from './routes/classify.js';
+import { registerEconomyRoutes } from './routes/economy.js';
 
 const logger = createLogger('sven-treasury');
 
@@ -69,10 +70,11 @@ async function main() {
   );
 
   await registerAccountRoutes(app, ledger);
-  await registerTransactionRoutes(app, ledger);
+  await registerTransactionRoutes(app, ledger, nc);
   await registerLimitRoutes(app, tiers);
   await registerWalletRoutes(app, { walletRegistry, baseClient, secrets });
   await registerClassifyRoute(app, tiers);
+  await registerEconomyRoutes(app, pool);
 
   await app.listen({ port: PORT, host: HOST });
   logger.info('sven-treasury listening', { port: PORT, network });

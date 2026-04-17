@@ -8,6 +8,7 @@
 
 import Fastify from 'fastify';
 import pg from 'pg';
+import { connect } from 'nats';
 import { createLogger } from '@sven/shared';
 import { Ledger } from '@sven/treasury';
 import { MarketplaceRepository } from './repo.js';
@@ -16,6 +17,7 @@ import { registerListingRoutes } from './routes/listings.js';
 import { registerOrderRoutes } from './routes/orders.js';
 import { registerWebhookRoutes } from './routes/webhook.js';
 import { registerCheckoutRoutes } from './routes/checkout.js';
+import { registerMarketEconomyRoutes } from './routes/economy.js';
 
 const logger = createLogger('sven-marketplace');
 const PORT = Number(process.env.MARKETPLACE_PORT || 9478);
@@ -28,8 +30,17 @@ async function main() {
     max: 10,
   });
 
+  const nc = await connect({
+    servers: process.env.NATS_URL || 'nats://localhost:4222',
+    name: 'sven-marketplace',
+    maxReconnectAttempts: -1,
+  }).catch((err) => {
+    logger.warn('NATS unavailable; running HTTP-only', { err: (err as Error).message });
+    return null;
+  });
+
   const ledger = new Ledger(pool);
-  const repo = new MarketplaceRepository(pool, ledger);
+  const repo = new MarketplaceRepository(pool, ledger, nc);
 
   const app = Fastify({
     logger: false,
@@ -42,12 +53,14 @@ async function main() {
     version: VERSION,
     status: 'ok',
     uptime: process.uptime(),
+    nats: nc ? 'connected' : 'unavailable',
   }));
 
   registerPublicRoutes(app, repo);
   registerListingRoutes(app, repo);
   registerOrderRoutes(app, repo);
   registerCheckoutRoutes(app, repo);
+  await registerMarketEconomyRoutes(app, pool);
 
   // Webhook routes need raw body for Stripe signature verification.
   // Encapsulated plugin scope gets its own content type parser without
@@ -69,6 +82,7 @@ async function main() {
   const shutdown = async (sig: string) => {
     logger.info(`${sig} received, shutting down`);
     try { await app.close(); } catch {}
+    try { await nc?.drain(); } catch {}
     try { await pool.end(); } catch {}
     process.exit(0);
   };

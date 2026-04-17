@@ -5,6 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import type { Pool, PoolClient } from 'pg';
+import type { NatsConnection } from 'nats';
 import { Ledger } from '@sven/treasury';
 import { createLogger } from '@sven/shared';
 import {
@@ -106,7 +107,23 @@ function bounded(n: number | undefined, def: number): number {
 /* ------------------------------------------------------------- repository */
 
 export class MarketplaceRepository {
-  constructor(private readonly pool: Pool, private readonly ledger: Ledger) {}
+  private readonly nc: NatsConnection | null;
+  constructor(
+    private readonly pool: Pool,
+    private readonly ledger: Ledger,
+    nc?: NatsConnection | null,
+  ) {
+    this.nc = nc ?? null;
+  }
+
+  private publishNats(subject: string, payload: Record<string, unknown>): void {
+    if (!this.nc) return;
+    try {
+      this.nc.publish(subject, Buffer.from(JSON.stringify(payload)));
+    } catch (err) {
+      logger.warn('NATS publish failed', { subject, err: (err as Error).message });
+    }
+  }
 
   /* ---------- listings ---------- */
 
@@ -210,7 +227,15 @@ export class MarketplaceRepository {
       [id],
     );
     logger.info('Listing published', { id });
-    return res.rows[0] ? toListing(res.rows[0]) : null;
+    const published = res.rows[0] ? toListing(res.rows[0]) : null;
+    if (published) {
+      this.publishNats('sven.market.listing_published', {
+        listingId: published.id, slug: published.slug,
+        title: published.title, kind: published.kind,
+        unitPrice: published.unitPrice, currency: published.currency,
+      });
+    }
+    return published;
   }
 
   async pauseListing(id: string): Promise<Listing | null> {
@@ -364,7 +389,13 @@ export class MarketplaceRepository {
       }
 
       logger.info('Order marked paid', { orderId, net: existing.netToSeller });
-      return toOrder(up.rows[0]);
+      const paidOrder = toOrder(up.rows[0]);
+      this.publishNats('sven.market.order_paid', {
+        orderId: paidOrder.id, listingId: paidOrder.listingId,
+        subtotal: paidOrder.subtotal, netToSeller: paidOrder.netToSeller,
+        currency: paidOrder.currency, paymentMethod: paidOrder.paymentMethod,
+      });
+      return paidOrder;
     } catch (err) {
       await client.query('ROLLBACK').catch(() => {});
       throw err;
@@ -395,11 +426,18 @@ export class MarketplaceRepository {
       );
     }
     const r = res.rows[0];
-    return {
+    const fulfillment: Fulfillment = {
       id: r.id, orderId: r.order_id, kind: r.kind, payload: r.payload ?? {},
       status: r.status,
       deliveredAt: r.delivered_at ? r.delivered_at.toISOString() : null,
       createdAt: r.created_at.toISOString(),
     };
+    if (status === 'delivered') {
+      this.publishNats('sven.market.fulfilled', {
+        fulfillmentId: fulfillment.id, orderId: fulfillment.orderId,
+        kind: fulfillment.kind, status: fulfillment.status,
+      });
+    }
+    return fulfillment;
   }
 }
