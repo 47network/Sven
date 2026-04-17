@@ -105,6 +105,23 @@ describe('secret-scanner', () => {
       const findings = scanFileForSecrets(source, 'test.ts');
       expect(findings).toHaveLength(0);
     });
+
+    it('falls back to match[0] if match[1] is undefined', () => {
+      // Create a dummy pattern that captures nothing in a group to test fallback to match[0]
+      const dummyPattern = {
+        id: 'DUMMY-001',
+        type: 'dummy-type' as any,
+        title: 'Dummy Pattern',
+        pattern: /dummy_secret_with_no_group/,
+        severity: 'medium' as const,
+      };
+
+      const source = `const secret = dummy_secret_with_no_group;`;
+      const findings = scanFileForSecrets(source, 'test.ts', [dummyPattern]);
+
+      expect(findings).toHaveLength(1);
+      expect(findings[0].matchedText).toBe('dummy_secret_with_no_group');
+    });
   });
 
   describe('scanForSecrets', () => {
