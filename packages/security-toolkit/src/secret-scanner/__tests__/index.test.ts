@@ -153,5 +153,27 @@ describe('secret-scanner', () => {
       expect(report.bySeverity.high).toBe(0);
       expect(report.bySeverity.medium).toBe(0);
     });
+
+    it('aggregates findings with default pattern mapping when using a custom set of patterns', () => {
+      const files = new Map<string, string>();
+      files.set('valid.ts', `const secret = dummy_secret_with_no_group;`);
+
+      const dummyPattern = {
+        id: 'DUMMY-001',
+        type: 'dummy-type' as any,
+        title: 'Dummy Pattern',
+        pattern: /dummy_secret_with_no_group/,
+        severity: 'medium' as const,
+      };
+
+      const report = scanForSecrets(files, [dummyPattern]);
+
+      expect(report.filesScanned).toBe(1);
+      expect(report.secretsFound).toBe(1);
+      expect(report.clean).toBe(false);
+      expect(report.byType['dummy-type' as any]).toBe(1);
+      expect(report.bySeverity.medium).toBeGreaterThan(0);
+      expect(report.findings[0].file).toBe('valid.ts');
+    });
   });
 });
