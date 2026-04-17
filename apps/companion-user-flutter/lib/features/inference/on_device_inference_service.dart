@@ -122,7 +122,8 @@ class OnDeviceInferenceService extends ChangeNotifier {
 
       if (Platform.isAndroid) {
         // final android = await deviceInfo.androidInfo; (removed to avoid unused var warning)
-        totalRamMb = 4096; // Hardcoded fallback for now, as physicalRamSize was removed in 11.3.0
+        totalRamMb =
+            4096; // Hardcoded fallback for now, as physicalRamSize was removed in 11.3.0
         freeStorageMb = 4096; // Hardcoded fallback for now
       } else if (Platform.isIOS) {
         // final ios = await deviceInfo.iosInfo; (removed to avoid unused var warning)
