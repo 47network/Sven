@@ -495,6 +495,13 @@ export class TaskExecutor {
       case 'log_alert_configure': return this.handleLogAlertConfigure(task);
       case 'log_export': return this.handleLogExport(task);
       case 'log_report': return this.handleLogReport(task);
+      case 'mesh_register': return this.handleMeshRegister(task);
+      case 'mesh_discover': return this.handleMeshDiscover(task);
+      case 'mesh_health_check': return this.handleMeshHealthCheck(task);
+      case 'mesh_traffic_config': return this.handleMeshTrafficConfig(task);
+      case 'mesh_dependency_map': return this.handleMeshDependencyMap(task);
+      case 'mesh_deregister': return this.handleMeshDeregister(task);
+      case 'mesh_report': return this.handleMeshReport(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -4885,6 +4892,42 @@ export class TaskExecutor {
   private async handleLogReport(task: any): Promise<any> {
     const { streams, date_range, group_by } = task.input || {};
     return { report_id: `lr-${Date.now()}`, streams: streams || [], total_entries: 0, error_rate: 0, top_sources: [], level_distribution: {} };
+  }
+
+
+  private async handleMeshRegister(task: any): Promise<any> {
+    const { service_name, version, protocol, host, port } = task.input || {};
+    return { service_id: `svc-${Date.now()}`, service_name, version: version || '1.0.0', protocol: protocol || 'http', host, port, status: 'registered' };
+  }
+
+  private async handleMeshDiscover(task: any): Promise<any> {
+    const { service_name, protocol, tags } = task.input || {};
+    return { service_name, protocol, instances: [], total: 0 };
+  }
+
+  private async handleMeshHealthCheck(task: any): Promise<any> {
+    const { service_id, check_type } = task.input || {};
+    return { service_id, check_type: check_type || 'http', status: 'passing', latency_ms: 0, checked_at: new Date().toISOString() };
+  }
+
+  private async handleMeshTrafficConfig(task: any): Promise<any> {
+    const { policy_name, source_service, target_service, strategy } = task.input || {};
+    return { policy_id: `mp-${Date.now()}`, policy_name, strategy: strategy || 'round_robin', active: true };
+  }
+
+  private async handleMeshDependencyMap(task: any): Promise<any> {
+    const { service_id, depends_on, dep_type } = task.input || {};
+    return { dep_id: `dep-${Date.now()}`, service_id, depends_on, dep_type: dep_type || 'required', mapped: true };
+  }
+
+  private async handleMeshDeregister(task: any): Promise<any> {
+    const { service_id } = task.input || {};
+    return { service_id, status: 'deregistered', deregistered_at: new Date().toISOString() };
+  }
+
+  private async handleMeshReport(task: any): Promise<any> {
+    const { include_health, include_deps } = task.input || {};
+    return { total_services: 0, healthy: 0, degraded: 0, unhealthy: 0, dependencies: [], topology: {} };
   }
 
 }
