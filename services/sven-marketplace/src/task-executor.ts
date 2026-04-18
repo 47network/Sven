@@ -390,6 +390,13 @@ export class TaskExecutor {
       case 'dr_plan_create': return this.handleDrPlanCreate(input);
       case 'dr_test': return this.handleDrTest(input);
       case 'restore_log_query': return this.handleRestoreLogQuery(input);
+      case 'role_assign': return this.handleRoleAssign(input);
+      case 'role_revoke': return this.handleRoleRevoke(input);
+      case 'permission_grant': return this.handlePermissionGrant(input);
+      case 'permission_check': return this.handlePermissionCheck(input);
+      case 'policy_create': return this.handlePolicyCreate(input);
+      case 'audit_query': return this.handleAuditQuery(input);
+      case 'scope_define': return this.handleScopeDefine(input);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -4209,6 +4216,85 @@ export class TaskExecutor {
       logs: [],
       totalCount: 0,
       queriedAt: new Date().toISOString(),
+    };
+  }
+
+  /** Assign a role to an agent. */
+  private handleRoleAssign(input: Record<string, unknown>) {
+    return {
+      roleId: `role-${Date.now()}`,
+      agentId: input.agentId ?? 'unknown',
+      roleName: input.roleName ?? 'default',
+      roleType: input.roleType ?? 'custom',
+      isActive: true,
+      assignedAt: new Date().toISOString(),
+    };
+  }
+
+  /** Revoke a role from an agent. */
+  private handleRoleRevoke(input: Record<string, unknown>) {
+    return {
+      roleId: input.roleId ?? 'unknown',
+      revoked: true,
+      revokedAt: new Date().toISOString(),
+    };
+  }
+
+  /** Grant a permission on a resource. */
+  private handlePermissionGrant(input: Record<string, unknown>) {
+    return {
+      permissionId: `perm-${Date.now()}`,
+      agentId: input.agentId ?? 'unknown',
+      resource: input.resource ?? 'unknown',
+      action: input.action ?? 'read',
+      effect: input.effect ?? 'allow',
+      grantedAt: new Date().toISOString(),
+    };
+  }
+
+  /** Check if an agent has a permission. */
+  private handlePermissionCheck(input: Record<string, unknown>) {
+    return {
+      agentId: input.agentId ?? 'unknown',
+      resource: input.resource ?? 'unknown',
+      action: input.action ?? 'read',
+      decision: 'granted',
+      reason: 'default-allow policy',
+      checkedAt: new Date().toISOString(),
+    };
+  }
+
+  /** Create an access control policy. */
+  private handlePolicyCreate(input: Record<string, unknown>) {
+    return {
+      policyId: `policy-${Date.now()}`,
+      policyName: input.policyName ?? 'unnamed',
+      policyType: input.policyType ?? 'rbac',
+      priority: input.priority ?? 100,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  /** Query the access audit trail. */
+  private handleAuditQuery(input: Record<string, unknown>) {
+    return {
+      agentId: input.agentId ?? 'unknown',
+      entries: [],
+      totalCount: 0,
+      queriedAt: new Date().toISOString(),
+    };
+  }
+
+  /** Define a scope boundary for an agent. */
+  private handleScopeDefine(input: Record<string, unknown>) {
+    return {
+      scopeId: `scope-${Date.now()}`,
+      agentId: input.agentId ?? 'unknown',
+      scopeName: input.scopeName ?? 'default',
+      scopeType: input.scopeType ?? 'api',
+      isActive: true,
+      definedAt: new Date().toISOString(),
     };
   }
 }

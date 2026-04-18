@@ -199,6 +199,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.backup.restore_completed': 'backup.restore_completed',
   'sven.backup.dr_plan_tested': 'backup.dr_plan_tested',
   'sven.backup.retention_applied': 'backup.retention_applied',
+  'sven.acl.role_assigned': 'acl.role_assigned',
+  'sven.acl.permission_granted': 'acl.permission_granted',
+  'sven.acl.access_denied': 'acl.access_denied',
+  'sven.acl.policy_evaluated': 'acl.policy_evaluated',
 };
 
 export class EidolonEventBus {

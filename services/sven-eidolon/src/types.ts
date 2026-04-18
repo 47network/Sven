@@ -49,7 +49,8 @@ export type EidolonBuildingKind =
   | 'review_forum'
   | 'comm_tower'
   | 'observatory_tower'
-  | 'vault_bunker';
+  | 'vault_bunker'
+  | 'access_gate';
 
 export interface EidolonBuilding {
   id: string;
@@ -312,6 +313,10 @@ export type EidolonEventKind =
   | 'backup.restore_completed'
   | 'backup.dr_plan_tested'
   | 'backup.retention_applied'
+  | 'acl.role_assigned'
+  | 'acl.permission_granted'
+  | 'acl.access_denied'
+  | 'acl.policy_evaluated'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -443,5 +448,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
       return 'civic';
     case 'vault_bunker':
       return 'industrial';
+    case 'access_gate':
+      return 'civic';
   }
 }
