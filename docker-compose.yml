@@ -218,10 +218,10 @@ services:
     environment:
       - GOGC=80
     ports:
-      - "4317:4317" # OTLP gRPC receiver
-      - "4318:4318" # OTLP HTTP receiver
-      - "8890:8888" # Prometheus metrics
-      - "8891:8889" # OTLP metrics exporter
+      - "127.0.0.1:4317:4317" # OTLP gRPC receiver
+      - "127.0.0.1:4318:4318" # OTLP HTTP receiver
+      - "127.0.0.1:8890:8888" # Prometheus metrics
+      - "127.0.0.1:8891:8889" # OTLP metrics exporter
     networks:
       - core
       - monitoring
@@ -247,7 +247,7 @@ services:
     environment:
       - TZ=Europe/Bucharest
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090"
     networks:
       - monitoring
       - core
@@ -273,7 +273,7 @@ services:
       - GF_DATE_FORMATS_DEFAULT_TIMEZONE=Europe/Bucharest
       - TZ=Europe/Bucharest
     ports:
-      - "9091:3000"
+      - "127.0.0.1:9091:3000"
     volumes:
       - grafana-data:/var/lib/grafana
       - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
@@ -301,7 +301,7 @@ services:
       - ./config/loki-config.yml:/etc/loki/local-config.yml:ro
       - loki-data:/loki
     ports:
-      - "3100:3100"
+      - "127.0.0.1:3100:3100"
     networks:
       - monitoring
     logging: *default-logging
@@ -431,7 +431,7 @@ services:
     image: nginx@sha256:1d13701a5f9f3fb01aaa88cef2344d65b6b5bf6b7d9fa4cf0dca557a8d7702ba
     restart: unless-stopped
     ports:
-      - "8088:80"
+      - "127.0.0.1:8088:80"
     volumes:
       - ./deploy/quickstart:/usr/share/nginx/html:ro
       - ./config/nginx/sven-internal-ingress.docker.conf:/etc/nginx/conf.d/default.conf:ro
@@ -451,7 +451,7 @@ services:
     image: nginx@sha256:1d13701a5f9f3fb01aaa88cef2344d65b6b5bf6b7d9fa4cf0dca557a8d7702ba
     restart: unless-stopped
     ports:
-      - "18088:80"
+      - "127.0.0.1:18088:80"
     volumes:
       - ./deploy/quickstart:/usr/share/nginx/html:ro
       - ./config/nginx/quickstart-static.conf:/etc/nginx/conf.d/default.conf:ro
@@ -618,7 +618,7 @@ services:
       - MESH_DEFAULT_ORG_ID=${MESH_DEFAULT_ORG_ID:-default}
       - NODE_ENV=${NODE_ENV:-production}
     ports:
-      - "9470:9470"
+      - "127.0.0.1:9470:9470"
     networks:
       - core
     depends_on:
@@ -645,7 +645,7 @@ services:
       - SVEN_LLM_ENDPOINT=${SVEN_LLM_ENDPOINT}
       - NODE_ENV=${NODE_ENV:-production}
     ports:
-      - "9471:9471"
+      - "127.0.0.1:9471:9471"
     networks:
       - core
     depends_on:
@@ -667,7 +667,7 @@ services:
       - SECURITY_DEFAULT_ORG_ID=${SECURITY_DEFAULT_ORG_ID:-default}
       - NODE_ENV=${NODE_ENV:-production}
     ports:
-      - "9472:9472"
+      - "127.0.0.1:9472:9472"
     networks:
       - core
     depends_on:
@@ -689,7 +689,7 @@ services:
       - DOCUMENT_DEFAULT_ORG_ID=${DOCUMENT_DEFAULT_ORG_ID:-default}
       - NODE_ENV=${NODE_ENV:-production}
     ports:
-      - "9473:9473"
+      - "127.0.0.1:9473:9473"
     networks:
       - core
     depends_on:
@@ -711,7 +711,7 @@ services:
       - MARKETING_DEFAULT_ORG_ID=${MARKETING_DEFAULT_ORG_ID:-default}
       - NODE_ENV=${NODE_ENV:-production}
     ports:
-      - "9474:9474"
+      - "127.0.0.1:9474:9474"
     networks:
       - core
     depends_on:
@@ -732,7 +732,7 @@ services:
       - PROACTIVE_PORT=9475
       - NODE_ENV=${NODE_ENV:-production}
     ports:
-      - "9475:9475"
+      - "127.0.0.1:9475:9475"
     networks:
       - core
     depends_on:
@@ -754,7 +754,7 @@ services:
       - QUANTUM_DEFAULT_ORG_ID=${QUANTUM_DEFAULT_ORG_ID:-default}
       - NODE_ENV=${NODE_ENV:-production}
     ports:
-      - "9476:9476"
+      - "127.0.0.1:9476:9476"
     networks:
       - core
     depends_on:
