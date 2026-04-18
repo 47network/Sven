@@ -10,6 +10,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Batch 84 — Agent Circuit Breaker**: circuit breaker patterns, fallbacks, resilience metrics with 5 tables and 19 indexes
 - **Batch 83 — Agent Service Discovery**: service registry, health checks, endpoint cataloging, dependency tracking with 5 tables and 19 indexes
 - **Batch 82 — Agent Content Moderation**: moderation policies, content reviews, appeals, queue management, action tracking with 5 tables and 21 indexes
 - **Batch 75 — Agent Service Mesh & Discovery**: service registry, endpoints, dependencies, health checks, traffic policies; 5 tables, 20 indexes, 7 task handlers
@@ -135,6 +136,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch28-persistent-memory.test.ts`): 98 tests across 17 describe blocks — migration structure, shared types, configs, utility logic, skill YAML, task executor, NATS events, Eidolon integration, coherence checks.
 
 ### Added
+- **Batch 84 — Agent Circuit Breaker**: circuit breaker patterns, fallbacks, resilience metrics with 5 tables and 19 indexes
 - **Batch 83 — Agent Service Discovery**: service registry, health checks, endpoint cataloging, dependency tracking with 5 tables and 19 indexes
 - **Batch 82 — Agent Content Moderation**: moderation policies, content reviews, appeals, queue management, action tracking with 5 tables and 21 indexes
 - **Batch 75 — Agent Service Mesh & Discovery**: service registry, endpoints, dependencies, health checks, traffic policies; 5 tables, 20 indexes, 7 task handlers
@@ -168,6 +170,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch27-llm-council.test.ts`): 103 tests across 9 describe blocks.
 
 ### Added
+- **Batch 84 — Agent Circuit Breaker**: circuit breaker patterns, fallbacks, resilience metrics with 5 tables and 19 indexes
 - **Batch 83 — Agent Service Discovery**: service registry, health checks, endpoint cataloging, dependency tracking with 5 tables and 19 indexes
 - **Batch 82 — Agent Content Moderation**: moderation policies, content reviews, appeals, queue management, action tracking with 5 tables and 21 indexes
 - **Batch 75 — Agent Service Mesh & Discovery**: service registry, endpoints, dependencies, health checks, traffic policies; 5 tables, 20 indexes, 7 task handlers
@@ -201,6 +204,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch26-xlvii-merch.test.ts`): 113 tests across 7 describe blocks.
 
 ### Added
+- **Batch 84 — Agent Circuit Breaker**: circuit breaker patterns, fallbacks, resilience metrics with 5 tables and 19 indexes
 - **Batch 83 — Agent Service Discovery**: service registry, health checks, endpoint cataloging, dependency tracking with 5 tables and 19 indexes
 - **Batch 82 — Agent Content Moderation**: moderation policies, content reviews, appeals, queue management, action tracking with 5 tables and 21 indexes
 - **Batch 75 — Agent Service Mesh & Discovery**: service registry, endpoints, dependencies, health checks, traffic policies; 5 tables, 20 indexes, 7 task handlers
@@ -411,6 +415,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Flutter mobile app fixes: corrected API base URL from hardcoded port 3004 to gateway (EnvConfig.apiBase), added public-status fallback for guest users, fixed SSE path to match gateway route.
 
 ### Added
+- **Batch 84 — Agent Circuit Breaker**: circuit breaker patterns, fallbacks, resilience metrics with 5 tables and 19 indexes
 - **Batch 83 — Agent Service Discovery**: service registry, health checks, endpoint cataloging, dependency tracking with 5 tables and 19 indexes
 - **Batch 82 — Agent Content Moderation**: moderation policies, content reviews, appeals, queue management, action tracking with 5 tables and 21 indexes
 - **Batch 75 — Agent Service Mesh & Discovery**: service registry, endpoints, dependencies, health checks, traffic policies; 5 tables, 20 indexes, 7 task handlers
