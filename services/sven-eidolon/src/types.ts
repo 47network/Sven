@@ -47,7 +47,8 @@ export type EidolonBuildingKind =
   | 'resource_depot'
   | 'compliance_courthouse'
   | 'review_forum'
-  | 'comm_tower';
+  | 'comm_tower'
+  | 'observatory_tower';
 
 export interface EidolonBuilding {
   id: string;
@@ -302,6 +303,10 @@ export type EidolonEventKind =
   | 'messaging.message_sent'
   | 'messaging.presence_changed'
   | 'messaging.broadcast_sent'
+  | 'monitoring.metric_recorded'
+  | 'monitoring.alert_fired'
+  | 'monitoring.slo_breached'
+  | 'monitoring.dashboard_updated'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -428,6 +433,8 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'review_forum':
       return 'market';
     case 'comm_tower':
+      return 'civic';
+    case 'observatory_tower':
       return 'civic';
   }
 }

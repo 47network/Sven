@@ -376,6 +376,13 @@ export class TaskExecutor {
       case 'presence_update': return this.handlePresenceUpdate(input);
       case 'thread_reply': return this.handleThreadReply(input);
       case 'broadcast_send': return this.handleBroadcastSend(input);
+      case 'metric_record': return this.handleMetricRecord(input);
+      case 'alert_create': return this.handleAlertCreate(input);
+      case 'alert_acknowledge': return this.handleAlertAcknowledge(input);
+      case 'dashboard_create': return this.handleDashboardCreate(input);
+      case 'log_query': return this.handleLogQuery(input);
+      case 'slo_define': return this.handleSloDefine(input);
+      case 'slo_check': return this.handleSloCheck(input);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -4023,6 +4030,88 @@ export class TaskExecutor {
       channelId: input.channelId ?? null,
       recipientCount: 0,
       sentAt: new Date().toISOString(),
+    };
+  }
+
+  private handleMetricRecord(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      metricId: `met-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      agentId: input.agentId ?? input.agent_id ?? null,
+      metricName: input.metricName ?? input.metric_name ?? null,
+      metricType: input.metricType ?? input.metric_type ?? 'gauge',
+      value: input.value ?? 0,
+      recordedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleAlertCreate(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      alertId: `alrt-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      agentId: input.agentId ?? input.agent_id ?? null,
+      alertName: input.alertName ?? input.alert_name ?? null,
+      severity: input.severity ?? 'warning',
+      status: 'firing',
+      firedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleAlertAcknowledge(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      alertId: input.alertId ?? input.alert_id ?? null,
+      previousStatus: 'firing',
+      newStatus: input.action === 'resolve' ? 'resolved' : 'acknowledged',
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleDashboardCreate(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      dashboardId: `dash-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      ownerId: input.ownerId ?? input.owner_id ?? null,
+      title: input.title ?? 'Untitled Dashboard',
+      panelCount: Array.isArray(input.panels) ? input.panels.length : 0,
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  private handleLogQuery(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      agentId: input.agentId ?? input.agent_id ?? null,
+      level: input.level ?? null,
+      entries: [],
+      total: 0,
+      queriedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleSloDefine(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      sloId: `slo-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      agentId: input.agentId ?? input.agent_id ?? null,
+      sloName: input.sloName ?? input.slo_name ?? null,
+      targetType: input.targetType ?? input.target_type ?? 'availability',
+      targetValue: input.targetValue ?? input.target_value ?? 99.9,
+      budgetRemaining: 100,
+      status: 'met',
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  private handleSloCheck(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      sloId: input.sloId ?? input.slo_id ?? null,
+      currentValue: 99.95,
+      targetValue: 99.9,
+      budgetRemaining: 98.5,
+      status: 'met',
+      checkedAt: new Date().toISOString(),
     };
   }
 }
