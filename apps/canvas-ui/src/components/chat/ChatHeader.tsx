@@ -57,6 +57,7 @@ export default function ChatHeader({
             <button
                 onClick={onBack}
                 className="rounded-md p-1.5 text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden"
+                aria-label="Go back"
             >
                 <ArrowLeft className="h-5 w-5" />
             </button>
@@ -79,6 +80,7 @@ export default function ChatHeader({
                 className={`rounded-md p-2 text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800 ${searchOpen ? 'bg-slate-100 dark:bg-slate-800' : ''}`}
                 aria-pressed={searchOpen}
                 title="Search in chat"
+                aria-label="Search in chat"
             >
                 <Search className="h-4 w-4" />
             </button>
@@ -91,6 +93,7 @@ export default function ChatHeader({
                         : 'text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800'
                       }`}
                     title={agentPaused ? 'Resume agent' : 'Pause agent'}
+                    aria-label={agentPaused ? 'Resume agent' : 'Pause agent'}
                 >
                     {agentPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
                 </button>
@@ -101,6 +104,7 @@ export default function ChatHeader({
                     disabled={nudgeBusy}
                     className="rounded-md p-2 text-amber-500 hover:bg-amber-50 disabled:opacity-60 dark:text-amber-300 dark:hover:bg-amber-900/20"
                     title="Nudge agent"
+                    aria-label="Nudge agent"
                 >
                     <RefreshCw className="h-4 w-4" />
                 </button>
@@ -111,6 +115,7 @@ export default function ChatHeader({
                     disabled={exportBusy}
                     className="rounded-md p-2 text-[var(--fg-muted)] hover:bg-slate-100 disabled:opacity-60 dark:hover:bg-slate-800"
                     title="Copy full transcript"
+                    aria-label="Copy full transcript"
                 >
                     <Copy className="h-4 w-4" />
                 </button>
@@ -121,6 +126,7 @@ export default function ChatHeader({
                     disabled={exportBusy}
                     className="rounded-md p-2 text-[var(--fg-muted)] hover:bg-slate-100 disabled:opacity-60 dark:hover:bg-slate-800"
                     title="Download full transcript"
+                    aria-label="Download full transcript"
                 >
                     <Download className="h-4 w-4" />
                 </button>
@@ -131,6 +137,7 @@ export default function ChatHeader({
                     disabled={shareBusy}
                     className="rounded-md p-2 text-[var(--fg-muted)] hover:bg-slate-100 disabled:opacity-60 dark:hover:bg-slate-800"
                     title={shareHint || 'Share chat link'}
+                    aria-label={shareHint || 'Share chat link'}
                 >
                     <Link2 className="h-4 w-4" />
                 </button>
@@ -141,6 +148,7 @@ export default function ChatHeader({
                     disabled={unshareBusy}
                     className="rounded-md p-2 text-rose-500 hover:bg-rose-50 disabled:opacity-60 dark:text-rose-300 dark:hover:bg-rose-900/25"
                     title="Revoke share link"
+                    aria-label="Revoke share link"
                 >
                     <Unlink2 className="h-4 w-4" />
                 </button>
@@ -173,6 +181,7 @@ function CouncilToggle() {
                     : 'text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800',
             )}
             title={enabled ? 'Council mode ON — click to disable' : 'Enable Council mode (multi-model debate)'}
+            aria-label={enabled ? 'Disable Council mode' : 'Enable Council mode'}
         >
             <Users className="h-4 w-4" />
         </button>
