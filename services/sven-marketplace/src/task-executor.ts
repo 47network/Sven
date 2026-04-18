@@ -240,6 +240,9 @@ export class TaskExecutor {
       case 'service_spawn':    return this.handleServiceSpawn(input);
       case 'service_manage':   return this.handleServiceManage(input);
       case 'service_analytics': return this.handleServiceAnalytics(input);
+      case 'research_lab':     return this.handleResearchLab(input);
+      case 'research_project': return this.handleResearchProject(input);
+      case 'research_paper':   return this.handleResearchPaper(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -1737,6 +1740,74 @@ export class TaskExecutor {
         avgResponseMs: null,
         errorCount: 0,
         message: `Analytics for service ${domainId} from ${from} to ${to}`,
+      },
+    };
+  }
+
+  // ── Batch 38 — Research Labs ──────────────────────────────────
+
+  private async handleResearchLab(input: Record<string, unknown>) {
+    const name = String(input.name ?? 'Unnamed Lab');
+    const slug = String(input.slug ?? name.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
+    const focusArea = String(input.focusArea ?? 'general');
+    const description = String(input.description ?? '');
+    const labId = `lab-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return {
+      status: 'completed' as const,
+      output: {
+        labId,
+        name,
+        slug,
+        focusArea,
+        description,
+        status: 'founding',
+        tokensFunded: 100,
+        papersCount: 0,
+        datasetsCount: 0,
+        reputation: 0,
+        message: `Research lab "${name}" founded with focus on ${focusArea}`,
+      },
+    };
+  }
+
+  private async handleResearchProject(input: Record<string, unknown>) {
+    const labId = String(input.labId ?? '');
+    const title = String(input.title ?? 'Untitled Project');
+    const abstract = String(input.abstract ?? '');
+    const methodology = String(input.methodology ?? '');
+    const projectId = `rp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return {
+      status: 'completed' as const,
+      output: {
+        projectId,
+        labId,
+        title,
+        abstract,
+        methodology,
+        status: 'proposal',
+        budgetTokens: 25,
+        message: `Research project "${title}" created in lab ${labId}`,
+      },
+    };
+  }
+
+  private async handleResearchPaper(input: Record<string, unknown>) {
+    const projectId = String(input.projectId ?? '');
+    const title = String(input.title ?? 'Untitled Paper');
+    const abstract = String(input.abstract ?? '');
+    const keywords = (input.keywords as string[]) ?? [];
+    const paperId = `paper-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return {
+      status: 'completed' as const,
+      output: {
+        paperId,
+        projectId,
+        title,
+        abstract,
+        keywords,
+        status: 'draft',
+        citationCount: 0,
+        message: `Research paper "${title}" drafted for project ${projectId}`,
       },
     };
   }

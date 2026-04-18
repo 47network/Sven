@@ -111,6 +111,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.service.domain_activated': 'service.domain_activated',
   'sven.service.deployed': 'service.deployed',
   'sven.service.domain_archived': 'service.domain_archived',
+  'sven.research.lab_founded': 'research.lab_founded',
+  'sven.research.project_started': 'research.project_started',
+  'sven.research.paper_published': 'research.paper_published',
+  'sven.research.dataset_released': 'research.dataset_released',
 };
 
 export class EidolonEventBus {
