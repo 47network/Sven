@@ -53,3 +53,4 @@ export * from './xlvii-merch.js';
 export * from './llm-council.js';
 export * from './persistent-memory.js';
 export * from './model-fleet.js';
+export * from './asi-evolve.js';
