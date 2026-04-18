@@ -425,6 +425,13 @@ export class TaskExecutor {
       case 'secret_share': return this.handleSecretShare(task);
       case 'policy_create': return this.handlePolicyCreate(task);
       case 'audit_query': return this.handleAuditQuery(task);
+      case 'flag_create': return this.handleFlagCreate(task);
+      case 'flag_toggle': return this.handleFlagToggle(task);
+      case 'experiment_create': return this.handleExperimentCreate(task);
+      case 'experiment_start': return this.handleExperimentStart(task);
+      case 'variant_assign': return this.handleVariantAssign(task);
+      case 'metric_record': return this.handleMetricRecord(task);
+      case 'experiment_conclude': return this.handleExperimentConclude(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -4518,6 +4525,35 @@ export class TaskExecutor {
 
   private handleAuditQuery(task: any): any {
     return { logs: [], totalAccesses: 0, suspiciousCount: 0 };
+  }
+
+
+  private handleFlagCreate(task: any): any {
+    return { flagId: `ff-${Date.now()}`, flagKey: task.input?.flagKey, created: true };
+  }
+
+  private handleFlagToggle(task: any): any {
+    return { flagId: task.input?.flagId, previousState: false, newState: true, toggledAt: new Date().toISOString() };
+  }
+
+  private handleExperimentCreate(task: any): any {
+    return { experimentId: `exp-${Date.now()}`, variants: [], status: 'draft' };
+  }
+
+  private handleExperimentStart(task: any): any {
+    return { experimentId: task.input?.experimentId, status: 'running', startDate: new Date().toISOString() };
+  }
+
+  private handleVariantAssign(task: any): any {
+    return { assignmentId: `asgn-${Date.now()}`, variantKey: 'control', variantConfig: {} };
+  }
+
+  private handleMetricRecord(task: any): any {
+    return { metricId: `met-${Date.now()}`, recorded: true, runningAvg: task.input?.metricValue || 0 };
+  }
+
+  private handleExperimentConclude(task: any): any {
+    return { experimentId: task.input?.experimentId, status: 'completed', winner: task.input?.winnerVariant };
   }
 
 }
