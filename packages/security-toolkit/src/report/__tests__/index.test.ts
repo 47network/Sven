@@ -71,16 +71,37 @@ describe('Security Report Generator', () => {
         byRisk: { critical: 2, high: 0, medium: 1, low: 0 },
       } as unknown as DepAuditReport;
 
+      const secretsMock = {
+        scanId: 'secrets-1',
+        timestamp: '',
+        secretsFound: 2,
+        clean: false,
+        findings: [],
+        bySeverity: { critical: 1, high: 1, medium: 1 },
+      } as unknown as SecretScanReport;
+
+      const infraMock = {
+        auditId: 'infra-1',
+        timestamp: '',
+        securityScore: 0,
+        findings: [],
+        bySeverity: { critical: 1, high: 0, medium: 0, low: 2 },
+      } as unknown as InfraAuditReport;
+
       const posture = generateSecurityPosture({
         sast: sastMock,
         dependencies: dependenciesMock,
+        secrets: secretsMock,
+        infrastructure: infraMock,
       });
 
-      expect(posture.criticalFindings).toBe(3);
-      expect(posture.highFindings).toBe(2);
-      expect(posture.totalFindings).toBe(6);
-      expect(posture.topRisks).toContain('3 critical finding(s) require immediate attention');
+      expect(posture.criticalFindings).toBe(5);
+      expect(posture.highFindings).toBe(3);
+      expect(posture.totalFindings).toBe(12);
+      expect(posture.topRisks).toContain('5 critical finding(s) require immediate attention');
       expect(posture.topRisks).toContain('Critical dependency CVEs detected');
+      expect(posture.topRisks).toContain('2 secret(s) found in source code — immediate rotation required');
+      expect(posture.topRisks).toContain('Critical infrastructure misconfigurations detected');
     });
 
     it('should calculate pentest vulnerabilities severity', () => {
@@ -96,6 +117,12 @@ describe('Security Report Generator', () => {
           },
           {
             id: 'v2', title: 'v2', severity: 'high', cvssScore: 8, description: '', remediation: '', status: 'open'
+          },
+          {
+            id: 'v3', title: 'v3', severity: 'medium', cvssScore: 5, description: '', remediation: '', status: 'open'
+          },
+          {
+            id: 'v4', title: 'v4', severity: 'low', cvssScore: 2, description: '', remediation: '', status: 'open'
           }
         ],
       } as unknown as PentestReport;
@@ -106,7 +133,7 @@ describe('Security Report Generator', () => {
 
       expect(posture.criticalFindings).toBe(1);
       expect(posture.highFindings).toBe(1);
-      expect(posture.totalFindings).toBe(2);
+      expect(posture.totalFindings).toBe(4);
     });
 
     it('should generate accurate compliance notes', () => {
@@ -189,6 +216,26 @@ describe('Security Report Generator', () => {
       expect(digest.trend).toBe('improving');
       expect(digest.newFindings).toBe(0);
       expect(digest.resolvedFindings).toBe(5);
+    });
+
+    it('should generate a stable trend if score remains within 2 points', () => {
+      const previousPosture = {
+        ...defaultPosture,
+        overallScore: 70,
+        totalFindings: 10,
+      };
+
+      const currentPosture = {
+        ...defaultPosture,
+        overallScore: 71,
+        totalFindings: 10,
+      };
+
+      const digest = generateSecurityDigest(currentPosture, previousPosture, 'weekly');
+
+      expect(digest.trend).toBe('stable');
+      expect(digest.newFindings).toBe(0);
+      expect(digest.resolvedFindings).toBe(0);
     });
   });
 
