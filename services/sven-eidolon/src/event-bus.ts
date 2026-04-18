@@ -187,6 +187,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.reviews.response_posted': 'reviews.response_posted',
   'sven.reviews.review_moderated': 'reviews.review_moderated',
   'sven.reviews.analytics_generated': 'reviews.analytics_generated',
+  'sven.messaging.channel_created': 'messaging.channel_created',
+  'sven.messaging.message_sent': 'messaging.message_sent',
+  'sven.messaging.presence_changed': 'messaging.presence_changed',
+  'sven.messaging.broadcast_sent': 'messaging.broadcast_sent',
 };
 
 export class EidolonEventBus {

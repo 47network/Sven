@@ -369,6 +369,13 @@ export class TaskExecutor {
       case 'analytics_generate': return this.handleAnalyticsGenerate(input);
       case 'review_flag': return this.handleReviewFlag(input);
       case 'review_highlight': return this.handleReviewHighlight(input);
+      case 'channel_create': return this.handleChannelCreate(input);
+      case 'channel_join': return this.handleChannelJoin(input);
+      case 'message_send': return this.handleMessageSend(input);
+      case 'message_react': return this.handleMessageReact(input);
+      case 'presence_update': return this.handlePresenceUpdate(input);
+      case 'thread_reply': return this.handleThreadReply(input);
+      case 'broadcast_send': return this.handleBroadcastSend(input);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -3941,6 +3948,81 @@ export class TaskExecutor {
       reviewId: input.reviewId ?? null,
       highlighted: true,
       highlightedAt: new Date().toISOString(),
+    };
+  }
+
+  /* ---- Batch 57 — Agent Communication & Messaging ---- */
+
+  private handleChannelCreate(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      channelId: `ch-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      name: input.name ?? 'general',
+      channelType: input.channelType ?? 'public',
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  private handleChannelJoin(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      memberId: `mbr-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      channelId: input.channelId ?? null,
+      agentId: input.agentId ?? null,
+      role: 'member',
+      joinedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleMessageSend(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      messageId: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      channelId: input.channelId ?? null,
+      senderId: input.senderId ?? null,
+      msgType: input.msgType ?? 'text',
+      sentAt: new Date().toISOString(),
+    };
+  }
+
+  private handleMessageReact(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      reactionId: `rxn-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      messageId: input.messageId ?? null,
+      emoji: input.emoji ?? '👍',
+      reactedAt: new Date().toISOString(),
+    };
+  }
+
+  private handlePresenceUpdate(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      agentId: input.agentId ?? null,
+      status: input.status ?? 'online',
+      statusText: input.statusText ?? null,
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleThreadReply(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      replyId: `rpl-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      threadId: input.threadId ?? null,
+      channelId: input.channelId ?? null,
+      senderId: input.senderId ?? null,
+      repliedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleBroadcastSend(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      broadcastId: `bcast-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      channelId: input.channelId ?? null,
+      recipientCount: 0,
+      sentAt: new Date().toISOString(),
     };
   }
 }
