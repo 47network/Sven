@@ -42,7 +42,8 @@ export type EidolonBuildingKind =
   | 'billing_office'
   | 'contract_hall'
   | 'knowledge_library'
-  | 'notification_tower';
+  | 'notification_tower'
+  | 'schedule_clocktower';
 
 export interface EidolonBuilding {
   id: string;
@@ -277,6 +278,10 @@ export type EidolonEventKind =
   | 'notifications.notification_read'
   | 'notifications.escalation_triggered'
   | 'notifications.digest_generated'
+  | 'scheduling.schedule_fired'
+  | 'scheduling.event_created'
+  | 'scheduling.slot_booked'
+  | 'scheduling.trigger_executed'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -393,6 +398,8 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'automation_factory':
       return 'industrial';
     case 'notification_tower':
+      return 'civic';
+    case 'schedule_clocktower':
       return 'civic';
   }
 }

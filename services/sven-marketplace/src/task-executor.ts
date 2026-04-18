@@ -339,6 +339,14 @@ export class TaskExecutor {
       case 'notification_digest_generate': return this.handleNotificationDigestGenerate(input);
       case 'notification_channel_manage': return this.handleNotificationChannelManage(input);
 
+      case 'schedule_create': return this.handleScheduleCreate(input);
+      case 'schedule_pause': return this.handleSchedulePause(input);
+      case 'calendar_event_create': return this.handleCalendarEventCreate(input);
+      case 'calendar_event_cancel': return this.handleCalendarEventCancel(input);
+      case 'availability_set': return this.handleAvailabilitySet(input);
+      case 'slot_book': return this.handleSlotBook(input);
+      case 'schedule_trigger_configure': return this.handleScheduleTriggerConfigure(input);
+
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -3584,6 +3592,86 @@ export class TaskExecutor {
       action: input.action ?? 'create',
       enabled: input.action !== 'disable',
       note: `Notification channel ${input.action ?? 'create'} completed.`,
+    };
+  }
+
+  // ---------- Batch 53 — Agent Scheduling & Calendar ----------
+
+  private handleScheduleCreate(input: Record<string, unknown>) {
+    const id = `sched-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      ok: true,
+      scheduleId: id,
+      agentId: input.agentId ?? 'unknown',
+      scheduleType: input.scheduleType ?? 'one_time',
+      title: input.title ?? 'Untitled schedule',
+      status: 'active',
+      nextRunAt: input.startAt ?? new Date(Date.now() + 3600_000).toISOString(),
+    };
+  }
+
+  private handleSchedulePause(input: Record<string, unknown>) {
+    const action = (input.action as string) ?? 'pause';
+    return {
+      ok: true,
+      scheduleId: input.scheduleId ?? 'unknown',
+      status: action === 'pause' ? 'paused' : 'active',
+      note: `Schedule ${action}d successfully.`,
+    };
+  }
+
+  private handleCalendarEventCreate(input: Record<string, unknown>) {
+    const id = `evt-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      ok: true,
+      eventId: id,
+      agentId: input.agentId ?? 'unknown',
+      eventType: input.eventType ?? 'task',
+      title: input.title ?? 'Untitled event',
+      status: 'confirmed',
+      conflicts: [],
+    };
+  }
+
+  private handleCalendarEventCancel(input: Record<string, unknown>) {
+    const action = (input.action as string) ?? 'cancel';
+    return {
+      ok: true,
+      eventId: input.eventId ?? 'unknown',
+      status: action === 'cancel' ? 'cancelled' : 'rescheduled',
+      note: `Event ${action}led successfully.`,
+    };
+  }
+
+  private handleAvailabilitySet(input: Record<string, unknown>) {
+    const windows = (input.windows as unknown[]) ?? [];
+    return {
+      ok: true,
+      agentId: input.agentId ?? 'unknown',
+      windowCount: windows.length,
+      updated: true,
+    };
+  }
+
+  private handleSlotBook(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      slotId: input.slotId ?? 'unknown',
+      status: 'booked',
+      bookedBy: input.bookedBy ?? 'unknown',
+      startAt: input.startAt ?? new Date().toISOString(),
+      endAt: input.endAt ?? new Date(Date.now() + 1800_000).toISOString(),
+    };
+  }
+
+  private handleScheduleTriggerConfigure(input: Record<string, unknown>) {
+    const id = `trig-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      ok: true,
+      triggerId: id,
+      scheduleId: input.scheduleId ?? 'unknown',
+      triggerType: input.triggerType ?? 'task',
+      maxRetries: input.maxRetries ?? 3,
     };
   }
 }

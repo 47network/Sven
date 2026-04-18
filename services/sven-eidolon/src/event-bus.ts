@@ -171,6 +171,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.notifications.notification_read': 'notifications.notification_read',
   'sven.notifications.escalation_triggered': 'notifications.escalation_triggered',
   'sven.notifications.digest_generated': 'notifications.digest_generated',
+  'sven.scheduling.schedule_fired': 'scheduling.schedule_fired',
+  'sven.scheduling.event_created': 'scheduling.event_created',
+  'sven.scheduling.slot_booked': 'scheduling.slot_booked',
+  'sven.scheduling.trigger_executed': 'scheduling.trigger_executed',
 };
 
 export class EidolonEventBus {
