@@ -299,6 +299,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.circuit.breaker_reset': 'circuit.breaker_reset',
   'sven.circuit.fallback_invoked': 'circuit.fallback_invoked',
   'sven.circuit.metrics_collected': 'circuit.metrics_collected',
+  'sven.di.container_created': 'di.container_created',
+  'sven.di.binding_registered': 'di.binding_registered',
+  'sven.di.resolution_completed': 'di.resolution_completed',
+  'sven.di.container_disposed': 'di.container_disposed',
 };
 
 export class EidolonEventBus {
