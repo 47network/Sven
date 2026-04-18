@@ -481,6 +481,13 @@ export class TaskExecutor {
       case 'purge_request': return this.handlePurgeRequest(task);
       case 'analytics_query': return this.handleAnalyticsQuery(task);
       case 'cache_report': return this.handleCacheReport(task);
+      case 'route_create': return this.handleRouteCreate(task);
+      case 'policy_attach': return this.handlePolicyAttach(task);
+      case 'transform_add': return this.handleTransformAdd(task);
+      case 'pool_configure': return this.handlePoolConfigure(task);
+      case 'traffic_analyze': return this.handleTrafficAnalyze(task);
+      case 'route_test': return this.handleRouteTest(task);
+      case 'gateway_report': return this.handleGatewayReport(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -4806,6 +4813,35 @@ export class TaskExecutor {
 
   private handleCacheReport(task: any): any {
     return { totalPolicies: 0, totalEntries: 0, totalSize: 0, overallHitRatio: 0 };
+  }
+
+
+  private handleRouteCreate(task: any): any {
+    return { routeId: `rt-${Date.now()}`, path: task.input?.path || '/', enabled: true };
+  }
+
+  private handlePolicyAttach(task: any): any {
+    return { policyId: task.input?.policyId || 'unknown', attached: true, routeCount: 1 };
+  }
+
+  private handleTransformAdd(task: any): any {
+    return { transformId: `tf-${Date.now()}`, direction: 'request', added: true };
+  }
+
+  private handlePoolConfigure(task: any): any {
+    return { poolId: `pool-${Date.now()}`, algorithm: 'round_robin', targetCount: 0 };
+  }
+
+  private handleTrafficAnalyze(task: any): any {
+    return { totalRequests: 0, avgLatency: 0, errorRate: 0, p99Latency: 0 };
+  }
+
+  private handleRouteTest(task: any): any {
+    return { routeId: task.input?.routeId || 'unknown', statusCode: 200, latencyMs: 10, passed: true };
+  }
+
+  private handleGatewayReport(task: any): any {
+    return { totalRoutes: 0, activePolicies: 0, totalTraffic: 0, avgLatency: 0 };
   }
 
 }

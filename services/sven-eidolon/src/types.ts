@@ -62,7 +62,8 @@ export type EidolonBuildingKind =
   | 'webhook_relay'
   | 'config_vault'
   | 'pipeline_forge'
-  | 'cache_tower';
+  | 'cache_tower'
+  | 'api_gateway';
 
 export interface EidolonBuilding {
   id: string;
@@ -377,6 +378,10 @@ export type EidolonEventKind =
   | 'cache.entry_invalidated'
   | 'cache.cdn_deployed'
   | 'cache.purge_completed'
+  | 'gateway.route_created'
+  | 'gateway.policy_attached'
+  | 'gateway.traffic_spike'
+  | 'gateway.circuit_opened'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -521,6 +526,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'config_vault':
     case 'pipeline_forge':
     case 'cache_tower':
+    case 'api_gateway':
       return 'civic';
   }
 }
