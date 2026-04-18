@@ -7,7 +7,7 @@ import { FastifyInstance } from 'fastify';
 import pg from 'pg';
 import { NatsConnection } from 'nats';
 import { randomUUID } from 'node:crypto';
-import { calculateWorldTime } from '@sven/shared/eidolon-world';
+import { calculateWorldTime } from '@sven/shared';
 
 function newId(): string {
   return randomUUID();
