@@ -99,6 +99,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.identity.trait_evolved': 'identity.trait_evolved',
   'sven.identity.mood_changed': 'identity.mood_changed',
   'sven.identity.item_acquired': 'identity.item_acquired',
+  'sven.training.job_created': 'training.job_created',
+  'sven.training.epoch_completed': 'training.epoch_completed',
+  'sven.training.job_finished': 'training.job_finished',
+  'sven.training.export_registered': 'training.export_registered',
 };
 
 export class EidolonEventBus {
