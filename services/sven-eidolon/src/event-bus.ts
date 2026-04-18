@@ -307,6 +307,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.statemachine.transitioned': 'statemachine.transitioned',
   'sven.statemachine.completed': 'statemachine.completed',
   'sven.statemachine.failed': 'statemachine.failed',
+  'sven.cdn.asset_published': 'cdn.asset_published',
+  'sven.cdn.cache_purged': 'cdn.cache_purged',
+  'sven.cdn.origin_registered': 'cdn.origin_registered',
+  'sven.cdn.analytics_collected': 'cdn.analytics_collected',
 };
 
 export class EidolonEventBus {
