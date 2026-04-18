@@ -467,6 +467,13 @@ export class TaskExecutor {
       case 'snapshot_create': return this.handleSnapshotCreate(task);
       case 'config_export': return this.handleConfigExport(task);
       case 'config_report': return this.handleConfigReport(task);
+      case 'health_create_check': return this.handleHealthCreateCheck(task);
+      case 'health_run_check': return this.handleHealthRunCheck(task);
+      case 'health_create_dashboard': return this.handleHealthCreateDashboard(task);
+      case 'health_add_widget': return this.handleHealthAddWidget(task);
+      case 'health_set_threshold': return this.handleHealthSetThreshold(task);
+      case 'health_create_alert': return this.handleHealthCreateAlert(task);
+      case 'health_report': return this.handleHealthReport(task);
       case 'template_create': return this.handleTemplateCreate(task);
       case 'instance_launch': return this.handleInstanceLaunch(task);
       case 'stage_advance': return this.handleStageAdvance(task);
@@ -5491,6 +5498,36 @@ export class TaskExecutor {
 
   private async handleConfigReport(task: any): Promise<any> {
     return { ok: true, handler: 'config_report', namespaceCount: 0, entryCount: 0, secretCount: 0, orphanedEntries: 0, recommendations: [] };
+  }
+
+
+
+  private async handleHealthCreateCheck(task: any): Promise<any> {
+    return { ok: true, handler: 'health_create_check', checkId: '', status: 'unknown', nextCheckAt: new Date().toISOString() };
+  }
+
+  private async handleHealthRunCheck(task: any): Promise<any> {
+    return { ok: true, handler: 'health_run_check', status: 'healthy', latencyMs: 0, consecutiveFailures: 0, details: {} };
+  }
+
+  private async handleHealthCreateDashboard(task: any): Promise<any> {
+    return { ok: true, handler: 'health_create_dashboard', dashboardId: '', name: task.input?.name || '', widgetCount: 0 };
+  }
+
+  private async handleHealthAddWidget(task: any): Promise<any> {
+    return { ok: true, handler: 'health_add_widget', widgetId: '', widgetType: task.input?.widgetType || 'gauge', position: {} };
+  }
+
+  private async handleHealthSetThreshold(task: any): Promise<any> {
+    return { ok: true, handler: 'health_set_threshold', thresholdId: '', metricName: task.input?.metricName || '', enabled: true };
+  }
+
+  private async handleHealthCreateAlert(task: any): Promise<any> {
+    return { ok: true, handler: 'health_create_alert', alertRuleId: '', severity: 'warning', isActive: true };
+  }
+
+  private async handleHealthReport(task: any): Promise<any> {
+    return { ok: true, handler: 'health_report', healthyCount: 0, degradedCount: 0, unhealthyCount: 0, alertsFired: 0, uptime: 100 };
   }
 
 }

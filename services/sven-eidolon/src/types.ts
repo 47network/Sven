@@ -80,7 +80,8 @@ export type EidolonBuildingKind =
   | 'delivery_hub'
   | 'search_archive'
   | 'event_ledger'
-  | 'config_vault';
+  | 'config_vault'
+  | 'health_tower';
 
 export interface EidolonBuilding {
   id: string;
@@ -467,6 +468,10 @@ export type EidolonEventKind =
   | 'config.namespace_created'
   | 'config.rollback_applied'
   | 'config.schema_validated'
+  | 'health.check_completed'
+  | 'health.threshold_breached'
+  | 'health.alert_triggered'
+  | 'health.dashboard_updated'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -609,6 +614,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'translation_hub':
     case 'webhook_relay':
     case 'config_vault':
+    case 'health_tower':
     case 'pipeline_forge':
     case 'cache_tower':
     case 'api_gateway':
@@ -629,6 +635,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'search_archive':
     case 'event_ledger':
     case 'config_vault':
+    case 'health_tower':
       return 'civic';
   }
 }

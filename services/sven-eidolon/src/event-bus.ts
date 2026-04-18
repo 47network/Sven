@@ -323,6 +323,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.config.namespace_created': 'config.namespace_created',
   'sven.config.rollback_applied': 'config.rollback_applied',
   'sven.config.schema_validated': 'config.schema_validated',
+  'sven.health.check_completed': 'health.check_completed',
+  'sven.health.threshold_breached': 'health.threshold_breached',
+  'sven.health.alert_triggered': 'health.alert_triggered',
+  'sven.health.dashboard_updated': 'health.dashboard_updated',
 };
 
 export class EidolonEventBus {
