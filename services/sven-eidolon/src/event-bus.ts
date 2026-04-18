@@ -243,6 +243,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.config.variable_updated': 'config.variable_updated',
   'sven.config.snapshot_taken': 'config.snapshot_taken',
   'sven.config.template_applied': 'config.template_applied',
+  'sven.pipeline.template_created': 'pipeline.template_created',
+  'sven.pipeline.instance_launched': 'pipeline.instance_launched',
+  'sven.pipeline.stage_completed': 'pipeline.stage_completed',
+  'sven.pipeline.pipeline_finished': 'pipeline.pipeline_finished',
 };
 
 export class EidolonEventBus {

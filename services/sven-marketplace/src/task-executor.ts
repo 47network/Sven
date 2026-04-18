@@ -467,6 +467,13 @@ export class TaskExecutor {
       case 'snapshot_create': return this.handleSnapshotCreate(task);
       case 'config_export': return this.handleConfigExport(task);
       case 'config_report': return this.handleConfigReport(task);
+      case 'template_create': return this.handleTemplateCreate(task);
+      case 'instance_launch': return this.handleInstanceLaunch(task);
+      case 'stage_advance': return this.handleStageAdvance(task);
+      case 'pipeline_pause': return this.handlePipelinePause(task);
+      case 'trigger_configure': return this.handleTriggerConfigure(task);
+      case 'artifact_store': return this.handleArtifactStore(task);
+      case 'pipeline_report': return this.handlePipelineReport(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -4734,6 +4741,35 @@ export class TaskExecutor {
 
   private handleConfigReport(task: any): any {
     return { totalVariables: 0, secretCount: 0, missingRequired: [], templateCompliant: true };
+  }
+
+
+  private handleTemplateCreate(task: any): any {
+    return { templateId: `tpl-${Date.now()}`, name: task.input?.name || 'template', created: true };
+  }
+
+  private handleInstanceLaunch(task: any): any {
+    return { instanceId: `inst-${Date.now()}`, status: 'running', currentStage: 0, launched: true };
+  }
+
+  private handleStageAdvance(task: any): any {
+    return { instanceId: task.input?.instanceId || 'unknown', advanced: true, nextStage: 1 };
+  }
+
+  private handlePipelinePause(task: any): any {
+    return { instanceId: task.input?.instanceId || 'unknown', status: 'paused' };
+  }
+
+  private handleTriggerConfigure(task: any): any {
+    return { triggerId: `trg-${Date.now()}`, triggerType: task.input?.triggerType || 'manual', enabled: true };
+  }
+
+  private handleArtifactStore(task: any): any {
+    return { artifactId: `art-${Date.now()}`, name: task.input?.name || 'artifact', stored: true };
+  }
+
+  private handlePipelineReport(task: any): any {
+    return { totalInstances: 0, successRate: 100, avgDuration: 0, artifactCount: 0 };
   }
 
 }
