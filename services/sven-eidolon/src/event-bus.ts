@@ -163,6 +163,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.contract.sla_breached': 'contract.sla_breached',
   'sven.contract.dispute_raised': 'contract.dispute_raised',
   'sven.contract.dispute_resolved': 'contract.dispute_resolved',
+  'sven.knowledge.article_created': 'knowledge.article_created',
+  'sven.knowledge.article_published': 'knowledge.article_published',
+  'sven.knowledge.article_archived': 'knowledge.article_archived',
+  'sven.knowledge.feedback_received': 'knowledge.feedback_received',
 };
 
 export class EidolonEventBus {

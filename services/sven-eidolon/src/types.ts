@@ -40,7 +40,8 @@ export type EidolonBuildingKind =
   | 'analytics_observatory'
   | 'deployment_center'
   | 'billing_office'
-  | 'contract_hall';
+  | 'contract_hall'
+  | 'knowledge_library';
 
 export interface EidolonBuilding {
   id: string;
@@ -267,6 +268,10 @@ export type EidolonEventKind =
   | 'contract.sla_breached'
   | 'contract.dispute_raised'
   | 'contract.dispute_resolved'
+  | 'knowledge.article_created'
+  | 'knowledge.article_published'
+  | 'knowledge.article_archived'
+  | 'knowledge.feedback_received'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -378,6 +383,8 @@ export function districtFor(kind: EidolonBuildingKind): District {
       return 'market';
     case 'contract_hall':
       return 'market';
+    case 'knowledge_library':
+      return 'civic';
     case 'automation_factory':
       return 'industrial';
   }

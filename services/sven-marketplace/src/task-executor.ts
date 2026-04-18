@@ -321,6 +321,16 @@ export class TaskExecutor {
       case 'contract_dispute_raise': return this.handleContractDisputeRaise(input);
       case 'contract_dispute_resolve': return this.handleContractDisputeResolve(input);
       case 'contract_compliance_report': return this.handleContractComplianceReport(input);
+
+      // ── Batch 51 — Agent Knowledge Base & Documentation ──
+      case 'knowledge_article_create': return this.handleKnowledgeArticleCreate(input);
+      case 'knowledge_article_update': return this.handleKnowledgeArticleUpdate(input);
+      case 'knowledge_article_publish': return this.handleKnowledgeArticlePublish(input);
+      case 'knowledge_article_archive': return this.handleKnowledgeArticleArchive(input);
+      case 'knowledge_article_search': return this.handleKnowledgeArticleSearch(input);
+      case 'knowledge_feedback_submit': return this.handleKnowledgeFeedbackSubmit(input);
+      case 'knowledge_category_manage': return this.handleKnowledgeCategoryManage(input);
+
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -3393,6 +3403,97 @@ export class TaskExecutor {
       breaches: 0,
       recommendations: ['Monitor response_time SLA — approaching warning threshold.'],
       note: 'Compliance report generated.',
+    };
+  }
+
+  // ── Batch 51 — Agent Knowledge Base & Documentation handlers ──
+
+  private handleKnowledgeArticleCreate(input: Record<string, unknown>) {
+    const id = `ka-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    const slug = String(input.title ?? 'untitled').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    return {
+      status: 'completed',
+      articleId: id,
+      slug,
+      title: input.title,
+      category: input.category ?? 'general',
+      articleType: input.articleType ?? 'article',
+      visibility: input.visibility ?? 'internal',
+      articleStatus: 'draft',
+      version: 1,
+      note: 'Knowledge article created as draft.',
+    };
+  }
+
+  private handleKnowledgeArticleUpdate(input: Record<string, unknown>) {
+    const revisionId = `kr-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      articleId: input.articleId,
+      revisionId,
+      version: (Number(input.currentVersion) || 1) + 1,
+      changeNote: input.changeNote ?? 'Content updated.',
+      note: 'Article updated with new revision.',
+    };
+  }
+
+  private handleKnowledgeArticlePublish(input: Record<string, unknown>) {
+    return {
+      status: 'completed',
+      articleId: input.articleId,
+      articleStatus: 'published',
+      publishedAt: new Date().toISOString(),
+      note: 'Article published and available for readers.',
+    };
+  }
+
+  private handleKnowledgeArticleArchive(input: Record<string, unknown>) {
+    return {
+      status: 'completed',
+      articleId: input.articleId,
+      articleStatus: 'archived',
+      reason: input.reason ?? 'No longer relevant.',
+      archivedAt: new Date().toISOString(),
+      note: 'Article archived.',
+    };
+  }
+
+  private handleKnowledgeArticleSearch(input: Record<string, unknown>) {
+    return {
+      status: 'completed',
+      query: input.query,
+      scope: input.scope ?? 'published',
+      category: input.category ?? 'all',
+      results: [
+        { articleId: 'ka-sample-001', title: 'Getting Started Guide', relevanceScore: 0.95 },
+        { articleId: 'ka-sample-002', title: 'API Reference Overview', relevanceScore: 0.87 },
+      ],
+      totalCount: 2,
+      note: 'Knowledge base search completed.',
+    };
+  }
+
+  private handleKnowledgeFeedbackSubmit(input: Record<string, unknown>) {
+    const feedbackId = `kf-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      feedbackId,
+      articleId: input.articleId,
+      feedbackType: input.feedbackType ?? 'helpful',
+      rating: input.rating,
+      note: 'Feedback submitted for article.',
+    };
+  }
+
+  private handleKnowledgeCategoryManage(input: Record<string, unknown>) {
+    const categoryId = `kc-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      categoryId,
+      action: input.action ?? 'create',
+      name: input.name,
+      parentId: input.parentId ?? null,
+      note: `Category ${input.action ?? 'create'} completed.`,
     };
   }
 }
