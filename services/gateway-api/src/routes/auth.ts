@@ -3203,7 +3203,7 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
     }
 
     try {
-      const { createHmac } = await import('crypto');
+      const { createHmac, timingSafeEqual } = await import('crypto');
       const secret = String(process.env.DEEPLINK_SECRET || '').trim();
       if (isWeakTokenExchangeSecret(secret)) {
         return reply.status(503).send({
@@ -3221,7 +3221,11 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       const [payloadB64, sig] = parts;
       const expectedSig = createHmac('sha256', secret).update(payloadB64).digest('base64url');
 
-      if (sig !== expectedSig) throw new Error('Invalid signature');
+      const sigBuf = Buffer.from(sig);
+      const expectedSigBuf = Buffer.from(expectedSig);
+      if (sigBuf.length !== expectedSigBuf.length || !timingSafeEqual(sigBuf, expectedSigBuf)) {
+        throw new Error('Invalid signature');
+      }
 
       const payload = Buffer.from(payloadB64, 'base64url').toString('utf8');
       const [userId, expiryStr] = payload.split(':');
@@ -3634,9 +3638,11 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       if (!pin) {
         return reply.status(403).send({ success: false, error: { code: 'PIN_REQUIRED', message: 'PIN required to switch to this account' } });
       }
-      const { createHash } = await import('crypto');
+      const { createHash, timingSafeEqual } = await import('crypto');
       const submittedHash = createHash('sha256').update(pin + target_user_id).digest('hex');
-      if (submittedHash !== account.pin_hash) {
+      const submittedBuf = Buffer.from(submittedHash);
+      const targetBuf = Buffer.from(String(account.pin_hash || ''));
+      if (submittedBuf.length !== targetBuf.length || !timingSafeEqual(submittedBuf, targetBuf)) {
         return reply.status(403).send({ success: false, error: { code: 'INVALID_PIN', message: 'Incorrect PIN' } });
       }
     }
