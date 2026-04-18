@@ -1,6 +1,6 @@
 // Batch 74: Agent Log Aggregation & Search — shared types
 
-export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+export type AgentlLogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 export type LogSource = 'agent' | 'service' | 'task' | 'event' | 'system' | 'external';
 export type LogFormat = 'json' | 'text' | 'structured' | 'binary';
 export type LogDashboardWidgetType = 'line_chart' | 'bar_chart' | 'pie_chart' | 'table' | 'counter' | 'heatmap';
@@ -20,10 +20,10 @@ export interface LogStream {
   updated_at: string;
 }
 
-export interface LogEntry {
+export interface AgentlLogEntry {
   id: string;
   stream_id: string;
-  level: LogLevel;
+  level: AgentlLogLevel;
   message: string;
   context: Record<string, unknown>;
   source_file?: string;
@@ -77,23 +77,23 @@ export interface LogAlert {
   updated_at: string;
 }
 
-export const LOG_LEVEL_ORDER: LogLevel[] = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
+export const LOG_LEVEL_ORDER: AgentlLogLevel[] = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
 
-export function isAtLeastLevel(entry: LogLevel, threshold: LogLevel): boolean {
+export function isAtLeastLevel(entry: AgentlLogLevel, threshold: AgentlLogLevel): boolean {
   return LOG_LEVEL_ORDER.indexOf(entry) >= LOG_LEVEL_ORDER.indexOf(threshold);
 }
 
-export function formatLogLine(entry: LogEntry): string {
+export function formatLogLine(entry: AgentlLogEntry): string {
   return `[${entry.timestamp}] ${entry.level.toUpperCase()} ${entry.message}`;
 }
 
-export function parseLogQuery(query: string): { terms: string[]; levels: LogLevel[]; streams: string[] } {
+export function parseLogQuery(query: string): { terms: string[]; levels: AgentlLogLevel[]; streams: string[] } {
   const terms: string[] = [];
-  const levels: LogLevel[] = [];
+  const levels: AgentlLogLevel[] = [];
   const streams: string[] = [];
   const tokens = query.split(/\s+/);
   for (const t of tokens) {
-    if (t.startsWith('level:')) levels.push(t.slice(6) as LogLevel);
+    if (t.startsWith('level:')) levels.push(t.slice(6) as AgentlLogLevel);
     else if (t.startsWith('stream:')) streams.push(t.slice(7));
     else terms.push(t);
   }

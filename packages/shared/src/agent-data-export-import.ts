@@ -4,7 +4,7 @@ export type ExportType = 'full' | 'partial' | 'incremental' | 'snapshot' | 'migr
 export type ExportFormat = 'json' | 'csv' | 'parquet' | 'sqlite' | 'archive';
 export type ExportStatus = 'queued' | 'processing' | 'completed' | 'failed' | 'expired';
 export type ImportType = 'full' | 'partial' | 'merge' | 'overwrite' | 'migration';
-export type ImportStatus = 'validating' | 'importing' | 'completed' | 'failed' | 'rolled_back';
+export type AgentdImportStatus = 'validating' | 'importing' | 'completed' | 'failed' | 'rolled_back';
 export type ConflictStrategy = 'skip' | 'overwrite' | 'merge' | 'error';
 export type DataTransferAction = 'export_create' | 'import_create' | 'schema_register' | 'mapping_create' | 'export_download' | 'import_validate' | 'transfer_status';
 
@@ -39,7 +39,7 @@ export interface DataImportJob {
   agentId: string;
   importType: ImportType;
   sourceFormat: ExportFormat;
-  status: ImportStatus;
+  status: AgentdImportStatus;
   filePath: string;
   fileSizeBytes?: number;
   rowsProcessed: number;

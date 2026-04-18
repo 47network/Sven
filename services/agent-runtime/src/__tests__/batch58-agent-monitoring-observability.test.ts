@@ -61,8 +61,8 @@ describe('Batch 58 — Agent Monitoring & Observability', () => {
       expect(count).toBe(5);
     });
 
-    it('exports AlertSeverity with 5 values', () => {
-      const m = src.match(/export type AlertSeverity\s*=\s*([^;]+);/);
+    it('exports AgentmAlertSeverity with 5 values', () => {
+      const m = src.match(/export type AgentmAlertSeverity\s*=\s*([^;]+);/);
       expect(m).toBeTruthy();
       const count = (m![1].match(/'/g) || []).length / 2;
       expect(count).toBe(5);
@@ -75,8 +75,8 @@ describe('Batch 58 — Agent Monitoring & Observability', () => {
       expect(count).toBe(5);
     });
 
-    it('exports LogLevel with 5 values', () => {
-      const m = src.match(/export type LogLevel\s*=\s*([^;]+);/);
+    it('exports AgentmLogLevel with 5 values', () => {
+      const m = src.match(/export type AgentmLogLevel\s*=\s*([^;]+);/);
       expect(m).toBeTruthy();
       const count = (m![1].match(/'/g) || []).length / 2;
       expect(count).toBe(5);

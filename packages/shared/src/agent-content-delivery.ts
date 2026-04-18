@@ -4,7 +4,7 @@ export type OriginStatus = 'active' | 'inactive' | 'degraded' | 'maintenance';
 
 export type CacheStatus = 'fresh' | 'stale' | 'revalidating' | 'purged';
 
-export type PurgeType = 'path' | 'prefix' | 'tag' | 'origin' | 'all';
+export type AgentcPurgeType = 'path' | 'prefix' | 'tag' | 'origin' | 'all';
 
 export type RequestType = 'hit' | 'miss' | 'bypass' | 'error' | 'redirect';
 
@@ -41,7 +41,7 @@ export interface CdnAsset {
   updatedAt: string;
 }
 
-export interface CdnCacheEntry {
+export interface DeliveryCacheEntry {
   id: string;
   assetId: string;
   edgeLocation: string;
@@ -56,7 +56,7 @@ export interface CdnCacheEntry {
 
 export interface CdnPurgeRequest {
   id: string;
-  requestType: PurgeType;
+  requestType: AgentcPurgeType;
   pattern: string;
   status: string;
   affectedCount: number;
@@ -81,7 +81,7 @@ export interface CdnAnalyticsEntry {
   createdAt: string;
 }
 
-export function isCacheFresh(entry: CdnCacheEntry): boolean {
+export function isCacheFresh(entry: DeliveryCacheEntry): boolean {
   return entry.status === 'fresh' && new Date(entry.expiresAt) > new Date();
 }
 

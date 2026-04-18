@@ -2,7 +2,7 @@
 
 export type ServiceProtocol = 'http' | 'grpc' | 'ws' | 'tcp' | 'nats';
 export type ServiceStatus = 'registered' | 'healthy' | 'degraded' | 'unhealthy' | 'deregistered';
-export type DependencyType = 'required' | 'optional' | 'weak';
+export type MeshDependencyType = 'required' | 'optional' | 'weak';
 export type HealthCheckType = 'http' | 'tcp' | 'grpc' | 'script' | 'nats';
 export type LoadBalanceStrategy = 'round_robin' | 'weighted' | 'least_conn' | 'random' | 'consistent_hash';
 
@@ -39,7 +39,7 @@ export interface ServiceDependency {
   id: string;
   service_id: string;
   depends_on: string;
-  dep_type: DependencyType;
+  dep_type: MeshDependencyType;
   min_version?: string;
   metadata: Record<string, unknown>;
   created_at: string;

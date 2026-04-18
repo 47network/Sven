@@ -20,7 +20,7 @@ export type DomainStatus = 'provisioning' | 'active' | 'suspended' | 'archived';
 
 export type DeployStatus = 'pending' | 'building' | 'deploying' | 'live' | 'failed' | 'rolled_back';
 
-export type HealthStatus = 'healthy' | 'degraded' | 'down';
+export type DomainHealthStatus = 'healthy' | 'degraded' | 'down';
 
 export const SERVICE_TYPES: readonly ServiceType[] = [
   'research_lab', 'consulting', 'design_studio', 'translation_bureau',
@@ -73,7 +73,7 @@ export interface ServiceDeployment {
   containerId: string | null;
   port: number | null;
   healthUrl: string | null;
-  lastHealth: HealthStatus | null;
+  lastHealth: DomainHealthStatus | null;
   buildLog: string | null;
   deployedAt: string | null;
   createdAt: string;

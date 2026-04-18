@@ -92,8 +92,8 @@ describe('Batch 43 — Agent Governance & Voting', () => {
       vals.forEach(v => expect(ts).toContain(`'${v}'`));
     });
 
-    it('exports ProposalStatus with 8 values', () => {
-      expect(ts).toContain("export type ProposalStatus");
+    it('exports AgentgProposalStatus with 8 values', () => {
+      expect(ts).toContain("export type AgentgProposalStatus");
       const vals = ['draft', 'review', 'voting', 'passed', 'rejected', 'executed', 'vetoed', 'expired'];
       vals.forEach(v => expect(ts).toContain(`'${v}'`));
     });

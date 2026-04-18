@@ -2,7 +2,7 @@
 
 export type ModerationCategory = 'spam' | 'abuse' | 'nsfw' | 'copyright' | 'misinformation' | 'harassment' | 'illegal' | 'custom';
 export type ModerationSeverity = 'low' | 'medium' | 'high' | 'critical';
-export type ModerationAction = 'flag' | 'hide' | 'remove' | 'ban' | 'warn' | 'escalate';
+export type AgentcModerationAction = 'flag' | 'hide' | 'remove' | 'ban' | 'warn' | 'escalate';
 export type ModerationContentType = 'listing' | 'message' | 'review' | 'comment' | 'profile' | 'plugin' | 'skill' | 'file';
 export type ModerationVerdict = 'clean' | 'violation' | 'borderline' | 'false_positive';
 
@@ -12,7 +12,7 @@ export interface ModerationPolicy {
   description?: string;
   category: ModerationCategory;
   severity: ModerationSeverity;
-  action: ModerationAction;
+  action: AgentcModerationAction;
   rules: unknown[];
   autoEnforce: boolean;
   enabled: boolean;
@@ -78,7 +78,7 @@ export interface ModerationActionRecord {
   createdAt: string;
 }
 
-export function shouldAutoEscalate(review: Pick<ModerationReview, 'confidence' | 'autoDetected'>, threshold: number): boolean {
+export function AgentcshouldAutoEscalate(review: Pick<ModerationReview, 'confidence' | 'autoDetected'>, threshold: number): boolean {
   return review.autoDetected && review.confidence < threshold;
 }
 

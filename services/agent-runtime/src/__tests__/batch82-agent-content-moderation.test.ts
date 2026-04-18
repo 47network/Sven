@@ -33,7 +33,7 @@ describe('Batch 82 — Agent Content Moderation', () => {
 
     it('exports ModerationCategory type', () => expect(src).toContain('export type ModerationCategory'));
     it('exports ModerationSeverity type', () => expect(src).toContain('export type ModerationSeverity'));
-    it('exports ModerationAction type', () => expect(src).toContain('export type ModerationAction'));
+    it('exports AgentcModerationAction type', () => expect(src).toContain('export type AgentcModerationAction'));
     it('exports ModerationContentType type', () => expect(src).toContain('export type ModerationContentType'));
     it('exports ModerationVerdict type', () => expect(src).toContain('export type ModerationVerdict'));
 
@@ -43,7 +43,7 @@ describe('Batch 82 — Agent Content Moderation', () => {
     it('exports ModerationQueueItem interface', () => expect(src).toContain('export interface ModerationQueueItem'));
     it('exports ModerationActionRecord interface', () => expect(src).toContain('export interface ModerationActionRecord'));
 
-    it('exports shouldAutoEscalate helper', () => expect(src).toContain('export function shouldAutoEscalate'));
+    it('exports AgentcshouldAutoEscalate helper', () => expect(src).toContain('export function AgentcshouldAutoEscalate'));
     it('exports moderationSeverityScore helper', () => expect(src).toContain('export function moderationSeverityScore'));
     it('exports pendingQueueCount helper', () => expect(src).toContain('export function pendingQueueCount'));
 

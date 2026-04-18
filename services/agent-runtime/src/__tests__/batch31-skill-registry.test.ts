@@ -81,8 +81,8 @@ describe('Batch 31 — Shared Types', () => {
     expect(src).toContain("'devops'");
   });
 
-  it('exports SkillSource union', () => {
-    expect(src).toContain('SkillSource');
+  it('exports SkillRegSkillSource union', () => {
+    expect(src).toContain('SkillRegSkillSource');
     expect(src).toContain("'native'");
     expect(src).toContain("'imported'");
   });

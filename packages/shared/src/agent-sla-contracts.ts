@@ -20,7 +20,7 @@ export type DisputeType = 'sla_breach' | 'quality_issue' | 'billing_dispute' | '
 
 export type DisputeSeverity = 'low' | 'medium' | 'high' | 'critical';
 
-export type DisputeStatus = 'open' | 'investigating' | 'mediation' | 'resolved' | 'escalated' | 'closed';
+export type AgentsDisputeStatus = 'open' | 'investigating' | 'mediation' | 'resolved' | 'escalated' | 'closed';
 
 export interface ServiceContract {
   id: string;
@@ -93,7 +93,7 @@ export interface ContractDispute {
   evidence: unknown[];
   resolution: string | null;
   resolvedBy: string | null;
-  status: DisputeStatus;
+  status: AgentsDisputeStatus;
   metadata: Record<string, unknown>;
   createdAt: string;
   resolvedAt: string | null;

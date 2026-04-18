@@ -169,7 +169,7 @@ export const DEFAULT_TRAINING_CONFIG = {
 // ── Utility functions ──────────────────────────────────────────
 
 /** Check if a training job is in a terminal state. */
-export function isTerminalStatus(status: TrainingJobStatus): boolean {
+export function MicrotisTerminalStatus(status: TrainingJobStatus): boolean {
   return status === 'completed' || status === 'failed' || status === 'cancelled';
 }
 
@@ -184,9 +184,9 @@ export function canAdvanceTrainingStatus(
   current: TrainingJobStatus,
   next: TrainingJobStatus,
 ): boolean {
-  if (isTerminalStatus(current)) return false;
-  if (next === 'cancelled') return !isTerminalStatus(current);
-  if (next === 'failed') return !isTerminalStatus(current);
+  if (MicrotisTerminalStatus(current)) return false;
+  if (next === 'cancelled') return !MicrotisTerminalStatus(current);
+  if (next === 'failed') return !MicrotisTerminalStatus(current);
   const ci = TRAINING_STATUS_ORDER.indexOf(current);
   const ni = TRAINING_STATUS_ORDER.indexOf(next);
   return ci >= 0 && ni >= 0 && ni === ci + 1;

@@ -35,7 +35,7 @@ export interface ValidationRule {
   updatedAt: string;
 }
 
-export interface ValidationResult {
+export interface DataValidationResult {
   id: string;
   schemaId: string;
   inputHash: string;
@@ -81,11 +81,11 @@ export function isSchemaActive(s: ValidationSchema): boolean {
   return s.status === 'active';
 }
 
-export function validationPassRate(r: ValidationResult[]): number {
+export function validationPassRate(r: DataValidationResult[]): number {
   if (r.length === 0) return 1;
   return r.filter(x => x.isValid).length / r.length;
 }
 
-export function hasErrors(r: ValidationResult): boolean {
+export function hasErrors(r: DataValidationResult): boolean {
   return r.errorCount > 0;
 }

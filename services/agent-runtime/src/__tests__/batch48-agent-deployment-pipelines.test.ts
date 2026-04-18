@@ -130,8 +130,8 @@ describe('Batch 48 — Agent Deployment Pipelines', () => {
       expect(types).toContain('export function canPromoteEnvironment');
     });
 
-    it('exports isTerminalStatus helper', () => {
-      expect(types).toContain('export function isTerminalStatus');
+    it('exports DeployisTerminalStatus helper', () => {
+      expect(types).toContain('export function DeployisTerminalStatus');
     });
 
     it('exports getNextStage helper', () => {

@@ -1,18 +1,18 @@
 // Batch 83 — Agent Service Discovery shared types
 
-export type ServiceType = 'api' | 'worker' | 'scheduler' | 'gateway' | 'adapter' | 'processor' | 'monitor' | 'custom';
-export type ServiceStatus = 'registered' | 'healthy' | 'degraded' | 'unhealthy' | 'deregistered';
-export type HealthCheckType = 'http' | 'tcp' | 'script' | 'heartbeat' | 'grpc';
+export type DiscoveryServiceType = 'api' | 'worker' | 'scheduler' | 'gateway' | 'adapter' | 'processor' | 'monitor' | 'custom';
+export type DiscoveryServiceStatus = 'registered' | 'healthy' | 'degraded' | 'unhealthy' | 'deregistered';
+export type DiscoveryHealthCheckType = 'http' | 'tcp' | 'script' | 'heartbeat' | 'grpc';
 export type HealthCheckStatus = 'passing' | 'warning' | 'failing' | 'unknown';
-export type DependencyType = 'required' | 'optional' | 'soft' | 'development';
+export type DiscoveryDependencyType = 'required' | 'optional' | 'soft' | 'development';
 
-export interface ServiceRegistryEntry {
+export interface DiscoveryServiceRegistryEntry {
   id: string;
   name: string;
   version: string;
   description?: string;
-  serviceType: ServiceType;
-  status: ServiceStatus;
+  serviceType: DiscoveryServiceType;
+  status: DiscoveryServiceStatus;
   host: string;
   port: number;
   protocol: 'http' | 'https' | 'grpc' | 'ws' | 'wss' | 'tcp' | 'nats';
@@ -24,10 +24,10 @@ export interface ServiceRegistryEntry {
   updatedAt: string;
 }
 
-export interface ServiceHealthCheck {
+export interface DiscoveryServiceHealthCheck {
   id: string;
   serviceId: string;
-  checkType: HealthCheckType;
+  checkType: DiscoveryHealthCheckType;
   endpoint?: string;
   intervalSeconds: number;
   timeoutSeconds: number;
@@ -39,7 +39,7 @@ export interface ServiceHealthCheck {
   createdAt: string;
 }
 
-export interface ServiceEndpoint {
+export interface DiscoveryServiceEndpoint {
   id: string;
   serviceId: string;
   path: string;
@@ -54,11 +54,11 @@ export interface ServiceEndpoint {
   createdAt: string;
 }
 
-export interface ServiceDependency {
+export interface DiscoveryServiceDependency {
   id: string;
   serviceId: string;
   dependsOn: string;
-  dependencyType: DependencyType;
+  dependencyType: DiscoveryDependencyType;
   versionConstraint?: string;
   metadata: Record<string, unknown>;
   createdAt: string;
@@ -74,14 +74,14 @@ export interface DiscoveryEvent {
   createdAt: string;
 }
 
-export function isServiceHealthy(entry: Pick<ServiceRegistryEntry, 'status'>): boolean {
+export function isServiceHealthy(entry: Pick<DiscoveryServiceRegistryEntry, 'status'>): boolean {
   return entry.status === 'healthy';
 }
 
-export function serviceUptime(entry: Pick<ServiceRegistryEntry, 'createdAt'>): number {
+export function serviceUptime(entry: Pick<DiscoveryServiceRegistryEntry, 'createdAt'>): number {
   return Date.now() - new Date(entry.createdAt).getTime();
 }
 
-export function healthyServiceCount(entries: Pick<ServiceRegistryEntry, 'status'>[]): number {
+export function healthyServiceCount(entries: Pick<DiscoveryServiceRegistryEntry, 'status'>[]): number {
   return entries.filter(e => e.status === 'healthy').length;
 }

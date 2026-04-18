@@ -1,7 +1,7 @@
 // Batch 72 — Agent Caching & CDN
 
 export type CacheType = 'memory' | 'disk' | 'distributed' | 'cdn' | 'edge';
-export type EvictionPolicy = 'lru' | 'lfu' | 'fifo' | 'ttl' | 'random';
+export type CdnEvictionPolicy = 'lru' | 'lfu' | 'fifo' | 'ttl' | 'random';
 export type CdnProvider = 'internal' | 'cloudflare' | 'aws_cloudfront' | 'bunny' | 'fastly';
 export type PurgeType = 'all' | 'pattern' | 'key' | 'tag';
 export type CachingAction = 'policy_create' | 'entry_set' | 'entry_invalidate' | 'cdn_deploy' | 'purge_request' | 'analytics_query' | 'cache_report';
@@ -13,12 +13,12 @@ export interface CachePolicy {
   cacheType: CacheType;
   ttlSeconds: number;
   maxSizeBytes: number;
-  eviction: EvictionPolicy;
+  eviction: CdnEvictionPolicy;
   enabled: boolean;
   patterns: string[];
 }
 
-export interface CacheEntry {
+export interface CdnCacheEntry {
   id: string;
   policyId: string;
   cacheKey: string;
@@ -63,7 +63,7 @@ export interface CacheAnalytics {
 }
 
 export const CACHE_TYPES: CacheType[] = ['memory', 'disk', 'distributed', 'cdn', 'edge'];
-export const EVICTION_POLICIES: EvictionPolicy[] = ['lru', 'lfu', 'fifo', 'ttl', 'random'];
+export const EVICTION_POLICIES: CdnEvictionPolicy[] = ['lru', 'lfu', 'fifo', 'ttl', 'random'];
 export const CDN_PROVIDERS: CdnProvider[] = ['internal', 'cloudflare', 'aws_cloudfront', 'bunny', 'fastly'];
 export const PURGE_TYPES: PurgeType[] = ['all', 'pattern', 'key', 'tag'];
 

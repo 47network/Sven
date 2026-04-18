@@ -1,19 +1,19 @@
 export type HealthTargetType = 'agent' | 'service' | 'database' | 'queue' | 'api' | 'infrastructure';
 
-export type HealthCheckType = 'ping' | 'http' | 'tcp' | 'custom' | 'heartbeat' | 'metric_threshold';
+export type DashboardCheckType = 'ping' | 'http' | 'tcp' | 'custom' | 'heartbeat' | 'metric_threshold';
 
-export type HealthStatus = 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | 'maintenance';
+export type DashboardHealthStatus = 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | 'maintenance';
 
 export type WidgetType = 'gauge' | 'chart' | 'table' | 'status_grid' | 'timeline' | 'heatmap' | 'counter' | 'sparkline';
 
-export type AlertSeverity = 'info' | 'warning' | 'critical' | 'fatal';
+export type DashboardAlertSeverity = 'info' | 'warning' | 'critical' | 'fatal';
 
-export interface HealthCheck {
+export interface DashboardHealthCheck {
   id: string;
   targetType: HealthTargetType;
   targetId: string;
-  checkType: HealthCheckType;
-  status: HealthStatus;
+  checkType: DashboardCheckType;
+  status: DashboardHealthStatus;
   lastCheckAt?: string;
   nextCheckAt?: string;
   intervalSeconds: number;
@@ -71,7 +71,7 @@ export interface HealthAlertRule {
   condition: Record<string, unknown>;
   notificationChannels: unknown[];
   cooldownSeconds: number;
-  severity: AlertSeverity;
+  severity: DashboardAlertSeverity;
   isActive: boolean;
   lastTriggeredAt?: string;
   triggerCount: number;
@@ -80,11 +80,11 @@ export interface HealthAlertRule {
   updatedAt: string;
 }
 
-export function isHealthy(check: HealthCheck): boolean {
+export function DashboardisHealthy(check: DashboardHealthCheck): boolean {
   return check.status === 'healthy';
 }
 
-export function checkOverdue(check: HealthCheck): boolean {
+export function checkOverdue(check: DashboardHealthCheck): boolean {
   if (!check.nextCheckAt) return false;
   return new Date(check.nextCheckAt) < new Date();
 }

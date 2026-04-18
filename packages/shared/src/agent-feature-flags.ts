@@ -1,10 +1,10 @@
 /* Batch 65 — Agent Feature Flags & Experiments */
 
-export type FlagType = 'boolean' | 'percentage' | 'variant' | 'schedule' | 'allowlist';
+export type AgentfFlagType = 'boolean' | 'percentage' | 'variant' | 'schedule' | 'allowlist';
 export type ExperimentStatus = 'draft' | 'running' | 'paused' | 'completed' | 'cancelled';
 export type FeatureFlagAction = 'flag_create' | 'flag_toggle' | 'experiment_create' | 'experiment_start' | 'variant_assign' | 'metric_record' | 'experiment_conclude';
 
-export const FLAG_TYPES: FlagType[] = ['boolean', 'percentage', 'variant', 'schedule', 'allowlist'];
+export const FLAG_TYPES: AgentfFlagType[] = ['boolean', 'percentage', 'variant', 'schedule', 'allowlist'];
 export const EXPERIMENT_STATUSES: ExperimentStatus[] = ['draft', 'running', 'paused', 'completed', 'cancelled'];
 export const FEATURE_FLAG_ACTIONS: FeatureFlagAction[] = ['flag_create', 'flag_toggle', 'experiment_create', 'experiment_start', 'variant_assign', 'metric_record', 'experiment_conclude'];
 
@@ -13,7 +13,7 @@ export interface AgentFeatureFlag {
   flagKey: string;
   flagName: string;
   description?: string;
-  flagType: FlagType;
+  flagType: AgentfFlagType;
   defaultValue: unknown;
   currentValue: unknown;
   isEnabled: boolean;

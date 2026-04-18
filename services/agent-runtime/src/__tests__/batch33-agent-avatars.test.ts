@@ -160,7 +160,7 @@ describe('Shared types — agent-avatars.ts', () => {
     expect(sharedTypes).toContain("'cyberpunk' | 'minimalist' | 'retro' | 'organic' | 'glitch' | 'neon' | 'steampunk'");
   });
 
-  test('exports AgentMood type with 8 values', () => {
+  test('exports AgentaAgentMood type with 8 values', () => {
     expect(sharedTypes).toContain("'neutral' | 'happy' | 'focused' | 'stressed' | 'creative' | 'tired' | 'excited' | 'contemplative'");
   });
 

@@ -106,12 +106,12 @@ describe('Batch 46 — Agent Workflow Automation', () => {
       expect(types).toContain('export interface WorkflowDefinition');
     });
 
-    it('exports WorkflowStep interface', () => {
-      expect(types).toContain('export interface WorkflowStep');
+    it('exports AgentwWorkflowStep interface', () => {
+      expect(types).toContain('export interface AgentwWorkflowStep');
     });
 
-    it('exports WorkflowRun interface', () => {
-      expect(types).toContain('export interface WorkflowRun');
+    it('exports AgentwWorkflowRun interface', () => {
+      expect(types).toContain('export interface AgentwWorkflowRun');
     });
 
     it('exports WorkflowStepResult interface', () => {

@@ -2,11 +2,11 @@
 
 export type MetricType = 'counter' | 'gauge' | 'histogram' | 'summary' | 'rate';
 
-export type AlertSeverity = 'info' | 'warning' | 'critical' | 'emergency' | 'resolved';
+export type AgentmAlertSeverity = 'info' | 'warning' | 'critical' | 'emergency' | 'resolved';
 
 export type AlertStatus = 'firing' | 'acknowledged' | 'resolved' | 'silenced' | 'expired';
 
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+export type AgentmLogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 
 export type SloTargetType = 'availability' | 'latency' | 'error_rate' | 'throughput' | 'saturation';
 
@@ -36,7 +36,7 @@ export interface AgentAlertRow {
   id: string;
   agent_id: string;
   alert_name: string;
-  severity: AlertSeverity;
+  severity: AgentmAlertSeverity;
   condition: string;
   threshold?: number;
   current_value?: number;
@@ -60,7 +60,7 @@ export interface AgentDashboardRow {
 export interface AgentLogEntryRow {
   id: string;
   agent_id: string;
-  level: LogLevel;
+  level: AgentmLogLevel;
   message: string;
   context: Record<string, unknown>;
   source?: string;
@@ -82,9 +82,9 @@ export interface AgentSloTargetRow {
 }
 
 export const METRIC_TYPES: readonly MetricType[] = ['counter', 'gauge', 'histogram', 'summary', 'rate'] as const;
-export const ALERT_SEVERITIES: readonly AlertSeverity[] = ['info', 'warning', 'critical', 'emergency', 'resolved'] as const;
+export const ALERT_SEVERITIES: readonly AgentmAlertSeverity[] = ['info', 'warning', 'critical', 'emergency', 'resolved'] as const;
 export const ALERT_STATUSES: readonly AlertStatus[] = ['firing', 'acknowledged', 'resolved', 'silenced', 'expired'] as const;
-export const LOG_LEVELS: readonly LogLevel[] = ['debug', 'info', 'warn', 'error', 'fatal'] as const;
+export const LOG_LEVELS: readonly AgentmLogLevel[] = ['debug', 'info', 'warn', 'error', 'fatal'] as const;
 export const SLO_TARGET_TYPES: readonly SloTargetType[] = ['availability', 'latency', 'error_rate', 'throughput', 'saturation'] as const;
 export const SLO_STATUSES: readonly SloStatus[] = ['met', 'at_risk', 'breached', 'unknown', 'suspended'] as const;
 
@@ -92,7 +92,7 @@ export function isAlertActionable(status: AlertStatus): boolean {
   return status === 'firing' || status === 'acknowledged';
 }
 
-export function isSeverityCritical(severity: AlertSeverity): boolean {
+export function isSeverityCritical(severity: AgentmAlertSeverity): boolean {
   return severity === 'critical' || severity === 'emergency';
 }
 

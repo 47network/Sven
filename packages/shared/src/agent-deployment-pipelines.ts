@@ -102,7 +102,7 @@ export function canPromoteEnvironment(from: DeploymentEnvironment, to: Deploymen
   return order.indexOf(to) > order.indexOf(from);
 }
 
-export function isTerminalStatus(status: DeploymentPipelineStatus): boolean {
+export function DeployisTerminalStatus(status: DeploymentPipelineStatus): boolean {
   return ['deployed', 'failed', 'rolled_back'].includes(status);
 }
 

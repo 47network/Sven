@@ -74,7 +74,7 @@ export interface AgentSchedule {
   updatedAt: string;
 }
 
-export interface CalendarEvent {
+export interface AgentsCalendarEvent {
   id: string;
   agentId: string;
   eventType: CalendarEventType;

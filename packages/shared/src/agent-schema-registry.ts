@@ -4,9 +4,9 @@ export type CompatibilityMode = 'backward' | 'forward' | 'full' | 'none';
 
 export type RegistryStatus = 'active' | 'deprecated' | 'archived' | 'draft';
 
-export type DependencyType = 'required' | 'optional' | 'dev';
+export type SchemaDependencyType = 'required' | 'optional' | 'dev';
 
-export type EvolutionType = 'create' | 'update' | 'deprecate' | 'archive' | 'restore' | 'fork';
+export type SchemaEvolutionType = 'create' | 'update' | 'deprecate' | 'archive' | 'restore' | 'fork';
 
 export interface SchemaRegistryEntry {
   id: string;
@@ -38,7 +38,7 @@ export interface SchemaDependency {
   id: string;
   schemaId: string;
   dependsOn: string;
-  dependencyType: DependencyType;
+  dependencyType: SchemaDependencyType;
   versionConstraint?: string;
   metadata: Record<string, unknown>;
   createdAt: string;
@@ -61,7 +61,7 @@ export interface SchemaEvolutionEntry {
   schemaId: string;
   fromVersion?: string;
   toVersion: string;
-  evolutionType: EvolutionType;
+  evolutionType: SchemaEvolutionType;
   changes: unknown[];
   impactAssessment?: string;
   approvedBy?: string;

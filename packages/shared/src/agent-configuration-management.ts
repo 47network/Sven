@@ -58,7 +58,7 @@ export interface ConfigSchema {
   updatedAt: string;
 }
 
-export interface ConfigAuditEntry {
+export interface AgentcConfigAuditEntry {
   id: string;
   entryId?: string;
   namespaceId: string;

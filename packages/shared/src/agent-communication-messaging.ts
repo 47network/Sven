@@ -8,7 +8,7 @@ export type ChannelType = 'public' | 'private' | 'direct' | 'broadcast' | 'syste
 
 export type MemberRole = 'owner' | 'admin' | 'member' | 'guest' | 'bot';
 
-export type MessageType = 'text' | 'code' | 'file' | 'image' | 'system' | 'action' | 'embed';
+export type AgentcMessageType = 'text' | 'code' | 'file' | 'image' | 'system' | 'action' | 'embed';
 
 export type PresenceStatus = 'online' | 'away' | 'busy' | 'offline' | 'dnd';
 
@@ -43,13 +43,13 @@ export interface ChannelMember {
   mutedUntil: string | null;
 }
 
-export interface AgentMessage {
+export interface AgentcAgentMessage {
   id: string;
   channelId: string;
   senderId: string;
   threadId: string | null;
   content: string;
-  msgType: MessageType;
+  msgType: AgentcMessageType;
   replyTo: string | null;
   metadata: Record<string, unknown>;
   createdAt: string;
@@ -79,7 +79,7 @@ export const CHANNEL_TYPES: readonly ChannelType[] = ['public', 'private', 'dire
 
 export const MEMBER_ROLES: readonly MemberRole[] = ['owner', 'admin', 'member', 'guest', 'bot'] as const;
 
-export const MESSAGE_TYPES: readonly MessageType[] = ['text', 'code', 'file', 'image', 'system', 'action', 'embed'] as const;
+export const MESSAGE_TYPES: readonly AgentcMessageType[] = ['text', 'code', 'file', 'image', 'system', 'action', 'embed'] as const;
 
 export const PRESENCE_STATUSES: readonly PresenceStatus[] = ['online', 'away', 'busy', 'offline', 'dnd'] as const;
 

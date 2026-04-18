@@ -120,8 +120,8 @@ describe('Batch 53 — Agent Scheduling & Calendar', () => {
       expect(src).toContain('export interface AgentSchedule');
     });
 
-    it('exports CalendarEvent interface', () => {
-      expect(src).toContain('export interface CalendarEvent');
+    it('exports AgentsCalendarEvent interface', () => {
+      expect(src).toContain('export interface AgentsCalendarEvent');
     });
 
     it('exports AvailabilityWindow interface', () => {

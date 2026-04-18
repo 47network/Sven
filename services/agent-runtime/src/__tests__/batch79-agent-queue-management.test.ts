@@ -27,7 +27,7 @@ describe('Batch 79 — Agent Queue Management', () => {
     it('exports QueueSchedule interface', () => { expect(src).toContain('export interface QueueSchedule'); });
     it('exports QueueMetrics interface', () => { expect(src).toContain('export interface QueueMetrics'); });
     it('exports isQueueFull helper', () => { expect(src).toContain('export function isQueueFull'); });
-    it('exports shouldRetry helper', () => { expect(src).toContain('export function shouldRetry'); });
+    it('exports AgentqshouldRetry helper', () => { expect(src).toContain('export function AgentqshouldRetry'); });
     it('exports queueThroughput helper', () => { expect(src).toContain('export function queueThroughput'); });
   });
 

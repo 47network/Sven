@@ -59,7 +59,7 @@ export type ReputationBadge =
 
 // ── Interfaces ─────────────────────────────────────────────────────────────
 
-export interface AgentReputation {
+export interface AgentrAgentReputation {
   id: string;
   agentId: string;
   overallScore: number;

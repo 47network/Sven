@@ -1,6 +1,6 @@
 // Batch 73 — Agent API Gateway & Routing
 
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS';
+export type AgentaHttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS';
 export type GatewayPolicyType = 'cors' | 'auth' | 'transform' | 'throttle' | 'circuit_breaker' | 'retry' | 'cache';
 export type TransformDirection = 'request' | 'response';
 export type LoadBalancerAlgorithm = 'round_robin' | 'least_connections' | 'weighted' | 'ip_hash' | 'random';
@@ -10,7 +10,7 @@ export interface ApiRoute {
   id: string;
   agentId?: string;
   path: string;
-  method: HttpMethod;
+  method: AgentaHttpMethod;
   targetUrl: string;
   enabled: boolean;
   authRequired: boolean;
@@ -59,7 +59,7 @@ export interface TrafficLog {
   responseSize: number;
 }
 
-export const HTTP_METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
+export const HTTP_METHODS: AgentaHttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
 export const GATEWAY_POLICY_TYPES: GatewayPolicyType[] = ['cors', 'auth', 'transform', 'throttle', 'circuit_breaker', 'retry', 'cache'];
 export const LB_ALGORITHMS: LoadBalancerAlgorithm[] = ['round_robin', 'least_connections', 'weighted', 'ip_hash', 'random'];
 export const TRANSFORM_DIRECTIONS: TransformDirection[] = ['request', 'response'];

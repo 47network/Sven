@@ -102,7 +102,7 @@ export function isQueueFull(queue: Pick<TaskQueue, 'pendingCount' | 'processingC
   return (queue.pendingCount + queue.processingCount) >= queue.maxSize;
 }
 
-export function shouldRetry(msg: Pick<QueueMessage, 'attempts' | 'maxAttempts'>): boolean {
+export function AgentqshouldRetry(msg: Pick<QueueMessage, 'attempts' | 'maxAttempts'>): boolean {
   return msg.attempts < msg.maxAttempts;
 }
 

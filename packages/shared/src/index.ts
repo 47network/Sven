@@ -119,4 +119,3 @@ export * from './agent-load-balancing.js';
 export * from './agent-data-validation.js';
 export * from './agent-schema-registry.js';
 export * from './agent-workflow-templates.js';
-export * from './agent-rate-limiting.js';

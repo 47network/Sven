@@ -19,7 +19,7 @@ export type ProposalCategory =
   | 'research'
   | 'collaboration';
 
-export type ProposalStatus =
+export type AgentgProposalStatus =
   | 'draft'
   | 'review'
   | 'voting'
@@ -63,7 +63,7 @@ export interface GovernanceProposal {
   description: string;
   proposalType: ProposalType;
   category: ProposalCategory;
-  status: ProposalStatus;
+  status: AgentgProposalStatus;
   proposerId: string;
   councilId?: string;
   quorum: number;
@@ -124,7 +124,7 @@ export const PROPOSAL_CATEGORIES: ProposalCategory[] = [
   'membership', 'research', 'collaboration',
 ];
 
-export const PROPOSAL_STATUSES: ProposalStatus[] = [
+export const PROPOSAL_STATUSES: AgentgProposalStatus[] = [
   'draft', 'review', 'voting', 'passed',
   'rejected', 'executed', 'vetoed', 'expired',
 ];

@@ -1,15 +1,15 @@
 /* Batch 63 — Agent Versioning & Rollback */
 
 export type SnapshotType = 'full' | 'config' | 'skills' | 'memory' | 'state';
-export type RollbackType = 'manual' | 'automatic' | 'health_check' | 'performance' | 'error_rate';
-export type RollbackStatus = 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled';
+export type AgentvRollbackType = 'manual' | 'automatic' | 'health_check' | 'performance' | 'error_rate';
+export type AgentvRollbackStatus = 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled';
 export type DeploymentSlot = 'production' | 'staging' | 'canary' | 'preview' | 'rollback';
 export type VersionDiffType = 'config' | 'skills' | 'memory' | 'behavior' | 'full';
 export type VersioningAction = 'version_create' | 'snapshot_take' | 'rollback_initiate' | 'slot_assign' | 'diff_generate' | 'version_promote' | 'rollback_cancel';
 
 export const SNAPSHOT_TYPES: SnapshotType[] = ['full', 'config', 'skills', 'memory', 'state'];
-export const ROLLBACK_TYPES: RollbackType[] = ['manual', 'automatic', 'health_check', 'performance', 'error_rate'];
-export const ROLLBACK_STATUSES: RollbackStatus[] = ['pending', 'in_progress', 'completed', 'failed', 'cancelled'];
+export const ROLLBACK_TYPES: AgentvRollbackType[] = ['manual', 'automatic', 'health_check', 'performance', 'error_rate'];
+export const ROLLBACK_STATUSES: AgentvRollbackStatus[] = ['pending', 'in_progress', 'completed', 'failed', 'cancelled'];
 export const DEPLOYMENT_SLOTS: DeploymentSlot[] = ['production', 'staging', 'canary', 'preview', 'rollback'];
 export const VERSION_DIFF_TYPES: VersionDiffType[] = ['config', 'skills', 'memory', 'behavior', 'full'];
 export const VERSIONING_ACTIONS: VersioningAction[] = ['version_create', 'snapshot_take', 'rollback_initiate', 'slot_assign', 'diff_generate', 'version_promote', 'rollback_cancel'];
@@ -49,8 +49,8 @@ export interface AgentRollback {
   fromVersionId: string;
   toVersionId: string;
   reason?: string;
-  rollbackType: RollbackType;
-  status: RollbackStatus;
+  rollbackType: AgentvRollbackType;
+  status: AgentvRollbackStatus;
   startedAt?: string;
   completedAt?: string;
   metadata: Record<string, unknown>;
@@ -86,7 +86,7 @@ export function formatVersionTag(major: number, minor: number, patch: number): s
   return `v${major}.${minor}.${patch}`;
 }
 
-export function isRollbackTerminal(status: RollbackStatus): boolean {
+export function isRollbackTerminal(status: AgentvRollbackStatus): boolean {
   return status === 'completed' || status === 'failed' || status === 'cancelled';
 }
 
