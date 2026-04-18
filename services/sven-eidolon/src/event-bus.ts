@@ -75,6 +75,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.council.round_completed': 'council.round_completed',
   'sven.council.session_completed': 'council.session_completed',
   'sven.council.model_ranked': 'council.model_ranked',
+  'sven.memory.stored': 'memory.stored',
+  'sven.memory.recalled': 'memory.recalled',
+  'sven.memory.compressed': 'memory.compressed',
+  'sven.memory.decayed': 'memory.decayed',
 };
 
 export class EidolonEventBus {
