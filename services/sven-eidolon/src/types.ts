@@ -58,6 +58,11 @@ export type EidolonBuildingKind =
   | 'experiment_lab'
   | 'data_warehouse'
   | 'rate_limiter'
+  | 'auto_scaler'
+  | 'dns_manager'
+  | 'ssl_cert_manager'
+  | 'chaos_engineer'
+  | 'ab_tester'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -87,7 +92,12 @@ export type EidolonBuildingKind =
   | 'validation_hub'
   | 'schema_registry'
   | 'workflow_factory'
-  | 'rate_limiter';
+  | 'rate_limiter'
+  | 'auto_scaler'
+  | 'dns_manager'
+  | 'ssl_cert_manager'
+  | 'chaos_engineer'
+  | 'ab_tester';
 
 export interface EidolonBuilding {
   id: string;
@@ -502,6 +512,26 @@ export type EidolonEventKind =
   | 'ratelimit.quota_exceeded'
   | 'ratelimit.violation_detected'
   | 'ratelimit.violation_resolved'
+  | 'autoscaling.policy_created'
+  | 'autoscaling.scale_triggered'
+  | 'autoscaling.scale_completed'
+  | 'autoscaling.metric_recorded'
+  | 'dns.zone_created'
+  | 'dns.record_added'
+  | 'dns.record_updated'
+  | 'dns.propagation_complete'
+  | 'ssl.cert_issued'
+  | 'ssl.cert_renewed'
+  | 'ssl.cert_expiring'
+  | 'ssl.cert_revoked'
+  | 'chaos.experiment_created'
+  | 'chaos.fault_injected'
+  | 'chaos.experiment_completed'
+  | 'chaos.weakness_found'
+  | 'abtest.experiment_created'
+  | 'abtest.variant_assigned'
+  | 'abtest.conversion_recorded'
+  | 'abtest.experiment_concluded'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -641,6 +671,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'experiment_lab':
     case 'data_warehouse':
     case 'rate_limiter':
+    case 'auto_scaler':
+    case 'dns_manager':
+    case 'ssl_cert_manager':
+    case 'chaos_engineer':
+    case 'ab_tester':
     case 'translation_hub':
     case 'webhook_relay':
     case 'config_vault':
@@ -651,6 +686,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'schema_registry':
     case 'workflow_factory':
     case 'rate_limiter':
+    case 'auto_scaler':
+    case 'dns_manager':
+    case 'ssl_cert_manager':
+    case 'chaos_engineer':
+    case 'ab_tester':
     case 'pipeline_forge':
     case 'cache_tower':
     case 'api_gateway':
@@ -678,6 +718,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'schema_registry':
     case 'workflow_factory':
     case 'rate_limiter':
+    case 'auto_scaler':
+    case 'dns_manager':
+    case 'ssl_cert_manager':
+    case 'chaos_engineer':
+    case 'ab_tester':
       return 'civic';
   }
 }

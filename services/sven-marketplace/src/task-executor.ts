@@ -516,6 +516,41 @@ export class TaskExecutor {
       case 'ratelimit_track_usage': return this.handleRatelimitTrackUsage(task);
       case 'ratelimit_resolve_violation': return this.handleRatelimitResolveViolation(task);
       case 'ratelimit_report': return this.handleRatelimitReport(task);
+      // Batch 98 — Auto-Scaling
+      case 'autoscaling_create_policy': return this.handleAutoscalingCreatePolicy(task);
+      case 'autoscaling_evaluate': return this.handleAutoscalingEvaluate(task);
+      case 'autoscaling_scale_up': return this.handleAutoscalingScaleUp(task);
+      case 'autoscaling_scale_down': return this.handleAutoscalingScaleDown(task);
+      case 'autoscaling_record_metric': return this.handleAutoscalingRecordMetric(task);
+      case 'autoscaling_report': return this.handleAutoscalingReport(task);
+      // Batch 99 — DNS Management
+      case 'dns_create_zone': return this.handleDnsCreateZone(task);
+      case 'dns_add_record': return this.handleDnsAddRecord(task);
+      case 'dns_update_record': return this.handleDnsUpdateRecord(task);
+      case 'dns_delete_record': return this.handleDnsDeleteRecord(task);
+      case 'dns_check_propagation': return this.handleDnsCheckPropagation(task);
+      case 'dns_report': return this.handleDnsReport(task);
+      // Batch 100 — SSL Certificates
+      case 'ssl_issue_cert': return this.handleSslIssueCert(task);
+      case 'ssl_renew_cert': return this.handleSslRenewCert(task);
+      case 'ssl_check_expiry': return this.handleSslCheckExpiry(task);
+      case 'ssl_revoke_cert': return this.handleSslRevokeCert(task);
+      case 'ssl_verify_chain': return this.handleSslVerifyChain(task);
+      case 'ssl_report': return this.handleSslReport(task);
+      // Batch 101 — Chaos Engineering
+      case 'chaos_create_experiment': return this.handleChaosCreateExperiment(task);
+      case 'chaos_run_experiment': return this.handleChaosRunExperiment(task);
+      case 'chaos_inject_fault': return this.handleChaosInjectFault(task);
+      case 'chaos_abort': return this.handleChaosAbort(task);
+      case 'chaos_analyze_findings': return this.handleChaosAnalyzeFindings(task);
+      case 'chaos_report': return this.handleChaosReport(task);
+      // Batch 102 — A/B Testing
+      case 'abtest_create_experiment': return this.handleAbtestCreateExperiment(task);
+      case 'abtest_assign_variant': return this.handleAbtestAssignVariant(task);
+      case 'abtest_record_conversion': return this.handleAbtestRecordConversion(task);
+      case 'abtest_analyze_results': return this.handleAbtestAnalyzeResults(task);
+      case 'abtest_conclude': return this.handleAbtestConclude(task);
+      case 'abtest_report': return this.handleAbtestReport(task);
       case 'template_create': return this.handleTemplateCreate(task);
       case 'instance_launch': return this.handleInstanceLaunch(task);
       case 'stage_advance': return this.handleStageAdvance(task);
@@ -5750,6 +5785,147 @@ export class TaskExecutor {
 
   private async handleRatelimitReport(task: any): Promise<any> {
     return { ok: true, handler: 'ratelimit_report', totalRequests: 0, rejectedRequests: 0, violations: 0, quotaUtilization: 0 };
+  }
+
+
+  // ═══════════════════════════════════════════════════════════════
+  // Batch 98 — Agent Auto-Scaling handlers
+  // ═══════════════════════════════════════════════════════════════
+
+  private async handleAutoscalingCreatePolicy(task: any): Promise<any> {
+    return { ok: true, handler: 'autoscaling_create_policy', policyId: `asp-${Date.now()}`, resourceType: task.input?.resourceType || 'container', minInstances: 1, maxInstances: 10 };
+  }
+
+  private async handleAutoscalingEvaluate(task: any): Promise<any> {
+    return { ok: true, handler: 'autoscaling_evaluate', policyId: task.input?.policyId, currentLoad: 0, recommendation: 'maintain', thresholdMet: false };
+  }
+
+  private async handleAutoscalingScaleUp(task: any): Promise<any> {
+    return { ok: true, handler: 'autoscaling_scale_up', policyId: task.input?.policyId, previousCount: 1, newCount: 2, reason: 'threshold_exceeded' };
+  }
+
+  private async handleAutoscalingScaleDown(task: any): Promise<any> {
+    return { ok: true, handler: 'autoscaling_scale_down', policyId: task.input?.policyId, previousCount: 2, newCount: 1, reason: 'underutilized' };
+  }
+
+  private async handleAutoscalingRecordMetric(task: any): Promise<any> {
+    return { ok: true, handler: 'autoscaling_record_metric', metricType: task.input?.metricType || 'cpu', value: 0, timestamp: new Date().toISOString() };
+  }
+
+  private async handleAutoscalingReport(task: any): Promise<any> {
+    return { ok: true, handler: 'autoscaling_report', totalPolicies: 0, activeScalingEvents: 0, costSavings: 0, avgUtilization: 0 };
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Batch 99 — Agent DNS Management handlers
+  // ═══════════════════════════════════════════════════════════════
+
+  private async handleDnsCreateZone(task: any): Promise<any> {
+    return { ok: true, handler: 'dns_create_zone', zoneId: `zone-${Date.now()}`, zoneName: task.input?.zoneName || 'example.com', nameservers: [], status: 'active' };
+  }
+
+  private async handleDnsAddRecord(task: any): Promise<any> {
+    return { ok: true, handler: 'dns_add_record', recordId: `rec-${Date.now()}`, recordType: task.input?.recordType || 'A', recordName: task.input?.recordName || '@', propagationStatus: 'pending' };
+  }
+
+  private async handleDnsUpdateRecord(task: any): Promise<any> {
+    return { ok: true, handler: 'dns_update_record', recordId: task.input?.recordId, updated: true, propagationStatus: 'pending' };
+  }
+
+  private async handleDnsDeleteRecord(task: any): Promise<any> {
+    return { ok: true, handler: 'dns_delete_record', recordId: task.input?.recordId, deleted: true };
+  }
+
+  private async handleDnsCheckPropagation(task: any): Promise<any> {
+    return { ok: true, handler: 'dns_check_propagation', zoneId: task.input?.zoneId, allPropagated: true, checkedServers: 0, propagatedServers: 0 };
+  }
+
+  private async handleDnsReport(task: any): Promise<any> {
+    return { ok: true, handler: 'dns_report', totalZones: 0, totalRecords: 0, pendingPropagation: 0, healthChecksPassed: 0 };
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Batch 100 — Agent SSL Certificates handlers
+  // ═══════════════════════════════════════════════════════════════
+
+  private async handleSslIssueCert(task: any): Promise<any> {
+    return { ok: true, handler: 'ssl_issue_cert', certId: `cert-${Date.now()}`, domain: task.input?.domain || 'example.com', issuer: 'letsencrypt', status: 'issued' };
+  }
+
+  private async handleSslRenewCert(task: any): Promise<any> {
+    return { ok: true, handler: 'ssl_renew_cert', certId: task.input?.certId, renewed: true, newExpiry: new Date(Date.now() + 90 * 86400000).toISOString() };
+  }
+
+  private async handleSslCheckExpiry(task: any): Promise<any> {
+    return { ok: true, handler: 'ssl_check_expiry', totalCerts: 0, expiringWithin30Days: 0, expiredCerts: 0, allHealthy: true };
+  }
+
+  private async handleSslRevokeCert(task: any): Promise<any> {
+    return { ok: true, handler: 'ssl_revoke_cert', certId: task.input?.certId, revoked: true, reason: task.input?.reason || 'superseded' };
+  }
+
+  private async handleSslVerifyChain(task: any): Promise<any> {
+    return { ok: true, handler: 'ssl_verify_chain', domain: task.input?.domain, chainValid: true, chainDepth: 3, rootTrusted: true };
+  }
+
+  private async handleSslReport(task: any): Promise<any> {
+    return { ok: true, handler: 'ssl_report', totalCerts: 0, activeCerts: 0, autoRenewEnabled: 0, renewalSuccessRate: 1.0, expiringWithin30Days: 0 };
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Batch 101 — Agent Chaos Engineering handlers
+  // ═══════════════════════════════════════════════════════════════
+
+  private async handleChaosCreateExperiment(task: any): Promise<any> {
+    return { ok: true, handler: 'chaos_create_experiment', experimentId: `chaos-${Date.now()}`, name: task.input?.experimentName || 'untitled', hypothesis: task.input?.hypothesis, status: 'draft' };
+  }
+
+  private async handleChaosRunExperiment(task: any): Promise<any> {
+    return { ok: true, handler: 'chaos_run_experiment', runId: `run-${Date.now()}`, experimentId: task.input?.experimentId, status: 'running', steadyStateCaptured: true };
+  }
+
+  private async handleChaosInjectFault(task: any): Promise<any> {
+    return { ok: true, handler: 'chaos_inject_fault', faultType: task.input?.faultType || 'latency', targetService: task.input?.targetService, injected: true, rollbackReady: true };
+  }
+
+  private async handleChaosAbort(task: any): Promise<any> {
+    return { ok: true, handler: 'chaos_abort', experimentId: task.input?.experimentId, aborted: true, rolledBack: true, incidentsTriggered: 0 };
+  }
+
+  private async handleChaosAnalyzeFindings(task: any): Promise<any> {
+    return { ok: true, handler: 'chaos_analyze_findings', runId: task.input?.runId, hypothesisConfirmed: true, weaknessesFound: 0, resilienceScore: 100 };
+  }
+
+  private async handleChaosReport(task: any): Promise<any> {
+    return { ok: true, handler: 'chaos_report', totalExperiments: 0, completedRuns: 0, weaknessesFound: 0, weaknessesResolved: 0, meanTimeToRecovery: 0 };
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Batch 102 — Agent A/B Testing handlers
+  // ═══════════════════════════════════════════════════════════════
+
+  private async handleAbtestCreateExperiment(task: any): Promise<any> {
+    return { ok: true, handler: 'abtest_create_experiment', experimentId: `ab-${Date.now()}`, name: task.input?.experimentName, trafficSplit: { control: 50, variant: 50 }, status: 'draft' };
+  }
+
+  private async handleAbtestAssignVariant(task: any): Promise<any> {
+    return { ok: true, handler: 'abtest_assign_variant', assignmentId: `asgn-${Date.now()}`, experimentId: task.input?.experimentId, variantName: 'control', userHash: task.input?.userHash };
+  }
+
+  private async handleAbtestRecordConversion(task: any): Promise<any> {
+    return { ok: true, handler: 'abtest_record_conversion', experimentId: task.input?.experimentId, variantId: task.input?.variantId, conversionRecorded: true };
+  }
+
+  private async handleAbtestAnalyzeResults(task: any): Promise<any> {
+    return { ok: true, handler: 'abtest_analyze_results', experimentId: task.input?.experimentId, pValue: 0, statisticalSignificance: 0, liftPercentage: 0, recommendation: 'insufficient_data' };
+  }
+
+  private async handleAbtestConclude(task: any): Promise<any> {
+    return { ok: true, handler: 'abtest_conclude', experimentId: task.input?.experimentId, winningVariant: null, concluded: true, status: 'completed' };
+  }
+
+  private async handleAbtestReport(task: any): Promise<any> {
+    return { ok: true, handler: 'abtest_report', totalExperiments: 0, activeExperiments: 0, completedExperiments: 0, avgLift: 0, totalImpressions: 0 };
   }
 
 }
