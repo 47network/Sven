@@ -58,7 +58,8 @@ export type EidolonBuildingKind =
   | 'experiment_lab'
   | 'data_warehouse'
   | 'rate_limiter'
-  | 'translation_hub';
+  | 'translation_hub'
+  | 'webhook_relay';
 
 export interface EidolonBuilding {
   id: string;
@@ -357,6 +358,10 @@ export type EidolonEventKind =
   | 'locale.translation_approved'
   | 'locale.content_localized'
   | 'locale.coverage_updated'
+  | 'webhook.endpoint_registered'
+  | 'webhook.delivery_completed'
+  | 'webhook.integration_connected'
+  | 'webhook.delivery_failed'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -497,6 +502,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'data_warehouse':
     case 'rate_limiter':
     case 'translation_hub':
+    case 'webhook_relay':
       return 'civic';
   }
 }

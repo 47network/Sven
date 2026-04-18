@@ -235,6 +235,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.locale.translation_approved': 'locale.translation_approved',
   'sven.locale.content_localized': 'locale.content_localized',
   'sven.locale.coverage_updated': 'locale.coverage_updated',
+  'sven.webhook.endpoint_registered': 'webhook.endpoint_registered',
+  'sven.webhook.delivery_completed': 'webhook.delivery_completed',
+  'sven.webhook.integration_connected': 'webhook.integration_connected',
+  'sven.webhook.delivery_failed': 'webhook.delivery_failed',
 };
 
 export class EidolonEventBus {
