@@ -37,7 +37,8 @@ export type EidolonBuildingKind =
   | 'medical_bay'
   | 'dispatch_center'
   | 'automation_factory'
-  | 'analytics_observatory';
+  | 'analytics_observatory'
+  | 'deployment_center';
 
 export interface EidolonBuilding {
   id: string;
@@ -252,6 +253,10 @@ export type EidolonEventKind =
   | 'analytics.health_alert'
   | 'analytics.trend_detected'
   | 'analytics.productivity_scored'
+  | 'deployment.pipeline_started'
+  | 'deployment.stage_completed'
+  | 'deployment.deployed'
+  | 'deployment.rollback_initiated'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -356,6 +361,8 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'dispatch_center':
       return 'industrial';
     case 'analytics_observatory':
+      return 'market';
+    case 'deployment_center':
       return 'market';
     case 'automation_factory':
       return 'industrial';

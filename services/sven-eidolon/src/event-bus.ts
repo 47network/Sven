@@ -151,6 +151,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.analytics.health_alert': 'analytics.health_alert',
   'sven.analytics.trend_detected': 'analytics.trend_detected',
   'sven.analytics.productivity_scored': 'analytics.productivity_scored',
+  'sven.deployment.pipeline_started': 'deployment.pipeline_started',
+  'sven.deployment.stage_completed': 'deployment.stage_completed',
+  'sven.deployment.deployed': 'deployment.deployed',
+  'sven.deployment.rollback_initiated': 'deployment.rollback_initiated',
 };
 
 export class EidolonEventBus {

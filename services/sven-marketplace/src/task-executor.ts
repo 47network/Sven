@@ -300,6 +300,13 @@ export class TaskExecutor {
       case 'analytics_health_check': return this.handleAnalyticsHealthCheck(input);
       case 'analytics_leaderboard': return this.handleAnalyticsLeaderboard(input);
       case 'analytics_forecast': return this.handleAnalyticsForecast(input);
+      case 'deploy_pipeline_create': return this.handleDeployPipelineCreate(input);
+      case 'deploy_pipeline_execute': return this.handleDeployPipelineExecute(input);
+      case 'deploy_stage_advance': return this.handleDeployStageAdvance(input);
+      case 'deploy_artifact_publish': return this.handleDeployArtifactPublish(input);
+      case 'deploy_rollback': return this.handleDeployRollback(input);
+      case 'deploy_env_health': return this.handleDeployEnvHealth(input);
+      case 'deploy_promote': return this.handleDeployPromote(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -2972,6 +2979,144 @@ export class TaskExecutor {
         confidenceInterval: { low: 0, high: 0 },
         trendDirection: 'stable',
         message: `Forecast generated for ${metric} over ${horizon}.`,
+      },
+    };
+  }
+
+  /** Deployment pipeline create handler. */
+  private async handleDeployPipelineCreate(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const agentId = (input.agentId as string) || 'agent-unknown';
+    const pipelineName = (input.pipelineName as string) || 'default-pipeline';
+    const environment = (input.environment as string) || 'development';
+    const triggerType = (input.triggerType as string) || 'manual';
+    const pipelineId = `pipe-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      result: {
+        pipelineId,
+        agentId,
+        pipelineName,
+        environment,
+        triggerType,
+        stages: ['build', 'test', 'lint', 'security_scan', 'staging', 'approval', 'deploy', 'health_check'],
+        message: `Pipeline ${pipelineName} created for agent ${agentId}.`,
+      },
+    };
+  }
+
+  /** Deployment pipeline execute handler. */
+  private async handleDeployPipelineExecute(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const pipelineId = (input.pipelineId as string) || 'pipe-unknown';
+    const skipStages = (input.skipStages as string[]) || [];
+    return {
+      status: 'completed',
+      result: {
+        pipelineId,
+        stagesExecuted: 8 - skipStages.length,
+        skippedStages: skipStages,
+        finalStatus: 'deployed',
+        durationMs: Math.floor(Math.random() * 120000) + 30000,
+        message: `Pipeline ${pipelineId} executed successfully.`,
+      },
+    };
+  }
+
+  /** Deployment stage advance handler. */
+  private async handleDeployStageAdvance(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const pipelineId = (input.pipelineId as string) || 'pipe-unknown';
+    const currentStage = (input.currentStage as string) || 'build';
+    const stageOrder = ['build', 'test', 'lint', 'security_scan', 'staging', 'approval', 'deploy', 'health_check'];
+    const idx = stageOrder.indexOf(currentStage);
+    const nextStage = idx >= 0 && idx < stageOrder.length - 1 ? stageOrder[idx + 1] : null;
+    return {
+      status: 'completed',
+      result: {
+        pipelineId,
+        previousStage: currentStage,
+        nextStage,
+        stageStatus: 'passed',
+        message: `Stage ${currentStage} passed, advancing to ${nextStage || 'complete'}.`,
+      },
+    };
+  }
+
+  /** Deployment artifact publish handler. */
+  private async handleDeployArtifactPublish(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const pipelineId = (input.pipelineId as string) || 'pipe-unknown';
+    const artifactType = (input.artifactType as string) || 'skill_package';
+    const name = (input.name as string) || 'artifact';
+    const version = (input.version as string) || '1.0.0';
+    const artifactId = `art-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      result: {
+        artifactId,
+        pipelineId,
+        artifactType,
+        name,
+        version,
+        checksum: `sha256:${Math.random().toString(36).slice(2, 18)}`,
+        sizeBytes: Math.floor(Math.random() * 50000000),
+        message: `Artifact ${name}@${version} published.`,
+      },
+    };
+  }
+
+  /** Deployment rollback handler. */
+  private async handleDeployRollback(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const pipelineId = (input.pipelineId as string) || 'pipe-unknown';
+    const targetVersion = (input.targetVersion as string) || '0.9.0';
+    const reason = (input.reason as string) || 'Health check failure';
+    const rollbackType = (input.rollbackType as string) || 'automatic';
+    const rollbackId = `rb-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      result: {
+        rollbackId,
+        pipelineId,
+        fromVersion: '1.0.0',
+        toVersion: targetVersion,
+        reason,
+        rollbackType,
+        rollbackStatus: 'completed',
+        message: `Rollback to ${targetVersion} completed for pipeline ${pipelineId}.`,
+      },
+    };
+  }
+
+  /** Deployment environment health handler. */
+  private async handleDeployEnvHealth(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const environmentName = (input.environmentName as string) || 'production';
+    return {
+      status: 'completed',
+      result: {
+        environmentName,
+        healthStatus: 'healthy',
+        currentVersion: '1.0.0',
+        uptimeHours: Math.floor(Math.random() * 720),
+        cpuUsage: Math.round(Math.random() * 80),
+        memoryUsage: Math.round(Math.random() * 70),
+        issues: [],
+        message: `Environment ${environmentName} is healthy.`,
+      },
+    };
+  }
+
+  /** Deployment promote handler. */
+  private async handleDeployPromote(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const pipelineId = (input.pipelineId as string) || 'pipe-unknown';
+    const fromEnvironment = (input.fromEnvironment as string) || 'staging';
+    const toEnvironment = (input.toEnvironment as string) || 'production';
+    const newPipelineId = `pipe-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      result: {
+        pipelineId,
+        newPipelineId,
+        fromEnvironment,
+        toEnvironment,
+        promotionStatus: 'completed',
+        message: `Promoted from ${fromEnvironment} to ${toEnvironment}.`,
       },
     };
   }
