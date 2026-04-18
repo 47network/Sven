@@ -53,6 +53,30 @@ describe('SAST Module', () => {
       expect(findings).toHaveLength(0);
     });
 
+    it('should match correctly when no match.index is available', () => {
+      const mockRule = {
+        id: 'SAST-MOCK',
+        category: 'sql-injection' as const,
+        severity: 'critical' as const,
+        title: 'Mock Rule',
+        description: 'Mock Description',
+        patterns: [{
+          exec: (line: string) => {
+            if (line.includes('mock')) {
+              const result = ['mock'];
+              return result as RegExpExecArray;
+            }
+            return null;
+          }
+        } as unknown as RegExp],
+        remediation: 'Mock Remediation'
+      };
+
+      const findings = scanSource('this is a mock line', 'mock.js', [mockRule]);
+      expect(findings).toHaveLength(1);
+      expect(findings[0].column).toBe(1);
+    });
+
     it('should skip exclusions (e.g., test files)', () => {
       const sourceWithExclusion = `
         const result = db.query("SELECT * FROM users WHERE id = " + userId); // .test.
@@ -86,6 +110,42 @@ describe('SAST Module', () => {
       ]);
       const report = scanFiles(files);
       expect(report.securityScore).toBe(80);
+    });
+
+    it('should sort findings by severity, file, and line number', () => {
+      const files = new Map<string, string>([
+        ['b-vuln.js', `
+          // line 2
+          db.query("SELECT * FROM t WHERE id=" + id); // SAST-001 critical
+          // line 4
+          db.query("SELECT * FROM t WHERE id=" + id); // SAST-001 critical
+        `],
+        ['a-vuln.js', `
+          db.query("SELECT * FROM t WHERE id=" + id); // SAST-001 critical
+        `],
+        ['c-vuln.js', `
+          fetch(req.query.data); // SAST-003 high
+        `]
+      ]);
+
+      const report = scanFiles(files);
+
+      expect(report.findings).toHaveLength(4);
+      expect(report.findings[0].severity).toBe('critical');
+      expect(report.findings[0].file).toBe('a-vuln.js');
+      expect(report.findings[0].line).toBe(2);
+
+      expect(report.findings[1].severity).toBe('critical');
+      expect(report.findings[1].file).toBe('b-vuln.js');
+      expect(report.findings[1].line).toBe(3);
+
+      expect(report.findings[2].severity).toBe('critical');
+      expect(report.findings[2].file).toBe('b-vuln.js');
+      expect(report.findings[2].line).toBe(5);
+
+      expect(report.findings[3].severity).toBe('high');
+      expect(report.findings[3].file).toBe('c-vuln.js');
+      expect(report.findings[3].line).toBe(2);
     });
   });
 
