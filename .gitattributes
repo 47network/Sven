@@ -278,3 +278,6 @@ skills/autonomous-economy/agent-service-discovery/SKILL.md filter=skip-on-archiv
 services/gateway-api/migrations/20260617210000_agent_circuit_breaker.sql filter=skip-on-archive export-ignore
 packages/shared/src/agent-circuit-breaker.ts filter=skip-on-archive export-ignore
 skills/autonomous-economy/agent-circuit-breaker/SKILL.md filter=skip-on-archive export-ignore
+services/gateway-api/migrations/20260617220000_agent_dependency_injection.sql filter=skip-on-archive export-ignore
+packages/shared/src/agent-dependency-injection.ts filter=skip-on-archive export-ignore
+skills/autonomous-economy/agent-dependency-injection/SKILL.md filter=skip-on-archive export-ignore
