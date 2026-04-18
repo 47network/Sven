@@ -123,6 +123,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.collaboration.completed': 'collaboration.completed',
   'sven.team.formed': 'team.formed',
   'sven.social.interaction': 'social.interaction',
+  'sven.revenue.snapshot': 'revenue.snapshot',
+  'sven.revenue.alert': 'revenue.alert',
+  'sven.goal.updated': 'goal.updated',
+  'sven.dashboard.refreshed': 'dashboard.refreshed',
 };
 
 export class EidolonEventBus {
