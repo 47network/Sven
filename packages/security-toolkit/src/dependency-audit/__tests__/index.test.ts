@@ -199,6 +199,22 @@ describe('Dependency Audit', () => {
       expect(report.supplyChainFlags[0].flagType).toBe('typosquat-suspect');
     });
 
+    it('should keep typosquatting suspect packages at high risk when vulnerabilities already make them high', () => {
+      const deps: PackageDep[] = [
+        { name: 'reac', version: '1.0.0', isDev: false, integrity: 'sha512-abc' }
+      ];
+      const vulns: KnownVulnerability[] = [
+        { id: 'VULN-HIGH', package: 'reac', affectedVersions: '<2.0.0', severity: 'high', title: 'High Vuln', description: 'High', patchedVersion: '2.0.0' }
+      ];
+
+      const report = auditDependencies(deps, vulns);
+
+      expect(report.findings.length).toBe(1);
+      expect(report.findings[0].riskLevel).toBe('high');
+      expect(report.supplyChainFlags.length).toBe(1);
+      expect(report.supplyChainFlags[0].flagType).toBe('typosquat-suspect');
+    });
+
     it('should flag packages missing integrity hash', () => {
       const deps: PackageDep[] = [
         { name: 'no-integrity-pkg', version: '1.0.0', isDev: false }
