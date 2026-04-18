@@ -159,6 +159,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.billing.invoice_generated': 'billing.invoice_generated',
   'sven.billing.payment_received': 'billing.payment_received',
   'sven.billing.credit_adjusted': 'billing.credit_adjusted',
+  'sven.contract.created': 'contract.created',
+  'sven.contract.sla_breached': 'contract.sla_breached',
+  'sven.contract.dispute_raised': 'contract.dispute_raised',
+  'sven.contract.dispute_resolved': 'contract.dispute_resolved',
 };
 
 export class EidolonEventBus {

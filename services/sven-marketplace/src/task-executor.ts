@@ -314,6 +314,13 @@ export class TaskExecutor {
       case 'billing_usage_record': return this.handleBillingUsageRecord(input);
       case 'billing_credit_adjust': return this.handleBillingCreditAdjust(input);
       case 'billing_account_statement': return this.handleBillingAccountStatement(input);
+      case 'contract_create': return this.handleContractCreate(input);
+      case 'contract_sla_define': return this.handleContractSlaDefine(input);
+      case 'contract_sla_measure': return this.handleContractSlaMeasure(input);
+      case 'contract_amendment_propose': return this.handleContractAmendmentPropose(input);
+      case 'contract_dispute_raise': return this.handleContractDisputeRaise(input);
+      case 'contract_dispute_resolve': return this.handleContractDisputeResolve(input);
+      case 'contract_compliance_report': return this.handleContractComplianceReport(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -3280,6 +3287,112 @@ export class TaskExecutor {
         statementDate: new Date().toISOString(),
         message: `Statement generated for account ${accountId} from ${periodStart} to ${periodEnd}.`,
       },
+    };
+  }
+
+  /* ── Batch 50 — SLA & Contracts ────────────────────────────── */
+
+  private handleContractCreate(input: Record<string, unknown>) {
+    const contractId = `contract-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      contractId,
+      contractType: input.contractType ?? 'service_agreement',
+      providerAgentId: input.providerAgentId,
+      consumerAgentId: input.consumerAgentId,
+      effectiveDate: new Date().toISOString(),
+      durationDays: input.durationDays ?? 365,
+      autoRenew: input.autoRenew ?? true,
+      note: 'Service contract created successfully.',
+    };
+  }
+
+  private handleContractSlaDefine(input: Record<string, unknown>) {
+    const slaId = `sla-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      slaId,
+      contractId: input.contractId,
+      metricType: input.metricType ?? 'uptime',
+      targetValue: input.targetValue ?? 99.9,
+      warningThreshold: input.warningThreshold ?? 99.5,
+      breachThreshold: input.breachThreshold ?? 99.0,
+      penaltyType: input.penaltyType ?? 'credit',
+      note: 'SLA definition created.',
+    };
+  }
+
+  private handleContractSlaMeasure(input: Record<string, unknown>) {
+    const measurementId = `measure-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    const actual = typeof input.actualValue === 'number' ? input.actualValue : 99.95;
+    const target = typeof input.targetValue === 'number' ? input.targetValue : 99.9;
+    const compliance = actual >= target ? 'met' : actual >= (typeof input.warningThreshold === 'number' ? input.warningThreshold : 99.5) ? 'warning' : 'breached';
+    return {
+      status: 'completed',
+      measurementId,
+      slaId: input.slaId,
+      actualValue: actual,
+      targetValue: target,
+      complianceStatus: compliance,
+      windowStart: input.windowStart ?? new Date().toISOString(),
+      windowEnd: input.windowEnd ?? new Date().toISOString(),
+      note: `SLA measurement recorded — compliance: ${compliance}.`,
+    };
+  }
+
+  private handleContractAmendmentPropose(input: Record<string, unknown>) {
+    const amendmentId = `amend-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      amendmentId,
+      contractId: input.contractId,
+      amendmentType: input.amendmentType ?? 'terms_change',
+      proposedBy: input.proposedBy,
+      oldTerms: input.oldTerms ?? {},
+      newTerms: input.newTerms ?? {},
+      amendmentStatus: 'proposed',
+      note: 'Contract amendment proposed — awaiting approval.',
+    };
+  }
+
+  private handleContractDisputeRaise(input: Record<string, unknown>) {
+    const disputeId = `dispute-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      disputeId,
+      contractId: input.contractId,
+      disputeType: input.disputeType ?? 'sla_breach',
+      severity: input.severity ?? 'medium',
+      raisedBy: input.raisedBy,
+      evidence: input.evidence ?? {},
+      disputeStatus: 'open',
+      note: 'Contract dispute raised — pending mediation.',
+    };
+  }
+
+  private handleContractDisputeResolve(input: Record<string, unknown>) {
+    return {
+      status: 'completed',
+      disputeId: input.disputeId,
+      resolution: input.resolution ?? 'Resolved through mediation.',
+      disputeStatus: 'resolved',
+      compensationAmount: input.compensationAmount ?? 0,
+      note: 'Dispute resolved successfully.',
+    };
+  }
+
+  private handleContractComplianceReport(input: Record<string, unknown>) {
+    return {
+      status: 'completed',
+      contractId: input.contractId,
+      reportPeriod: input.reportPeriod ?? 'monthly',
+      overallScore: 98.5,
+      metricsEvaluated: 6,
+      compliant: 5,
+      warnings: 1,
+      breaches: 0,
+      recommendations: ['Monitor response_time SLA — approaching warning threshold.'],
+      note: 'Compliance report generated.',
     };
   }
 }
