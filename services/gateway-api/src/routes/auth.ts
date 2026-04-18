@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import { authenticator } from 'otplib';
 import { v7 as uuidv7 } from 'uuid';
 import { createLogger } from '@sven/shared';
-import { randomBytes, createHash, createPublicKey, createVerify } from 'crypto';
+import { randomBytes, randomUUID, createHash, createHmac, createPublicKey, createVerify, timingSafeEqual } from 'crypto';
 import {
   assertGoogleCalendarRedirectRouteConsistency,
   configureGoogleCalendarOAuthStateStore,
@@ -3203,7 +3203,6 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
     }
 
     try {
-      const { createHmac } = await import('crypto');
       const secret = String(process.env.DEEPLINK_SECRET || '').trim();
       if (isWeakTokenExchangeSecret(secret)) {
         return reply.status(503).send({
@@ -3221,7 +3220,11 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       const [payloadB64, sig] = parts;
       const expectedSig = createHmac('sha256', secret).update(payloadB64).digest('base64url');
 
-      if (sig !== expectedSig) throw new Error('Invalid signature');
+      const sigBuf = Buffer.from(sig, 'base64url');
+      const expectedSigBuf = Buffer.from(expectedSig, 'base64url');
+      if (sigBuf.length !== expectedSigBuf.length || !timingSafeEqual(sigBuf, expectedSigBuf)) {
+        throw new Error('Invalid signature');
+      }
 
       const payload = Buffer.from(payloadB64, 'base64url').toString('utf8');
       const [userId, expiryStr] = payload.split(':');
@@ -3579,7 +3582,6 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
 
     let pinHash: string | null = null;
     if (pin && pin.length >= 4 && pin.length <= 8) {
-      const { createHash } = await import('crypto');
       pinHash = createHash('sha256').update(pin + principal.userId).digest('hex');
     }
 
@@ -3634,9 +3636,12 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       if (!pin) {
         return reply.status(403).send({ success: false, error: { code: 'PIN_REQUIRED', message: 'PIN required to switch to this account' } });
       }
-      const { createHash } = await import('crypto');
       const submittedHash = createHash('sha256').update(pin + target_user_id).digest('hex');
-      if (submittedHash !== account.pin_hash) {
+
+      const pinBuf = Buffer.from(submittedHash, 'hex');
+      const storedPinBuf = Buffer.from(account.pin_hash, 'hex');
+
+      if (pinBuf.length !== storedPinBuf.length || !timingSafeEqual(pinBuf, storedPinBuf)) {
         return reply.status(403).send({ success: false, error: { code: 'INVALID_PIN', message: 'Incorrect PIN' } });
       }
     }
@@ -3648,7 +3653,6 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
     );
 
     // Create a new session for the target user
-    const { randomUUID } = await import('crypto');
     const sessionId = randomUUID();
     const expiresAt = new Date(Date.now() + ACCESS_TOKEN_MAX_AGE * 1000);
     await pool.query(
@@ -3704,7 +3708,6 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
     if (!pin || pin.length < 4 || pin.length > 8) {
       return reply.status(400).send({ success: false, error: { code: 'INVALID_PIN', message: 'PIN must be 4-8 digits' } });
     }
-    const { createHash } = await import('crypto');
     const pinHash = createHash('sha256').update(pin + principal.userId).digest('hex');
     await pool.query(
       `UPDATE linked_accounts SET pin_hash = $1 WHERE device_id = $2 AND user_id = $3`,
