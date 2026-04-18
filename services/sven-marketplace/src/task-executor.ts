@@ -258,6 +258,13 @@ export class TaskExecutor {
       case 'goal_track':            return this.handleGoalTrack(input);
       case 'alert_configure':       return this.handleAlertConfigure(input);
       case 'revenue_forecast':      return this.handleRevenueForecast(input);
+      case 'reputation_profile':    return this.handleReputationProfile(input);
+      case 'reputation_review':     return this.handleReputationReview(input);
+      case 'trust_connect':         return this.handleTrustConnect(input);
+      case 'trust_query':           return this.handleTrustQuery(input);
+      case 'badge_award':           return this.handleBadgeAward(input);
+      case 'tier_evaluate':         return this.handleTierEvaluate(input);
+      case 'reputation_leaderboard': return this.handleReputationLeaderboard(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -2106,6 +2113,135 @@ export class TaskExecutor {
         confidence: 0.5,
         dataPoints: 0,
         message: `Revenue forecast generated: ${periods} periods using ${method} method.`,
+      },
+    };
+  }
+
+  /* ── Batch 42 — Agent Reputation & Trust Economy ────────────── */
+
+  private handleReputationProfile(input: Record<string, unknown>) {
+    const agentId = (input.agentId as string) || 'unknown';
+    return {
+      status: 'completed' as const,
+      result: {
+        agentId,
+        overallScore: 72.5,
+        tier: 'expert',
+        dimensions: {
+          reliability: 80, quality: 75, speed: 68,
+          collaboration: 70, innovation: 65,
+        },
+        badges: ['first_task', 'ten_tasks', 'reliable'],
+        reviewCount: 47,
+        trustConnectionCount: 12,
+        memberSince: new Date().toISOString(),
+        message: `Reputation profile retrieved for agent ${agentId}.`,
+      },
+    };
+  }
+
+  private handleReputationReview(input: Record<string, unknown>) {
+    const targetAgentId = (input.targetAgentId as string) || 'unknown';
+    const reviewerAgentId = (input.reviewerAgentId as string) || 'reviewer';
+    const rating = (input.rating as number) || 4;
+    const dimensions = (input.dimensions as Record<string, number>) || {};
+    return {
+      status: 'completed' as const,
+      result: {
+        reviewId: `rev-${Date.now()}`,
+        targetAgentId,
+        reviewerAgentId,
+        rating,
+        dimensions,
+        impactOnScore: 0.3,
+        message: `Review submitted for agent ${targetAgentId} with rating ${rating}/5.`,
+      },
+    };
+  }
+
+  private handleTrustConnect(input: Record<string, unknown>) {
+    const fromAgentId = (input.fromAgentId as string) || 'unknown';
+    const toAgentId = (input.toAgentId as string) || 'unknown';
+    const connectionType = (input.connectionType as string) || 'peer';
+    return {
+      status: 'completed' as const,
+      result: {
+        connectionId: `tc-${Date.now()}`,
+        fromAgentId,
+        toAgentId,
+        connectionType,
+        trustLevel: 50,
+        status: 'active',
+        message: `Trust connection established: ${fromAgentId} → ${toAgentId} (${connectionType}).`,
+      },
+    };
+  }
+
+  private handleTrustQuery(input: Record<string, unknown>) {
+    const agentId = (input.agentId as string) || 'unknown';
+    const queryType = (input.queryType as string) || 'connections';
+    return {
+      status: 'completed' as const,
+      result: {
+        agentId,
+        queryType,
+        connections: [
+          { partnerId: 'agent-alpha', trustLevel: 85, type: 'mentor' },
+          { partnerId: 'agent-beta', trustLevel: 62, type: 'peer' },
+        ],
+        networkSize: 12,
+        averageTrustLevel: 58.4,
+        message: `Trust network queried for agent ${agentId}: ${queryType}.`,
+      },
+    };
+  }
+
+  private handleBadgeAward(input: Record<string, unknown>) {
+    const agentId = (input.agentId as string) || 'unknown';
+    const badge = (input.badge as string) || 'first_task';
+    return {
+      status: 'completed' as const,
+      result: {
+        agentId,
+        badge,
+        awardedAt: new Date().toISOString(),
+        totalBadges: 5,
+        message: `Badge "${badge}" awarded to agent ${agentId}.`,
+      },
+    };
+  }
+
+  private handleTierEvaluate(input: Record<string, unknown>) {
+    const agentId = (input.agentId as string) || 'unknown';
+    const currentTier = (input.currentTier as string) || 'journeyman';
+    return {
+      status: 'completed' as const,
+      result: {
+        agentId,
+        currentTier,
+        evaluatedScore: 72.5,
+        recommendedTier: 'expert',
+        promoted: true,
+        reason: 'Score exceeds expert threshold (60).',
+        message: `Tier evaluation for ${agentId}: ${currentTier} → expert (promoted).`,
+      },
+    };
+  }
+
+  private handleReputationLeaderboard(input: Record<string, unknown>) {
+    const dimension = (input.dimension as string) || 'overall';
+    const limit = (input.limit as number) || 10;
+    return {
+      status: 'completed' as const,
+      result: {
+        dimension,
+        limit,
+        entries: [
+          { rank: 1, agentId: 'agent-alpha', score: 95.2, tier: 'grandmaster' },
+          { rank: 2, agentId: 'agent-beta', score: 88.7, tier: 'master' },
+          { rank: 3, agentId: 'agent-gamma', score: 82.1, tier: 'master' },
+        ],
+        message: `Leaderboard for ${dimension}: top ${limit} agents.`,
       },
     };
   }

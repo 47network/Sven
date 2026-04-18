@@ -125,3 +125,9 @@ services/gateway-api/migrations/20260514120000_revenue_dashboard.sql export-igno
 packages/shared/src/revenue-dashboard.ts export-ignore
 skills/autonomous-economy/revenue-dashboard/** export-ignore
 services/agent-runtime/src/__tests__/batch41-revenue-dashboard.test.ts export-ignore
+
+# Batch 42 — Agent Reputation & Trust Economy (private)
+services/gateway-api/migrations/20260515120000_agent_reputation.sql export-ignore
+packages/shared/src/agent-reputation.ts export-ignore
+skills/autonomous-economy/agent-reputation/** export-ignore
+services/agent-runtime/src/__tests__/batch42-agent-reputation.test.ts export-ignore
