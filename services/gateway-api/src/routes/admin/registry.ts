@@ -345,10 +345,34 @@ async function cacheRegistryMarketplaceEmbedding(pool: pg.Pool, cacheKey: string
       `INSERT INTO tool_cache (tool_name, cache_key, cached_output, expires_at, created_at)
        VALUES ($1, $2, $3, CURRENT_TIMESTAMP + INTERVAL '7 days', CURRENT_TIMESTAMP)
        ON CONFLICT (tool_name, cache_key) DO UPDATE
-       SET cached_output = $3,
-           expires_at = CURRENT_TIMESTAMP + INTERVAL '7 days',
+       SET cached_output = EXCLUDED.cached_output,
+           expires_at = EXCLUDED.expires_at,
            updated_at = CURRENT_TIMESTAMP`,
       [REGISTRY_MARKETPLACE_EMBEDDING_TOOL_NAME, cacheKey, JSON.stringify(embedding)],
+    );
+  } catch {
+    // Semantic cache persistence is opportunistic; search still works without it.
+  }
+}
+
+async function cacheRegistryMarketplaceEmbeddings(pool: pg.Pool, entries: { cacheKey: string; embedding: number[] }[]): Promise<void> {
+  if (entries.length === 0) return;
+  try {
+    const values: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 1;
+    for (const entry of entries) {
+      values.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, CURRENT_TIMESTAMP + INTERVAL '7 days', CURRENT_TIMESTAMP)`);
+      params.push(REGISTRY_MARKETPLACE_EMBEDDING_TOOL_NAME, entry.cacheKey, JSON.stringify(entry.embedding));
+    }
+    await pool.query(
+      `INSERT INTO tool_cache (tool_name, cache_key, cached_output, expires_at, created_at)
+       VALUES ${values.join(', ')}
+       ON CONFLICT (tool_name, cache_key) DO UPDATE
+       SET cached_output = EXCLUDED.cached_output,
+           expires_at = EXCLUDED.expires_at,
+           updated_at = CURRENT_TIMESTAMP`,
+      params,
     );
   } catch {
     // Semantic cache persistence is opportunistic; search still works without it.
@@ -1242,6 +1266,7 @@ export async function registerRegistryRoutes(app: FastifyInstance, pool: pg.Pool
 
       const cachedEmbeddings = await getCachedRegistryMarketplaceEmbeddings(pool, cacheKeysToFetch);
 
+      const newlyComputedEmbeddings: { cacheKey: string; embedding: number[] }[] = [];
       const scoredRows = await Promise.all(
         rows.rows.map(async (row) => {
           let documentEmbedding: number[] | null = null;
@@ -1258,7 +1283,7 @@ export async function registerRegistryRoutes(app: FastifyInstance, pool: pg.Pool
                 EMBEDDINGS_CACHE_ENABLED: 'false',
               } as NodeJS.ProcessEnv);
               if (embedding && embedding.length > 0) {
-                await cacheRegistryMarketplaceEmbedding(pool, semanticInfo.cacheKey, embedding);
+                newlyComputedEmbeddings.push({ cacheKey: semanticInfo.cacheKey, embedding });
               }
               documentEmbedding = embedding;
             }
@@ -1273,6 +1298,10 @@ export async function registerRegistryRoutes(app: FastifyInstance, pool: pg.Pool
           };
         }),
       );
+
+      if (newlyComputedEmbeddings.length > 0) {
+        await cacheRegistryMarketplaceEmbeddings(pool, newlyComputedEmbeddings);
+      }
 
       scoredRows.sort((left, right) => {
         const semanticDelta = Number(right.semantic_score || 0) - Number(left.semantic_score || 0);
