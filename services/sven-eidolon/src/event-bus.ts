@@ -255,6 +255,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.gateway.policy_attached': 'gateway.policy_attached',
   'sven.gateway.traffic_spike': 'gateway.traffic_spike',
   'sven.gateway.circuit_opened': 'gateway.circuit_opened',
+  'sven.log.stream_created': 'log.stream_created',
+  'sven.log.entry_ingested': 'log.entry_ingested',
+  'sven.log.alert_triggered': 'log.alert_triggered',
+  'sven.log.dashboard_updated': 'log.dashboard_updated',
 };
 
 export class EidolonEventBus {

@@ -488,6 +488,13 @@ export class TaskExecutor {
       case 'traffic_analyze': return this.handleTrafficAnalyze(task);
       case 'route_test': return this.handleRouteTest(task);
       case 'gateway_report': return this.handleGatewayReport(task);
+      case 'log_stream_create': return this.handleLogStreamCreate(task);
+      case 'log_search': return this.handleLogSearch(task);
+      case 'log_filter_apply': return this.handleLogFilterApply(task);
+      case 'log_dashboard_build': return this.handleLogDashboardBuild(task);
+      case 'log_alert_configure': return this.handleLogAlertConfigure(task);
+      case 'log_export': return this.handleLogExport(task);
+      case 'log_report': return this.handleLogReport(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -4842,6 +4849,42 @@ export class TaskExecutor {
 
   private handleGatewayReport(task: any): any {
     return { totalRoutes: 0, activePolicies: 0, totalTraffic: 0, avgLatency: 0 };
+  }
+
+
+  private async handleLogStreamCreate(task: any): Promise<any> {
+    const { agent_id, stream_name, source, retention_days, format } = task.input || {};
+    return { stream_id: `ls-${Date.now()}`, agent_id, stream_name, source: source || 'agent', retention_days: retention_days || 30, format: format || 'json', status: 'active' };
+  }
+
+  private async handleLogSearch(task: any): Promise<any> {
+    const { query, streams, levels, date_range, limit } = task.input || {};
+    return { query, streams: streams || [], levels: levels || [], results: [], total: 0, took_ms: 0 };
+  }
+
+  private async handleLogFilterApply(task: any): Promise<any> {
+    const { filter_id, filter_name, query, streams } = task.input || {};
+    return { filter_id: filter_id || `lf-${Date.now()}`, filter_name, query, matched_count: 0, applied: true };
+  }
+
+  private async handleLogDashboardBuild(task: any): Promise<any> {
+    const { dashboard_name, widgets, layout, refresh_interval } = task.input || {};
+    return { dashboard_id: `ld-${Date.now()}`, dashboard_name, widget_count: (widgets || []).length, refresh_interval: refresh_interval || 30, built: true };
+  }
+
+  private async handleLogAlertConfigure(task: any): Promise<any> {
+    const { alert_name, condition, severity, channels, cooldown_min } = task.input || {};
+    return { alert_id: `la-${Date.now()}`, alert_name, severity: severity || 'medium', channels: channels || [], cooldown_min: cooldown_min || 15, enabled: true };
+  }
+
+  private async handleLogExport(task: any): Promise<any> {
+    const { streams, levels, date_range, format } = task.input || {};
+    return { export_id: `le-${Date.now()}`, format: format || 'json', record_count: 0, size_bytes: 0, download_url: null };
+  }
+
+  private async handleLogReport(task: any): Promise<any> {
+    const { streams, date_range, group_by } = task.input || {};
+    return { report_id: `lr-${Date.now()}`, streams: streams || [], total_entries: 0, error_rate: 0, top_sources: [], level_distribution: {} };
   }
 
 }
