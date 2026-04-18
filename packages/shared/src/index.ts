@@ -59,3 +59,4 @@ export * from './video-content.js';
 export * from './agent-avatars.js';
 export * from './micro-training.js';
 export * from './academic-assistance.js';
+export * from './agent-service-domains.js';

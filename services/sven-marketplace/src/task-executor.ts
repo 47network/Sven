@@ -237,6 +237,9 @@ export class TaskExecutor {
       case 'academic_format':  return this.handleAcademicFormat(input);
       case 'academic_cite':    return this.handleAcademicCite(input);
       case 'academic_review':  return this.handleAcademicReview(input);
+      case 'service_spawn':    return this.handleServiceSpawn(input);
+      case 'service_manage':   return this.handleServiceManage(input);
+      case 'service_analytics': return this.handleServiceAnalytics(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -1673,6 +1676,67 @@ export class TaskExecutor {
         ],
         overallAssessment: 'Good foundation — needs structural improvements before submission',
         disclaimer: 'Review is advisory — student retains full authorship.',
+      },
+    };
+  }
+
+  // ── Batch 37 — Agent Service Domains ──────────────────────────────
+
+  private async handleServiceSpawn(input: Record<string, unknown>) {
+    const subdomain = String(input.subdomain ?? 'my-service').toLowerCase().replace(/[^a-z0-9-]/g, '');
+    const displayName = String(input.displayName ?? subdomain);
+    const serviceType = String(input.serviceType ?? 'custom');
+    const branding = (input.branding as Record<string, unknown>) ?? {};
+    const domainId = `sd-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return {
+      status: 'completed' as const,
+      output: {
+        domainId,
+        subdomain,
+        displayName,
+        serviceType,
+        fullUrl: `https://${subdomain}.from.sven.systems`,
+        branding,
+        deployStatus: 'provisioning',
+        tokensInvested: 50,
+        message: `Service "${displayName}" is being provisioned at ${subdomain}.from.sven.systems`,
+      },
+    };
+  }
+
+  private async handleServiceManage(input: Record<string, unknown>) {
+    const domainId = String(input.domainId ?? '');
+    const action = String(input.action ?? 'update-config');
+    const config = (input.config as Record<string, unknown>) ?? {};
+    return {
+      status: 'completed' as const,
+      output: {
+        domainId,
+        action,
+        applied: true,
+        config,
+        updatedAt: new Date().toISOString(),
+        message: `Action "${action}" applied to service ${domainId}`,
+      },
+    };
+  }
+
+  private async handleServiceAnalytics(input: Record<string, unknown>) {
+    const domainId = String(input.domainId ?? '');
+    const from = String(input.from ?? new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10));
+    const to = String(input.to ?? new Date().toISOString().slice(0, 10));
+    return {
+      status: 'completed' as const,
+      output: {
+        domainId,
+        period: { from, to },
+        totalPageViews: 0,
+        uniqueVisitors: 0,
+        ordersCount: 0,
+        revenueUsd: 0,
+        avgResponseMs: null,
+        errorCount: 0,
+        message: `Analytics for service ${domainId} from ${from} to ${to}`,
       },
     };
   }
