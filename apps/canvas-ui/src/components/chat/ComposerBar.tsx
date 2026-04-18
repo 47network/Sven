@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Film, Send, SlidersHorizontal } from 'lucide-react';
+import { Spinner } from '@/components/Spinner';
 import { cn } from '@/lib/utils';
 import { useCreateVideoJob } from '@/lib/hooks';
 import { toast } from 'sonner';
@@ -86,6 +87,7 @@ export default function ComposerBar({
                     type="button"
                     className="rounded-md p-2 text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800 sm:hidden"
                     title="Composer tools"
+                    aria-label="Composer tools"
                     onClick={() => setShowComposerTools((prev) => !prev)}
                 >
                     <SlidersHorizontal className="h-4 w-4" />
@@ -128,7 +130,7 @@ export default function ComposerBar({
                     aria-label="Send message"
                     title="Send message"
                 >
-                    <Send className="h-4 w-4" />
+                    {sending ? <Spinner className="h-4 w-4" /> : <Send className="h-4 w-4" />}
                 </button>
             </div>
 
