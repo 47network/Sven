@@ -10,6 +10,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Batch 92 — Agent Distributed Tracing**: traces, spans, baggage, sampling, analytics with 5 tables and 20 indexes
 - **Batch 91 — Agent Health Dashboard**: health checks, dashboards, widgets, thresholds, alert rules with 5 tables and 20 indexes
 - **Batch 90 — Agent Configuration Management**: config store, namespaces, versioning, validation, audit with 5 tables and 20 indexes
 - **Batch 89 — Agent Event Sourcing**: event store, aggregates, projections, snapshots, replay with 5 tables and 20 indexes
@@ -143,6 +144,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch28-persistent-memory.test.ts`): 98 tests across 17 describe blocks — migration structure, shared types, configs, utility logic, skill YAML, task executor, NATS events, Eidolon integration, coherence checks.
 
 ### Added
+- **Batch 92 — Agent Distributed Tracing**: traces, spans, baggage, sampling, analytics with 5 tables and 20 indexes
 - **Batch 91 — Agent Health Dashboard**: health checks, dashboards, widgets, thresholds, alert rules with 5 tables and 20 indexes
 - **Batch 90 — Agent Configuration Management**: config store, namespaces, versioning, validation, audit with 5 tables and 20 indexes
 - **Batch 89 — Agent Event Sourcing**: event store, aggregates, projections, snapshots, replay with 5 tables and 20 indexes
@@ -184,6 +186,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch27-llm-council.test.ts`): 103 tests across 9 describe blocks.
 
 ### Added
+- **Batch 92 — Agent Distributed Tracing**: traces, spans, baggage, sampling, analytics with 5 tables and 20 indexes
 - **Batch 91 — Agent Health Dashboard**: health checks, dashboards, widgets, thresholds, alert rules with 5 tables and 20 indexes
 - **Batch 90 — Agent Configuration Management**: config store, namespaces, versioning, validation, audit with 5 tables and 20 indexes
 - **Batch 89 — Agent Event Sourcing**: event store, aggregates, projections, snapshots, replay with 5 tables and 20 indexes
@@ -225,6 +228,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch26-xlvii-merch.test.ts`): 113 tests across 7 describe blocks.
 
 ### Added
+- **Batch 92 — Agent Distributed Tracing**: traces, spans, baggage, sampling, analytics with 5 tables and 20 indexes
 - **Batch 91 — Agent Health Dashboard**: health checks, dashboards, widgets, thresholds, alert rules with 5 tables and 20 indexes
 - **Batch 90 — Agent Configuration Management**: config store, namespaces, versioning, validation, audit with 5 tables and 20 indexes
 - **Batch 89 — Agent Event Sourcing**: event store, aggregates, projections, snapshots, replay with 5 tables and 20 indexes
@@ -443,6 +447,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Flutter mobile app fixes: corrected API base URL from hardcoded port 3004 to gateway (EnvConfig.apiBase), added public-status fallback for guest users, fixed SSE path to match gateway route.
 
 ### Added
+- **Batch 92 — Agent Distributed Tracing**: traces, spans, baggage, sampling, analytics with 5 tables and 20 indexes
 - **Batch 91 — Agent Health Dashboard**: health checks, dashboards, widgets, thresholds, alert rules with 5 tables and 20 indexes
 - **Batch 90 — Agent Configuration Management**: config store, namespaces, versioning, validation, audit with 5 tables and 20 indexes
 - **Batch 89 — Agent Event Sourcing**: event store, aggregates, projections, snapshots, replay with 5 tables and 20 indexes

@@ -474,6 +474,13 @@ export class TaskExecutor {
       case 'health_set_threshold': return this.handleHealthSetThreshold(task);
       case 'health_create_alert': return this.handleHealthCreateAlert(task);
       case 'health_report': return this.handleHealthReport(task);
+      case 'trace_start': return this.handleTraceStart(task);
+      case 'trace_add_span': return this.handleTraceAddSpan(task);
+      case 'trace_set_baggage': return this.handleTraceSetBaggage(task);
+      case 'trace_configure_sampling': return this.handleTraceConfigureSampling(task);
+      case 'trace_query': return this.handleTraceQuery(task);
+      case 'trace_analyze': return this.handleTraceAnalyze(task);
+      case 'trace_report': return this.handleTraceReport(task);
       case 'template_create': return this.handleTemplateCreate(task);
       case 'instance_launch': return this.handleInstanceLaunch(task);
       case 'stage_advance': return this.handleStageAdvance(task);
@@ -5528,6 +5535,36 @@ export class TaskExecutor {
 
   private async handleHealthReport(task: any): Promise<any> {
     return { ok: true, handler: 'health_report', healthyCount: 0, degradedCount: 0, unhealthyCount: 0, alertsFired: 0, uptime: 100 };
+  }
+
+
+
+  private async handleTraceStart(task: any): Promise<any> {
+    return { ok: true, handler: 'trace_start', traceId: '', rootSpanId: '', startTime: new Date().toISOString() };
+  }
+
+  private async handleTraceAddSpan(task: any): Promise<any> {
+    return { ok: true, handler: 'trace_add_span', spanId: '', traceId: task.input?.traceId || '', startTime: new Date().toISOString() };
+  }
+
+  private async handleTraceSetBaggage(task: any): Promise<any> {
+    return { ok: true, handler: 'trace_set_baggage', baggageId: '', traceId: task.input?.traceId || '', key: task.input?.key || '' };
+  }
+
+  private async handleTraceConfigureSampling(task: any): Promise<any> {
+    return { ok: true, handler: 'trace_configure_sampling', ruleId: '', name: task.input?.name || '', sampleRate: 1.0, isActive: true };
+  }
+
+  private async handleTraceQuery(task: any): Promise<any> {
+    return { ok: true, handler: 'trace_query', traces: [], totalCount: 0 };
+  }
+
+  private async handleTraceAnalyze(task: any): Promise<any> {
+    return { ok: true, handler: 'trace_analyze', analytics: null };
+  }
+
+  private async handleTraceReport(task: any): Promise<any> {
+    return { ok: true, handler: 'trace_report', totalTraces: 0, avgLatency: 0, errorRate: 0, slowestServices: [], recommendations: [] };
   }
 
 }

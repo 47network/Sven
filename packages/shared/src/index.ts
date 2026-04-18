@@ -114,3 +114,4 @@ export * from './agent-search-indexing.js';
 export * from './agent-event-sourcing.js';
 export * from './agent-configuration-management.js';
 export * from './agent-health-dashboard.js';
+export * from './agent-distributed-tracing.js';

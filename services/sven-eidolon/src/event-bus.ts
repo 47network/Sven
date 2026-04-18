@@ -327,6 +327,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.health.threshold_breached': 'health.threshold_breached',
   'sven.health.alert_triggered': 'health.alert_triggered',
   'sven.health.dashboard_updated': 'health.dashboard_updated',
+  'sven.tracing.trace_started': 'tracing.trace_started',
+  'sven.tracing.span_completed': 'tracing.span_completed',
+  'sven.tracing.sampling_updated': 'tracing.sampling_updated',
+  'sven.tracing.analysis_generated': 'tracing.analysis_generated',
 };
 
 export class EidolonEventBus {
