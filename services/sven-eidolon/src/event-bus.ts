@@ -71,6 +71,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.xlvii.design_created': 'xlvii.design_created',
   'sven.xlvii.design_approved': 'xlvii.design_approved',
   'sven.xlvii.fulfillment_shipped': 'xlvii.fulfillment_shipped',
+  'sven.council.session_started': 'council.session_started',
+  'sven.council.round_completed': 'council.round_completed',
+  'sven.council.session_completed': 'council.session_completed',
+  'sven.council.model_ranked': 'council.model_ranked',
 };
 
 export class EidolonEventBus {
