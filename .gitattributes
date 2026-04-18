@@ -170,3 +170,7 @@ skills/autonomous-economy/deployment-pipelines/** export-ignore
 services/gateway-api/migrations/20260522120000_agent_billing_invoicing.sql export-ignore
 packages/shared/src/agent-billing-invoicing.ts export-ignore
 skills/autonomous-economy/billing-invoicing/** export-ignore
+# Batch 50 — Agent SLA & Contracts (private)
+services/gateway-api/migrations/20260523120000_agent_sla_contracts.sql export-ignore
+packages/shared/src/agent-sla-contracts.ts export-ignore
+skills/autonomous-economy/sla-contracts/** export-ignore
