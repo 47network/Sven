@@ -239,6 +239,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.webhook.delivery_completed': 'webhook.delivery_completed',
   'sven.webhook.integration_connected': 'webhook.integration_connected',
   'sven.webhook.delivery_failed': 'webhook.delivery_failed',
+  'sven.config.profile_created': 'config.profile_created',
+  'sven.config.variable_updated': 'config.variable_updated',
+  'sven.config.snapshot_taken': 'config.snapshot_taken',
+  'sven.config.template_applied': 'config.template_applied',
 };
 
 export class EidolonEventBus {
