@@ -77,8 +77,8 @@ describe('Batch 62 — Agent Marketplace Recommendations', () => {
       expect(count).toBe(4);
     });
 
-    it('exports InteractionType with 6 values', () => {
-      const m = src.match(/export type InteractionType\s*=\s*([^;]+);/);
+    it('exports AgentmInteractionType with 6 values', () => {
+      const m = src.match(/export type AgentmInteractionType\s*=\s*([^;]+);/);
       expect(m).toBeTruthy();
       const count = (m![1].match(/'/g) || []).length / 2;
       expect(count).toBe(6);

@@ -19,21 +19,21 @@ describe('Batch 83 — Agent Service Discovery', () => {
 
   describe('Shared types', () => {
     const src = fs.readFileSync(path.join(ROOT, 'packages/shared/src/agent-service-discovery.ts'), 'utf-8');
-    it('exports ServiceType', () => expect(src).toContain('export type ServiceType'));
-    it('exports ServiceStatus', () => expect(src).toContain('export type ServiceStatus'));
-    it('exports HealthCheckType', () => expect(src).toContain('export type HealthCheckType'));
+    it('exports DiscoveryServiceType', () => expect(src).toContain('export type DiscoveryServiceType'));
+    it('exports DiscoveryServiceStatus', () => expect(src).toContain('export type DiscoveryServiceStatus'));
+    it('exports DiscoveryHealthCheckType', () => expect(src).toContain('export type DiscoveryHealthCheckType'));
     it('exports HealthCheckStatus', () => expect(src).toContain('export type HealthCheckStatus'));
-    it('exports DependencyType', () => expect(src).toContain('export type DependencyType'));
-    it('exports ServiceRegistryEntry interface', () => expect(src).toContain('export interface ServiceRegistryEntry'));
-    it('exports ServiceHealthCheck interface', () => expect(src).toContain('export interface ServiceHealthCheck'));
-    it('exports ServiceEndpoint interface', () => expect(src).toContain('export interface ServiceEndpoint'));
-    it('exports ServiceDependency interface', () => expect(src).toContain('export interface ServiceDependency'));
+    it('exports DiscoveryDependencyType', () => expect(src).toContain('export type DiscoveryDependencyType'));
+    it('exports DiscoveryServiceRegistryEntry interface', () => expect(src).toContain('export interface DiscoveryServiceRegistryEntry'));
+    it('exports DiscoveryServiceHealthCheck interface', () => expect(src).toContain('export interface DiscoveryServiceHealthCheck'));
+    it('exports DiscoveryServiceEndpoint interface', () => expect(src).toContain('export interface DiscoveryServiceEndpoint'));
+    it('exports DiscoveryServiceDependency interface', () => expect(src).toContain('export interface DiscoveryServiceDependency'));
     it('exports DiscoveryEvent interface', () => expect(src).toContain('export interface DiscoveryEvent'));
     it('exports isServiceHealthy helper', () => expect(src).toContain('export function isServiceHealthy'));
     it('exports serviceUptime helper', () => expect(src).toContain('export function serviceUptime'));
     it('exports healthyServiceCount helper', () => expect(src).toContain('export function healthyServiceCount'));
-    it('ServiceType has 8 values', () => {
-      const m = src.match(/export type ServiceType = ([^;]+);/);
+    it('DiscoveryServiceType has 8 values', () => {
+      const m = src.match(/export type DiscoveryServiceType = ([^;]+);/);
       expect(m).toBeTruthy();
       const count = (m[1].match(/'/g) || []).length / 2;
       expect(count).toBe(8);

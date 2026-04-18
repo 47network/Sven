@@ -58,8 +58,8 @@ describe('Batch 44 — Agent Health & Lifecycle', () => {
       'utf-8',
     );
 
-    it('exports HealthStatus type with 6 values', () => {
-      expect(src).toContain('export type HealthStatus');
+    it('exports LifecycleHealthStatus type with 6 values', () => {
+      expect(src).toContain('export type LifecycleHealthStatus');
       expect(src).toContain("'healthy'");
       expect(src).toContain("'degraded'");
       expect(src).toContain("'critical'");
@@ -90,8 +90,8 @@ describe('Batch 44 — Agent Health & Lifecycle', () => {
       expect(src).toContain("'escalate'");
     });
 
-    it('exports HealthCheckType type with 6 values', () => {
-      expect(src).toContain('export type HealthCheckType');
+    it('exports LifecycleCheckType type with 6 values', () => {
+      expect(src).toContain('export type LifecycleCheckType');
       expect(src).toContain("'heartbeat'");
       expect(src).toContain("'deep_check'");
       expect(src).toContain("'memory_check'");
@@ -123,7 +123,7 @@ describe('Batch 44 — Agent Health & Lifecycle', () => {
     });
 
     it('exports 4 helper functions', () => {
-      expect(src).toContain('export function isHealthy');
+      expect(src).toContain('export function LifecycleisHealthy');
       expect(src).toContain('export function shouldRecover');
       expect(src).toContain('export function getRecoveryPriority');
       expect(src).toContain('export function calculateUptime');

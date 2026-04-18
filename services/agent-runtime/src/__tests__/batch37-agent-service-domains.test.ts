@@ -113,8 +113,8 @@ describe('Batch 37 — Agent Service Domains', () => {
       expect(src).toContain("export type DeployStatus =");
     });
 
-    it('exports HealthStatus type', () => {
-      expect(src).toContain("export type HealthStatus =");
+    it('exports DomainHealthStatus type', () => {
+      expect(src).toContain("export type DomainHealthStatus =");
     });
 
     it('exports SERVICE_TYPES array', () => {

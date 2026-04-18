@@ -1,6 +1,6 @@
 /* Batch 44 — Agent Health & Lifecycle shared types */
 
-export type HealthStatus =
+export type LifecycleHealthStatus =
   | 'healthy'
   | 'degraded'
   | 'critical'
@@ -30,7 +30,7 @@ export type RecoveryAction =
   | 'escalate'
   | 'quarantine';
 
-export type HealthCheckType =
+export type LifecycleCheckType =
   | 'heartbeat'
   | 'deep_check'
   | 'dependency_check'
@@ -47,8 +47,8 @@ export type SeverityLevel =
 export interface AgentHealthCheck {
   id: string;
   agentId: string;
-  checkType: HealthCheckType;
-  status: HealthStatus;
+  checkType: LifecycleCheckType;
+  status: LifecycleHealthStatus;
   severity: SeverityLevel;
   responseMs?: number;
   details: Record<string, unknown>;
@@ -69,7 +69,7 @@ export interface AgentLifecycleEvent {
 export interface AgentHeartbeat {
   id: string;
   agentId: string;
-  status: HealthStatus;
+  status: LifecycleHealthStatus;
   cpuPercent?: number;
   memoryMb?: number;
   activeTasks: number;
@@ -114,11 +114,11 @@ export const LIFECYCLE_ORDER: LifecycleState[] = [
   'degraded', 'recovering', 'retiring', 'retired', 'terminated',
 ];
 
-export function isHealthy(status: HealthStatus): boolean {
+export function LifecycleisHealthy(status: LifecycleHealthStatus): boolean {
   return status === 'healthy';
 }
 
-export function shouldRecover(status: HealthStatus): boolean {
+export function shouldRecover(status: LifecycleHealthStatus): boolean {
   return status === 'degraded' || status === 'critical' || status === 'offline';
 }
 

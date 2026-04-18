@@ -6,7 +6,7 @@ export type PermissionAction = 'read' | 'write' | 'execute' | 'delete' | 'admin'
 
 export type PermissionEffect = 'allow' | 'deny';
 
-export type PolicyType = 'rbac' | 'abac' | 'pbac' | 'mandatory' | 'discretionary';
+export type AgentaPolicyType = 'rbac' | 'abac' | 'pbac' | 'mandatory' | 'discretionary';
 
 export type AccessDecision = 'granted' | 'denied' | 'escalated' | 'revoked' | 'expired';
 
@@ -52,7 +52,7 @@ export interface AgentPermissionRow {
 export interface AgentAccessPolicyRow {
   id: string;
   policy_name: string;
-  policy_type: PolicyType;
+  policy_type: AgentaPolicyType;
   priority: number;
   rules: unknown[];
   target_agents: unknown[];
@@ -93,7 +93,7 @@ export interface AgentScopeRow {
 export const ROLE_TYPES: readonly RoleType[] = ['system', 'custom', 'inherited', 'temporary', 'delegated'] as const;
 export const PERMISSION_ACTIONS: readonly PermissionAction[] = ['read', 'write', 'execute', 'delete', 'admin'] as const;
 export const PERMISSION_EFFECTS: readonly PermissionEffect[] = ['allow', 'deny'] as const;
-export const POLICY_TYPES: readonly PolicyType[] = ['rbac', 'abac', 'pbac', 'mandatory', 'discretionary'] as const;
+export const AgentaPOLICY_TYPES: readonly AgentaPolicyType[] = ['rbac', 'abac', 'pbac', 'mandatory', 'discretionary'] as const;
 export const ACCESS_DECISIONS: readonly AccessDecision[] = ['granted', 'denied', 'escalated', 'revoked', 'expired'] as const;
 export const SCOPE_TYPES: readonly ScopeType[] = ['api', 'data', 'service', 'resource', 'delegation'] as const;
 

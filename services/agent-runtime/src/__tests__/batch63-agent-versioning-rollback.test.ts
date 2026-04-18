@@ -28,12 +28,12 @@ describe('Batch 63 — Agent Versioning & Rollback', () => {
       expect(m).toBeTruthy();
       expect((m![1].match(/'/g) || []).length / 2).toBe(5);
     });
-    it('exports RollbackType with 5 values', () => {
-      const m = src.match(/export type RollbackType\s*=\s*([^;]+);/);
+    it('exports AgentvRollbackType with 5 values', () => {
+      const m = src.match(/export type AgentvRollbackType\s*=\s*([^;]+);/);
       expect((m![1].match(/'/g) || []).length / 2).toBe(5);
     });
-    it('exports RollbackStatus with 5 values', () => {
-      const m = src.match(/export type RollbackStatus\s*=\s*([^;]+);/);
+    it('exports AgentvRollbackStatus with 5 values', () => {
+      const m = src.match(/export type AgentvRollbackStatus\s*=\s*([^;]+);/);
       expect((m![1].match(/'/g) || []).length / 2).toBe(5);
     });
     it('exports DeploymentSlot with 5 values', () => {

@@ -7,7 +7,7 @@
 export type AvatarStyle = 'cyberpunk' | 'minimalist' | 'retro' | 'organic' | 'glitch' | 'neon' | 'steampunk';
 
 // ── Mood states ────────────────────────────────────────────────
-export type AgentMood = 'neutral' | 'happy' | 'focused' | 'stressed' | 'creative' | 'tired' | 'excited' | 'contemplative';
+export type AgentaAgentMood = 'neutral' | 'happy' | 'focused' | 'stressed' | 'creative' | 'tired' | 'excited' | 'contemplative';
 
 // ── Avatar forms ───────────────────────────────────────────────
 export type AvatarForm = 'orb' | 'humanoid' | 'geometric' | 'animal' | 'abstract' | 'mech';
@@ -41,7 +41,7 @@ export const AVATAR_STYLES: readonly AvatarStyle[] = [
   'cyberpunk', 'minimalist', 'retro', 'organic', 'glitch', 'neon', 'steampunk',
 ] as const;
 
-export const AGENT_MOODS: readonly AgentMood[] = [
+export const AGENT_MOODS: readonly AgentaAgentMood[] = [
   'neutral', 'happy', 'focused', 'stressed', 'creative', 'tired', 'excited', 'contemplative',
 ] as const;
 
@@ -82,7 +82,7 @@ export interface AgentAvatarRecord {
   id: string;
   agentId: string;
   style: AvatarStyle;
-  mood: AgentMood;
+  mood: AgentaAgentMood;
   form: AvatarForm;
   colorPrimary: string;
   colorSecondary: string;
@@ -155,7 +155,7 @@ export function computeMoodFromActivity(
   tasksCompleted: number,
   tasksFailed: number,
   hoursActive: number,
-): AgentMood {
+): AgentaAgentMood {
   if (hoursActive > 16) return 'tired';
   if (tasksFailed > tasksCompleted) return 'stressed';
   if (tasksCompleted > 10) return 'excited';
@@ -166,8 +166,8 @@ export function computeMoodFromActivity(
 }
 
 /** Calculate glow intensity based on current activity */
-export function computeGlowIntensity(tasksInProgress: number, mood: AgentMood): number {
-  const moodBonus: Record<AgentMood, number> = {
+export function computeGlowIntensity(tasksInProgress: number, mood: AgentaAgentMood): number {
+  const moodBonus: Record<AgentaAgentMood, number> = {
     neutral: 0, happy: 10, focused: 20, stressed: -10,
     creative: 25, tired: -20, excited: 30, contemplative: 5,
   };

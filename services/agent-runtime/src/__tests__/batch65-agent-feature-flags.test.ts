@@ -21,11 +21,11 @@ describe('Batch 65 — Agent Feature Flags & Experiments', () => {
 
   describe('Shared types', () => {
     const src = fs.readFileSync(path.join(ROOT, 'packages/shared/src/agent-feature-flags.ts'), 'utf-8');
-    it('exports FlagType', () => { expect(src).toContain('export type FlagType'); });
+    it('exports AgentfFlagType', () => { expect(src).toContain('export type AgentfFlagType'); });
     it('exports ExperimentStatus', () => { expect(src).toContain('export type ExperimentStatus'); });
     it('exports FeatureFlagAction', () => { expect(src).toContain('export type FeatureFlagAction'); });
-    it('FlagType has 5 values', () => {
-      const m = src.match(/export type FlagType\s*=\s*([^;]+)/);
+    it('AgentfFlagType has 5 values', () => {
+      const m = src.match(/export type AgentfFlagType\s*=\s*([^;]+)/);
       expect(m).toBeTruthy();
       expect((m![1].match(/'/g) || []).length / 2).toBe(5);
     });

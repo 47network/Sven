@@ -147,8 +147,8 @@ describe('Batch 34 — Shared types (micro-training)', () => {
     expect(src).toContain('export const TRAINING_STATUS_ORDER');
   });
 
-  it('exports isTerminalStatus function', () => {
-    expect(src).toContain('export function isTerminalStatus');
+  it('exports MicrotisTerminalStatus function', () => {
+    expect(src).toContain('export function MicrotisTerminalStatus');
   });
 
   it('exports computeProgress function', () => {

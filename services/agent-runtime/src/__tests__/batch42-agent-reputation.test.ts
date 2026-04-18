@@ -94,8 +94,8 @@ describe('Batch 42 — Shared Types', () => {
     expect(types).toContain('trusted_partner');
   });
 
-  it('exports AgentReputation interface', () => {
-    expect(types).toContain('AgentReputation');
+  it('exports AgentrAgentReputation interface', () => {
+    expect(types).toContain('AgentrAgentReputation');
   });
 
   it('exports ReputationReview interface', () => {

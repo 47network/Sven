@@ -79,7 +79,7 @@ export interface WorkflowDefinition {
   updatedAt: string;
 }
 
-export interface WorkflowStep {
+export interface AgentwWorkflowStep {
   id: string;
   workflowId: string;
   stepOrder: number;
@@ -95,7 +95,7 @@ export interface WorkflowStep {
   createdAt: string;
 }
 
-export interface WorkflowRun {
+export interface AgentwWorkflowRun {
   id: string;
   workflowId: string;
   triggeredBy: string;
@@ -179,7 +179,7 @@ export function shouldRetryStep(policy: StepFailurePolicy): boolean {
   return policy === 'retry';
 }
 
-export function getNextStepOrder(steps: WorkflowStep[]): number {
+export function getNextStepOrder(steps: AgentwWorkflowStep[]): number {
   if (steps.length === 0) return 1;
   return Math.max(...steps.map((s) => s.stepOrder)) + 1;
 }

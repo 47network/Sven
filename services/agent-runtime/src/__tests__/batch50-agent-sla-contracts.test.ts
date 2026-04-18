@@ -102,8 +102,8 @@ describe('Batch 50 — Agent SLA & Contracts', () => {
       const count = (m![1].match(/'/g) || []).length / 2;
       expect(count).toBe(4);
     });
-    it('exports DisputeStatus with 6 values', () => {
-      const m = src.match(/export type DisputeStatus\s*=\s*([^;]+);/);
+    it('exports AgentsDisputeStatus with 6 values', () => {
+      const m = src.match(/export type AgentsDisputeStatus\s*=\s*([^;]+);/);
       expect(m).toBeTruthy();
       const count = (m![1].match(/'/g) || []).length / 2;
       expect(count).toBe(6);

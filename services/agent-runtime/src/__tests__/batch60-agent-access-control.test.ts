@@ -98,8 +98,8 @@ describe('Batch 60 — Shared types', () => {
     expect(count).toBe(2);
   });
 
-  it('exports PolicyType with 5 values', () => {
-    const m = src.match(/export type PolicyType\s*=\s*([^;]+);/);
+  it('exports AgentaPolicyType with 5 values', () => {
+    const m = src.match(/export type AgentaPolicyType\s*=\s*([^;]+);/);
     expect(m).toBeTruthy();
     const count = (m![1].match(/'/g) || []).length / 2;
     expect(count).toBe(5);

@@ -23,7 +23,7 @@ describe('Batch 94 — Agent Data Validation', () => {
     it('exports AuditAction', () => { expect(src).toContain("export type AuditAction"); });
     it('exports ValidationSchema interface', () => { expect(src).toContain("export interface ValidationSchema"); });
     it('exports ValidationRule interface', () => { expect(src).toContain("export interface ValidationRule"); });
-    it('exports ValidationResult interface', () => { expect(src).toContain("export interface ValidationResult"); });
+    it('exports DataValidationResult interface', () => { expect(src).toContain("export interface DataValidationResult"); });
     it('exports isSchemaActive helper', () => { expect(src).toContain("export function isSchemaActive"); });
     it('exports validationPassRate helper', () => { expect(src).toContain("export function validationPassRate"); });
   });

@@ -4,14 +4,14 @@ export type RecommendationSourceType = 'collaborative' | 'content' | 'trending' 
 export type RecommendationItemType = 'skill' | 'service' | 'agent' | 'product' | 'crew';
 export type RecommendationModelType = 'collaborative_filter' | 'content_based' | 'hybrid' | 'popularity' | 'contextual';
 export type RecommendationModelStatus = 'training' | 'active' | 'deprecated' | 'failed';
-export type InteractionType = 'view' | 'click' | 'purchase' | 'dismiss' | 'bookmark' | 'share';
+export type AgentmInteractionType = 'view' | 'click' | 'purchase' | 'dismiss' | 'bookmark' | 'share';
 export type CampaignType = 'seasonal' | 'launch' | 'trending' | 'clearance' | 'personalized';
 export type RecommendationAction = 'recommend_generate' | 'model_train' | 'interaction_record' | 'campaign_create' | 'feedback_submit' | 'recommend_refresh' | 'campaign_manage';
 
 export const RECOMMENDATION_SOURCE_TYPES: RecommendationSourceType[] = ['collaborative', 'content', 'trending', 'personalized', 'similar'];
 export const RECOMMENDATION_ITEM_TYPES: RecommendationItemType[] = ['skill', 'service', 'agent', 'product', 'crew'];
 export const RECOMMENDATION_MODEL_TYPES: RecommendationModelType[] = ['collaborative_filter', 'content_based', 'hybrid', 'popularity', 'contextual'];
-export const INTERACTION_TYPES: InteractionType[] = ['view', 'click', 'purchase', 'dismiss', 'bookmark', 'share'];
+export const INTERACTION_TYPES: AgentmInteractionType[] = ['view', 'click', 'purchase', 'dismiss', 'bookmark', 'share'];
 export const CAMPAIGN_TYPES: CampaignType[] = ['seasonal', 'launch', 'trending', 'clearance', 'personalized'];
 export const RECOMMENDATION_ACTIONS: RecommendationAction[] = ['recommend_generate', 'model_train', 'interaction_record', 'campaign_create', 'feedback_submit', 'recommend_refresh', 'campaign_manage'];
 
@@ -50,7 +50,7 @@ export interface RecommendationInteraction {
   agentId: string;
   itemType: RecommendationItemType;
   itemId: string;
-  interaction: InteractionType;
+  interaction: AgentmInteractionType;
   durationMs?: number;
   metadata: Record<string, unknown>;
   createdAt: string;

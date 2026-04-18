@@ -27,7 +27,7 @@ describe('Batch 90 — Agent Configuration Management', () => {
     it('exports ConfigEntry interface', () => { expect(src).toContain("export interface ConfigEntry"); });
     it('exports ConfigVersion interface', () => { expect(src).toContain("export interface ConfigVersion"); });
     it('exports ConfigSchema interface', () => { expect(src).toContain("export interface ConfigSchema"); });
-    it('exports ConfigAuditEntry interface', () => { expect(src).toContain("export interface ConfigAuditEntry"); });
+    it('exports AgentcConfigAuditEntry interface', () => { expect(src).toContain("export interface AgentcConfigAuditEntry"); });
     it('exports isConfigSealed helper', () => { expect(src).toContain("export function isConfigSealed"); });
     it('exports isSecretConfig helper', () => { expect(src).toContain("export function isSecretConfig"); });
   });

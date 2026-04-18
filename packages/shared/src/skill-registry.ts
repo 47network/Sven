@@ -20,7 +20,7 @@ export type SkillCategory =
   | 'quantum'
   | 'automotive';
 
-export type SkillSource =
+export type SkillRegSkillSource =
   | 'native'
   | 'imported'
   | 'community'
@@ -60,7 +60,7 @@ export interface SkillRegistryEntry {
   id: string;
   name: string;
   category: SkillCategory;
-  source: SkillSource;
+  source: SkillRegSkillSource;
   version: string;
   integrationStatus: IntegrationStatus;
   qualityTier: QualityTier;

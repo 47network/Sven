@@ -96,7 +96,7 @@ export interface IncidentPostmortem {
   updatedAt: string;
 }
 
-export const SEVERITY_PRIORITY: Record<IncidentSeverity, number> = {
+export const IncidentSEVERITY_PRIORITY: Record<IncidentSeverity, number> = {
   critical: 5, high: 4, medium: 3, low: 2, info: 1,
 };
 

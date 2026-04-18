@@ -52,8 +52,8 @@ describe('Batch 75 — Agent Service Mesh & Discovery', () => {
       expect(src).toContain("export type ServiceProtocol");
     });
 
-    it('exports DependencyType type', () => {
-      expect(src).toContain("export type DependencyType");
+    it('exports MeshDependencyType type', () => {
+      expect(src).toContain("export type MeshDependencyType");
     });
 
     it('exports HealthCheckType type', () => {

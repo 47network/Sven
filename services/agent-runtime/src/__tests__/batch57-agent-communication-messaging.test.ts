@@ -95,11 +95,11 @@ describe('Batch 57 — Agent Communication & Messaging', () => {
     });
   });
 
-  describe('Shared types — MessageType', () => {
+  describe('Shared types — AgentcMessageType', () => {
     const src = readFile('packages/shared/src/agent-communication-messaging.ts');
 
-    it('defines MessageType with 7 values', () => {
-      const m = src.match(/export type MessageType\s*=\s*([^;]+);/);
+    it('defines AgentcMessageType with 7 values', () => {
+      const m = src.match(/export type AgentcMessageType\s*=\s*([^;]+);/);
       expect(m).toBeTruthy();
       const count = (m![1].match(/'/g) || []).length / 2;
       expect(count).toBe(7);

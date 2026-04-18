@@ -77,11 +77,11 @@ export const PLAN_AGENT_LIMITS: Record<TenantPlan, number> = {
   free: 5, starter: 20, pro: 100, enterprise: 500, custom: 9999,
 };
 
-export function isQuotaExceeded(usage: number, limit: number): boolean {
+export function AgentmisQuotaExceeded(usage: number, limit: number): boolean {
   return usage >= limit;
 }
 
-export function quotaUtilization(usage: number, limit: number): number {
+export function AgentmquotaUtilization(usage: number, limit: number): number {
   if (limit <= 0) return 0;
   return Math.round((usage / limit) * 10000) / 100;
 }

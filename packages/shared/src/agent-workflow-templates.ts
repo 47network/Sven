@@ -1,14 +1,14 @@
 export type WorkflowCategory = 'general' | 'publishing' | 'marketing' | 'development' | 'data' | 'operations' | 'finance' | 'creative';
 
-export type WorkflowStatus = 'active' | 'deprecated' | 'draft' | 'archived';
+export type WftWorkflowStatus = 'active' | 'deprecated' | 'draft' | 'archived';
 
-export type TriggerType = 'manual' | 'schedule' | 'event' | 'webhook' | 'condition' | 'cron';
+export type WftTriggerType = 'manual' | 'schedule' | 'event' | 'webhook' | 'condition' | 'cron';
 
 export type ExecutionStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled' | 'paused';
 
-export type StepResultStatus = 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
+export type WftStepResultStatus = 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
 
-export interface WorkflowTemplate {
+export interface WftWorkflowTemplate {
   id: string;
   name: string;
   category: WorkflowCategory;
@@ -18,14 +18,14 @@ export interface WorkflowTemplate {
   outputSchema: Record<string, unknown>;
   isPublic: boolean;
   version: string;
-  status: WorkflowStatus;
+  status: WftWorkflowStatus;
   usageCount: number;
   metadata: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface WorkflowStep {
+export interface WftWorkflowStep {
   id: string;
   templateId: string;
   stepOrder: number;
@@ -43,7 +43,7 @@ export interface WorkflowStep {
 export interface WorkflowTrigger {
   id: string;
   templateId: string;
-  triggerType: TriggerType;
+  triggerType: WftTriggerType;
   triggerConfig: Record<string, unknown>;
   isActive: boolean;
   lastFiredAt?: string;
@@ -69,11 +69,11 @@ export interface WorkflowExecution {
   createdAt: string;
 }
 
-export interface WorkflowStepResult {
+export interface WftWorkflowStepResult {
   id: string;
   executionId: string;
   stepId: string;
-  status: StepResultStatus;
+  status: WftStepResultStatus;
   inputData: Record<string, unknown>;
   outputData: Record<string, unknown>;
   error?: string;
@@ -94,6 +94,6 @@ export function workflowProgress(e: WorkflowExecution): number {
   return e.currentStep / e.totalSteps;
 }
 
-export function isStepRetryable(s: WorkflowStep, attempt: number): boolean {
+export function isStepRetryable(s: WftWorkflowStep, attempt: number): boolean {
   return attempt <= s.retryCount;
 }
