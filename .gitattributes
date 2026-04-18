@@ -90,6 +90,12 @@ packages/shared/src/agent-service-domains.ts  argentum-private export-ignore
 services/gateway-api/migrations/20260510120000_agent_service_domains.sql  argentum-private export-ignore
 services/agent-runtime/src/__tests__/batch37-*.test.ts  argentum-private export-ignore
 
+# Batch 38 — Research Labs
+skills/autonomous-economy/research-lab/**  argentum-private export-ignore
+packages/shared/src/research-labs.ts  argentum-private export-ignore
+services/gateway-api/migrations/20260511120000_research_labs.sql  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch38-*.test.ts  argentum-private export-ignore
+
 # ── Standard git attributes ────────────────────────────────────────────────
 *.ts   text eol=lf
 *.tsx  text eol=lf
