@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-04-18T18:52:27.411Z",
+  "generated_at": "2026-04-18T18:53:36.318Z",
   "source_branch": "sentinel-fix-timing-attacks-8454249007311421192",
   "source_head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-18T18:52:26.853Z",
+    "captured_at": "2026-04-18T18:53:35.851Z",
     "branch": "sentinel-fix-timing-attacks-8454249007311421192",
     "total_runs": 13
   },
-  "final_dod_ci": false,
+  "final_dod_ci": true,
   "parity_e2e_ci": true,
   "parity_checklist_verify_ci": false,
   "agent_zero_parity_verify_ci": true,
@@ -34,21 +34,20 @@
   "ops_shell_ci": true,
   "skill_quarantine_scan_ci": false,
   "security_audit_unified_ci": false,
-  "security_baseline_ci": true,
+  "security_baseline_ci": false,
   "gate_provenance": {
     "final_dod_ci": {
       "run_id": 24611509107,
       "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
       "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310863,
       "workflow_name": "final-dod-e2e",
       "matched_target_sha": true,
       "gate_key": "final_dod_e2e_ci",
-      "decision": "pending_non_final_target_sha",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "parity_e2e_ci": {
       "run_id": 24611509102,
@@ -91,7 +90,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-18T18:52:24.256Z"
+      "generated_at": "2026-04-18T18:53:33.195Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -121,7 +120,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-18T18:52:25.305Z"
+      "generated_at": "2026-04-18T18:53:34.355Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -136,7 +135,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-18T18:52:26.387Z"
+      "generated_at": "2026-04-18T18:53:35.527Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -185,14 +184,13 @@
       "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
       "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310875,
       "workflow_name": "mobile-auth-session-smoke",
       "matched_target_sha": true,
       "gate_key": "mobile_auth_session_smoke_ci",
-      "decision": "preserved_previous_pass_non_final_target_sha",
-      "previous_gate_value": true
+      "decision": "target_sha_completed_run"
     },
     "mobile_release_readiness_ci": {
       "run_id": null,
@@ -406,14 +404,13 @@
       "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
       "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "workflow_id": 261310894,
       "workflow_name": "security-baseline",
       "matched_target_sha": true,
       "gate_key": "security_baseline_ci",
-      "decision": "preserved_previous_pass_non_final_target_sha",
-      "previous_gate_value": true
+      "decision": "target_sha_completed_run"
     }
   },
   "required_workflow_manifest": {
@@ -442,20 +439,19 @@
   },
   "required_workflow_gates": {
     "final-dod-e2e": {
-      "pass": false,
+      "pass": true,
       "provenance": {
         "run_id": 24611509107,
         "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
         "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310863,
         "workflow_name": "final-dod-e2e",
         "matched_target_sha": true,
         "gate_key": "final_dod_e2e_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "final_dod_e2e_ci"
     },
@@ -520,14 +516,13 @@
         "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
         "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310875,
         "workflow_name": "mobile-auth-session-smoke",
         "matched_target_sha": true,
         "gate_key": "mobile_auth_session_smoke_ci",
-        "decision": "preserved_previous_pass_non_final_target_sha",
-        "previous_gate_value": true
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "mobile_auth_session_smoke_ci"
     },
@@ -656,20 +651,19 @@
       "gate_key": "env_secrets_governance_ci"
     },
     "security-baseline": {
-      "pass": true,
+      "pass": false,
       "provenance": {
         "run_id": 24611509116,
         "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
         "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310894,
         "workflow_name": "security-baseline",
         "matched_target_sha": true,
         "gate_key": "security_baseline_ci",
-        "decision": "preserved_previous_pass_non_final_target_sha",
-        "previous_gate_value": true
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "security_baseline_ci"
     },
