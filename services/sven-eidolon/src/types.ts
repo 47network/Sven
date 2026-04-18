@@ -51,7 +51,8 @@ export type EidolonBuildingKind =
   | 'observatory_tower'
   | 'vault_bunker'
   | 'access_gate'
-  | 'feedback_plaza';
+  | 'feedback_plaza'
+  | 'recommendation_engine';
 
 export interface EidolonBuilding {
   id: string;
@@ -322,6 +323,10 @@ export type EidolonEventKind =
   | 'feedback.survey_created'
   | 'feedback.response_received'
   | 'feedback.improvement_proposed'
+  | 'recommend.generated'
+  | 'recommend.model_trained'
+  | 'recommend.interaction_recorded'
+  | 'recommend.campaign_launched'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -455,6 +460,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
       return 'industrial';
     case 'access_gate':
     case 'feedback_plaza':
+    case 'recommendation_engine':
       return 'civic';
   }
 }

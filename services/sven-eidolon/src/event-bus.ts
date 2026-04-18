@@ -207,6 +207,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.feedback.survey_created': 'feedback.survey_created',
   'sven.feedback.response_received': 'feedback.response_received',
   'sven.feedback.improvement_proposed': 'feedback.improvement_proposed',
+  'sven.recommend.generated': 'recommend.generated',
+  'sven.recommend.model_trained': 'recommend.model_trained',
+  'sven.recommend.interaction_recorded': 'recommend.interaction_recorded',
+  'sven.recommend.campaign_launched': 'recommend.campaign_launched',
 };
 
 export class EidolonEventBus {
