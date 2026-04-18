@@ -73,7 +73,8 @@ export type EidolonBuildingKind =
   | 'session_hub'
   | 'plugin_forge'
   | 'moderation_hall'
-  | 'discovery_beacon';
+  | 'discovery_beacon'
+  | 'circuit_tower';
 
 export interface EidolonBuilding {
   id: string;
@@ -432,6 +433,10 @@ export type EidolonEventKind =
   | 'discovery.health_changed'
   | 'discovery.endpoint_cataloged'
   | 'discovery.dependency_mapped'
+  | 'circuit.breaker_tripped'
+  | 'circuit.breaker_reset'
+  | 'circuit.fallback_invoked'
+  | 'circuit.metrics_collected'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -587,6 +592,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'plugin_forge':
     case 'moderation_hall':
     case 'discovery_beacon':
+    case 'circuit_tower':
       return 'civic';
   }
 }

@@ -295,6 +295,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.discovery.health_changed': 'discovery.health_changed',
   'sven.discovery.endpoint_cataloged': 'discovery.endpoint_cataloged',
   'sven.discovery.dependency_mapped': 'discovery.dependency_mapped',
+  'sven.circuit.breaker_tripped': 'circuit.breaker_tripped',
+  'sven.circuit.breaker_reset': 'circuit.breaker_reset',
+  'sven.circuit.fallback_invoked': 'circuit.fallback_invoked',
+  'sven.circuit.metrics_collected': 'circuit.metrics_collected',
 };
 
 export class EidolonEventBus {
