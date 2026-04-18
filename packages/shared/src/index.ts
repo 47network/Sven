@@ -79,3 +79,4 @@ export * from './agent-scheduling.js';
 export * from './agent-resource-management.js';
 export * from './agent-compliance-audit.js';
 export * from './agent-marketplace-reviews.js';
+export * from './agent-communication-messaging.js';

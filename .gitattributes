@@ -194,3 +194,6 @@ skills/autonomous-economy/compliance-audit/** export-ignore
 services/gateway-api/migrations/20260529120000_agent_marketplace_reviews.sql export-ignore
 packages/shared/src/agent-marketplace-reviews.ts export-ignore
 skills/autonomous-economy/marketplace-reviews/** export-ignore
+services/gateway-api/migrations/20260530120000_agent_communication_messaging.sql export-ignore
+packages/shared/src/agent-communication-messaging.ts export-ignore
+skills/autonomous-economy/agent-messaging/** export-ignore
