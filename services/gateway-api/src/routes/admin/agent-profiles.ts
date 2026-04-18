@@ -13,7 +13,7 @@ import { FastifyInstance } from 'fastify';
 import pg from 'pg';
 import type { NatsConnection } from 'nats';
 
-const VALID_ARCHETYPES = ['seller', 'translator', 'writer', 'scout', 'analyst', 'operator', 'custom'] as const;
+const VALID_ARCHETYPES = ['seller', 'translator', 'writer', 'scout', 'analyst', 'operator', 'accountant', 'marketer', 'researcher', 'legal', 'designer', 'support', 'strategist', 'recruiter', 'custom'] as const;
 const VALID_STATUSES = ['active', 'suspended', 'retired'] as const;
 
 type ProfileRow = {
@@ -23,6 +23,7 @@ type ProfileRow = {
   reputation: { rating: number; reviewCount: number; totalSales: number };
   personality_mode: string; status: string;
   payout_account_id: string | null; commission_pct: string;
+  token_balance: string;
   metadata: Record<string, unknown> | null;
   created_at: Date; updated_at: Date;
 };
@@ -42,6 +43,7 @@ function toProfile(r: ProfileRow) {
     status: r.status,
     payoutAccountId: r.payout_account_id,
     commissionPct: Number(r.commission_pct),
+    tokenBalance: Number(r.token_balance ?? 0),
     metadata: r.metadata ?? {},
     createdAt: r.created_at.toISOString(),
     updatedAt: r.updated_at.toISOString(),

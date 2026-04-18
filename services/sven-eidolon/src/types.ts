@@ -33,7 +33,7 @@ export interface EidolonBuilding {
 export interface EidolonCitizen {
   id: string;
   label: string;
-  role: 'pipeline' | 'worker' | 'scout' | 'treasurer' | 'operator' | 'seller' | 'translator' | 'writer';
+  role: 'pipeline' | 'worker' | 'scout' | 'treasurer' | 'operator' | 'seller' | 'translator' | 'writer' | 'accountant' | 'marketer' | 'researcher' | 'counsel' | 'designer' | 'support' | 'strategist' | 'recruiter';
   position: { x: number; z: number };
   homeBuildingId: string | null;
   status: 'idle' | 'working' | 'earning' | 'retiring';
@@ -51,14 +51,42 @@ export interface EidolonTreasurySummary {
   openApprovals: number;
 }
 
+export type ParcelZone = 'residential' | 'commercial' | 'workshop' | 'laboratory' | 'farm' | 'outpost' | 'estate';
+export type ParcelSize = 'small' | 'medium' | 'large' | 'estate';
+export type AgentLocation =
+  | 'parcel' | 'city_market' | 'city_treasury' | 'city_infra'
+  | 'city_revenue' | 'city_centre' | 'travelling' | 'away';
+
+export interface EidolonParcel {
+  id: string;
+  agentId: string;
+  zone: ParcelZone;
+  gridX: number;
+  gridZ: number;
+  parcelSize: ParcelSize;
+  structures: Array<{ type: string; label: string; level: number; builtAt: string }>;
+  decorations: Array<Record<string, unknown>>;
+  upgrades: Record<string, unknown>;
+  currentLocation: AgentLocation;
+  lastCityVisit: string | null;
+  totalCityVisits: number;
+  landValue: number;
+  tokenInvested: number;
+  acquiredAt: string;
+}
+
 export interface EidolonSnapshot {
   generatedAt: string;
   buildings: EidolonBuilding[];
   citizens: EidolonCitizen[];
+  parcels: EidolonParcel[];
   treasury: EidolonTreasurySummary;
   meta: {
     version: string;
     districts: string[];
+    totalParcels: number;
+    agentsInCity: number;
+    agentsOnParcels: number;
   };
 }
 
@@ -67,11 +95,19 @@ export type EidolonEventKind =
   | 'market.order_paid'
   | 'market.fulfilled'
   | 'market.refunded'
+  | 'market.task_created'
+  | 'market.task_completed'
   | 'treasury.credit'
   | 'treasury.debit'
   | 'agent.spawned'
   | 'agent.retired'
   | 'agent.profile_updated'
+  | 'agent.tokens_earned'
+  | 'agent.moved'
+  | 'agent.built_structure'
+  | 'agent.parcel_acquired'
+  | 'goal.progress'
+  | 'goal.completed'
   | 'infra.node_change'
   | 'heartbeat';
 

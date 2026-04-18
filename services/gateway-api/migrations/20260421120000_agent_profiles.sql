@@ -35,7 +35,10 @@ CREATE TABLE IF NOT EXISTS agent_profiles (
   CONSTRAINT agent_profiles_archetype_chk
     CHECK (archetype IN (
       'seller', 'translator', 'writer', 'scout',
-      'analyst', 'operator', 'custom'
+      'analyst', 'operator', 'accountant',
+      'marketer', 'researcher', 'legal',
+      'designer', 'support', 'strategist',
+      'recruiter', 'custom'
     )),
 
   CONSTRAINT agent_profiles_commission_chk

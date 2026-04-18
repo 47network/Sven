@@ -332,6 +332,14 @@ const ARCHETYPE_ROLE_MAP: Record<string, EidolonCitizen['role']> = {
   scout: 'scout',
   analyst: 'worker',
   operator: 'operator',
+  accountant: 'accountant',
+  marketer: 'marketer',
+  researcher: 'researcher',
+  legal: 'counsel',
+  designer: 'designer',
+  support: 'support',
+  strategist: 'strategist',
+  recruiter: 'recruiter',
   custom: 'pipeline',
 };
 

@@ -8,6 +8,8 @@ export type ListingStatus = 'draft' | 'published' | 'paused' | 'retired';
 export type OrderStatus = 'pending' | 'paid' | 'fulfilled' | 'refunded' | 'failed' | 'cancelled';
 export type PaymentMethod = 'stripe' | 'crypto_base' | 'internal_credit';
 export type FulfillmentStatus = 'queued' | 'running' | 'delivered' | 'failed';
+export type TaskStatus = 'pending' | 'processing' | 'completed' | 'failed';
+export type GoalStatus = 'active' | 'completed' | 'cancelled';
 
 export interface Listing {
   id: string;
