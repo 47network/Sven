@@ -218,6 +218,9 @@ export class TaskExecutor {
       case 'fleet_deploy':      return this.handleFleetDeploy(input);
       case 'fleet_benchmark':   return this.handleFleetBenchmark(input);
       case 'fleet_evict':       return this.handleFleetEvict(input);
+      case 'evolve_propose':    return this.handleEvolvePropose(input);
+      case 'evolve_experiment': return this.handleEvolveExperiment(input);
+      case 'evolve_rollback':   return this.handleEvolveRollback(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -1217,6 +1220,74 @@ export class TaskExecutor {
         reason,
         freedVramMb,
         evictedAt: new Date().toISOString(),
+      },
+    };
+  }
+
+  /** Self-improvement proposal handler. */
+  private async handleEvolvePropose(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const domain = String(input.domain ?? 'custom');
+    const focusArea = input.focusArea ? String(input.focusArea) : undefined;
+    const proposalId = `prop-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const expectedImpact = Math.round(Math.random() * 40 + 10) / 100;
+    const confidence = Math.round(Math.random() * 50 + 40) / 100;
+    const requiresApproval = expectedImpact >= 0.7;
+
+    return {
+      success: true,
+      output: {
+        proposalId,
+        domain,
+        focusArea: focusArea ?? null,
+        title: `Improvement proposal for ${domain}${focusArea ? ` (${focusArea})` : ''}`,
+        expectedImpact,
+        confidence,
+        requiresHumanApproval: requiresApproval,
+        phase: 'proposed',
+        createdAt: new Date().toISOString(),
+      },
+    };
+  }
+
+  /** A/B experiment handler. */
+  private async handleEvolveExperiment(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const proposalId = String(input.proposalId ?? '');
+    const targetSamples = Number(input.targetSamples ?? 100);
+    const experimentId = `exp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+    return {
+      success: true,
+      output: {
+        experimentId,
+        proposalId,
+        status: 'running',
+        targetSamples,
+        variantAWins: 0,
+        variantBWins: 0,
+        significance: 0,
+        winner: null,
+        startedAt: new Date().toISOString(),
+      },
+    };
+  }
+
+  /** Rollback improvement handler. */
+  private async handleEvolveRollback(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const proposalId = String(input.proposalId ?? '');
+    const reason = String(input.reason ?? 'manual rollback');
+    const triggeredBy = String(input.triggeredBy ?? 'human');
+    const rollbackId = `rb-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+    return {
+      success: true,
+      output: {
+        rollbackId,
+        proposalId,
+        reason,
+        triggeredBy,
+        restoredState: { status: 'reverted' },
+        regressionDelta: 0,
+        rolledBackAt: new Date().toISOString(),
       },
     };
   }

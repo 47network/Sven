@@ -83,6 +83,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.fleet.model_evicted': 'fleet.model_evicted',
   'sven.fleet.benchmark_completed': 'fleet.benchmark_completed',
   'sven.fleet.vram_alert': 'fleet.vram_alert',
+  'sven.evolve.proposal_created': 'evolve.proposal_created',
+  'sven.evolve.experiment_started': 'evolve.experiment_started',
+  'sven.evolve.improvement_applied': 'evolve.improvement_applied',
+  'sven.evolve.rollback_triggered': 'evolve.rollback_triggered',
 };
 
 export class EidolonEventBus {
