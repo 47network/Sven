@@ -319,7 +319,7 @@ export async function registerAdminRoutes(
       });
 
       async function mountAdminRoutes(
-        registrar: (scopedApp: FastifyInstance) => Promise<void>,
+        registrar: (scopedApp: FastifyInstance) => void | Promise<void>,
       ): Promise<void> {
         await adminApp.register(async (scopedApp) => {
           await registrar(scopedApp);
