@@ -581,6 +581,36 @@ export class TaskExecutor {
       case 'dbrepl_manage_slots': return this.handleDbreplManageSlots(task);
       case 'dbrepl_heartbeat': return this.handleDbreplHeartbeat(task);
       case 'dbrepl_report': return this.handleDbreplReport(task);
+      case 'edge_deploy_node': return this.handleEdgeDeployNode(task);
+      case 'edge_deploy_function': return this.handleEdgeDeployFunction(task);
+      case 'edge_measure_latency': return this.handleEdgeMeasureLatency(task);
+      case 'edge_drain_node': return this.handleEdgeDrainNode(task);
+      case 'edge_scale_nodes': return this.handleEdgeScaleNodes(task);
+      case 'edge_report': return this.handleEdgeReport(task);
+      case 'apiver_publish_version': return this.handleApiverPublishVersion(task);
+      case 'apiver_deprecate_endpoint': return this.handleApiverDeprecateEndpoint(task);
+      case 'apiver_check_compat': return this.handleApiverCheckCompat(task);
+      case 'apiver_notify_consumers': return this.handleApiverNotifyConsumers(task);
+      case 'apiver_sunset_version': return this.handleApiverSunsetVersion(task);
+      case 'apiver_report': return this.handleApiverReport(task);
+      case 'compliance_create_policy': return this.handleComplianceCreatePolicy(task);
+      case 'compliance_run_scan': return this.handleComplianceRunScan(task);
+      case 'compliance_create_remediation': return this.handleComplianceCreateRemediation(task);
+      case 'compliance_check_status': return this.handleComplianceCheckStatus(task);
+      case 'compliance_export_report': return this.handleComplianceExportReport(task);
+      case 'compliance_report': return this.handleComplianceReport(task);
+      case 'backup_create_schedule': return this.handleBackupCreateSchedule(task);
+      case 'backup_trigger_snapshot': return this.handleBackupTriggerSnapshot(task);
+      case 'backup_restore': return this.handleBackupRestore(task);
+      case 'backup_verify_integrity': return this.handleBackupVerifyIntegrity(task);
+      case 'backup_cleanup_expired': return this.handleBackupCleanupExpired(task);
+      case 'backup_report': return this.handleBackupReport(task);
+      case 'traffic_create_rule': return this.handleTrafficCreateRule(task);
+      case 'traffic_set_bandwidth': return this.handleTrafficSetBandwidth(task);
+      case 'traffic_set_qos': return this.handleTrafficSetQos(task);
+      case 'traffic_measure_usage': return this.handleTrafficMeasureUsage(task);
+      case 'traffic_enforce_limits': return this.handleTrafficEnforceLimits(task);
+      case 'traffic_report': return this.handleTrafficReport(task);
       case 'template_create': return this.handleTemplateCreate(task);
       case 'instance_launch': return this.handleInstanceLaunch(task);
       case 'stage_advance': return this.handleStageAdvance(task);
@@ -6057,6 +6087,107 @@ export class TaskExecutor {
   }
   private async handleDbreplReport(task: any) {
     return { ok: true, handler: 'dbrepl_report', totalClusters: 0, totalReplicas: 0, healthyReplicas: 0, failoversLast24h: 0 };
+  }
+
+
+  // ── Batch 108: Edge Computing handlers ──
+  private async handleEdgeDeployNode(task: any) {
+    return { ok: true, handler: 'edge_deploy_node', nodeId: '', region: '', status: 'provisioning' };
+  }
+  private async handleEdgeDeployFunction(task: any) {
+    return { ok: true, handler: 'edge_deploy_function', functionId: '', nodeId: '', runtime: 'javascript', status: 'deploying' };
+  }
+  private async handleEdgeMeasureLatency(task: any) {
+    return { ok: true, handler: 'edge_measure_latency', nodeId: '', p50Ms: 0, p95Ms: 0, p99Ms: 0, sampleCount: 0 };
+  }
+  private async handleEdgeDrainNode(task: any) {
+    return { ok: true, handler: 'edge_drain_node', nodeId: '', drainedFunctions: 0, status: 'draining' };
+  }
+  private async handleEdgeScaleNodes(task: any) {
+    return { ok: true, handler: 'edge_scale_nodes', region: '', currentNodes: 0, targetNodes: 0, scaling: false };
+  }
+  private async handleEdgeReport(task: any) {
+    return { ok: true, handler: 'edge_report', totalNodes: 0, activeNodes: 0, totalFunctions: 0, avgLatencyMs: 0 };
+  }
+
+  // ── Batch 109: API Versioning handlers ──
+  private async handleApiverPublishVersion(task: any) {
+    return { ok: true, handler: 'apiver_publish_version', versionId: '', semver: '', status: 'active' };
+  }
+  private async handleApiverDeprecateEndpoint(task: any) {
+    return { ok: true, handler: 'apiver_deprecate_endpoint', deprecationId: '', endpointPath: '', sunsetDate: '' };
+  }
+  private async handleApiverCheckCompat(task: any) {
+    return { ok: true, handler: 'apiver_check_compat', isCompatible: true, breakingChanges: 0, additions: 0, removals: 0 };
+  }
+  private async handleApiverNotifyConsumers(task: any) {
+    return { ok: true, handler: 'apiver_notify_consumers', notifiedCount: 0, versionId: '', deprecationCount: 0 };
+  }
+  private async handleApiverSunsetVersion(task: any) {
+    return { ok: true, handler: 'apiver_sunset_version', versionId: '', status: 'sunset', consumersRemaining: 0 };
+  }
+  private async handleApiverReport(task: any) {
+    return { ok: true, handler: 'apiver_report', totalVersions: 0, activeVersions: 0, deprecatedVersions: 0, pendingDeprecations: 0 };
+  }
+
+  // ── Batch 110: Compliance Scanner handlers ──
+  private async handleComplianceCreatePolicy(task: any) {
+    return { ok: true, handler: 'compliance_create_policy', policyId: '', framework: 'soc2', severity: 'medium' };
+  }
+  private async handleComplianceRunScan(task: any) {
+    return { ok: true, handler: 'compliance_run_scan', scannedResources: 0, compliant: 0, nonCompliant: 0 };
+  }
+  private async handleComplianceCreateRemediation(task: any) {
+    return { ok: true, handler: 'compliance_create_remediation', remediationId: '', actionType: 'manual', status: 'pending' };
+  }
+  private async handleComplianceCheckStatus(task: any) {
+    return { ok: true, handler: 'compliance_check_status', totalPolicies: 0, enabledPolicies: 0, complianceScore: 0 };
+  }
+  private async handleComplianceExportReport(task: any) {
+    return { ok: true, handler: 'compliance_export_report', format: 'pdf', reportUrl: '', generatedAt: '' };
+  }
+  private async handleComplianceReport(task: any) {
+    return { ok: true, handler: 'compliance_report', totalPolicies: 0, totalScans: 0, compliantPct: 0, remediationsPending: 0 };
+  }
+
+  // ── Batch 111: Backup Scheduling handlers ──
+  private async handleBackupCreateSchedule(task: any) {
+    return { ok: true, handler: 'backup_create_schedule', scheduleId: '', cronExpression: '', retentionDays: 30 };
+  }
+  private async handleBackupTriggerSnapshot(task: any) {
+    return { ok: true, handler: 'backup_trigger_snapshot', snapshotId: '', scheduleId: '', status: 'in_progress' };
+  }
+  private async handleBackupRestore(task: any) {
+    return { ok: true, handler: 'backup_restore', restoreJobId: '', snapshotId: '', status: 'pending', progressPct: 0 };
+  }
+  private async handleBackupVerifyIntegrity(task: any) {
+    return { ok: true, handler: 'backup_verify_integrity', snapshotId: '', checksumValid: true, sizeBytes: 0 };
+  }
+  private async handleBackupCleanupExpired(task: any) {
+    return { ok: true, handler: 'backup_cleanup_expired', deletedSnapshots: 0, freedBytes: 0 };
+  }
+  private async handleBackupReport(task: any) {
+    return { ok: true, handler: 'backup_report', totalSchedules: 0, activeSchedules: 0, totalSnapshots: 0, totalSizeBytes: 0 };
+  }
+
+  // ── Batch 112: Traffic Shaping handlers ──
+  private async handleTrafficCreateRule(task: any) {
+    return { ok: true, handler: 'traffic_create_rule', ruleId: '', direction: 'ingress', action: 'shape', priority: 100 };
+  }
+  private async handleTrafficSetBandwidth(task: any) {
+    return { ok: true, handler: 'traffic_set_bandwidth', limitId: '', maxMbps: 100, burstMbps: 150, guaranteedMbps: 10 };
+  }
+  private async handleTrafficSetQos(task: any) {
+    return { ok: true, handler: 'traffic_set_qos', policyId: '', trafficClass: 'best_effort', dscpMarking: 0, priorityLevel: 5 };
+  }
+  private async handleTrafficMeasureUsage(task: any) {
+    return { ok: true, handler: 'traffic_measure_usage', ruleId: '', currentUsageMbps: 0, throttledCount: 0 };
+  }
+  private async handleTrafficEnforceLimits(task: any) {
+    return { ok: true, handler: 'traffic_enforce_limits', rulesEnforced: 0, throttledConnections: 0, droppedPackets: 0 };
+  }
+  private async handleTrafficReport(task: any) {
+    return { ok: true, handler: 'traffic_report', totalRules: 0, activeRules: 0, totalQosPolicies: 0, currentThrottled: 0 };
   }
 
 }

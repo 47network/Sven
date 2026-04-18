@@ -68,6 +68,11 @@ export type EidolonBuildingKind =
   | 'message_queue_hub'
   | 'canary_deployer'
   | 'db_replicator'
+  | 'edge_node'
+  | 'api_version_tower'
+  | 'compliance_scanner'
+  | 'backup_vault'
+  | 'traffic_shaper'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -107,7 +112,12 @@ export type EidolonBuildingKind =
   | 'graphql_gateway'
   | 'message_queue_hub'
   | 'canary_deployer'
-  | 'db_replicator';
+  | 'db_replicator'
+  | 'edge_node'
+  | 'api_version_tower'
+  | 'compliance_scanner'
+  | 'backup_vault'
+  | 'traffic_shaper';
 
 export interface EidolonBuilding {
   id: string;
@@ -562,6 +572,26 @@ export type EidolonEventKind =
   | 'dbrepl.lag_alert'
   | 'dbrepl.failover_initiated'
   | 'dbrepl.failover_completed'
+  | 'edge.node_provisioned'
+  | 'edge.function_deployed'
+  | 'edge.latency_alert'
+  | 'edge.node_drained'
+  | 'apiver.version_published'
+  | 'apiver.endpoint_deprecated'
+  | 'apiver.compat_checked'
+  | 'apiver.version_sunset'
+  | 'compliance.policy_created'
+  | 'compliance.scan_completed'
+  | 'compliance.remediation_assigned'
+  | 'compliance.remediation_completed'
+  | 'backup.schedule_created'
+  | 'backup.snapshot_completed'
+  | 'backup.restore_started'
+  | 'backup.restore_completed'
+  | 'traffic.rule_created'
+  | 'traffic.bandwidth_throttled'
+  | 'traffic.qos_applied'
+  | 'traffic.usage_report'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -711,6 +741,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'message_queue_hub':
     case 'canary_deployer':
     case 'db_replicator':
+    case 'edge_node':
+    case 'api_version_tower':
+    case 'compliance_scanner':
+    case 'backup_vault':
+    case 'traffic_shaper':
     case 'translation_hub':
     case 'webhook_relay':
     case 'config_vault':
@@ -731,6 +766,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'message_queue_hub':
     case 'canary_deployer':
     case 'db_replicator':
+    case 'edge_node':
+    case 'api_version_tower':
+    case 'compliance_scanner':
+    case 'backup_vault':
+    case 'traffic_shaper':
     case 'pipeline_forge':
     case 'cache_tower':
     case 'api_gateway':
@@ -768,6 +808,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'message_queue_hub':
     case 'canary_deployer':
     case 'db_replicator':
+    case 'edge_node':
+    case 'api_version_tower':
+    case 'compliance_scanner':
+    case 'backup_vault':
+    case 'traffic_shaper':
       return 'civic';
   }
 }
