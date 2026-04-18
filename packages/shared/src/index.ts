@@ -92,3 +92,4 @@ export * from './agent-data-export-import.js';
 export * from './agent-rate-limiting.js';
 export * from './agent-localization.js';
 export * from './agent-webhooks.js';
+export * from './agent-environment-config.js';
