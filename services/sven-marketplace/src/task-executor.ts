@@ -347,6 +347,14 @@ export class TaskExecutor {
       case 'slot_book': return this.handleSlotBook(input);
       case 'schedule_trigger_configure': return this.handleScheduleTriggerConfigure(input);
 
+      case 'pool_create': return this.handlePoolCreate(input);
+      case 'pool_resize': return this.handlePoolResize(input);
+      case 'allocation_request': return this.handleAllocationRequest(input);
+      case 'allocation_release': return this.handleAllocationRelease(input);
+      case 'quota_set': return this.handleQuotaSet(input);
+      case 'scaling_rule_add': return this.handleScalingRuleAdd(input);
+      case 'usage_report': return this.handleUsageReport(input);
+
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -3672,6 +3680,91 @@ export class TaskExecutor {
       scheduleId: input.scheduleId ?? 'unknown',
       triggerType: input.triggerType ?? 'task',
       maxRetries: input.maxRetries ?? 3,
+    };
+  }
+
+  private handlePoolCreate(input: Record<string, unknown>) {
+    const id = `pool-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      ok: true,
+      poolId: id,
+      poolName: input.poolName ?? 'default-pool',
+      resourceType: input.resourceType ?? 'compute',
+      totalCapacity: input.totalCapacity ?? 1000,
+      status: 'active',
+      available: input.totalCapacity ?? 1000,
+    };
+  }
+
+  private handlePoolResize(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      poolId: input.poolId ?? 'unknown',
+      previousCapacity: input.previousCapacity ?? 1000,
+      newCapacity: input.newCapacity ?? 2000,
+      available: (input.newCapacity as number ?? 2000) - (input.allocated as number ?? 0),
+    };
+  }
+
+  private handleAllocationRequest(input: Record<string, unknown>) {
+    const id = `alloc-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      ok: true,
+      allocationId: id,
+      agentId: input.agentId ?? 'unknown',
+      poolId: input.poolId ?? 'unknown',
+      resourceType: input.resourceType ?? 'compute',
+      amount: input.amount ?? 100,
+      status: 'allocated',
+    };
+  }
+
+  private handleAllocationRelease(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      allocationId: input.allocationId ?? 'unknown',
+      releasedAmount: input.amount ?? 100,
+      poolId: input.poolId ?? 'unknown',
+      status: 'released',
+    };
+  }
+
+  private handleQuotaSet(input: Record<string, unknown>) {
+    const id = `quota-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      ok: true,
+      quotaId: id,
+      agentId: input.agentId ?? 'unknown',
+      resourceType: input.resourceType ?? 'compute',
+      softLimit: input.softLimit ?? 800,
+      hardLimit: input.hardLimit ?? 1000,
+      period: input.period ?? 'monthly',
+    };
+  }
+
+  private handleScalingRuleAdd(input: Record<string, unknown>) {
+    const id = `scale-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      ok: true,
+      ruleId: id,
+      poolId: input.poolId ?? 'unknown',
+      metric: input.metric ?? 'utilization',
+      thresholdUp: input.thresholdUp ?? 80,
+      thresholdDown: input.thresholdDown ?? 20,
+      enabled: true,
+    };
+  }
+
+  private handleUsageReport(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      agentId: input.agentId ?? null,
+      poolId: input.poolId ?? null,
+      startDate: input.startDate ?? new Date(Date.now() - 86400_000 * 30).toISOString(),
+      endDate: input.endDate ?? new Date().toISOString(),
+      totalUsed: 0,
+      totalCost: 0,
+      breakdown: [],
     };
   }
 }

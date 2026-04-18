@@ -175,6 +175,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.scheduling.event_created': 'scheduling.event_created',
   'sven.scheduling.slot_booked': 'scheduling.slot_booked',
   'sven.scheduling.trigger_executed': 'scheduling.trigger_executed',
+  'sven.resources.pool_created': 'resources.pool_created',
+  'sven.resources.allocation_granted': 'resources.allocation_granted',
+  'sven.resources.quota_exceeded': 'resources.quota_exceeded',
+  'sven.resources.scaling_triggered': 'resources.scaling_triggered',
 };
 
 export class EidolonEventBus {
