@@ -79,7 +79,8 @@ export type EidolonBuildingKind =
   | 'state_engine'
   | 'delivery_hub'
   | 'search_archive'
-  | 'event_ledger';
+  | 'event_ledger'
+  | 'config_vault';
 
 export interface EidolonBuilding {
   id: string;
@@ -462,6 +463,10 @@ export type EidolonEventKind =
   | 'eventsource.projection_created'
   | 'eventsource.snapshot_taken'
   | 'eventsource.replay_completed'
+  | 'config.entry_updated'
+  | 'config.namespace_created'
+  | 'config.rollback_applied'
+  | 'config.schema_validated'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -623,6 +628,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'delivery_hub':
     case 'search_archive':
     case 'event_ledger':
+    case 'config_vault':
       return 'civic';
   }
 }

@@ -319,6 +319,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.eventsource.projection_created': 'eventsource.projection_created',
   'sven.eventsource.snapshot_taken': 'eventsource.snapshot_taken',
   'sven.eventsource.replay_completed': 'eventsource.replay_completed',
+  'sven.config.entry_updated': 'config.entry_updated',
+  'sven.config.namespace_created': 'config.namespace_created',
+  'sven.config.rollback_applied': 'config.rollback_applied',
+  'sven.config.schema_validated': 'config.schema_validated',
 };
 
 export class EidolonEventBus {
