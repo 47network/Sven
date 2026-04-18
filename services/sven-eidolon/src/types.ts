@@ -19,7 +19,6 @@ export type EidolonBuildingKind =
   | 'print_works'
   | 'media_studio'
   | 'xlvii_storefront'
-  | 'council_chamber'
   | 'memory_vault'
   | 'gpu_cluster'
   | 'evolution_lab'
@@ -34,7 +33,8 @@ export type EidolonBuildingKind =
   | 'collaboration_hub'
   | 'analytics_tower'
   | 'reputation_monument'
-  | 'council_chamber';
+  | 'council_chamber'
+  | 'medical_bay';
 
 export interface EidolonBuilding {
   id: string;
@@ -233,6 +233,10 @@ export type EidolonEventKind =
   | 'governance.vote_cast'
   | 'governance.proposal_passed'
   | 'governance.council_formed'
+  | 'health.check_completed'
+  | 'health.recovery_triggered'
+  | 'lifecycle.state_changed'
+  | 'lifecycle.agent_retired'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -302,8 +306,6 @@ export function districtFor(kind: EidolonBuildingKind): District {
       return 'market';
     case 'xlvii_storefront':
       return 'market';
-    case 'council_chamber':
-      return 'civic';
     case 'memory_vault':
       return 'infrastructure';
     case 'gpu_cluster':
@@ -334,5 +336,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
       return 'market';
     case 'council_chamber':
       return 'civic';
+    case 'medical_bay':
+      return 'residential';
   }
 }

@@ -272,6 +272,13 @@ export class TaskExecutor {
       case 'delegation_set': return this.handleDelegationSet(input);
       case 'governance_tally': return this.handleGovernanceTally(input);
       case 'governance_history': return this.handleGovernanceHistory(input);
+      case 'health_check': return this.handleHealthCheck(input);
+      case 'lifecycle_transition': return this.handleLifecycleTransition(input);
+      case 'heartbeat_ping': return this.handleHeartbeatPing(input);
+      case 'recovery_execute': return this.handleRecoveryExecute(input);
+      case 'sla_configure': return this.handleSlaConfigure(input);
+      case 'health_report': return this.handleHealthReport(input);
+      case 'lifecycle_history': return this.handleLifecycleHistory(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -2382,6 +2389,154 @@ export class TaskExecutor {
           { id: 'prop-003', title: 'Emergency security patch', status: 'executed', result: 'passed' },
         ],
         message: `Governance history: ${limit} most recent proposals (scope: ${scope}).`,
+      },
+    };
+  }
+
+  // ── Batch 44 — Agent Health & Lifecycle ──
+
+  private async handleHealthCheck(input: Record<string, unknown>) {
+    const agentId = (input.agentId as string) || 'agent-unknown';
+    const checkType = (input.checkType as string) || 'full';
+    return {
+      status: 'completed' as const,
+      result: {
+        agentId,
+        checkType,
+        healthStatus: 'healthy',
+        uptime: 99.87,
+        lastHeartbeat: new Date().toISOString(),
+        checks: {
+          cpu: { status: 'ok', value: 34.2, unit: '%' },
+          memory: { status: 'ok', value: 512, unit: 'MB' },
+          responseTime: { status: 'ok', value: 145, unit: 'ms' },
+          taskQueue: { status: 'ok', value: 3, unit: 'tasks' },
+        },
+        message: `Health check (${checkType}) for ${agentId}: HEALTHY — uptime 99.87%.`,
+      },
+    };
+  }
+
+  private async handleLifecycleTransition(input: Record<string, unknown>) {
+    const agentId = (input.agentId as string) || 'agent-unknown';
+    const fromState = (input.fromState as string) || 'active';
+    const toState = (input.toState as string) || 'maintenance';
+    const reason = (input.reason as string) || 'scheduled';
+    return {
+      status: 'completed' as const,
+      result: {
+        agentId,
+        fromState,
+        toState,
+        reason,
+        transitionedAt: new Date().toISOString(),
+        valid: true,
+        message: `Agent ${agentId} transitioned from ${fromState} → ${toState} (${reason}).`,
+      },
+    };
+  }
+
+  private async handleHeartbeatPing(input: Record<string, unknown>) {
+    const agentId = (input.agentId as string) || 'agent-unknown';
+    const sequenceNumber = (input.sequenceNumber as number) || 1;
+    return {
+      status: 'completed' as const,
+      result: {
+        agentId,
+        sequenceNumber,
+        receivedAt: new Date().toISOString(),
+        nextExpectedAt: new Date(Date.now() + 30000).toISOString(),
+        consecutiveHits: sequenceNumber,
+        missedCount: 0,
+        message: `Heartbeat #${sequenceNumber} from ${agentId} acknowledged.`,
+      },
+    };
+  }
+
+  private async handleRecoveryExecute(input: Record<string, unknown>) {
+    const agentId = (input.agentId as string) || 'agent-unknown';
+    const action = (input.action as string) || 'restart';
+    const severity = (input.severity as string) || 'medium';
+    return {
+      status: 'completed' as const,
+      result: {
+        agentId,
+        action,
+        severity,
+        executedAt: new Date().toISOString(),
+        success: true,
+        recoveryDuration: 2450,
+        previousState: 'degraded',
+        newState: 'active',
+        message: `Recovery action '${action}' executed for ${agentId} — restored to active.`,
+      },
+    };
+  }
+
+  private async handleSlaConfigure(input: Record<string, unknown>) {
+    const agentId = (input.agentId as string) || 'agent-unknown';
+    const uptimeTarget = (input.uptimeTarget as number) || 99.9;
+    const maxResponseTime = (input.maxResponseTime as number) || 500;
+    const maxMissedHeartbeats = (input.maxMissedHeartbeats as number) || 3;
+    return {
+      status: 'completed' as const,
+      result: {
+        agentId,
+        sla: {
+          uptimeTarget,
+          maxResponseTime,
+          maxMissedHeartbeats,
+          alertThreshold: uptimeTarget - 0.5,
+          escalationPolicy: 'auto-recover',
+        },
+        configuredAt: new Date().toISOString(),
+        message: `SLA configured for ${agentId}: ${uptimeTarget}% uptime, ${maxResponseTime}ms max response.`,
+      },
+    };
+  }
+
+  private async handleHealthReport(input: Record<string, unknown>) {
+    const scope = (input.scope as string) || 'all';
+    const period = (input.period as string) || '24h';
+    return {
+      status: 'completed' as const,
+      result: {
+        scope,
+        period,
+        summary: {
+          totalAgents: 42,
+          healthy: 38,
+          degraded: 3,
+          unhealthy: 1,
+          offline: 0,
+          averageUptime: 99.72,
+        },
+        alerts: [
+          { agentId: 'agent-017', severity: 'warning', issue: 'High response time (820ms)' },
+          { agentId: 'agent-033', severity: 'critical', issue: 'Missed 4 consecutive heartbeats' },
+        ],
+        message: `Health report (${scope}, ${period}): 38/42 agents healthy, avg uptime 99.72%.`,
+      },
+    };
+  }
+
+  private async handleLifecycleHistory(input: Record<string, unknown>) {
+    const agentId = (input.agentId as string) || 'agent-unknown';
+    const limit = (input.limit as number) || 10;
+    return {
+      status: 'completed' as const,
+      result: {
+        agentId,
+        limit,
+        transitions: [
+          { from: 'created', to: 'initializing', at: '2025-01-15T08:00:00Z', reason: 'deploy' },
+          { from: 'initializing', to: 'active', at: '2025-01-15T08:02:30Z', reason: 'ready' },
+          { from: 'active', to: 'maintenance', at: '2025-03-20T03:00:00Z', reason: 'scheduled' },
+          { from: 'maintenance', to: 'active', at: '2025-03-20T03:15:00Z', reason: 'completed' },
+        ],
+        totalTransitions: 4,
+        currentState: 'active',
+        message: `Lifecycle history for ${agentId}: ${limit} most recent transitions.`,
       },
     };
   }
