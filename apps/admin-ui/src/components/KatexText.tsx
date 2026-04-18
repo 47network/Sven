@@ -1,5 +1,6 @@
 'use client';
 
+import DOMPurify from 'isomorphic-dompurify';
 import { useMemo } from 'react';
 import katex from 'katex';
 
@@ -58,13 +59,14 @@ export function KatexText({ text, className = '' }: { text: string; className?: 
           strict: 'ignore',
           displayMode: segment.displayMode,
         });
+        const sanitizedRendered = DOMPurify.sanitize(rendered);
 
         if (segment.displayMode) {
           return (
             <div
               key={`m-${idx}`}
               className="my-2 overflow-x-auto"
-              dangerouslySetInnerHTML={{ __html: rendered }}
+              dangerouslySetInnerHTML={{ __html: sanitizedRendered }}
             />
           );
         }
@@ -73,7 +75,7 @@ export function KatexText({ text, className = '' }: { text: string; className?: 
           <span
             key={`m-${idx}`}
             className="mx-0.5 inline-block align-middle"
-            dangerouslySetInnerHTML={{ __html: rendered }}
+            dangerouslySetInnerHTML={{ __html: sanitizedRendered }}
           />
         );
       })}

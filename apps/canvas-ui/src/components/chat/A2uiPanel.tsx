@@ -1,5 +1,6 @@
 'use client';
 
+import DOMPurify from 'isomorphic-dompurify';
 import React from 'react';
 
 type Props = {
@@ -10,6 +11,8 @@ type Props = {
 export default function A2uiPanel({ html, onInteract }: Props) {
     if (!html) return null;
 
+    const sanitizedHtml = DOMPurify.sanitize(html);
+
     return (
         <div className="premium-panel p-3">
             <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--fg-muted)]">
@@ -18,7 +21,7 @@ export default function A2uiPanel({ html, onInteract }: Props) {
             <div
                 onClick={onInteract}
                 className="prose prose-sm max-w-none dark:prose-invert"
-                dangerouslySetInnerHTML={{ __html: html }}
+                dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
             />
         </div>
     );
