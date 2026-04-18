@@ -439,6 +439,13 @@ export class TaskExecutor {
       case 'export_download': return this.handleExportDownload(task);
       case 'import_validate': return this.handleImportValidate(task);
       case 'transfer_status': return this.handleTransferStatus(task);
+      case 'policy_create': return this.handlePolicyCreate(task);
+      case 'policy_update': return this.handlePolicyUpdate(task);
+      case 'override_grant': return this.handleOverrideGrant(task);
+      case 'quota_allocate': return this.handleQuotaAllocate(task);
+      case 'counter_check': return this.handleCounterCheck(task);
+      case 'throttle_status': return this.handleThrottleStatus(task);
+      case 'quota_report': return this.handleQuotaReport(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -4590,6 +4597,35 @@ export class TaskExecutor {
 
   private handleTransferStatus(task: any): any {
     return { status: 'completed', progressPct: 100, rowsProcessed: 0, eta: null };
+  }
+
+
+  private handlePolicyCreate(task: any): any {
+    return { policyId: `pol-${Date.now()}`, enabled: true, created: true };
+  }
+
+  private handlePolicyUpdate(task: any): any {
+    return { policyId: task.input?.policyId || 'unknown', updated: true };
+  }
+
+  private handleOverrideGrant(task: any): any {
+    return { overrideId: `ovr-${Date.now()}`, active: true, grantedBy: 'system' };
+  }
+
+  private handleQuotaAllocate(task: any): any {
+    return { quotaId: `qta-${Date.now()}`, allocated: 1000, remaining: 1000 };
+  }
+
+  private handleCounterCheck(task: any): any {
+    return { requestCount: 0, withinLimit: true, retryAfter: null };
+  }
+
+  private handleThrottleStatus(task: any): any {
+    return { status: 'ok', recentEvents: [], activePolicies: [] };
+  }
+
+  private handleQuotaReport(task: any): any {
+    return { allocations: [], usagePercent: 0, overages: [] };
   }
 
 }

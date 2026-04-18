@@ -227,6 +227,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.data_transfer.import_created': 'data_transfer.import_created',
   'sven.data_transfer.transfer_completed': 'data_transfer.transfer_completed',
   'sven.data_transfer.schema_registered': 'data_transfer.schema_registered',
+  'sven.rate_limit.policy_created': 'rate_limit.policy_created',
+  'sven.rate_limit.agent_throttled': 'rate_limit.agent_throttled',
+  'sven.rate_limit.quota_exceeded': 'rate_limit.quota_exceeded',
+  'sven.rate_limit.override_granted': 'rate_limit.override_granted',
 };
 
 export class EidolonEventBus {
