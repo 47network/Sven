@@ -95,3 +95,4 @@ export * from './agent-webhooks.js';
 export * from './agent-environment-config.js';
 export * from './agent-pipeline-templates.js';
 export * from './agent-caching-cdn.js';
+export * from './agent-api-gateway.js';
