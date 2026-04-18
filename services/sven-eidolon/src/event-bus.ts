@@ -231,6 +231,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.rate_limit.agent_throttled': 'rate_limit.agent_throttled',
   'sven.rate_limit.quota_exceeded': 'rate_limit.quota_exceeded',
   'sven.rate_limit.override_granted': 'rate_limit.override_granted',
+  'sven.locale.locale_created': 'locale.locale_created',
+  'sven.locale.translation_approved': 'locale.translation_approved',
+  'sven.locale.content_localized': 'locale.content_localized',
+  'sven.locale.coverage_updated': 'locale.coverage_updated',
 };
 
 export class EidolonEventBus {
