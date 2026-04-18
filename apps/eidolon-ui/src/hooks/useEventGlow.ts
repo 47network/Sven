@@ -25,15 +25,27 @@ const EVENT_TO_KIND: Partial<Record<EidolonEventKind, {
   buildingKind: string;
   color: string;
 }>> = {
-  'treasury.credit':           { buildingKind: 'treasury_vault',      color: '#fbbf24' }, // gold
-  'treasury.debit':            { buildingKind: 'treasury_vault',      color: '#f97316' }, // orange
-  'market.order_paid':         { buildingKind: 'marketplace_listing', color: '#22c55e' }, // green
-  'market.listing_published':  { buildingKind: 'marketplace_listing', color: '#22d3ee' }, // cyan
-  'market.fulfilled':          { buildingKind: 'marketplace_listing', color: '#a78bfa' }, // violet
-  'market.refunded':           { buildingKind: 'marketplace_listing', color: '#ef4444' }, // red
-  'infra.node_change':         { buildingKind: 'infra_node',          color: '#38bdf8' }, // sky
-  'agent.spawned':             { buildingKind: 'revenue_service',     color: '#a3e635' }, // lime
-  'agent.retired':             { buildingKind: 'revenue_service',     color: '#f43f5e' }, // rose
+  'treasury.credit':               { buildingKind: 'treasury_vault',      color: '#fbbf24' },
+  'treasury.debit':                { buildingKind: 'treasury_vault',      color: '#f97316' },
+  'market.order_paid':             { buildingKind: 'marketplace_listing', color: '#22c55e' },
+  'market.listing_published':      { buildingKind: 'marketplace_listing', color: '#22d3ee' },
+  'market.fulfilled':              { buildingKind: 'marketplace_listing', color: '#a78bfa' },
+  'market.refunded':               { buildingKind: 'marketplace_listing', color: '#ef4444' },
+  'market.task_created':           { buildingKind: 'marketplace_listing', color: '#06b6d4' },
+  'market.task_completed':         { buildingKind: 'marketplace_listing', color: '#10b981' },
+  'infra.node_change':             { buildingKind: 'infra_node',          color: '#38bdf8' },
+  'agent.spawned':                 { buildingKind: 'revenue_service',     color: '#a3e635' },
+  'agent.retired':                 { buildingKind: 'revenue_service',     color: '#f43f5e' },
+  'agent.tokens_earned':           { buildingKind: 'treasury_vault',      color: '#facc15' },
+  'agent.business_created':        { buildingKind: 'agent_business',      color: '#34d399' },
+  'agent.business_activated':      { buildingKind: 'agent_business',      color: '#10b981' },
+  'agent.business_deactivated':    { buildingKind: 'agent_business',      color: '#6b7280' },
+  'crew.created':                  { buildingKind: 'crew_headquarters',   color: '#f472b6' },
+  'crew.member_added':             { buildingKind: 'crew_headquarters',   color: '#ec4899' },
+  'publishing.project_created':    { buildingKind: 'publishing_house',    color: '#c084fc' },
+  'publishing.stage_advanced':     { buildingKind: 'publishing_house',    color: '#a78bfa' },
+  'publishing.book_published':     { buildingKind: 'publishing_house',    color: '#8b5cf6' },
+  'goal.completed':                { buildingKind: 'treasury_vault',      color: '#22d3ee' },
 };
 
 /**

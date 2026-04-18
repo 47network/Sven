@@ -13,13 +13,44 @@ const STATUS_COLOR: Record<EidolonCitizen['status'], string> = {
   retiring: '#f43f5e',
 };
 
-// Earning citizens pulse brighter, retiring ones flicker
 const STATUS_PULSE: Record<EidolonCitizen['status'], { speed: number; amplitude: number }> = {
   idle:     { speed: 1.0, amplitude: 0.1 },
   working:  { speed: 1.8, amplitude: 0.15 },
   earning:  { speed: 2.5, amplitude: 0.25 },
   retiring: { speed: 4.0, amplitude: 0.4 },
 };
+
+// Archetype → distinct geometry shape. Agents are visually unique.
+const ARCHETYPE_GEO: Record<string, 'sphere' | 'cone' | 'cylinder' | 'octahedron' | 'dodecahedron' | 'torus' | 'icosahedron'> = {
+  seller:     'cone',
+  translator: 'cylinder',
+  writer:     'dodecahedron',
+  scout:      'icosahedron',
+  analyst:    'octahedron',
+  operator:   'cylinder',
+  accountant: 'octahedron',
+  marketer:   'cone',
+  researcher: 'dodecahedron',
+  legal:      'torus',
+  designer:   'icosahedron',
+  support:    'sphere',
+  strategist: 'dodecahedron',
+  recruiter:  'cone',
+  custom:     'sphere',
+};
+
+function CitizenGeometry({ archetype }: { archetype: string | undefined }) {
+  const shape = (archetype && ARCHETYPE_GEO[archetype]) ?? 'sphere';
+  switch (shape) {
+    case 'cone':         return <coneGeometry args={[0.5, 1.2, 8]} />;
+    case 'cylinder':     return <cylinderGeometry args={[0.4, 0.4, 1.0, 8]} />;
+    case 'octahedron':   return <octahedronGeometry args={[0.6]} />;
+    case 'dodecahedron': return <dodecahedronGeometry args={[0.55]} />;
+    case 'torus':        return <torusGeometry args={[0.4, 0.15, 8, 16]} />;
+    case 'icosahedron':  return <icosahedronGeometry args={[0.55]} />;
+    default:             return <sphereGeometry args={[0.6, 16, 16]} />;
+  }
+}
 
 interface Props { citizen: EidolonCitizen }
 
@@ -43,8 +74,8 @@ export function Citizen({ citizen }: Props) {
     // Pulsing emissive intensity for earning/retiring states
     const intensityBase = citizen.status === 'earning' ? 1.0 : 0.8;
     const intensityVariance = citizen.status === 'retiring'
-      ? Math.abs(Math.sin(t * 6)) * 0.5   // rapid flicker
-      : Math.sin(t * 2) * 0.15;            // gentle pulse
+      ? Math.abs(Math.sin(t * 6)) * 0.5
+      : Math.sin(t * 2) * 0.15;
     mat.emissiveIntensity = intensityBase + intensityVariance;
   });
 
@@ -54,7 +85,7 @@ export function Citizen({ citizen }: Props) {
       position={[citizen.position.x, 1, citizen.position.z]}
       castShadow
     >
-      <sphereGeometry args={[0.6, 16, 16]} />
+      <CitizenGeometry archetype={citizen.archetype} />
       <meshStandardMaterial
         color={STATUS_COLOR[citizen.status]}
         emissive={STATUS_COLOR[citizen.status]}

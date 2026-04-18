@@ -46,6 +46,9 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.publishing.stage_advanced': 'publishing.stage_advanced',
   'sven.publishing.review_submitted': 'publishing.review_submitted',
   'sven.publishing.book_published': 'publishing.book_published',
+  'sven.agent.avatar_changed': 'agent.avatar_changed',
+  'sven.world.tick': 'world.tick',
+  'sven.world.parcel_interaction': 'world.parcel_interaction',
   'sven.infra.node_change': 'infra.node_change',
 };
 

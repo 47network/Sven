@@ -12,8 +12,12 @@ import {
   type District,
   type EidolonBuilding,
   type EidolonCitizen,
+  type EidolonParcel,
   type EidolonSnapshot,
   type EidolonTreasurySummary,
+  type AgentLocation,
+  type ParcelZone,
+  type ParcelSize,
   listDistricts,
   positionFor,
 } from './types.js';
@@ -24,13 +28,14 @@ export class EidolonRepository {
   constructor(private readonly pool: Pool) {}
 
   async getSnapshot(orgId: string): Promise<EidolonSnapshot> {
-    const [listings, services, nodes, treasury, businessSpaces, crewHQs] = await Promise.all([
+    const [listings, services, nodes, treasury, businessSpaces, crewHQs, parcels] = await Promise.all([
       this.fetchListings(orgId),
       this.fetchRevenueServices(orgId),
       this.fetchInfraNodes(orgId),
       this.fetchTreasurySummary(orgId),
       this.fetchBusinessBuildings(orgId),
       this.fetchCrewBuildings(orgId),
+      this.fetchParcels(orgId),
     ]);
 
     const buildings: EidolonBuilding[] = [
@@ -44,14 +49,24 @@ export class EidolonRepository {
 
     const citizens = await this.fetchCitizens(orgId, buildings);
 
+    const cityLocations = new Set<AgentLocation>([
+      'city_market', 'city_treasury', 'city_infra', 'city_revenue', 'city_centre',
+    ]);
+    const agentsInCity = parcels.filter(p => cityLocations.has(p.currentLocation)).length;
+    const agentsOnParcels = parcels.filter(p => p.currentLocation === 'parcel').length;
+
     return {
       generatedAt: new Date().toISOString(),
       buildings,
       citizens,
+      parcels,
       treasury,
       meta: {
         version: VERSION,
         districts: listDistricts(),
+        totalParcels: parcels.length,
+        agentsInCity,
+        agentsOnParcels,
       },
     };
   }
@@ -421,31 +436,52 @@ export class EidolonRepository {
       openApprovals: 0,
     };
   }
-}
 
-// ---- internal helpers -----------------------------------------------------
+  // ---- Parcel fetching -------------------------------------------------------
 
-const ARCHETYPE_ROLE_MAP: Record<string, EidolonCitizen['role']> = {
-  seller: 'seller',
-  translator: 'translator',
-  writer: 'writer',
-  scout: 'scout',
-  analyst: 'worker',
-  operator: 'operator',
-  accountant: 'accountant',
-  marketer: 'marketer',
-  researcher: 'researcher',
-  legal: 'counsel',
-  designer: 'designer',
-  support: 'support',
-  strategist: 'strategist',
-  recruiter: 'recruiter',
-  custom: 'pipeline',
-};
-
-function archetypeToRole(archetype: string | null | undefined): EidolonCitizen['role'] {
-  if (!archetype) return 'pipeline';
-  return ARCHETYPE_ROLE_MAP[archetype] ?? 'pipeline';
+  async fetchParcels(orgId: string): Promise<EidolonParcel[]> {
+    const { rows } = await this.pool.query(
+      `SELECT
+         ap.id,
+         ap.agent_id,
+         ap.zone,
+         ap.grid_x,
+         ap.grid_z,
+         ap.parcel_size,
+         COALESCE(ap.structures, '[]'::jsonb) AS structures,
+         COALESCE(ap.decorations, '[]'::jsonb) AS decorations,
+         COALESCE(ap.upgrades, '{}'::jsonb) AS upgrades,
+         ap.current_location,
+         ap.last_city_visit,
+         ap.total_city_visits,
+         ap.land_value,
+         ap.token_invested,
+         ap.acquired_at
+       FROM agent_parcels ap
+       JOIN agent_profiles prof ON prof.id = ap.agent_id
+       WHERE prof.org_id = $1
+       ORDER BY ap.acquired_at ASC
+       LIMIT 500`,
+      [orgId],
+    );
+    return rows.map((r: Record<string, unknown>) => ({
+      id: String(r.id),
+      agentId: String(r.agent_id),
+      zone: String(r.zone) as ParcelZone,
+      gridX: Number(r.grid_x),
+      gridZ: Number(r.grid_z),
+      parcelSize: String(r.parcel_size) as ParcelSize,
+      structures: (r.structures ?? []) as EidolonParcel['structures'],
+      decorations: (r.decorations ?? []) as EidolonParcel['decorations'],
+      upgrades: (r.upgrades ?? {}) as Record<string, unknown>,
+      currentLocation: String(r.current_location) as AgentLocation,
+      lastCityVisit: r.last_city_visit ? String(r.last_city_visit) : null,
+      totalCityVisits: Number(r.total_city_visits ?? 0),
+      landValue: Number(r.land_value ?? 0),
+      tokenInvested: Number(r.token_invested ?? 0),
+      acquiredAt: String(r.acquired_at),
+    }));
+  }
 }
 
 function safeLabel(raw: string | null | undefined): string {

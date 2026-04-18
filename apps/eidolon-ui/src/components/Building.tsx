@@ -18,6 +18,9 @@ const KIND_ACCENT: Record<EidolonBuilding['kind'], string> = {
   revenue_service: '#7c3aed',
   infra_node: '#38bdf8',
   treasury_vault: '#f59e0b',
+  agent_business: '#10b981',
+  crew_headquarters: '#f472b6',
+  publishing_house: '#a78bfa',
 };
 
 interface Props {
@@ -35,7 +38,12 @@ export function Building({ building, onSelect, selected, glowBoost = 0, glowColo
   const baseColor = STATUS_COLOR[building.status];
   const accent = KIND_ACCENT[building.kind];
   const width = useMemo(
-    () => (building.kind === 'treasury_vault' ? 10 : building.kind === 'infra_node' ? 7 : 5),
+    () =>
+      building.kind === 'treasury_vault' ? 10
+      : building.kind === 'infra_node' ? 7
+      : building.kind === 'crew_headquarters' ? 8
+      : building.kind === 'publishing_house' ? 6
+      : 5,
     [building.kind],
   );
   const depth = width;

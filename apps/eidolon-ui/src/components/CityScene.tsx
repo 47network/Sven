@@ -6,7 +6,10 @@ import { Suspense, useMemo } from 'react';
 import type { EidolonSnapshot, EidolonBuilding, EidolonEvent } from '@/lib/api';
 import { Building } from './Building';
 import { Citizen } from './Citizen';
+import { ParcelGrid } from './ParcelGrid';
+import { MovementPaths } from './MovementPaths';
 import { useEventGlow } from '@/hooks/useEventGlow';
+import { useWorldTime } from '@/hooks/useWorldTime';
 
 interface Props {
   snapshot: EidolonSnapshot | null;
@@ -18,7 +21,9 @@ interface Props {
 function CityContent({ snapshot, selectedId, onSelect, events }: Props) {
   const buildings = snapshot?.buildings ?? [];
   const citizens = snapshot?.citizens ?? [];
+  const parcels = snapshot?.parcels ?? [];
   const { getGlowBoost } = useEventGlow(events);
+  const worldTime = useWorldTime();
 
   const districtLabels = useMemo(
     () => [
@@ -60,6 +65,12 @@ function CityContent({ snapshot, selectedId, onSelect, events }: Props) {
       {citizens.map((c) => (
         <Citizen key={c.id} citizen={c} />
       ))}
+
+      {/* Suburban parcels */}
+      <ParcelGrid parcels={parcels} />
+
+      {/* Animated travel paths (placeholder — movements injected via prop or API) */}
+      <MovementPaths movements={[]} />
     </>
   );
 }
@@ -75,10 +86,11 @@ export function CityScene({ snapshot, selectedId, onSelect, events }: Props) {
       <fog attach="fog" args={['#020307', 180, 420]} />
       <Stars radius={260} depth={60} count={3000} factor={3.5} fade />
 
-      <ambientLight intensity={0.35} />
+      <ambientLight intensity={worldTime.phase === 'night' ? 0.12 : worldTime.phase === 'dawn' || worldTime.phase === 'dusk' ? 0.25 : 0.35} />
       <directionalLight
         position={[80, 120, 60]}
-        intensity={1.1}
+        intensity={worldTime.phase === 'night' ? 0.3 : worldTime.phase === 'dawn' || worldTime.phase === 'dusk' ? 0.7 : 1.1}
+        color={worldTime.phase === 'dawn' ? '#fbbf24' : worldTime.phase === 'dusk' ? '#f97316' : '#ffffff'}
         castShadow
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}

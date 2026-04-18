@@ -124,6 +124,9 @@ export type EidolonEventKind =
   | 'publishing.stage_advanced'
   | 'publishing.review_submitted'
   | 'publishing.book_published'
+  | 'agent.avatar_changed'
+  | 'world.tick'
+  | 'world.parcel_interaction'
   | 'infra.node_change'
   | 'heartbeat';
 
