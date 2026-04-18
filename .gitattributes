@@ -137,3 +137,9 @@ services/gateway-api/migrations/20260516120000_agent_governance.sql export-ignor
 packages/shared/src/agent-governance.ts export-ignore
 skills/autonomous-economy/agent-governance/** export-ignore
 services/agent-runtime/src/__tests__/batch43-agent-governance.test.ts export-ignore
+
+# Batch 44 — Agent Health & Lifecycle (private)
+services/gateway-api/migrations/20260517120000_agent_health_lifecycle.sql export-ignore
+packages/shared/src/agent-health-lifecycle.ts export-ignore
+skills/autonomous-economy/agent-health-lifecycle/** export-ignore
+services/agent-runtime/src/__tests__/batch44-agent-health-lifecycle.test.ts export-ignore

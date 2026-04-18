@@ -66,3 +66,4 @@ export * from './agent-collaboration.js';
 export * from './revenue-dashboard.js';
 export * from './agent-reputation.js';
 export * from './agent-governance.js';
+export * from './agent-health-lifecycle.js';
