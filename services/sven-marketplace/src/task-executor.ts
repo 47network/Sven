@@ -3353,6 +3353,36 @@ export class TaskExecutor {
       case 'thgn_batch': return this.handleThgnBatch(task);
       case 'thgn_report': return this.handleThgnReport(task);
       case 'thgn_monitor': return this.handleThgnMonitor(task);
+      case 'oatp_register': return this.handleOatpRegister(task);
+      case 'oatp_issue': return this.handleOatpIssue(task);
+      case 'oatp_revoke': return this.handleOatpRevoke(task);
+      case 'oatp_validate': return this.handleOatpValidate(task);
+      case 'oatp_report': return this.handleOatpReport(task);
+      case 'oatp_monitor': return this.handleOatpMonitor(task);
+      case 'smlb_receive': return this.handleSmlbReceive(task);
+      case 'smlb_sync': return this.handleSmlbSync(task);
+      case 'smlb_complete': return this.handleSmlbComplete(task);
+      case 'smlb_federate': return this.handleSmlbFederate(task);
+      case 'smlb_report': return this.handleSmlbReport(task);
+      case 'smlb_monitor': return this.handleSmlbMonitor(task);
+      case 'tkmn_mint': return this.handleTkmnMint(task);
+      case 'tkmn_refresh': return this.handleTkmnRefresh(task);
+      case 'tkmn_revoke': return this.handleTkmnRevoke(task);
+      case 'tkmn_apply': return this.handleTkmnApply(task);
+      case 'tkmn_report': return this.handleTkmnReport(task);
+      case 'tkmn_monitor': return this.handleTkmnMonitor(task);
+      case 'ssrt_rotate': return this.handleSsrtRotate(task);
+      case 'ssrt_regenerate': return this.handleSsrtRegenerate(task);
+      case 'ssrt_terminate': return this.handleSsrtTerminate(task);
+      case 'ssrt_schedule': return this.handleSsrtSchedule(task);
+      case 'ssrt_report': return this.handleSsrtReport(task);
+      case 'ssrt_monitor': return this.handleSsrtMonitor(task);
+      case 'idlk_link': return this.handleIdlkLink(task);
+      case 'idlk_connect': return this.handleIdlkConnect(task);
+      case 'idlk_merge': return this.handleIdlkMerge(task);
+      case 'idlk_resolve': return this.handleIdlkResolve(task);
+      case 'idlk_report': return this.handleIdlkReport(task);
+      case 'idlk_monitor': return this.handleIdlkMonitor(task);
     }
   }
 

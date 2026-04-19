@@ -228,6 +228,11 @@ export type EidolonBuildingKind =
   | 'storage_tierer'
   | 'media_transcoder'
   | 'thumbnail_generator'
+  | 'oauth_provider'
+  | 'saml_bridge'
+  | 'token_minter'
+  | 'session_rotator'
+  | 'identity_linker'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -1340,6 +1345,26 @@ export type EidolonEventKind =
   | 'thgn.size_variant_generated'
   | 'thgn.cache_populated'
   | 'thgn.batch_processed'
+  | 'oatp.client_registered'
+  | 'oatp.token_issued'
+  | 'oatp.grant_revoked'
+  | 'oatp.scope_validated'
+  | 'smlb.assertion_received'
+  | 'smlb.metadata_synced'
+  | 'smlb.sso_completed'
+  | 'smlb.session_federated'
+  | 'tkmn.token_minted'
+  | 'tkmn.token_refreshed'
+  | 'tkmn.token_revoked'
+  | 'tkmn.policy_applied'
+  | 'ssrt.session_rotated'
+  | 'ssrt.key_regenerated'
+  | 'ssrt.idle_terminated'
+  | 'ssrt.rotation_scheduled'
+  | 'idlk.identity_linked'
+  | 'idlk.provider_connected'
+  | 'idlk.merge_completed'
+  | 'idlk.conflict_resolved'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -2005,6 +2030,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'storage_tierer':
     case 'media_transcoder':
     case 'thumbnail_generator':
+    case 'oauth_provider':
+    case 'saml_bridge':
+    case 'token_minter':
+    case 'session_rotator':
+    case 'identity_linker':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
