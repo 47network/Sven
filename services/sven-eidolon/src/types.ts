@@ -1183,6 +1183,31 @@ export type EidolonBuildingKind =
   | 'queue_conductor_auditor'
   | 'queue_conductor_reporter'
   | 'queue_conductor_optimizer'
+  | 'schema_checker'
+  | 'schema_checker_monitor'
+  | 'schema_checker_auditor'
+  | 'schema_checker_reporter'
+  | 'schema_checker_optimizer'
+  | 'index_tuner'
+  | 'index_tuner_monitor'
+  | 'index_tuner_auditor'
+  | 'index_tuner_reporter'
+  | 'index_tuner_planner'
+  | 'conn_pool'
+  | 'conn_pool_monitor'
+  | 'conn_pool_auditor'
+  | 'conn_pool_reporter'
+  | 'conn_pool_optimizer'
+  | 'query_inspector'
+  | 'query_inspector_monitor'
+  | 'query_inspector_auditor'
+  | 'query_inspector_reporter'
+  | 'query_inspector_optimizer'
+  | 'backup_verifier'
+  | 'backup_verifier_monitor'
+  | 'backup_verifier_auditor'
+  | 'backup_verifier_reporter'
+  | 'backup_verifier_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5445,6 +5470,81 @@ export type EidolonEventKind =
   | 'qco.plan_created'
   | 'qco.optimization_applied'
   | 'qco.export_emitted'
+  | 'sc.entry_created'
+  | 'sc.config_updated'
+  | 'sc.export_emitted'
+  | 'scm.check_passed'
+  | 'scm.alert_raised'
+  | 'scm.export_emitted'
+  | 'sca.entry_logged'
+  | 'sca.violation_found'
+  | 'sca.export_emitted'
+  | 'scr.report_generated'
+  | 'scr.insight_found'
+  | 'scr.export_emitted'
+  | 'sco2.plan_created'
+  | 'sco2.optimization_applied'
+  | 'sco2.export_emitted'
+  | 'it.entry_created'
+  | 'it.config_updated'
+  | 'it.export_emitted'
+  | 'itm.check_passed'
+  | 'itm.alert_raised'
+  | 'itm.export_emitted'
+  | 'ita.entry_logged'
+  | 'ita.violation_found'
+  | 'ita.export_emitted'
+  | 'itr.report_generated'
+  | 'itr.insight_found'
+  | 'itr.export_emitted'
+  | 'itp.plan_created'
+  | 'itp.strategy_applied'
+  | 'itp.export_emitted'
+  | 'cpl.entry_created'
+  | 'cpl.config_updated'
+  | 'cpl.export_emitted'
+  | 'cplm.check_passed'
+  | 'cplm.alert_raised'
+  | 'cplm.export_emitted'
+  | 'cpla.entry_logged'
+  | 'cpla.violation_found'
+  | 'cpla.export_emitted'
+  | 'cplr.report_generated'
+  | 'cplr.insight_found'
+  | 'cplr.export_emitted'
+  | 'cplo.plan_created'
+  | 'cplo.optimization_applied'
+  | 'cplo.export_emitted'
+  | 'qi.entry_created'
+  | 'qi.config_updated'
+  | 'qi.export_emitted'
+  | 'qim.check_passed'
+  | 'qim.alert_raised'
+  | 'qim.export_emitted'
+  | 'qia.entry_logged'
+  | 'qia.violation_found'
+  | 'qia.export_emitted'
+  | 'qir.report_generated'
+  | 'qir.insight_found'
+  | 'qir.export_emitted'
+  | 'qio.plan_created'
+  | 'qio.optimization_applied'
+  | 'qio.export_emitted'
+  | 'bv.entry_created'
+  | 'bv.config_updated'
+  | 'bv.export_emitted'
+  | 'bvm.check_passed'
+  | 'bvm.alert_raised'
+  | 'bvm.export_emitted'
+  | 'bva.entry_logged'
+  | 'bva.violation_found'
+  | 'bva.export_emitted'
+  | 'bvr.report_generated'
+  | 'bvr.insight_found'
+  | 'bvr.export_emitted'
+  | 'bvo.plan_created'
+  | 'bvo.optimization_applied'
+  | 'bvo.export_emitted'
   | 'eg.rule_created'
   | 'eg.config_updated'
   | 'eg.export_emitted'
@@ -7460,6 +7560,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'queue_conductor_auditor':
     case 'queue_conductor_reporter':
     case 'queue_conductor_optimizer':
+    case 'schema_checker':
+    case 'schema_checker_monitor':
+    case 'schema_checker_auditor':
+    case 'schema_checker_reporter':
+    case 'schema_checker_optimizer':
+    case 'index_tuner':
+    case 'index_tuner_monitor':
+    case 'index_tuner_auditor':
+    case 'index_tuner_reporter':
+    case 'index_tuner_planner':
+    case 'conn_pool':
+    case 'conn_pool_monitor':
+    case 'conn_pool_auditor':
+    case 'conn_pool_reporter':
+    case 'conn_pool_optimizer':
+    case 'query_inspector':
+    case 'query_inspector_monitor':
+    case 'query_inspector_auditor':
+    case 'query_inspector_reporter':
+    case 'query_inspector_optimizer':
+    case 'backup_verifier':
+    case 'backup_verifier_monitor':
+    case 'backup_verifier_auditor':
+    case 'backup_verifier_reporter':
+    case 'backup_verifier_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
