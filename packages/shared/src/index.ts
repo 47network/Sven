@@ -400,3 +400,9 @@ export * from './agent-pipeline-orchestrator';
 export * from './agent-data-enricher';
 export * from './agent-etl-scheduler';
 export * from './agent-format-converter';
+
+export * from './agent-knowledge-indexer';
+export * from './agent-semantic-searcher';
+export * from './agent-taxonomy-builder';
+export * from './agent-content-curator';
+export * from './agent-insight-extractor';
