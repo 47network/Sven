@@ -1212,3 +1212,20 @@ skills/autonomous-economy/config-sync/SKILL.md filter=sven-private
 skills/autonomous-economy/health-prober/SKILL.md filter=sven-private
 skills/autonomous-economy/quota-enforcer/SKILL.md filter=sven-private
 skills/autonomous-economy/topology-mapper/SKILL.md filter=sven-private
+
+# Batch 353-357: Platform Services
+services/gateway-api/migrations/20260619900000_agent_event_replayer.sql filter=sven-private
+services/gateway-api/migrations/20260619910000_agent_cache_warmer.sql filter=sven-private
+services/gateway-api/migrations/20260619920000_agent_job_scheduler.sql filter=sven-private
+services/gateway-api/migrations/20260619930000_agent_feature_toggle.sql filter=sven-private
+services/gateway-api/migrations/20260619940000_agent_data_migrator.sql filter=sven-private
+packages/shared/src/agent-event-replayer.ts filter=sven-private
+packages/shared/src/agent-cache-warmer.ts filter=sven-private
+packages/shared/src/agent-job-scheduler.ts filter=sven-private
+packages/shared/src/agent-feature-toggle.ts filter=sven-private
+packages/shared/src/agent-data-migrator.ts filter=sven-private
+skills/autonomous-economy/event-replayer/SKILL.md filter=sven-private
+skills/autonomous-economy/cache-warmer/SKILL.md filter=sven-private
+skills/autonomous-economy/job-scheduler/SKILL.md filter=sven-private
+skills/autonomous-economy/feature-toggle/SKILL.md filter=sven-private
+skills/autonomous-economy/data-migrator/SKILL.md filter=sven-private
