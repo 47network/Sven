@@ -1033,6 +1033,31 @@ export type EidolonBuildingKind =
   | 'disaster_recovery_auditor'
   | 'disaster_recovery_reporter'
   | 'disaster_recovery_optimizer'
+  | 'log_aggregation'
+  | 'log_aggregation_monitor'
+  | 'log_aggregation_auditor'
+  | 'log_aggregation_reporter'
+  | 'log_aggregation_optimizer'
+  | 'metric_collection'
+  | 'metric_collection_monitor'
+  | 'metric_collection_auditor'
+  | 'metric_collection_reporter'
+  | 'metric_collection_optimizer'
+  | 'trace_pipeline'
+  | 'trace_pipeline_monitor'
+  | 'trace_pipeline_auditor'
+  | 'trace_pipeline_reporter'
+  | 'trace_pipeline_optimizer'
+  | 'panel_composer'
+  | 'panel_composer_monitor'
+  | 'panel_composer_auditor'
+  | 'panel_composer_reporter'
+  | 'panel_composer_optimizer'
+  | 'alert_routing'
+  | 'alert_routing_monitor'
+  | 'alert_routing_auditor'
+  | 'alert_routing_reporter'
+  | 'alert_routing_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -4845,6 +4870,81 @@ export type EidolonEventKind =
   | 'drco.plan_created'
   | 'drco.optimization_applied'
   | 'drco.export_emitted'
+  | 'la.entry_created'
+  | 'la.config_updated'
+  | 'la.export_emitted'
+  | 'lam.check_passed'
+  | 'lam.alert_raised'
+  | 'lam.export_emitted'
+  | 'laa.entry_logged'
+  | 'laa.violation_found'
+  | 'laa.export_emitted'
+  | 'lar.report_generated'
+  | 'lar.insight_found'
+  | 'lar.export_emitted'
+  | 'lao.plan_created'
+  | 'lao.optimization_applied'
+  | 'lao.export_emitted'
+  | 'mc.entry_created'
+  | 'mc.config_updated'
+  | 'mc.export_emitted'
+  | 'mcm.check_passed'
+  | 'mcm.alert_raised'
+  | 'mcm.export_emitted'
+  | 'mca.entry_logged'
+  | 'mca.violation_found'
+  | 'mca.export_emitted'
+  | 'mcr.report_generated'
+  | 'mcr.insight_found'
+  | 'mcr.export_emitted'
+  | 'mco.plan_created'
+  | 'mco.optimization_applied'
+  | 'mco.export_emitted'
+  | 'tp.entry_created'
+  | 'tp.config_updated'
+  | 'tp.export_emitted'
+  | 'tpm.check_passed'
+  | 'tpm.alert_raised'
+  | 'tpm.export_emitted'
+  | 'tpa.entry_logged'
+  | 'tpa.violation_found'
+  | 'tpa.export_emitted'
+  | 'tpr.report_generated'
+  | 'tpr.insight_found'
+  | 'tpr.export_emitted'
+  | 'tpo.plan_created'
+  | 'tpo.optimization_applied'
+  | 'tpo.export_emitted'
+  | 'pc.entry_created'
+  | 'pc.config_updated'
+  | 'pc.export_emitted'
+  | 'pcm.check_passed'
+  | 'pcm.alert_raised'
+  | 'pcm.export_emitted'
+  | 'pca.entry_logged'
+  | 'pca.violation_found'
+  | 'pca.export_emitted'
+  | 'pcr.report_generated'
+  | 'pcr.insight_found'
+  | 'pcr.export_emitted'
+  | 'pco.plan_created'
+  | 'pco.optimization_applied'
+  | 'pco.export_emitted'
+  | 'ar.rule_created'
+  | 'ar.config_updated'
+  | 'ar.export_emitted'
+  | 'arm.check_passed'
+  | 'arm.alert_raised'
+  | 'arm.export_emitted'
+  | 'ara.entry_logged'
+  | 'ara.violation_found'
+  | 'ara.export_emitted'
+  | 'arr.report_generated'
+  | 'arr.insight_found'
+  | 'arr.export_emitted'
+  | 'aro.plan_created'
+  | 'aro.optimization_applied'
+  | 'aro.export_emitted'
   | 'eg.rule_created'
   | 'eg.config_updated'
   | 'eg.export_emitted'
@@ -6710,6 +6810,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'disaster_recovery_auditor':
     case 'disaster_recovery_reporter':
     case 'disaster_recovery_optimizer':
+    case 'log_aggregation':
+    case 'log_aggregation_monitor':
+    case 'log_aggregation_auditor':
+    case 'log_aggregation_reporter':
+    case 'log_aggregation_optimizer':
+    case 'metric_collection':
+    case 'metric_collection_monitor':
+    case 'metric_collection_auditor':
+    case 'metric_collection_reporter':
+    case 'metric_collection_optimizer':
+    case 'trace_pipeline':
+    case 'trace_pipeline_monitor':
+    case 'trace_pipeline_auditor':
+    case 'trace_pipeline_reporter':
+    case 'trace_pipeline_optimizer':
+    case 'panel_composer':
+    case 'panel_composer_monitor':
+    case 'panel_composer_auditor':
+    case 'panel_composer_reporter':
+    case 'panel_composer_optimizer':
+    case 'alert_routing':
+    case 'alert_routing_monitor':
+    case 'alert_routing_auditor':
+    case 'alert_routing_reporter':
+    case 'alert_routing_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
