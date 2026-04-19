@@ -533,6 +533,31 @@ export type EidolonBuildingKind =
   | 'virus_scan_dispatcher'
   | 'metadata_extractor'
   | 'storage_tier_optimizer'
+  | 'image_resize_pipeline'
+  | 'video_transcode_dispatcher'
+  | 'audio_normalizer'
+  | 'subtitle_generator'
+  | 'media_drm_packager'
+  | 'email_template_renderer'
+  | 'email_bounce_handler'
+  | 'email_unsubscribe_manager'
+  | 'email_deliverability_monitor'
+  | 'email_open_tracker'
+  | 'sms_sender'
+  | 'sms_delivery_tracker'
+  | 'sms_opt_in_manager'
+  | 'sms_short_code_router'
+  | 'voice_call_initiator'
+  | 'notification_preference_engine'
+  | 'push_token_registry'
+  | 'inapp_notification_router'
+  | 'digest_summarizer'
+  | 'notification_throttler'
+  | 'ab_variant_assigner'
+  | 'experiment_metric_collector'
+  | 'feature_rollout_controller'
+  | 'cohort_membership_assigner'
+  | 'experiment_significance_evaluator'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -2870,6 +2895,106 @@ export type EidolonEventKind =
   | 'stop.candidates_selected'
   | 'stop.tier_transitioned'
   | 'stop.savings_reported'
+  | 'imrp.job_received'
+  | 'imrp.source_loaded'
+  | 'imrp.variants_generated'
+  | 'imrp.outputs_persisted'
+  | 'vtcd.job_queued'
+  | 'vtcd.profile_resolved'
+  | 'vtcd.encoder_invoked'
+  | 'vtcd.outputs_recorded'
+  | 'audn.job_received'
+  | 'audn.loudness_measured'
+  | 'audn.gain_applied'
+  | 'audn.output_emitted'
+  | 'sbtg.job_received'
+  | 'sbtg.audio_transcribed'
+  | 'sbtg.cues_aligned'
+  | 'sbtg.subtitle_emitted'
+  | 'mdrm.job_received'
+  | 'mdrm.keys_acquired'
+  | 'mdrm.streams_encrypted'
+  | 'mdrm.manifest_emitted'
+  | 'emtr.template_loaded'
+  | 'emtr.context_validated'
+  | 'emtr.body_rendered'
+  | 'emtr.output_returned'
+  | 'embh.bounce_received'
+  | 'embh.classification_applied'
+  | 'embh.suppression_updated'
+  | 'embh.notification_sent'
+  | 'emum.request_received'
+  | 'emum.identity_verified'
+  | 'emum.preferences_updated'
+  | 'emum.confirmation_sent'
+  | 'emdm.metrics_collected'
+  | 'emdm.reputation_scored'
+  | 'emdm.alerts_evaluated'
+  | 'emdm.report_persisted'
+  | 'emot.pixel_requested'
+  | 'emot.consent_checked'
+  | 'emot.event_recorded'
+  | 'emot.aggregation_emitted'
+  | 'smss.request_received'
+  | 'smss.opt_in_verified'
+  | 'smss.carrier_dispatched'
+  | 'smss.acknowledgement_recorded'
+  | 'smdt.report_received'
+  | 'smdt.status_normalized'
+  | 'smdt.entry_persisted'
+  | 'smdt.callback_invoked'
+  | 'smom.request_received'
+  | 'smom.consent_captured'
+  | 'smom.record_persisted'
+  | 'smom.confirmation_sent'
+  | 'sscr.message_received'
+  | 'sscr.keyword_matched'
+  | 'sscr.handler_invoked'
+  | 'sscr.response_dispatched'
+  | 'vcin.request_received'
+  | 'vcin.compliance_checked'
+  | 'vcin.call_placed'
+  | 'vcin.outcome_recorded'
+  | 'nfpe.query_received'
+  | 'nfpe.preferences_loaded'
+  | 'nfpe.channels_filtered'
+  | 'nfpe.decision_returned'
+  | 'ptkr.registration_received'
+  | 'ptkr.token_validated'
+  | 'ptkr.entry_persisted'
+  | 'ptkr.stale_pruned'
+  | 'ianr.notification_received'
+  | 'ianr.recipient_resolved'
+  | 'ianr.delivery_pushed'
+  | 'ianr.read_recorded'
+  | 'dgsm.job_received'
+  | 'dgsm.events_aggregated'
+  | 'dgsm.summary_composed'
+  | 'dgsm.digest_emitted'
+  | 'nfth.request_received'
+  | 'nfth.window_evaluated'
+  | 'nfth.decision_made'
+  | 'nfth.action_recorded'
+  | 'abva.request_received'
+  | 'abva.bucket_computed'
+  | 'abva.variant_selected'
+  | 'abva.assignment_logged'
+  | 'exmc.event_received'
+  | 'exmc.experiment_resolved'
+  | 'exmc.metric_aggregated'
+  | 'exmc.snapshot_persisted'
+  | 'frlc.directive_received'
+  | 'frlc.policy_evaluated'
+  | 'frlc.rollout_advanced'
+  | 'frlc.state_persisted'
+  | 'cmas.subject_received'
+  | 'cmas.rules_evaluated'
+  | 'cmas.cohort_assigned'
+  | 'cmas.entry_persisted'
+  | 'exse.snapshot_loaded'
+  | 'exse.statistics_computed'
+  | 'exse.threshold_evaluated'
+  | 'exse.verdict_recorded'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -3860,6 +3985,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'virus_scan_dispatcher':
     case 'metadata_extractor':
     case 'storage_tier_optimizer':
+    case 'image_resize_pipeline':
+    case 'video_transcode_dispatcher':
+    case 'audio_normalizer':
+    case 'subtitle_generator':
+    case 'media_drm_packager':
+    case 'email_template_renderer':
+    case 'email_bounce_handler':
+    case 'email_unsubscribe_manager':
+    case 'email_deliverability_monitor':
+    case 'email_open_tracker':
+    case 'sms_sender':
+    case 'sms_delivery_tracker':
+    case 'sms_opt_in_manager':
+    case 'sms_short_code_router':
+    case 'voice_call_initiator':
+    case 'notification_preference_engine':
+    case 'push_token_registry':
+    case 'inapp_notification_router':
+    case 'digest_summarizer':
+    case 'notification_throttler':
+    case 'ab_variant_assigner':
+    case 'experiment_metric_collector':
+    case 'feature_rollout_controller':
+    case 'cohort_membership_assigner':
+    case 'experiment_significance_evaluator':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
