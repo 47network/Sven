@@ -319,3 +319,8 @@ export * from './agent-query-tuner';
 export * from './agent-backup-scheduler';
 export * from './agent-replication-manager';
 export * from './agent-pool-manager';
+export * from './agent-vuln-scanner';
+export * from './agent-credential-rotator';
+export * from './agent-compliance-auditor';
+export * from './agent-rbac-controller';
+export * from './agent-policy-enforcer';
