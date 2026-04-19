@@ -562,3 +562,28 @@ skills/agent-disaster-recovery/SKILL.md filter=sven-private
 services/gateway-api/migrations/20260617990000_agent_performance_profiling.sql filter=sven-private
 packages/shared/src/agent-performance-profiling.ts filter=sven-private
 skills/agent-performance-profiling/SKILL.md filter=sven-private
+
+# Batch 163 — Agent Runtime Sandbox
+services/gateway-api/migrations/20260618000000_agent_runtime_sandbox.sql filter=sven-private
+packages/shared/src/agent-runtime-sandbox.ts filter=sven-private
+skills/agent-runtime-sandbox/SKILL.md filter=sven-private
+
+# Batch 164 — Agent Secret Rotation
+services/gateway-api/migrations/20260618010000_agent_secret_rotation.sql filter=sven-private
+packages/shared/src/agent-secret-rotation.ts filter=sven-private
+skills/agent-secret-rotation/SKILL.md filter=sven-private
+
+# Batch 165 — Agent Traffic Mirror
+services/gateway-api/migrations/20260618020000_agent_traffic_mirror.sql filter=sven-private
+packages/shared/src/agent-traffic-mirror.ts filter=sven-private
+skills/agent-traffic-mirror/SKILL.md filter=sven-private
+
+# Batch 166 — Agent Compliance Report
+services/gateway-api/migrations/20260618030000_agent_compliance_report.sql filter=sven-private
+packages/shared/src/agent-compliance-report.ts filter=sven-private
+skills/agent-compliance-report/SKILL.md filter=sven-private
+
+# Batch 167 — Agent Capacity Planning
+services/gateway-api/migrations/20260618040000_agent_capacity_planning.sql filter=sven-private
+packages/shared/src/agent-capacity-planning.ts filter=sven-private
+skills/agent-capacity-planning/SKILL.md filter=sven-private

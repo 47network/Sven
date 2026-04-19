@@ -79,6 +79,21 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batch 163-167 — Agent Platform (Runtime Sandbox, Secret Rotation, Traffic Mirror, Compliance Report, Capacity Planning)
+- **Batch 163**: Agent Runtime Sandbox — sandbox_pod BK, 3 tables, 4 EK events, 6 task handlers
+- **Batch 164**: Agent Secret Rotation — secret_rotator BK, 3 tables, 4 EK events, 6 task handlers
+- **Batch 165**: Agent Traffic Mirror — mirror_tap BK, 3 tables, 4 EK events, 6 task handlers
+- **Batch 166**: Agent Compliance Report — compliance_desk BK, 3 tables, 4 EK events, 6 task handlers
+- **Batch 167**: Agent Capacity Planning — capacity_planner BK, 3 tables, 4 EK events, 6 task handlers
+- 5 migration SQL files (timestamps 20260618000000–20260618040000)
+- 5 shared TypeScript type modules with 25+ types total
+- 5 SKILL.md definitions
+- 20 SUBJECT_MAP entries in event-bus (total ~616)
+- 30 switch cases + 30 handler methods in task-executor (total ~879/669)
+- 15 .gitattributes privacy entries (total ~589)
+- 107 Jest tests — all passing
+
+
 ### Batch 158-162 — Agent Operations (Telemetry Export, Cost Allocation, Network Policy, Disaster Recovery, Performance Profiling)
 - **Batch 158**: Agent Telemetry Export — telemetry_hub BK, 3 tables, 4 EK events, 6 task handlers
 - **Batch 159**: Agent Cost Allocation — cost_ledger BK, 3 tables, 4 EK events, 6 task handlers
