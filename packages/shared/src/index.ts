@@ -244,3 +244,8 @@ export * from './agent-session-manager.js';
 export * from './agent-endpoint-resolver.js';
 export * from './agent-vulnerability-scanner.js';
 export * from './agent-traffic-analyzer.js';
+export * from './agent-identity-provider.js';
+export * from './agent-key-manager.js';
+export * from './agent-audit-logger.js';
+export * from './agent-compliance-checker.js';
+export * from './agent-threat-detector.js';

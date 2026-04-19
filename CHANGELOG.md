@@ -79,6 +79,18 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 223-227: Security Governance
+- **identity_provider** (Batch 223): Identity management — OAuth2/SAML/OIDC/LDAP provider config, sessions, identity mapping, authentication
+- **key_manager** (Batch 224): Encryption key lifecycle — generation, rotation, revocation, encrypt/decrypt, usage auditing
+- **audit_logger** (Batch 225): Security audit logging — log creation, policy management, querying, alerting, retention, export
+- **compliance_checker** (Batch 226): Regulatory compliance — framework management, checks, reporting, violation tracking, remediation, certification
+- **threat_detector** (Batch 227): Threat detection & response — rule creation, detection, response, investigation, mitigation, reporting
+- 5 migration SQL files, 5 shared type modules, 5 SKILL.md files
+- 20 SUBJECT_MAP entries, 10 BK/EK/districtFor values
+- 30 task executor switch cases + 30 handler methods
+- 135 tests passing
+
+
 ### Batches 218-222: Advanced Network Security
 - **ssl_manager** (Batch 218): SSL/TLS certificate lifecycle — issuance, renewal, audit, protocol config, expiry monitoring, revocation
 - **session_manager** (Batch 219): Session management — creation, refresh, termination, policy enforcement, audit, bulk expiry
