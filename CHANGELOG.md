@@ -27,6 +27,13 @@
 
 # Changelog
 
+## Batches 488-492 — Observability & Monitoring
+- Added span_collector, uptime_tracker, sla_monitor, cardinality_limiter, exemplar_sampler verticals
+- 5 migrations (20260621250000-20260621290000), 5 type files, 5 barrel exports
+- 5 SKILL.md files, 5 BK + 20 EK + 5 districtFor, 20 SUBJECT_MAP entries
+- 30 task-executor cases + 30 handler methods, 15 .gitattributes entries
+- 60/60 tests passing
+
 ## Batches 483-487 — Container & Orchestration
 - Added pod_scheduler, volume_manager, container_profiler, cluster_balancer, node_drainer verticals
 - 5 migrations (20260621200000-20260621240000), 5 type files, 5 barrel exports
