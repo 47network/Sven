@@ -284,3 +284,8 @@ export * from './agent-wan-optimizer.js';
 export * from './agent-link-aggregator.js';
 export * from './agent-protocol-gateway.js';
 export * from './agent-vlan-manager.js';
+export * from './agent-network-tap.js';
+export * from './agent-flow-collector.js';
+export * from './agent-sflow-agent.js';
+export * from './agent-netflow-exporter.js';
+export * from './agent-arp-inspector.js';

@@ -79,6 +79,15 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 263-267 — Network Monitoring
+- **Batch 263 — Network Tap**: agent_tap_configs/sessions/filters tables, BPF capture + mirroring, 6 task handlers, SKILL.md (8.99)
+- **Batch 264 — Flow Collector**: agent_flow_configs/records/reports tables, NetFlow/IPFIX collection, 6 task handlers, SKILL.md (9.99)
+- **Batch 265 — sFlow Agent**: agent_sflow_configs/counters/samples tables, sFlow sampling + polling, 6 task handlers, SKILL.md (7.99)
+- **Batch 266 — NetFlow Exporter**: agent_netflow_configs/templates/stats tables, flow export + templates, 6 task handlers, SKILL.md (6.99)
+- **Batch 267 — ARP Inspector**: agent_arp_configs/bindings/violations tables, ARP spoofing prevention, 6 task handlers, SKILL.md (10.99)
+- 20 SUBJECT_MAP entries, 5 BK/EK/districtFor values, 15 .gitattributes entries, 87 tests passing
+
+
 ### Batches 258-262 — Network Advanced Services
 - **Batch 258 — Service Mesh**: agent_mesh_configs/services/traffic_rules tables, mTLS + sidecar modes, 6 task handlers, SKILL.md (12.99)
 - **Batch 259 — WAN Optimizer**: agent_wan_configs/tunnels/metrics tables, compression + dedup, 6 task handlers, SKILL.md (11.99)
