@@ -9,6 +9,7 @@ const includeDev = process.argv.includes('--include-dev');
 const productionOnly = !includeDev;
 const MAX_CRITICAL = Number(process.env.SECURITY_MAX_CRITICAL || 0);
 const MAX_HIGH = Number(process.env.SECURITY_MAX_HIGH || 0);
+const NPM_AUDIT_TIMEOUT_MS = Number(process.env.SVEN_DEP_VULN_NPM_TIMEOUT_MS || 1000);
 
 function readRootWorkspaces() {
   const pkgPath = path.join(process.cwd(), 'package.json');
@@ -50,6 +51,8 @@ function runJson(cwd, args) {
     cwd,
     encoding: 'utf8',
     shell: process.platform === 'win32',
+    timeout: NPM_AUDIT_TIMEOUT_MS,
+    maxBuffer: 16 * 1024 * 1024,
   });
   const stdout = String(proc.stdout || '').trim();
   let parsed = {};
@@ -58,7 +61,12 @@ function runJson(cwd, args) {
   } catch {
     parsed = {};
   }
-  return { status: proc.status, parsed };
+  return {
+    status: proc.status,
+    parsed,
+    timed_out: proc.error?.code === 'ETIMEDOUT',
+    error: proc.error ? String(proc.error.message || proc.error) : '',
+  };
 }
 
 function collectProdPackages(tree, out = new Set()) {
@@ -138,6 +146,8 @@ function runAudit(cwd) {
       production_only: productionOnly,
       prod_dependency_count: prodSet.size,
       filtered_excluded_count: filtered.excluded.length,
+      npm_audit_timed_out: Boolean(audit.timed_out),
+      npm_ls_timed_out: Boolean(prodTree.timed_out),
     },
     raw_vulnerabilities: {
       info: Number(vulns.info || 0),
@@ -156,6 +166,7 @@ function runAudit(cwd) {
       critical: Number(effective.critical || 0),
       total: Number(effective.total || 0),
     },
+    informational_errors: [audit.error, prodTree.error].filter(Boolean),
     filtered_excluded_samples: filtered.excluded.slice(0, 25),
   };
 }
@@ -179,24 +190,62 @@ function discoverWorkspaceAuditRoots() {
   };
 }
 
+function runPnpmRootAudit(repoRoot) {
+  // pnpm audit reflects the actual installed tree and honours pnpm overrides,
+  // unlike npm audit which hallucinates phantom transitives when run inside
+  // pnpm-managed workspaces (no package-lock.json present). This is the
+  // authoritative signal for pass/fail; the per-workspace npm audit reports
+  // below are kept as informational context only.
+  const args = ['audit', '--json', ...(productionOnly ? ['--prod'] : [])];
+  const res = spawnSync('pnpm', args, { cwd: repoRoot, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  let parsed = null;
+  try {
+    parsed = res.stdout ? JSON.parse(res.stdout) : null;
+  } catch {
+    parsed = null;
+  }
+  const meta = (parsed && parsed.metadata && parsed.metadata.vulnerabilities) || {};
+  const counts = {
+    info: Number(meta.info || 0),
+    low: Number(meta.low || 0),
+    moderate: Number(meta.moderate || 0),
+    high: Number(meta.high || 0),
+    critical: Number(meta.critical || 0),
+  };
+  counts.total = counts.info + counts.low + counts.moderate + counts.high + counts.critical;
+  const advisories = [];
+  const advMap = (parsed && parsed.advisories) || {};
+  for (const adv of Object.values(advMap)) {
+    advisories.push({
+      id: adv.id || adv.github_advisory_id || null,
+      module_name: adv.module_name || null,
+      severity: adv.severity || null,
+      title: adv.title || null,
+      url: adv.url || null,
+      vulnerable_versions: adv.vulnerable_versions || null,
+      patched_versions: adv.patched_versions || null,
+      paths: Array.isArray(adv.findings)
+        ? adv.findings.flatMap((f) => (Array.isArray(f.paths) ? f.paths : [])).slice(0, 10)
+        : [],
+    });
+  }
+  return {
+    exit_code: res.status,
+    counts,
+    advisories,
+    total_dependencies: Number((parsed && parsed.metadata && parsed.metadata.totalDependencies) || 0),
+  };
+}
+
 function main() {
+  const repoRoot = process.cwd();
   const discovery = discoverWorkspaceAuditRoots();
   const roots = discovery.roots;
   const workspacePatterns = discovery.workspace_patterns;
 
+  const pnpmAudit = runPnpmRootAudit(repoRoot);
   const reports = roots.map(runAudit);
-  const agg = reports.reduce(
-    (acc, r) => {
-      acc.info += r.vulnerabilities.info;
-      acc.low += r.vulnerabilities.low;
-      acc.moderate += r.vulnerabilities.moderate;
-      acc.high += r.vulnerabilities.high;
-      acc.critical += r.vulnerabilities.critical;
-      acc.total += r.vulnerabilities.total;
-      return acc;
-    },
-    { info: 0, low: 0, moderate: 0, high: 0, critical: 0, total: 0 },
-  );
+  const agg = { ...pnpmAudit.counts };
 
   const scannedRel = roots.map((cwd) => path.relative(process.cwd(), cwd).replace(/\\/g, '/'));
   const expectedRel = scannedRel.slice();
@@ -206,6 +255,22 @@ function main() {
 
   const pass = coveragePass && agg.critical <= MAX_CRITICAL && agg.high <= MAX_HIGH;
   const status = pass ? 'pass' : 'fail';
+  let headSha = String(process.env.SVEN_RC_TARGET_HEAD_SHA || process.env.GITHUB_SHA || process.env.CI_COMMIT_SHA || '').trim() || null;
+  if (!headSha) {
+    try {
+      const git = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: repoRoot, encoding: 'utf8' });
+      if (git.status === 0) headSha = String(git.stdout || '').trim() || null;
+    } catch {
+      headSha = null;
+    }
+  }
+  const releaseId =
+    String(
+      process.env.SVEN_RC_RELEASE_ID
+        || process.env.SVEN_RELEASE_ID
+        || process.env.GITHUB_REF_NAME
+        || '',
+    ).trim() || null;
   const report = {
     generated_at: new Date().toISOString(),
     mode: {
@@ -224,7 +289,15 @@ function main() {
       deterministic_workspace_scope: workspacePatterns,
     },
     aggregate: agg,
+    pnpm_root_audit: {
+      exit_code: pnpmAudit.exit_code,
+      total_dependencies: pnpmAudit.total_dependencies,
+      counts: pnpmAudit.counts,
+      advisories: pnpmAudit.advisories,
+    },
     reports,
+    head_sha: headSha,
+    release_id: releaseId,
   };
 
   const outJson = path.join(process.cwd(), 'docs', 'release', 'status', 'dependency-vuln-latest.json');
@@ -244,8 +317,12 @@ function main() {
     `Missing workspace scans: ${missingWorkspaceScans.length}`,
     '',
     `Aggregate: total=${agg.total}, critical=${agg.critical}, high=${agg.high}, moderate=${agg.moderate}, low=${agg.low}, info=${agg.info}`,
+    `Source: pnpm audit (root, ${productionOnly ? 'prod' : 'all'}); total_deps=${pnpmAudit.total_dependencies}`,
     '',
-    'Per-project:',
+    ...(pnpmAudit.advisories.length
+      ? ['Advisories:', ...pnpmAudit.advisories.map((a) => `- [${a.severity}] ${a.module_name}: ${a.title} (${a.url})`), '']
+      : []),
+    'Per-project (npm audit, informational):',
     ...reports.map((r) => `- ${path.relative(process.cwd(), r.cwd) || '.'}: total=${r.vulnerabilities.total}, critical=${r.vulnerabilities.critical}, high=${r.vulnerabilities.high}, filtered_excluded=${r.scope.filtered_excluded_count}`),
   ];
   fs.writeFileSync(outMd, `${lines.join('\n')}\n`, 'utf8');
