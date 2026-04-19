@@ -458,3 +458,8 @@ export * from './agent-queue-orchestrator';
 export * from './agent-data-pipeline-runner';
 export * from './agent-message-broker-admin';
 export * from './agent-retry-scheduler';
+export * from './agent-event-sourcer';
+export * from './agent-state-machine-runner';
+export * from './agent-request-router';
+export * from './agent-load-balancer-agent';
+export * from './agent-circuit-breaker-agent';

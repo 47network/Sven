@@ -2783,6 +2783,36 @@ export class TaskExecutor {
       case 'rtsc_get_status': return this.handleRtscGetStatus(task);
       case 'rtsc_analyze_failures': return this.handleRtscAnalyzeFailures(task);
       case 'rtsc_bulk_retry': return this.handleRtscBulkRetry(task);
+      case 'evsrc_create_stream': return this.handleEvsrcCreateStream(task);
+      case 'evsrc_append_event': return this.handleEvsrcAppendEvent(task);
+      case 'evsrc_read_stream': return this.handleEvsrcReadStream(task);
+      case 'evsrc_create_snapshot': return this.handleEvsrcCreateSnapshot(task);
+      case 'evsrc_create_projection': return this.handleEvsrcCreateProjection(task);
+      case 'evsrc_rebuild_projection': return this.handleEvsrcRebuildProjection(task);
+      case 'stmr_create_machine': return this.handleStmrCreateMachine(task);
+      case 'stmr_send_event': return this.handleStmrSendEvent(task);
+      case 'stmr_get_state': return this.handleStmrGetState(task);
+      case 'stmr_get_history': return this.handleStmrGetHistory(task);
+      case 'stmr_terminate': return this.handleStmrTerminate(task);
+      case 'stmr_visualize': return this.handleStmrVisualize(task);
+      case 'rqrt_create_rule': return this.handleRqrtCreateRule(task);
+      case 'rqrt_update_weights': return this.handleRqrtUpdateWeights(task);
+      case 'rqrt_health_check': return this.handleRqrtHealthCheck(task);
+      case 'rqrt_get_metrics': return this.handleRqrtGetMetrics(task);
+      case 'rqrt_toggle_rule': return this.handleRqrtToggleRule(task);
+      case 'rqrt_test_route': return this.handleRqrtTestRoute(task);
+      case 'lbag_add_backend': return this.handleLbagAddBackend(task);
+      case 'lbag_remove_backend': return this.handleLbagRemoveBackend(task);
+      case 'lbag_health_check': return this.handleLbagHealthCheck(task);
+      case 'lbag_get_status': return this.handleLbagGetStatus(task);
+      case 'lbag_rebalance': return this.handleLbagRebalance(task);
+      case 'lbag_configure': return this.handleLbagConfigure(task);
+      case 'cbag_create_breaker': return this.handleCbagCreateBreaker(task);
+      case 'cbag_get_state': return this.handleCbagGetState(task);
+      case 'cbag_force_open': return this.handleCbagForceOpen(task);
+      case 'cbag_force_close': return this.handleCbagForceClose(task);
+      case 'cbag_get_events': return this.handleCbagGetEvents(task);
+      case 'cbag_configure': return this.handleCbagConfigure(task);
     }
   }
 
@@ -18196,5 +18226,152 @@ export class TaskExecutor {
   private async handleRtscBulkRetry(task: any): Promise<any> {
     const { criteria } = task.input || {};
     return { matched: 0, retried: 0, skipped: 0, criteria: criteria || {}, startedAt: new Date().toISOString() };
+  }
+
+
+  private async handleEvsrcCreateStream(task: any): Promise<any> {
+    const { streamName, aggregateType } = task.input || {};
+    return { streamId: 'str-' + Date.now(), streamName: streamName || 'default', aggregateType: aggregateType || 'generic', eventCount: 0, status: 'active' };
+  }
+
+  private async handleEvsrcAppendEvent(task: any): Promise<any> {
+    const { streamId, eventType, data } = task.input || {};
+    return { eventId: 'evt-' + Date.now(), streamId: streamId || 'unknown', eventType: eventType || 'unknown', position: 1 };
+  }
+
+  private async handleEvsrcReadStream(task: any): Promise<any> {
+    const { streamId, fromPosition } = task.input || {};
+    return { streamId: streamId || 'unknown', events: [], fromPosition: fromPosition || 0, count: 0 };
+  }
+
+  private async handleEvsrcCreateSnapshot(task: any): Promise<any> {
+    const { streamId } = task.input || {};
+    return { snapshotId: 'snap-' + Date.now(), streamId: streamId || 'unknown', position: 0, createdAt: new Date().toISOString() };
+  }
+
+  private async handleEvsrcCreateProjection(task: any): Promise<any> {
+    const { projectionName } = task.input || {};
+    return { projectionId: 'proj-' + Date.now(), projectionName: projectionName || 'default', status: 'running', lastProcessedPosition: 0 };
+  }
+
+  private async handleEvsrcRebuildProjection(task: any): Promise<any> {
+    const { projectionId } = task.input || {};
+    return { projectionId: projectionId || 'unknown', status: 'rebuilding', startedAt: new Date().toISOString() };
+  }
+
+  private async handleStmrCreateMachine(task: any): Promise<any> {
+    const { name, definition } = task.input || {};
+    return { machineId: 'sm-' + Date.now(), name: name || 'default', currentState: 'initial', status: 'idle', statesCount: Object.keys(definition || {}).length };
+  }
+
+  private async handleStmrSendEvent(task: any): Promise<any> {
+    const { machineId, eventType } = task.input || {};
+    return { machineId: machineId || 'unknown', eventType: eventType || 'unknown', transitioned: true, newState: 'next' };
+  }
+
+  private async handleStmrGetState(task: any): Promise<any> {
+    const { machineId } = task.input || {};
+    return { machineId: machineId || 'unknown', currentState: 'initial', status: 'idle', context: {} };
+  }
+
+  private async handleStmrGetHistory(task: any): Promise<any> {
+    const { machineId } = task.input || {};
+    return { machineId: machineId || 'unknown', transitions: [], totalTransitions: 0 };
+  }
+
+  private async handleStmrTerminate(task: any): Promise<any> {
+    const { machineId } = task.input || {};
+    return { machineId: machineId || 'unknown', status: 'terminated', terminatedAt: new Date().toISOString() };
+  }
+
+  private async handleStmrVisualize(task: any): Promise<any> {
+    const { machineId } = task.input || {};
+    return { machineId: machineId || 'unknown', diagram: 'statechart', format: 'mermaid', content: 'graph LR; initial --> next' };
+  }
+
+  private async handleRqrtCreateRule(task: any): Promise<any> {
+    const { pathPattern, targetService, weight } = task.input || {};
+    return { ruleId: 'rule-' + Date.now(), pathPattern: pathPattern || '/*', targetService: targetService || 'default', weight: weight || 100, active: true };
+  }
+
+  private async handleRqrtUpdateWeights(task: any): Promise<any> {
+    const { ruleIds, weights } = task.input || {};
+    return { updated: Array.isArray(ruleIds) ? ruleIds.length : 0, weights: weights || [] };
+  }
+
+  private async handleRqrtHealthCheck(task: any): Promise<any> {
+    return { targets: [], healthyCount: 0, unhealthyCount: 0, checkedAt: new Date().toISOString() };
+  }
+
+  private async handleRqrtGetMetrics(task: any): Promise<any> {
+    const { ruleId } = task.input || {};
+    return { ruleId: ruleId || 'unknown', requestsTotal: 0, requestsFailed: 0, avgLatencyMs: 0, p99LatencyMs: 0 };
+  }
+
+  private async handleRqrtToggleRule(task: any): Promise<any> {
+    const { ruleId, active } = task.input || {};
+    return { ruleId: ruleId || 'unknown', active: active !== undefined ? active : true };
+  }
+
+  private async handleRqrtTestRoute(task: any): Promise<any> {
+    const { path } = task.input || {};
+    return { path: path || '/', matchedRule: null, targetService: 'default', strategy: 'round_robin' };
+  }
+
+  private async handleLbagAddBackend(task: any): Promise<any> {
+    const { address, port, weight } = task.input || {};
+    return { backendId: 'be-' + Date.now(), address: address || '127.0.0.1', port: port || 8080, weight: weight || 100, status: 'healthy' };
+  }
+
+  private async handleLbagRemoveBackend(task: any): Promise<any> {
+    const { backendId } = task.input || {};
+    return { backendId: backendId || 'unknown', status: 'draining', removedAt: new Date().toISOString() };
+  }
+
+  private async handleLbagHealthCheck(task: any): Promise<any> {
+    return { backends: [], healthyCount: 0, unhealthyCount: 0, checkedAt: new Date().toISOString() };
+  }
+
+  private async handleLbagGetStatus(task: any): Promise<any> {
+    return { backends: [], totalConnections: 0, algorithm: 'round_robin' };
+  }
+
+  private async handleLbagRebalance(task: any): Promise<any> {
+    return { rebalanced: true, backendsAffected: 0, completedAt: new Date().toISOString() };
+  }
+
+  private async handleLbagConfigure(task: any): Promise<any> {
+    const { algorithm } = task.input || {};
+    return { algorithm: algorithm || 'round_robin', applied: true };
+  }
+
+  private async handleCbagCreateBreaker(task: any): Promise<any> {
+    const { serviceName, failureThreshold } = task.input || {};
+    return { breakerId: 'cb-' + Date.now(), serviceName: serviceName || 'unknown', state: 'closed', failureThreshold: failureThreshold || 5 };
+  }
+
+  private async handleCbagGetState(task: any): Promise<any> {
+    const { breakerId } = task.input || {};
+    return { breakerId: breakerId || 'unknown', state: 'closed', failureCount: 0, successCount: 0 };
+  }
+
+  private async handleCbagForceOpen(task: any): Promise<any> {
+    const { breakerId } = task.input || {};
+    return { breakerId: breakerId || 'unknown', state: 'open', trippedAt: new Date().toISOString() };
+  }
+
+  private async handleCbagForceClose(task: any): Promise<any> {
+    const { breakerId } = task.input || {};
+    return { breakerId: breakerId || 'unknown', state: 'closed', resetAt: new Date().toISOString() };
+  }
+
+  private async handleCbagGetEvents(task: any): Promise<any> {
+    const { breakerId } = task.input || {};
+    return { breakerId: breakerId || 'unknown', events: [], totalEvents: 0 };
+  }
+
+  private async handleCbagConfigure(task: any): Promise<any> {
+    const { breakerId, failureThreshold, resetTimeoutMs } = task.input || {};
+    return { breakerId: breakerId || 'unknown', failureThreshold: failureThreshold || 5, resetTimeoutMs: resetTimeoutMs || 60000, applied: true };
   }
 }

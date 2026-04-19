@@ -133,6 +133,11 @@ export type EidolonBuildingKind =
   | 'data_pipeline_runner'
   | 'message_broker_admin'
   | 'retry_scheduler'
+  | 'event_sourcer'
+  | 'state_machine_runner'
+  | 'request_router'
+  | 'load_balancer_agent'
+  | 'circuit_breaker_agent'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -865,6 +870,26 @@ export type EidolonEventKind =
   | 'rtsc.retry_succeeded'
   | 'rtsc.retry_exhausted'
   | 'rtsc.failure_analyzed'
+  | 'evsrc.stream_created'
+  | 'evsrc.event_appended'
+  | 'evsrc.snapshot_created'
+  | 'evsrc.projection_rebuilt'
+  | 'stmr.machine_created'
+  | 'stmr.transition_fired'
+  | 'stmr.machine_completed'
+  | 'stmr.machine_terminated'
+  | 'rqrt.rule_created'
+  | 'rqrt.weights_updated'
+  | 'rqrt.health_checked'
+  | 'rqrt.rule_toggled'
+  | 'lbag.backend_added'
+  | 'lbag.backend_removed'
+  | 'lbag.rebalance_completed'
+  | 'lbag.health_checked'
+  | 'cbag.breaker_created'
+  | 'cbag.circuit_tripped'
+  | 'cbag.circuit_reset'
+  | 'cbag.half_open_entered'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1435,6 +1460,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'data_pipeline_runner':
     case 'message_broker_admin':
     case 'retry_scheduler':
+    case 'event_sourcer':
+    case 'state_machine_runner':
+    case 'request_router':
+    case 'load_balancer_agent':
+    case 'circuit_breaker_agent':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
