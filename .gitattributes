@@ -832,3 +832,28 @@ skills/autonomous-economy/security-scanner/SKILL.md filter=sven-private
 services/gateway-api/migrations/20260618690000_agent_incident_manager.sql filter=sven-private
 packages/shared/src/agent-incident-manager.ts filter=sven-private
 skills/autonomous-economy/incident-manager/SKILL.md filter=sven-private
+
+# Batch 233: Access Auditor
+services/gateway-api/migrations/20260618700000_agent_access_auditor.sql filter=sven-private
+packages/shared/src/agent-access-auditor.ts filter=sven-private
+skills/autonomous-economy/access-auditor/** filter=sven-private
+
+# Batch 234: Permission Manager
+services/gateway-api/migrations/20260618710000_agent_permission_manager.sql filter=sven-private
+packages/shared/src/agent-permission-manager.ts filter=sven-private
+skills/autonomous-economy/permission-manager/** filter=sven-private
+
+# Batch 235: Token Validator
+services/gateway-api/migrations/20260618720000_agent_token_validator.sql filter=sven-private
+packages/shared/src/agent-token-validator.ts filter=sven-private
+skills/autonomous-economy/token-validator/** filter=sven-private
+
+# Batch 236: Session Enforcer
+services/gateway-api/migrations/20260618730000_agent_session_enforcer.sql filter=sven-private
+packages/shared/src/agent-session-enforcer.ts filter=sven-private
+skills/autonomous-economy/session-enforcer/** filter=sven-private
+
+# Batch 237: Network Firewall
+services/gateway-api/migrations/20260618740000_agent_network_firewall.sql filter=sven-private
+packages/shared/src/agent-network-firewall.ts filter=sven-private
+skills/autonomous-economy/network-firewall/** filter=sven-private

@@ -695,6 +695,32 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.incident.responded': 'incident.responded',
   'sven.incident.resolved': 'incident.resolved',
   'sven.incident.postmortem_created': 'incident.postmortem_created',
+
+  // Batch 233: Access Auditor
+  'sven.access.logged': 'access.logged',
+  'sven.access.pattern_detected': 'access.pattern_detected',
+  'sven.access.alert_raised': 'access.alert_raised',
+  'sven.access.report_generated': 'access.report_generated',
+  // Batch 234: Permission Manager
+  'sven.permission.role_created': 'permission.role_created',
+  'sven.permission.role_assigned': 'permission.role_assigned',
+  'sven.permission.checked': 'permission.checked',
+  'sven.permission.audit_completed': 'permission.audit_completed',
+  // Batch 235: Token Validator
+  'sven.token.config_created': 'token.config_created',
+  'sven.token.issued': 'token.issued',
+  'sven.token.validated': 'token.validated',
+  'sven.token.revoked': 'token.revoked',
+  // Batch 236: Session Enforcer
+  'sven.session.policy_created': 'session.policy_created',
+  'sven.session.enforced': 'session.enforced',
+  'sven.session.violation_detected': 'session.violation_detected',
+  'sven.session.terminated_enforced': 'session.terminated_enforced',
+  // Batch 237: Network Firewall
+  'sven.firewall_rule.created': 'firewall_rule.created',
+  'sven.firewall_rule.zone_configured': 'firewall_rule.zone_configured',
+  'sven.firewall_rule.log_analyzed': 'firewall_rule.log_analyzed',
+  'sven.firewall_rule.tested': 'firewall_rule.tested',
   'sven.vault.secret_stored': 'vault.secret_stored',
   'sven.vault.secret_rotated': 'vault.secret_rotated',
   'sven.vault.access_logged': 'vault.access_logged',

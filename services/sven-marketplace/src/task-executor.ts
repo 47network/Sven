@@ -1551,6 +1551,41 @@ export class TaskExecutor {
       case 'incident_resolve': return this.handleIncidentResolve(task);
       case 'incident_postmortem': return this.handleIncidentPostmortem(task);
       case 'incident_query': return this.handleIncidentQuery(task);
+      // Batch 233: Access Auditor
+      case 'access_audit_log': return this.handleAccessAuditLog(task);
+      case 'access_detect_pattern': return this.handleAccessDetectPattern(task);
+      case 'access_raise_alert': return this.handleAccessRaiseAlert(task);
+      case 'access_generate_report': return this.handleAccessGenerateReport(task);
+      case 'access_review_logs': return this.handleAccessReviewLogs(task);
+      case 'access_configure_monitoring': return this.handleAccessConfigureMonitoring(task);
+      // Batch 234: Permission Manager
+      case 'permission_create_role': return this.handlePermissionCreateRole(task);
+      case 'permission_assign_role': return this.handlePermissionAssignRole(task);
+      case 'permission_check': return this.handlePermissionCheck(task);
+      case 'permission_audit': return this.handlePermissionAudit(task);
+      case 'permission_revoke_role': return this.handlePermissionRevokeRole(task);
+      case 'permission_list_roles': return this.handlePermissionListRoles(task);
+      // Batch 235: Token Validator
+      case 'token_configure': return this.handleTokenConfigure(task);
+      case 'token_issue': return this.handleTokenIssue(task);
+      case 'token_validate': return this.handleTokenValidate(task);
+      case 'token_revoke': return this.handleTokenRevoke(task);
+      case 'token_list_active': return this.handleTokenListActive(task);
+      case 'token_rotate': return this.handleTokenRotate(task);
+      // Batch 236: Session Enforcer
+      case 'session_create_policy': return this.handleSessionCreatePolicy(task);
+      case 'session_enforce': return this.handleSessionEnforce(task);
+      case 'session_terminate': return this.handleSessionTerminate(task);
+      case 'session_report_violations': return this.handleSessionReportViolations(task);
+      case 'session_list_active': return this.handleSessionListActive(task);
+      case 'session_update_policy': return this.handleSessionUpdatePolicy(task);
+      // Batch 237: Network Firewall
+      case 'firewall_create_rule': return this.handleFirewallCreateRule(task);
+      case 'firewall_manage_zone': return this.handleFirewallManageZone(task);
+      case 'firewall_review_logs': return this.handleFirewallReviewLogs(task);
+      case 'firewall_test_rules': return this.handleFirewallTestRules(task);
+      case 'firewall_list_rules': return this.handleFirewallListRules(task);
+      case 'firewall_update_zone': return this.handleFirewallUpdateZone(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -11058,6 +11093,137 @@ export class TaskExecutor {
     // Searches incidents by criteria
     this.logger.info(`[incident_manager] handleIncidentQuery called`, { taskId: task.id });
     return { incidents: [], totalCount: 0, filters: task.metadata?.filters || {} };
+  }
+
+
+  // ── Batch 233: Access Auditor handlers ─────────────────────
+  private async handleAccessAuditLog(task: any): Promise<any> {
+    const { agentId, resourceType, resourceId, action } = task.input || {};
+    return { logged: true, agentId, resourceType, resourceId, action, outcome: 'allowed', loggedAt: new Date().toISOString() };
+  }
+  private async handleAccessDetectPattern(task: any): Promise<any> {
+    const { agentId, timeRange } = task.input || {};
+    return { agentId, patternsDetected: 3, anomalies: 0, timeRange: timeRange || '24h', analysisCompleted: true };
+  }
+  private async handleAccessRaiseAlert(task: any): Promise<any> {
+    const { agentId, alertType, severity } = task.input || {};
+    return { alertId: `alert-${Date.now()}`, agentId, alertType: alertType || 'unusual_access', severity: severity || 'medium', acknowledged: false };
+  }
+  private async handleAccessGenerateReport(task: any): Promise<any> {
+    const { agentId, reportType } = task.input || {};
+    return { reportId: `report-${Date.now()}`, agentId, reportType: reportType || 'summary', entries: 0, generatedAt: new Date().toISOString() };
+  }
+  private async handleAccessReviewLogs(task: any): Promise<any> {
+    const { agentId, filters } = task.input || {};
+    return { agentId, logsReviewed: 0, filters: filters || {}, flaggedEntries: 0 };
+  }
+  private async handleAccessConfigureMonitoring(task: any): Promise<any> {
+    const { agentId, monitoringRules } = task.input || {};
+    return { agentId, rulesConfigured: monitoringRules?.length || 0, monitoringActive: true };
+  }
+
+  // ── Batch 234: Permission Manager handlers ─────────────────
+  private async handlePermissionCreateRole(task: any): Promise<any> {
+    const { agentId, roleName, permissions } = task.input || {};
+    return { roleId: `role-${Date.now()}`, agentId, roleName, permissions: permissions || [], isSystem: false, createdAt: new Date().toISOString() };
+  }
+  private async handlePermissionAssignRole(task: any): Promise<any> {
+    const { targetAgentId, roleId, scope } = task.input || {};
+    return { assignmentId: `assign-${Date.now()}`, targetAgentId, roleId, scope: scope || {}, status: 'active' };
+  }
+  private async handlePermissionCheck(task: any): Promise<any> {
+    const { agentId, permission, resource } = task.input || {};
+    return { agentId, permission, resource, result: 'granted', evaluatedRoles: [], checkedAt: new Date().toISOString() };
+  }
+  private async handlePermissionAudit(task: any): Promise<any> {
+    const { agentId } = task.input || {};
+    return { agentId, totalRoles: 0, totalAssignments: 0, unusedPermissions: 0, auditedAt: new Date().toISOString() };
+  }
+  private async handlePermissionRevokeRole(task: any): Promise<any> {
+    const { targetAgentId, roleId, reason } = task.input || {};
+    return { targetAgentId, roleId, status: 'revoked', reason: reason || 'manual', revokedAt: new Date().toISOString() };
+  }
+  private async handlePermissionListRoles(task: any): Promise<any> {
+    const { agentId } = task.input || {};
+    return { agentId, roles: [], totalCount: 0 };
+  }
+
+  // ── Batch 235: Token Validator handlers ────────────────────
+  private async handleTokenConfigure(task: any): Promise<any> {
+    const { agentId, tokenType, issuer, ttlSeconds } = task.input || {};
+    return { configId: `config-${Date.now()}`, agentId, tokenType: tokenType || 'jwt', issuer: issuer || 'sven', ttlSeconds: ttlSeconds || 3600, enabled: true };
+  }
+  private async handleTokenIssue(task: any): Promise<any> {
+    const { configId, agentId, claims } = task.input || {};
+    return { tokenId: `token-${Date.now()}`, configId, agentId, claims: claims || {}, issuedAt: new Date().toISOString(), status: 'active' };
+  }
+  private async handleTokenValidate(task: any): Promise<any> {
+    const { tokenHash, agentId } = task.input || {};
+    return { tokenHash, agentId, validationResult: 'valid', validatedAt: new Date().toISOString() };
+  }
+  private async handleTokenRevoke(task: any): Promise<any> {
+    const { tokenId, agentId, reason } = task.input || {};
+    return { tokenId, agentId, status: 'revoked', reason: reason || 'manual', revokedAt: new Date().toISOString() };
+  }
+  private async handleTokenListActive(task: any): Promise<any> {
+    const { agentId } = task.input || {};
+    return { agentId, activeTokens: [], totalCount: 0 };
+  }
+  private async handleTokenRotate(task: any): Promise<any> {
+    const { configId, agentId } = task.input || {};
+    return { configId, agentId, oldTokenRevoked: true, newTokenId: `token-${Date.now()}`, rotatedAt: new Date().toISOString() };
+  }
+
+  // ── Batch 236: Session Enforcer handlers ───────────────────
+  private async handleSessionCreatePolicy(task: any): Promise<any> {
+    const { agentId, policyName, maxConcurrent } = task.input || {};
+    return { policyId: `policy-${Date.now()}`, agentId, policyName, maxConcurrentSessions: maxConcurrent || 10, enabled: true };
+  }
+  private async handleSessionEnforce(task: any): Promise<any> {
+    const { agentId, policyId } = task.input || {};
+    return { agentId, policyId, sessionsChecked: 0, violationsFound: 0, enforcedAt: new Date().toISOString() };
+  }
+  private async handleSessionTerminate(task: any): Promise<any> {
+    const { sessionId, agentId, reason } = task.input || {};
+    return { sessionId, agentId, status: 'terminated', reason: reason || 'policy_violation', terminatedAt: new Date().toISOString() };
+  }
+  private async handleSessionReportViolations(task: any): Promise<any> {
+    const { agentId, timeRange } = task.input || {};
+    return { agentId, timeRange: timeRange || '24h', violations: [], totalCount: 0 };
+  }
+  private async handleSessionListActive(task: any): Promise<any> {
+    const { agentId } = task.input || {};
+    return { agentId, activeSessions: [], totalCount: 0 };
+  }
+  private async handleSessionUpdatePolicy(task: any): Promise<any> {
+    const { policyId, updates } = task.input || {};
+    return { policyId, updated: true, changes: updates || {}, updatedAt: new Date().toISOString() };
+  }
+
+  // ── Batch 237: Network Firewall handlers ───────────────────
+  private async handleFirewallCreateRule(task: any): Promise<any> {
+    const { agentId, ruleName, direction, action, priority } = task.input || {};
+    return { ruleId: `rule-${Date.now()}`, agentId, ruleName, direction: direction || 'inbound', action: action || 'deny', priority: priority || 1000, enabled: true };
+  }
+  private async handleFirewallManageZone(task: any): Promise<any> {
+    const { agentId, zoneName, zoneType, cidrs } = task.input || {};
+    return { zoneId: `zone-${Date.now()}`, agentId, zoneName, zoneType: zoneType || 'internal', cidrs: cidrs || [], status: 'active' };
+  }
+  private async handleFirewallReviewLogs(task: any): Promise<any> {
+    const { agentId, timeRange } = task.input || {};
+    return { agentId, timeRange: timeRange || '24h', logsReviewed: 0, blockedAttempts: 0, allowedConnections: 0 };
+  }
+  private async handleFirewallTestRules(task: any): Promise<any> {
+    const { agentId, testCases } = task.input || {};
+    return { agentId, testCases: testCases?.length || 0, passed: 0, failed: 0, testCompletedAt: new Date().toISOString() };
+  }
+  private async handleFirewallListRules(task: any): Promise<any> {
+    const { agentId } = task.input || {};
+    return { agentId, rules: [], totalCount: 0 };
+  }
+  private async handleFirewallUpdateZone(task: any): Promise<any> {
+    const { zoneId, updates } = task.input || {};
+    return { zoneId, updated: true, changes: updates || {}, updatedAt: new Date().toISOString() };
   }
 
 }

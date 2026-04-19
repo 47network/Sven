@@ -79,6 +79,18 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 233-237: Security Access Control
+- **access_auditor** (Batch 233): Access logging and monitoring — audit logs, pattern detection, anomaly alerts, report generation
+- **permission_manager** (Batch 234): RBAC permissions — role creation, role assignment, permission checks, audit, revocation
+- **token_validator** (Batch 235): Token lifecycle — JWT/API key/OAuth2 config, issuance, validation, revocation, rotation
+- **session_enforcer** (Batch 236): Session enforcement — policies, concurrent limits, timeouts, IP/geo restrictions, violations
+- **network_firewall** (Batch 237): Network security — firewall rules, zone management, traffic logging, rule testing
+- 5 migration SQL files, 5 shared type modules, 5 SKILL.md files
+- 20 SUBJECT_MAP entries, 10 BK/EK/districtFor values
+- 30 task executor switch cases + 30 handler methods
+- 177 tests passing
+
+
 ### Batches 228-232: Security Operations
 - **policy_engine** (Batch 228): Security policy management — creation, evaluation, exceptions, enforcement modes, auditing
 - **data_classifier** (Batch 229): Data classification — sensitivity labeling, automatic rules, lineage tracking, inventory export

@@ -254,3 +254,8 @@ export * from './agent-data-classifier.js';
 export * from './agent-encryption-gateway.js';
 export * from './agent-security-scanner.js';
 export * from './agent-incident-manager.js';
+export * from './agent-access-auditor.js';
+export * from './agent-permission-manager.js';
+export * from './agent-token-validator.js';
+export * from './agent-session-enforcer.js';
+export * from './agent-network-firewall.js';
