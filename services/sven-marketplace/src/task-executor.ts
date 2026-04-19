@@ -651,6 +651,35 @@ export class TaskExecutor {
       case 'peering_attach_connection': return this.handlePeeringAttachConnection(task);
       case 'peering_check_status': return this.handlePeeringCheckStatus(task);
       case 'peering_report': return this.handlePeeringReport(task);
+      case 'registry_create': return this.handleRegistryCreate(task);
+      case 'registry_push_image': return this.handleRegistryPushImage(task);
+      case 'registry_scan_vulns': return this.handleRegistryScanVulns(task);
+      case 'registry_list_images': return this.handleRegistryListImages(task);
+      case 'registry_report': return this.handleRegistryReport(task);
+      case 'mesh_register_service': return this.handleMeshRegisterService(task);
+      case 'mesh_create_route': return this.handleMeshCreateRoute(task);
+      case 'mesh_create_policy': return this.handleMeshCreatePolicy(task);
+      case 'mesh_check_health': return this.handleMeshCheckHealth(task);
+      case 'mesh_list_services': return this.handleMeshListServices(task);
+      case 'mesh_report': return this.handleMeshReport(task);
+      case 'drift_create_baseline': return this.handleDriftCreateBaseline(task);
+      case 'drift_run_scan': return this.handleDriftRunScan(task);
+      case 'drift_list_drifts': return this.handleDriftListDrifts(task);
+      case 'drift_remediate': return this.handleDriftRemediate(task);
+      case 'drift_lock_baseline': return this.handleDriftLockBaseline(task);
+      case 'drift_report': return this.handleDriftReport(task);
+      case 'incident_create_policy': return this.handleIncidentCreatePolicy(task);
+      case 'incident_open': return this.handleIncidentOpen(task);
+      case 'incident_acknowledge': return this.handleIncidentAcknowledge(task);
+      case 'incident_escalate': return this.handleIncidentEscalate(task);
+      case 'incident_resolve': return this.handleIncidentResolve(task);
+      case 'incident_report': return this.handleIncidentReport(task);
+      case 'capacity_create_model': return this.handleCapacityCreateModel(task);
+      case 'capacity_train_model': return this.handleCapacityTrainModel(task);
+      case 'capacity_generate_forecast': return this.handleCapacityGenerateForecast(task);
+      case 'capacity_check_alerts': return this.handleCapacityCheckAlerts(task);
+      case 'capacity_get_recommendations': return this.handleCapacityGetRecommendations(task);
+      case 'capacity_report': return this.handleCapacityReport(task);
       case 'template_create': return this.handleTemplateCreate(task);
       case 'instance_launch': return this.handleInstanceLaunch(task);
       case 'stage_advance': return this.handleStageAdvance(task);
@@ -6351,6 +6380,95 @@ export class TaskExecutor {
   }
   private async handlePeeringReport(task: any): Promise<any> {
     return { ok: true, totalConnections: 0, totalRoutes: 0, totalGateways: 0, activeConnections: 0, avgLatencyMs: 0, generatedAt: new Date().toISOString() };
+  }
+
+
+  private async handleRegistryCreate(task: any): Promise<any> {
+    return { success: true, action: 'registry_create', registryId: `reg-${Date.now()}`, endpoint: task.input?.endpoint || 'registry.local', authType: task.input?.authType || 'token', storageBackend: task.input?.storageBackend || 'local' };
+  }
+  private async handleRegistryPushImage(task: any): Promise<any> {
+    return { success: true, action: 'registry_push_image', imageId: `img-${Date.now()}`, repository: task.input?.repository || 'default', tag: task.input?.tag || 'latest', digest: `sha256:${Date.now().toString(16)}`, sizeBytes: 52428800 };
+  }
+  private async handleRegistryScanVulns(task: any): Promise<any> {
+    return { success: true, action: 'registry_scan_vulns', imageId: task.input?.imageId, totalVulns: 0, critical: 0, high: 0, medium: 0, low: 0, scannedAt: new Date().toISOString() };
+  }
+  private async handleRegistryListImages(task: any): Promise<any> {
+    return { success: true, action: 'registry_list_images', registryId: task.input?.registryId, images: [], totalCount: 0 };
+  }
+  private async handleRegistryReport(task: any): Promise<any> {
+    return { success: true, action: 'registry_report', totalRegistries: 0, totalImages: 0, totalVulnerabilities: 0, totalStorageBytes: 0 };
+  }
+  private async handleMeshRegisterService(task: any): Promise<any> {
+    return { success: true, action: 'mesh_register_service', serviceId: `svc-${Date.now()}`, name: task.input?.name || 'default', namespace: task.input?.namespace || 'default', protocol: task.input?.protocol || 'http', sidecarEnabled: true };
+  }
+  private async handleMeshCreateRoute(task: any): Promise<any> {
+    return { success: true, action: 'mesh_create_route', routeId: `rt-${Date.now()}`, matchPath: task.input?.matchPath || '/', weight: task.input?.weight || 100, timeoutMs: task.input?.timeoutMs || 30000 };
+  }
+  private async handleMeshCreatePolicy(task: any): Promise<any> {
+    return { success: true, action: 'mesh_create_policy', policyId: `pol-${Date.now()}`, policyType: task.input?.policyType || 'traffic', enabled: true, priority: task.input?.priority || 0 };
+  }
+  private async handleMeshCheckHealth(task: any): Promise<any> {
+    return { success: true, action: 'mesh_check_health', serviceId: task.input?.serviceId, healthy: true, latencyMs: 12, lastCheckedAt: new Date().toISOString() };
+  }
+  private async handleMeshListServices(task: any): Promise<any> {
+    return { success: true, action: 'mesh_list_services', services: [], totalCount: 0 };
+  }
+  private async handleMeshReport(task: any): Promise<any> {
+    return { success: true, action: 'mesh_report', totalServices: 0, totalRoutes: 0, totalPolicies: 0, mtlsStrictCount: 0, sidecarEnabledCount: 0 };
+  }
+  private async handleDriftCreateBaseline(task: any): Promise<any> {
+    return { success: true, action: 'drift_create_baseline', baselineId: `bl-${Date.now()}`, resourceType: task.input?.resourceType || 'vm', version: 1, locked: false };
+  }
+  private async handleDriftRunScan(task: any): Promise<any> {
+    return { success: true, action: 'drift_run_scan', jobId: `scan-${Date.now()}`, scanType: task.input?.scanType || 'full', status: 'completed', resourcesScanned: 0, driftsFound: 0 };
+  }
+  private async handleDriftListDrifts(task: any): Promise<any> {
+    return { success: true, action: 'drift_list_drifts', drifts: [], totalCount: 0, unresolvedCount: 0 };
+  }
+  private async handleDriftRemediate(task: any): Promise<any> {
+    return { success: true, action: 'drift_remediate', driftId: task.input?.driftId, remediated: true, resolvedAt: new Date().toISOString() };
+  }
+  private async handleDriftLockBaseline(task: any): Promise<any> {
+    return { success: true, action: 'drift_lock_baseline', baselineId: task.input?.baselineId, locked: true };
+  }
+  private async handleDriftReport(task: any): Promise<any> {
+    return { success: true, action: 'drift_report', totalBaselines: 0, totalDrifts: 0, unresolvedDrifts: 0, criticalDrifts: 0, lastScanAt: null };
+  }
+  private async handleIncidentCreatePolicy(task: any): Promise<any> {
+    return { success: true, action: 'incident_create_policy', policyId: `esc-${Date.now()}`, name: task.input?.name || 'default-policy', severityThreshold: task.input?.severityThreshold || 'high', autoEscalateAfterMins: task.input?.autoEscalateAfterMins || 30 };
+  }
+  private async handleIncidentOpen(task: any): Promise<any> {
+    return { success: true, action: 'incident_open', incidentId: `inc-${Date.now()}`, title: task.input?.title || 'Unnamed incident', severity: task.input?.severity || 'warning', status: 'open', openedAt: new Date().toISOString() };
+  }
+  private async handleIncidentAcknowledge(task: any): Promise<any> {
+    return { success: true, action: 'incident_acknowledge', incidentId: task.input?.incidentId, status: 'acknowledged', acknowledgedAt: new Date().toISOString() };
+  }
+  private async handleIncidentEscalate(task: any): Promise<any> {
+    return { success: true, action: 'incident_escalate', incidentId: task.input?.incidentId, escalationLevel: (task.input?.currentLevel || 0) + 1, escalatedAt: new Date().toISOString() };
+  }
+  private async handleIncidentResolve(task: any): Promise<any> {
+    return { success: true, action: 'incident_resolve', incidentId: task.input?.incidentId, status: 'resolved', resolvedAt: new Date().toISOString(), rootCause: task.input?.rootCause || null };
+  }
+  private async handleIncidentReport(task: any): Promise<any> {
+    return { success: true, action: 'incident_report', totalPolicies: 0, openIncidents: 0, mttrMinutes: 0, escalatedCount24h: 0, resolvedCount24h: 0 };
+  }
+  private async handleCapacityCreateModel(task: any): Promise<any> {
+    return { success: true, action: 'capacity_create_model', modelId: `cap-${Date.now()}`, resourceType: task.input?.resourceType || 'cpu', modelType: task.input?.modelType || 'linear', forecastHorizonDays: task.input?.forecastHorizonDays || 30 };
+  }
+  private async handleCapacityTrainModel(task: any): Promise<any> {
+    return { success: true, action: 'capacity_train_model', modelId: task.input?.modelId, trained: true, accuracyScore: 0.87, lastTrainedAt: new Date().toISOString() };
+  }
+  private async handleCapacityGenerateForecast(task: any): Promise<any> {
+    return { success: true, action: 'capacity_generate_forecast', forecastId: `fc-${Date.now()}`, modelId: task.input?.modelId, predictions: [], generatedAt: new Date().toISOString() };
+  }
+  private async handleCapacityCheckAlerts(task: any): Promise<any> {
+    return { success: true, action: 'capacity_check_alerts', alerts: [], activeCount: 0 };
+  }
+  private async handleCapacityGetRecommendations(task: any): Promise<any> {
+    return { success: true, action: 'capacity_get_recommendations', recommendations: [], totalSavingsEstimate: 0 };
+  }
+  private async handleCapacityReport(task: any): Promise<any> {
+    return { success: true, action: 'capacity_report', totalModels: 0, totalForecasts: 0, activeAlerts: 0, avgAccuracy: 0, nextExhaustionDate: null };
   }
 
 }
