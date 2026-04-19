@@ -494,6 +494,62 @@ function maskDebugToken(value: unknown): string | null {
   return `${token.slice(0, 4)}…${token.slice(-4)}`;
 }
 
+function xmlLocalTagName(tagSource: string): string {
+  const trimmed = String(tagSource || '').trim().replace(/\/$/, '');
+  if (!trimmed) return '';
+  const [nameToken] = trimmed.split(/\s+/, 1);
+  if (!nameToken) return '';
+  const [, localName = ''] = nameToken.split(':');
+  return String(localName || nameToken).trim().toLowerCase();
+}
+
+function extractXmlTextElements(source: string, localTagName: string): string[] {
+  const raw = String(source || '');
+  const lower = raw.toLowerCase();
+  const target = String(localTagName || '').trim().toLowerCase();
+  if (!target) return [];
+
+  const values: string[] = [];
+  let cursor = 0;
+  while (cursor < raw.length) {
+    const openStart = lower.indexOf('<', cursor);
+    if (openStart === -1) break;
+    if (lower.startsWith('</', openStart) || lower.startsWith('<?', openStart) || lower.startsWith('<!', openStart)) {
+      cursor = openStart + 1;
+      continue;
+    }
+
+    const openEnd = lower.indexOf('>', openStart + 1);
+    if (openEnd === -1) break;
+    const openTagName = xmlLocalTagName(raw.slice(openStart + 1, openEnd));
+    if (openTagName !== target) {
+      cursor = openEnd + 1;
+      continue;
+    }
+
+    const nextLt = lower.indexOf('<', openEnd + 1);
+    if (nextLt === -1) break;
+    if (!lower.startsWith('</', nextLt)) {
+      cursor = openEnd + 1;
+      continue;
+    }
+
+    const closeEnd = lower.indexOf('>', nextLt + 2);
+    if (closeEnd === -1) break;
+    const closeTagName = xmlLocalTagName(raw.slice(nextLt + 2, closeEnd));
+    if (closeTagName !== target) {
+      cursor = openEnd + 1;
+      continue;
+    }
+
+    const value = raw.slice(openEnd + 1, nextLt).trim();
+    if (value) values.push(value);
+    cursor = closeEnd + 1;
+  }
+
+  return values;
+}
+
 function parseSamlAssertionXml(xml: string): {
   subject: string;
   email?: string;
@@ -517,9 +573,7 @@ function parseSamlAssertionXml(xml: string): {
     const nameExtract = attrTag.match(/Name="([^"]+)"/);
     const name = nameExtract ? String(nameExtract[1] || '').trim() : '';
     const block = String(attrMatch[2] || '');
-    const values = Array.from(block.matchAll(/<(?:\w+:)?AttributeValue[^>]*>([^<]*)<\/(?:\w+:)?AttributeValue>/gi))
-      .map((m) => String(m[1] || '').trim())
-      .filter(Boolean);
+    const values = extractXmlTextElements(block, 'AttributeValue');
     if (name && values.length > 0) {
       attributes[name] = values.length === 1 ? values[0] : values;
       const lowered = name.toLowerCase();
@@ -1969,8 +2023,7 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       });
     }
     if (configuredCertBody) {
-      const certMatch = xml.match(/<(?:\w+:)?X509Certificate[^>]*>([^<]*)<\/(?:\w+:)?X509Certificate>/i);
-      const assertionCertBody = certMatch ? String(certMatch[1] || '').replace(/\s+/g, '').trim() : '';
+      const assertionCertBody = String(extractXmlTextElements(xml, 'X509Certificate')[0] || '').replace(/\s+/g, '').trim();
       if (SSO_STRICT_ASSERTION_VALIDATION && !assertionCertBody) {
         return reply.status(401).send({
           success: false,
