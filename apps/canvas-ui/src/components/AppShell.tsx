@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   MessageSquare, Search, Shield, Moon, Sun, LogOut,
-  Menu, ChevronLeft, Bot, PanelTopOpen, Sparkles, Cpu, User, PawPrint, Orbit
+  Menu, ChevronLeft, Bot, PanelTopOpen, Sparkles, Zap, Cpu, User, PawPrint, Orbit
 } from 'lucide-react';
 import { useTheme, useSidebar } from '@/lib/store';
 import { useMe } from '@/lib/hooks';
@@ -118,6 +118,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </button>
         </div>
 
+            aria-label={`Sven Form: ${AVATAR_META[avatarMode].label}`}
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1">
           {visibleNav.map((item) => {
@@ -160,7 +161,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <button
             onClick={cycleAvatar}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800"
-            aria-label={collapsed ? `Sven Form: ${AVATAR_META[avatarMode].label}` : undefined}
+            aria-label={`Sven Form: ${AVATAR_META[avatarMode].label}`}
             title={collapsed ? "Toggle Sven Form" : undefined}
           >
             <AvatarIcon className="h-4 w-4" />
@@ -170,7 +171,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <button
             onClick={() => setVisualMode((v) => (v === 'futuristic' ? 'classic' : 'futuristic'))}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800"
-            aria-label={collapsed ? `Visual: ${visualMode === 'futuristic' ? 'Futuristic' : 'Classic'}` : undefined}
+            aria-label={`Visual: ${visualMode === 'futuristic' ? 'Futuristic' : 'Classic'}`}
             title={collapsed ? "Toggle Visual Mode" : undefined}
           >
             <Sparkles className="h-4 w-4" />
@@ -180,10 +181,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <button
             onClick={() => setMotionEnabled((v) => !v)}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800"
-            aria-label={collapsed ? `Motion: ${motionEnabled ? 'On' : 'Off'}` : undefined}
+            aria-label={`Motion: ${motionEnabled ? 'On' : 'Off'}`}
             title={collapsed ? "Toggle Motion" : undefined}
           >
-            <Sparkles className="h-4 w-4" />
+            <Zap className="h-4 w-4" />
             {!collapsed && <span>Motion: {motionEnabled ? 'On' : 'Off'}</span>}
           </button>
 
