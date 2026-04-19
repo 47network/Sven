@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-04-19T06:37:01.511Z",
+  "generated_at": "2026-04-19T06:41:10.966Z",
   "source_branch": "palette-aria-labels-appshell-9188964469529522283",
   "source_head_sha": "da28c38854d7262c58067320a8c278a96585345e",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-19T06:37:00.730Z",
+    "captured_at": "2026-04-19T06:41:10.303Z",
     "branch": "palette-aria-labels-appshell-9188964469529522283",
     "total_runs": 26
   },
@@ -91,7 +91,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-19T06:36:58.022Z"
+      "generated_at": "2026-04-19T06:41:07.607Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -121,7 +121,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-19T06:36:59.192Z"
+      "generated_at": "2026-04-19T06:41:08.796Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -136,7 +136,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-19T06:37:00.365Z"
+      "generated_at": "2026-04-19T06:41:09.993Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -706,20 +706,19 @@
       "gate_key": "release_status_ci"
     },
     "release-supply-chain": {
-      "pass": false,
+      "pass": true,
       "provenance": {
         "run_id": 24622851822,
         "head_sha": "da28c38854d7262c58067320a8c278a96585345e",
         "head_branch": "palette-aria-labels-appshell-9188964469529522283",
         "event": "push",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310893,
         "workflow_name": "release-supply-chain",
         "matched_target_sha": true,
         "gate_key": "release_supply_chain_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "release_supply_chain_ci"
     },
