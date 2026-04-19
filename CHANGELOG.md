@@ -78,6 +78,17 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 318-322 — Networking & Traffic
+- **network_router**: Agent network routing with route management, policy enforcement, traffic analysis, and failover ($16.99/task)
+- **dns_gateway**: DNS resolution, record management, cache warming, and query analytics ($12.99/task)
+- **lb_orchestrator**: Load balancer orchestration with backend management, health checks, and traffic distribution ($18.99/task)
+- **cdn_proxy**: CDN proxy with cache management, content purging, origin configuration, and edge optimization ($21.99/task)
+- **rate_controller**: Rate limiting with rule management, client blocking, and algorithm configuration ($13.99/task)
+- 5 migration SQL files, 5 shared type files, 5 SKILL.md files
+- 30 task executor cases + 30 handler methods
+- 20 NATS event subjects, 5 BK + 20 EK + 5 districtFor entries
+- 146 tests passing
+
 
 ### Batches 313-317 — Search & Analytics
 - **search_indexer**: Full-text search indexing service (configs, indexes, queries) — $14.99/task
