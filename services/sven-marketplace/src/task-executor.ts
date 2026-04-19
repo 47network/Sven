@@ -3143,6 +3143,36 @@ export class TaskExecutor {
       case 'exsm_adjust': return this.handleExsmAdjust(task);
       case 'exsm_report': return this.handleExsmReport(task);
       case 'exsm_monitor': return this.handleExsmMonitor(task);
+      case 'ddpl_find': return this.handleDdplFind(task);
+      case 'ddpl_merge': return this.handleDdplMerge(task);
+      case 'ddpl_resolve': return this.handleDdplResolve(task);
+      case 'ddpl_deduplicate': return this.handleDdplDeduplicate(task);
+      case 'ddpl_report': return this.handleDdplReport(task);
+      case 'ddpl_monitor': return this.handleDdplMonitor(task);
+      case 'stjo_join': return this.handleStjoJoin(task);
+      case 'stjo_window': return this.handleStjoWindow(task);
+      case 'stjo_late': return this.handleStjoLate(task);
+      case 'stjo_complete': return this.handleStjoComplete(task);
+      case 'stjo_report': return this.handleStjoReport(task);
+      case 'stjo_monitor': return this.handleStjoMonitor(task);
+      case 'btsc_queue': return this.handleBtscQueue(task);
+      case 'btsc_start': return this.handleBtscStart(task);
+      case 'btsc_complete': return this.handleBtscComplete(task);
+      case 'btsc_fail': return this.handleBtscFail(task);
+      case 'btsc_report': return this.handleBtscReport(task);
+      case 'btsc_monitor': return this.handleBtscMonitor(task);
+      case 'ptmg_create': return this.handlePtmgCreate(task);
+      case 'ptmg_split': return this.handlePtmgSplit(task);
+      case 'ptmg_merge': return this.handlePtmgMerge(task);
+      case 'ptmg_rebalance': return this.handlePtmgRebalance(task);
+      case 'ptmg_report': return this.handlePtmgReport(task);
+      case 'ptmg_monitor': return this.handlePtmgMonitor(task);
+      case 'wmtk_advance': return this.handleWmtkAdvance(task);
+      case 'wmtk_lag': return this.handleWmtkLag(task);
+      case 'wmtk_checkpoint': return this.handleWmtkCheckpoint(task);
+      case 'wmtk_recover': return this.handleWmtkRecover(task);
+      case 'wmtk_report': return this.handleWmtkReport(task);
+      case 'wmtk_monitor': return this.handleWmtkMonitor(task);
     }
   }
 

@@ -193,6 +193,11 @@ export type EidolonBuildingKind =
   | 'sla_monitor'
   | 'cardinality_limiter'
   | 'exemplar_sampler'
+  | 'data_deduplicator'
+  | 'stream_joiner'
+  | 'batch_scheduler'
+  | 'partition_manager'
+  | 'watermark_tracker'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -1165,6 +1170,26 @@ export type EidolonEventKind =
   | 'exsm.policy_applied'
   | 'exsm.sample_exported'
   | 'exsm.rate_adjusted'
+  | 'ddpl.duplicates_found'
+  | 'ddpl.records_merged'
+  | 'ddpl.dedup_completed'
+  | 'ddpl.conflict_resolved'
+  | 'stjo.streams_joined'
+  | 'stjo.window_closed'
+  | 'stjo.late_arrival'
+  | 'stjo.join_completed'
+  | 'btsc.batch_queued'
+  | 'btsc.batch_started'
+  | 'btsc.batch_completed'
+  | 'btsc.batch_failed'
+  | 'ptmg.partition_created'
+  | 'ptmg.partition_split'
+  | 'ptmg.partition_merged'
+  | 'ptmg.rebalance_completed'
+  | 'wmtk.watermark_advanced'
+  | 'wmtk.lag_detected'
+  | 'wmtk.checkpoint_saved'
+  | 'wmtk.recovery_completed'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1795,6 +1820,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'sla_monitor':
     case 'cardinality_limiter':
     case 'exemplar_sampler':
+    case 'data_deduplicator':
+    case 'stream_joiner':
+    case 'batch_scheduler':
+    case 'partition_manager':
+    case 'watermark_tracker':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

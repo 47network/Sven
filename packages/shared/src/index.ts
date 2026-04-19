@@ -518,3 +518,8 @@ export * from './agent-uptime-tracker';
 export * from './agent-sla-monitor';
 export * from './agent-cardinality-limiter';
 export * from './agent-exemplar-sampler';
+export * from './agent-data-deduplicator';
+export * from './agent-stream-joiner';
+export * from './agent-batch-scheduler';
+export * from './agent-partition-manager';
+export * from './agent-watermark-tracker';
