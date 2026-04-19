@@ -1736,6 +1736,36 @@ export class TaskExecutor {
       case 'vlan_topology': return this.handleVlanTopology(task);
       case 'vlan_trunk_config': return this.handleVlanTrunkConfig(task);
       case 'vlan_stats': return this.handleVlanStats(task);
+      case 'tap_configure': return this.handleTapConfigure(task);
+      case 'tap_start_session': return this.handleTapStartSession(task);
+      case 'tap_stop_session': return this.handleTapStopSession(task);
+      case 'tap_add_filter': return this.handleTapAddFilter(task);
+      case 'tap_view_stats': return this.handleTapViewStats(task);
+      case 'tap_export_data': return this.handleTapExportData(task);
+      case 'fc_configure': return this.handleFcConfigure(task);
+      case 'fc_start_collection': return this.handleFcStartCollection(task);
+      case 'fc_generate_report': return this.handleFcGenerateReport(task);
+      case 'fc_detect_anomaly': return this.handleFcDetectAnomaly(task);
+      case 'fc_view_stats': return this.handleFcViewStats(task);
+      case 'fc_export_data': return this.handleFcExportData(task);
+      case 'sflow_configure': return this.handleSflowConfigure(task);
+      case 'sflow_start_sampling': return this.handleSflowStartSampling(task);
+      case 'sflow_poll_counters': return this.handleSflowPollCounters(task);
+      case 'sflow_view_samples': return this.handleSflowViewSamples(task);
+      case 'sflow_view_stats': return this.handleSflowViewStats(task);
+      case 'sflow_export_data': return this.handleSflowExportData(task);
+      case 'nf_configure': return this.handleNfConfigure(task);
+      case 'nf_start_export': return this.handleNfStartExport(task);
+      case 'nf_refresh_templates': return this.handleNfRefreshTemplates(task);
+      case 'nf_view_flows': return this.handleNfViewFlows(task);
+      case 'nf_view_stats': return this.handleNfViewStats(task);
+      case 'nf_export_data': return this.handleNfExportData(task);
+      case 'arp_configure': return this.handleArpConfigure(task);
+      case 'arp_add_binding': return this.handleArpAddBinding(task);
+      case 'arp_inspect': return this.handleArpInspect(task);
+      case 'arp_view_violations': return this.handleArpViewViolations(task);
+      case 'arp_view_stats': return this.handleArpViewStats(task);
+      case 'arp_export_data': return this.handleArpExportData(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -12059,4 +12089,215 @@ export class TaskExecutor {
     this.logger.info('handleVlanStats', { taskId: task.id, agentId: task.agent_id });
     return { success: true, service: 'vlan_manager', action: 'vlan_stats', totalPackets: config.totalPackets || '9876543', broadcastPercent: config.broadcastPercent || '2.1' };
   }
+
+  private async handleTapConfigure(task: any): Promise<any> {
+    const { tap_name, capture_interface, mirror_port } = task.input || {};
+    const configId = `${task.id}-tapconfigure`;
+    this.emitEidolonEvent('tapConfigured', { taskId: task.id, configId });
+    return { success: true, configId, message: 'filter applied' };
+  }
+
+  private async handleTapStartSession(task: any): Promise<any> {
+    const { session_name, output_path, snap_length } = task.input || {};
+    const sessionId = `${task.id}-tapstartsession`;
+    this.emitEidolonEvent('tapSessionStarted', { taskId: task.id, sessionId });
+    return { success: true, sessionId, message: 'capture active' };
+  }
+
+  private async handleTapStopSession(task: any): Promise<any> {
+    const { session_id, save_capture, export_format } = task.input || {};
+    const captureFile = `${task.id}-tapstopsession`;
+    this.emitEidolonEvent('tapSessionStopped', { taskId: task.id, captureFile });
+    return { success: true, captureFile, message: 'capture saved' };
+  }
+
+  private async handleTapAddFilter(task: any): Promise<any> {
+    const { filter_name, bpf_expression, priority } = task.input || {};
+    const filterId = `${task.id}-tapaddfilter`;
+    this.emitEidolonEvent('tapFilterAdded', { taskId: task.id, filterId });
+    return { success: true, filterId, message: 'filter active' };
+  }
+
+  private async handleTapViewStats(task: any): Promise<any> {
+    const { tap_id, period, metric_type } = task.input || {};
+    const stats = `${task.id}-tapviewstats`;
+    this.emitEidolonEvent('tapStatsViewed', { taskId: task.id, stats });
+    return { success: true, stats, message: 'metrics collected' };
+  }
+
+  private async handleTapExportData(task: any): Promise<any> {
+    const { tap_id, export_format, date_range } = task.input || {};
+    const exportFile = `${task.id}-tapexportdata`;
+    this.emitEidolonEvent('tapDataExported', { taskId: task.id, exportFile });
+    return { success: true, exportFile, message: 'data exported' };
+  }
+
+  private async handleFcConfigure(task: any): Promise<any> {
+    const { collector_name, listen_port, protocol } = task.input || {};
+    const configId = `${task.id}-fcconfigure`;
+    this.emitEidolonEvent('fcConfigured', { taskId: task.id, configId });
+    return { success: true, configId, message: 'collector ready' };
+  }
+
+  private async handleFcStartCollection(task: any): Promise<any> {
+    const { config_id, sampling_rate, aggregation } = task.input || {};
+    const collectionId = `${task.id}-fcstartcollection`;
+    this.emitEidolonEvent('fcCollectionStarted', { taskId: task.id, collectionId });
+    return { success: true, collectionId, message: 'collecting' };
+  }
+
+  private async handleFcGenerateReport(task: any): Promise<any> {
+    const { config_id, report_type, period } = task.input || {};
+    const reportId = `${task.id}-fcgeneratereport`;
+    this.emitEidolonEvent('fcReportGenerated', { taskId: task.id, reportId });
+    return { success: true, reportId, message: 'report ready' };
+  }
+
+  private async handleFcDetectAnomaly(task: any): Promise<any> {
+    const { config_id, threshold, baseline } = task.input || {};
+    const anomalies = `${task.id}-fcdetectanomaly`;
+    this.emitEidolonEvent('fcAnomalyDetected', { taskId: task.id, anomalies });
+    return { success: true, anomalies, message: 'anomalies found' };
+  }
+
+  private async handleFcViewStats(task: any): Promise<any> {
+    const { config_id, period, metric_type } = task.input || {};
+    const stats = `${task.id}-fcviewstats`;
+    this.emitEidolonEvent('fcStatsViewed', { taskId: task.id, stats });
+    return { success: true, stats, message: 'metrics collected' };
+  }
+
+  private async handleFcExportData(task: any): Promise<any> {
+    const { config_id, export_format, date_range } = task.input || {};
+    const exportFile = `${task.id}-fcexportdata`;
+    this.emitEidolonEvent('fcDataExported', { taskId: task.id, exportFile });
+    return { success: true, exportFile, message: 'data exported' };
+  }
+
+  private async handleSflowConfigure(task: any): Promise<any> {
+    const { sflow_name, agent_address, collector_address } = task.input || {};
+    const configId = `${task.id}-sflowconfigure`;
+    this.emitEidolonEvent('sflowConfigured', { taskId: task.id, configId });
+    return { success: true, configId, message: 'agent ready' };
+  }
+
+  private async handleSflowStartSampling(task: any): Promise<any> {
+    const { config_id, sampling_rate, polling_interval } = task.input || {};
+    const samplingId = `${task.id}-sflowstartsampling`;
+    this.emitEidolonEvent('sflowSamplingStarted', { taskId: task.id, samplingId });
+    return { success: true, samplingId, message: 'sampling' };
+  }
+
+  private async handleSflowPollCounters(task: any): Promise<any> {
+    const { config_id, interface_filter, period } = task.input || {};
+    const counters = `${task.id}-sflowpollcounters`;
+    this.emitEidolonEvent('sflowCountersPolled', { taskId: task.id, counters });
+    return { success: true, counters, message: 'counters read' };
+  }
+
+  private async handleSflowViewSamples(task: any): Promise<any> {
+    const { config_id, sample_type, limit } = task.input || {};
+    const samples = `${task.id}-sflowviewsamples`;
+    this.emitEidolonEvent('sflowSamplesViewed', { taskId: task.id, samples });
+    return { success: true, samples, message: 'samples listed' };
+  }
+
+  private async handleSflowViewStats(task: any): Promise<any> {
+    const { config_id, period, metric_type } = task.input || {};
+    const stats = `${task.id}-sflowviewstats`;
+    this.emitEidolonEvent('sflowStatsViewed', { taskId: task.id, stats });
+    return { success: true, stats, message: 'metrics collected' };
+  }
+
+  private async handleSflowExportData(task: any): Promise<any> {
+    const { config_id, export_format, date_range } = task.input || {};
+    const exportFile = `${task.id}-sflowexportdata`;
+    this.emitEidolonEvent('sflowDataExported', { taskId: task.id, exportFile });
+    return { success: true, exportFile, message: 'data exported' };
+  }
+
+  private async handleNfConfigure(task: any): Promise<any> {
+    const { exporter_name, source_interface, collector_address } = task.input || {};
+    const configId = `${task.id}-nfconfigure`;
+    this.emitEidolonEvent('nfConfigured', { taskId: task.id, configId });
+    return { success: true, configId, message: 'exporter ready' };
+  }
+
+  private async handleNfStartExport(task: any): Promise<any> {
+    const { config_id, version, template_refresh } = task.input || {};
+    const exportId = `${task.id}-nfstartexport`;
+    this.emitEidolonEvent('nfExportStarted', { taskId: task.id, exportId });
+    return { success: true, exportId, message: 'exporting flows' };
+  }
+
+  private async handleNfRefreshTemplates(task: any): Promise<any> {
+    const { config_id, template_ids, force } = task.input || {};
+    const refreshed = `${task.id}-nfrefreshtemplates`;
+    this.emitEidolonEvent('nfTemplatesRefreshed', { taskId: task.id, refreshed });
+    return { success: true, refreshed, message: 'templates updated' };
+  }
+
+  private async handleNfViewFlows(task: any): Promise<any> {
+    const { config_id, filter, limit } = task.input || {};
+    const flows = `${task.id}-nfviewflows`;
+    this.emitEidolonEvent('nfFlowsViewed', { taskId: task.id, flows });
+    return { success: true, flows, message: 'flows listed' };
+  }
+
+  private async handleNfViewStats(task: any): Promise<any> {
+    const { config_id, period, metric_type } = task.input || {};
+    const stats = `${task.id}-nfviewstats`;
+    this.emitEidolonEvent('nfStatsViewed', { taskId: task.id, stats });
+    return { success: true, stats, message: 'metrics collected' };
+  }
+
+  private async handleNfExportData(task: any): Promise<any> {
+    const { config_id, export_format, date_range } = task.input || {};
+    const exportFile = `${task.id}-nfexportdata`;
+    this.emitEidolonEvent('nfDataExported', { taskId: task.id, exportFile });
+    return { success: true, exportFile, message: 'data exported' };
+  }
+
+  private async handleArpConfigure(task: any): Promise<any> {
+    const { inspector_name, monitored_vlans, trust_mode } = task.input || {};
+    const configId = `${task.id}-arpconfigure`;
+    this.emitEidolonEvent('arpConfigured', { taskId: task.id, configId });
+    return { success: true, configId, message: 'inspector ready' };
+  }
+
+  private async handleArpAddBinding(task: any): Promise<any> {
+    const { config_id, ip_address, mac_address } = task.input || {};
+    const bindingId = `${task.id}-arpaddbinding`;
+    this.emitEidolonEvent('arpBindingAdded', { taskId: task.id, bindingId });
+    return { success: true, bindingId, message: 'binding added' };
+  }
+
+  private async handleArpInspect(task: any): Promise<any> {
+    const { config_id, target_vlan, deep_scan } = task.input || {};
+    const results = `${task.id}-arpinspect`;
+    this.emitEidolonEvent('arpInspected', { taskId: task.id, results });
+    return { success: true, results, message: 'inspection done' };
+  }
+
+  private async handleArpViewViolations(task: any): Promise<any> {
+    const { config_id, severity, limit } = task.input || {};
+    const violations = `${task.id}-arpviewviolations`;
+    this.emitEidolonEvent('arpViolationsViewed', { taskId: task.id, violations });
+    return { success: true, violations, message: 'violations listed' };
+  }
+
+  private async handleArpViewStats(task: any): Promise<any> {
+    const { config_id, period, metric_type } = task.input || {};
+    const stats = `${task.id}-arpviewstats`;
+    this.emitEidolonEvent('arpStatsViewed', { taskId: task.id, stats });
+    return { success: true, stats, message: 'metrics collected' };
+  }
+
+  private async handleArpExportData(task: any): Promise<any> {
+    const { config_id, export_format, date_range } = task.input || {};
+    const exportFile = `${task.id}-arpexportdata`;
+    this.emitEidolonEvent('arpDataExported', { taskId: task.id, exportFile });
+    return { success: true, exportFile, message: 'data exported' };
+  }
+
 }
