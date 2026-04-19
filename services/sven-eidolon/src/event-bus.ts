@@ -622,6 +622,36 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.chaos.fault_injected': 'chaos.fault_injected',
   'sven.chaos.fault_removed': 'chaos.fault_removed',
   'sven.chaos.experiment_completed': 'chaos.experiment_completed',
+
+  // Batch 158 — telemetry export
+  'sven.telemetry.sink_created': 'telemetry.sink_created',
+  'sven.telemetry.pipeline_configured': 'telemetry.pipeline_configured',
+  'sven.telemetry.batch_exported': 'telemetry.batch_exported',
+  'sven.telemetry.sink_error': 'telemetry.sink_error',
+
+  // Batch 159 — cost allocation
+  'sven.costalloc.center_created': 'costalloc.center_created',
+  'sven.costalloc.cost_recorded': 'costalloc.cost_recorded',
+  'sven.costalloc.report_generated': 'costalloc.report_generated',
+  'sven.costalloc.budget_exceeded': 'costalloc.budget_exceeded',
+
+  // Batch 160 — network policy
+  'sven.netpolicy.rule_created': 'netpolicy.rule_created',
+  'sven.netpolicy.traffic_denied': 'netpolicy.traffic_denied',
+  'sven.netpolicy.segment_created': 'netpolicy.segment_created',
+  'sven.netpolicy.audit_logged': 'netpolicy.audit_logged',
+
+  // Batch 161 — disaster recovery
+  'sven.dr.plan_created': 'dr.plan_created',
+  'sven.dr.failover_triggered': 'dr.failover_triggered',
+  'sven.dr.drill_completed': 'dr.drill_completed',
+  'sven.dr.checkpoint_stale': 'dr.checkpoint_stale',
+
+  // Batch 162 — performance profiling
+  'sven.perfprof.profile_started': 'perfprof.profile_started',
+  'sven.perfprof.bottleneck_found': 'perfprof.bottleneck_found',
+  'sven.perfprof.baseline_set': 'perfprof.baseline_set',
+  'sven.perfprof.trend_degrading': 'perfprof.trend_degrading',
 };
 
 export class EidolonEventBus {

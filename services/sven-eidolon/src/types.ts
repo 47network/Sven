@@ -117,6 +117,11 @@ export type EidolonBuildingKind =
   | 'canary_tower'
   | 'flag_control'
   | 'chaos_arena'
+  | 'telemetry_hub'
+  | 'cost_ledger'
+  | 'net_firewall'
+  | 'recovery_vault'
+  | 'perf_lab'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -597,6 +602,26 @@ export type EidolonEventKind =
   | 'chaos.fault_injected'
   | 'chaos.experiment_completed'
   | 'chaos.weakness_found'
+  | 'telemetry.sink_created'
+  | 'telemetry.pipeline_configured'
+  | 'telemetry.batch_exported'
+  | 'telemetry.sink_error'
+  | 'costalloc.center_created'
+  | 'costalloc.cost_recorded'
+  | 'costalloc.report_generated'
+  | 'costalloc.budget_exceeded'
+  | 'netpolicy.rule_created'
+  | 'netpolicy.traffic_denied'
+  | 'netpolicy.segment_created'
+  | 'netpolicy.audit_logged'
+  | 'dr.plan_created'
+  | 'dr.failover_triggered'
+  | 'dr.drill_completed'
+  | 'dr.checkpoint_stale'
+  | 'perfprof.profile_started'
+  | 'perfprof.bottleneck_found'
+  | 'perfprof.baseline_set'
+  | 'perfprof.trend_degrading'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -717,6 +742,11 @@ export type EidolonEventKind =
   | 'canary.deploy_created' | 'canary.traffic_adjusted' | 'canary.metrics_collected' | 'canary.decision_made'
   | 'featureflag.flag_created' | 'featureflag.flag_toggled' | 'featureflag.rule_added' | 'featureflag.flag_evaluated'
   | 'chaos.experiment_created' | 'chaos.fault_injected' | 'chaos.fault_removed' | 'chaos.experiment_completed'
+  | 'telemetry.sink_created' | 'telemetry.pipeline_configured' | 'telemetry.batch_exported' | 'telemetry.sink_error'
+  | 'costalloc.center_created' | 'costalloc.cost_recorded' | 'costalloc.report_generated' | 'costalloc.budget_exceeded'
+  | 'netpolicy.rule_created' | 'netpolicy.traffic_denied' | 'netpolicy.segment_created' | 'netpolicy.audit_logged'
+  | 'dr.plan_created' | 'dr.failover_triggered' | 'dr.drill_completed' | 'dr.checkpoint_stale'
+  | 'perfprof.profile_started' | 'perfprof.bottleneck_found' | 'perfprof.baseline_set' | 'perfprof.trend_degrading'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -1008,6 +1038,16 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'flag_control':
       return 'civic';
     case 'chaos_arena':
+      return 'civic';
+    case 'telemetry_hub':
+      return 'civic';
+    case 'cost_ledger':
+      return 'market';
+    case 'net_firewall':
+      return 'civic';
+    case 'recovery_vault':
+      return 'civic';
+    case 'perf_lab':
       return 'civic';
   }
 }
