@@ -2393,6 +2393,36 @@ export class TaskExecutor {
       case 'idrs_list_identities': return this.handleIdrsListIdentities(task);
       case 'idrs_audit_access': return this.handleIdrsAuditAccess(task);
       case 'idrs_sync_provider': return this.handleIdrsSyncProvider(task);
+      case 'mtag_record_metric': return this.handleMtagRecordMetric(task);
+      case 'mtag_batch_record': return this.handleMtagBatchRecord(task);
+      case 'mtag_query_metrics': return this.handleMtagQueryMetrics(task);
+      case 'mtag_create_rollup': return this.handleMtagCreateRollup(task);
+      case 'mtag_list_metrics': return this.handleMtagListMetrics(task);
+      case 'mtag_export_metrics': return this.handleMtagExportMetrics(task);
+      case 'alcr_fire_alert': return this.handleAlcrFireAlert(task);
+      case 'alcr_correlate_alerts': return this.handleAlcrCorrelateAlerts(task);
+      case 'alcr_acknowledge_alert': return this.handleAlcrAcknowledgeAlert(task);
+      case 'alcr_resolve_alert': return this.handleAlcrResolveAlert(task);
+      case 'alcr_silence_alerts': return this.handleAlcrSilenceAlerts(task);
+      case 'alcr_get_correlations': return this.handleAlcrGetCorrelations(task);
+      case 'sltr_create_objective': return this.handleSltrCreateObjective(task);
+      case 'sltr_record_measurement': return this.handleSltrRecordMeasurement(task);
+      case 'sltr_check_budget': return this.handleSltrCheckBudget(task);
+      case 'sltr_detect_violations': return this.handleSltrDetectViolations(task);
+      case 'sltr_calculate_burn_rate': return this.handleSltrCalculateBurnRate(task);
+      case 'sltr_generate_report': return this.handleSltrGenerateReport(task);
+      case 'lgan_start_analysis': return this.handleLganStartAnalysis(task);
+      case 'lgan_detect_patterns': return this.handleLganDetectPatterns(task);
+      case 'lgan_find_anomalies': return this.handleLganFindAnomalies(task);
+      case 'lgan_correlate_logs': return this.handleLganCorrelateLogs(task);
+      case 'lgan_search_logs': return this.handleLganSearchLogs(task);
+      case 'lgan_generate_report': return this.handleLganGenerateReport(task);
+      case 'pfpr_start_profiling': return this.handlePfprStartProfiling(task);
+      case 'pfpr_stop_profiling': return this.handlePfprStopProfiling(task);
+      case 'pfpr_find_hotspots': return this.handlePfprFindHotspots(task);
+      case 'pfpr_generate_flamegraph': return this.handlePfprGenerateFlamegraph(task);
+      case 'pfpr_compare_sessions': return this.handlePfprCompareSessions(task);
+      case 'pfpr_recommend_optimizations': return this.handlePfprRecommendOptimizations(task);
     }
   }
 
@@ -16616,6 +16646,108 @@ export class TaskExecutor {
 
   private async handleIdrsSyncProvider(task: any): Promise<any> {
     return { provider: task.input?.provider, synced: true, newRecords: 0, updatedRecords: 0, removedRecords: 0, syncedAt: new Date().toISOString() };
+  }
+
+
+  // ── Metric Aggregator handlers (Batch 368) ──
+  private async handleMtagRecordMetric(task: any): Promise<any> {
+    return { success: true, action: 'record_metric', metricName: task.input?.metricName || 'unknown', value: task.input?.value || 0, timestamp: new Date().toISOString() };
+  }
+  private async handleMtagBatchRecord(task: any): Promise<any> {
+    const metrics = task.input?.metrics || [];
+    return { success: true, action: 'batch_record', metricsRecorded: metrics.length, timestamp: new Date().toISOString() };
+  }
+  private async handleMtagQueryMetrics(task: any): Promise<any> {
+    return { success: true, action: 'query_metrics', metricName: task.input?.metricName || 'unknown', results: [], count: 0, timeRange: task.input?.timeRange || '1h' };
+  }
+  private async handleMtagCreateRollup(task: any): Promise<any> {
+    return { success: true, action: 'create_rollup', period: task.input?.period || '1h', minValue: 0, maxValue: 100, avgValue: 50, count: 0 };
+  }
+  private async handleMtagListMetrics(task: any): Promise<any> {
+    return { success: true, action: 'list_metrics', metrics: [], totalCount: 0 };
+  }
+  private async handleMtagExportMetrics(task: any): Promise<any> {
+    return { success: true, action: 'export_metrics', format: task.input?.format || 'prometheus', exportedCount: 0, outputSize: 0 };
+  }
+
+  // ── Alert Correlator handlers (Batch 369) ──
+  private async handleAlcrFireAlert(task: any): Promise<any> {
+    return { success: true, action: 'fire_alert', alertName: task.input?.alertName || 'unknown', severity: task.input?.severity || 'warning', status: 'firing', firedAt: new Date().toISOString() };
+  }
+  private async handleAlcrCorrelateAlerts(task: any): Promise<any> {
+    return { success: true, action: 'correlate_alerts', alertId: task.input?.alertId || 'unknown', correlatedAlerts: [], correlationCount: 0 };
+  }
+  private async handleAlcrAcknowledgeAlert(task: any): Promise<any> {
+    return { success: true, action: 'acknowledge_alert', alertId: task.input?.alertId || 'unknown', status: 'acknowledged', acknowledgedAt: new Date().toISOString() };
+  }
+  private async handleAlcrResolveAlert(task: any): Promise<any> {
+    return { success: true, action: 'resolve_alert', alertId: task.input?.alertId || 'unknown', status: 'resolved', resolvedAt: new Date().toISOString() };
+  }
+  private async handleAlcrSilenceAlerts(task: any): Promise<any> {
+    return { success: true, action: 'silence_alerts', fingerprint: task.input?.fingerprint || '*', silencedCount: 0, expiresAt: new Date().toISOString() };
+  }
+  private async handleAlcrGetCorrelations(task: any): Promise<any> {
+    return { success: true, action: 'get_correlations', alertId: task.input?.alertId || 'unknown', correlations: [], totalCorrelations: 0 };
+  }
+
+  // ── SLA Tracker handlers (Batch 370) ──
+  private async handleSltrCreateObjective(task: any): Promise<any> {
+    return { success: true, action: 'create_objective', serviceName: task.input?.serviceName || 'unknown', sliType: task.input?.sliType || 'availability', targetPercentage: task.input?.targetPercentage || 99.9 };
+  }
+  private async handleSltrRecordMeasurement(task: any): Promise<any> {
+    return { success: true, action: 'record_measurement', objectiveId: task.input?.objectiveId || 'unknown', value: task.input?.value || 100, withinBudget: true };
+  }
+  private async handleSltrCheckBudget(task: any): Promise<any> {
+    return { success: true, action: 'check_budget', objectiveId: task.input?.objectiveId || 'unknown', errorBudgetRemaining: 99.5, burnRate: 0.01, status: 'healthy' };
+  }
+  private async handleSltrDetectViolations(task: any): Promise<any> {
+    return { success: true, action: 'detect_violations', objectiveId: task.input?.objectiveId || 'unknown', violationsFound: 0, violations: [] };
+  }
+  private async handleSltrCalculateBurnRate(task: any): Promise<any> {
+    return { success: true, action: 'calculate_burn_rate', objectiveId: task.input?.objectiveId || 'unknown', burnRate: 0.01, projectedDepletion: null, status: 'sustainable' };
+  }
+  private async handleSltrGenerateReport(task: any): Promise<any> {
+    return { success: true, action: 'generate_report', reportPeriod: task.input?.period || '30d', objectivesTracked: 0, overallCompliance: 100, violations: 0 };
+  }
+
+  // ── Log Analyzer handlers (Batch 371) ──
+  private async handleLganStartAnalysis(task: any): Promise<any> {
+    return { success: true, action: 'start_analysis', source: task.input?.source || 'application', timeRange: task.input?.timeRange || '1h', status: 'analyzing' };
+  }
+  private async handleLganDetectPatterns(task: any): Promise<any> {
+    return { success: true, action: 'detect_patterns', analysisId: task.input?.analysisId || 'unknown', patternsFound: 0, patterns: [] };
+  }
+  private async handleLganFindAnomalies(task: any): Promise<any> {
+    return { success: true, action: 'find_anomalies', analysisId: task.input?.analysisId || 'unknown', anomaliesFound: 0, anomalies: [] };
+  }
+  private async handleLganCorrelateLogs(task: any): Promise<any> {
+    return { success: true, action: 'correlate_logs', sources: task.input?.sources || [], correlatedEntries: 0, correlations: [] };
+  }
+  private async handleLganSearchLogs(task: any): Promise<any> {
+    return { success: true, action: 'search_logs', query: task.input?.query || '*', matchCount: 0, results: [] };
+  }
+  private async handleLganGenerateReport(task: any): Promise<any> {
+    return { success: true, action: 'generate_report', analysisId: task.input?.analysisId || 'unknown', totalEntries: 0, errorCount: 0, warningCount: 0, patternsFound: 0 };
+  }
+
+  // ── Performance Profiler handlers (Batch 372) ──
+  private async handlePfprStartProfiling(task: any): Promise<any> {
+    return { success: true, action: 'start_profiling', targetService: task.input?.targetService || 'unknown', profilingType: task.input?.profilingType || 'cpu', status: 'running' };
+  }
+  private async handlePfprStopProfiling(task: any): Promise<any> {
+    return { success: true, action: 'stop_profiling', sessionId: task.input?.sessionId || 'unknown', samplesCollected: 0, hotspotsFound: 0, status: 'completed' };
+  }
+  private async handlePfprFindHotspots(task: any): Promise<any> {
+    return { success: true, action: 'find_hotspots', sessionId: task.input?.sessionId || 'unknown', hotspots: [], totalHotspots: 0 };
+  }
+  private async handlePfprGenerateFlamegraph(task: any): Promise<any> {
+    return { success: true, action: 'generate_flamegraph', sessionId: task.input?.sessionId || 'unknown', flamegraphUrl: null, format: 'svg' };
+  }
+  private async handlePfprCompareSessions(task: any): Promise<any> {
+    return { success: true, action: 'compare_sessions', sessionA: task.input?.sessionA || 'unknown', sessionB: task.input?.sessionB || 'unknown', improvement: null, regressions: [] };
+  }
+  private async handlePfprRecommendOptimizations(task: any): Promise<any> {
+    return { success: true, action: 'recommend_optimizations', sessionId: task.input?.sessionId || 'unknown', recommendations: [], priorityFixes: 0 };
   }
 
 }
