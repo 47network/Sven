@@ -333,6 +333,31 @@ export type EidolonBuildingKind =
   | 'ab_splitter'
   | 'rollout_planner'
   | 'flag_archiver'
+  | 'pod_scaler'
+  | 'container_debugger'
+  | 'image_pruner'
+  | 'namespace_watcher'
+  | 'helm_releaser'
+  | 'shard_balancer'
+  | 'search_ranker'
+  | 'facet_extractor'
+  | 'synonym_mapper'
+  | 'index_compactor'
+  | 'escalation_manager'
+  | 'digest_builder'
+  | 'channel_router'
+  | 'silence_enforcer'
+  | 'threshold_tuner'
+  | 'dag_scheduler'
+  | 'step_retrier'
+  | 'approval_gater'
+  | 'hook_dispatcher'
+  | 'cron_orchestrator'
+  | 'cost_allocator'
+  | 'billing_reconciler'
+  | 'spend_tracker'
+  | 'margin_calculator'
+  | 'chargeback_auditor'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -1870,6 +1895,106 @@ export type EidolonEventKind =
   | 'flar.stale_detected'
   | 'flar.cleanup_completed'
   | 'flar.history_exported'
+  | 'pdsc.scale_up'
+  | 'pdsc.scale_down'
+  | 'pdsc.threshold_breached'
+  | 'pdsc.cooldown_started'
+  | 'ctdb.session_started'
+  | 'ctdb.breakpoint_hit'
+  | 'ctdb.log_captured'
+  | 'ctdb.session_ended'
+  | 'impr.image_pruned'
+  | 'impr.scan_completed'
+  | 'impr.space_reclaimed'
+  | 'impr.policy_applied'
+  | 'nswa.resource_created'
+  | 'nswa.quota_exceeded'
+  | 'nswa.drift_detected'
+  | 'nswa.namespace_idle'
+  | 'hlrl.release_deployed'
+  | 'hlrl.rollback_executed'
+  | 'hlrl.values_updated'
+  | 'hlrl.chart_validated'
+  | 'shbl.shard_moved'
+  | 'shbl.balance_achieved'
+  | 'shbl.hotspot_detected'
+  | 'shbl.rebalance_started'
+  | 'srra.ranking_computed'
+  | 'srra.model_updated'
+  | 'srra.feedback_processed'
+  | 'srra.ab_test_started'
+  | 'faex.facets_extracted'
+  | 'faex.taxonomy_updated'
+  | 'faex.cardinality_high'
+  | 'faex.cache_refreshed'
+  | 'synm.synonym_added'
+  | 'synm.group_merged'
+  | 'synm.dictionary_imported'
+  | 'synm.conflict_resolved'
+  | 'ixco.segment_merged'
+  | 'ixco.compaction_completed'
+  | 'ixco.space_reclaimed'
+  | 'ixco.force_merge_started'
+  | 'escm.escalation_triggered'
+  | 'escm.policy_matched'
+  | 'escm.owner_notified'
+  | 'escm.resolution_timed_out'
+  | 'dgbl.digest_compiled'
+  | 'dgbl.schedule_triggered'
+  | 'dgbl.recipient_resolved'
+  | 'dgbl.delivery_confirmed'
+  | 'chrt.message_routed'
+  | 'chrt.channel_selected'
+  | 'chrt.fallback_triggered'
+  | 'chrt.preference_updated'
+  | 'sien.silence_activated'
+  | 'sien.silence_expired'
+  | 'sien.alert_suppressed'
+  | 'sien.override_granted'
+  | 'thtu.threshold_adjusted'
+  | 'thtu.anomaly_detected'
+  | 'thtu.baseline_recalculated'
+  | 'thtu.sensitivity_changed'
+  | 'dags.dag_triggered'
+  | 'dags.node_completed'
+  | 'dags.execution_failed'
+  | 'dags.schedule_updated'
+  | 'strt.retry_initiated'
+  | 'strt.backoff_applied'
+  | 'strt.max_attempts_reached'
+  | 'strt.step_recovered'
+  | 'apgt.approval_requested'
+  | 'apgt.approval_granted'
+  | 'apgt.approval_denied'
+  | 'apgt.timeout_escalated'
+  | 'hkdp.hook_dispatched'
+  | 'hkdp.delivery_confirmed'
+  | 'hkdp.delivery_failed'
+  | 'hkdp.retry_queued'
+  | 'cror.job_executed'
+  | 'cror.schedule_registered'
+  | 'cror.execution_skipped'
+  | 'cror.overlap_detected'
+  | 'coal.cost_allocated'
+  | 'coal.budget_exceeded'
+  | 'coal.report_generated'
+  | 'coal.tag_applied'
+  | 'blrc.reconciliation_started'
+  | 'blrc.discrepancy_found'
+  | 'blrc.reconciliation_completed'
+  | 'blrc.adjustment_posted'
+  | 'sptr.spend_recorded'
+  | 'sptr.threshold_breached'
+  | 'sptr.forecast_updated'
+  | 'sptr.anomaly_flagged'
+  | 'mgcl.margin_calculated'
+  | 'mgcl.target_missed'
+  | 'mgcl.pricing_suggested'
+  | 'mgcl.trend_detected'
+  | 'cbau.chargeback_filed'
+  | 'cbau.evidence_collected'
+  | 'cbau.dispute_resolved'
+  | 'cbau.pattern_detected'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -2660,6 +2785,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'ab_splitter':
     case 'rollout_planner':
     case 'flag_archiver':
+    case 'pod_scaler':
+    case 'container_debugger':
+    case 'image_pruner':
+    case 'namespace_watcher':
+    case 'helm_releaser':
+    case 'shard_balancer':
+    case 'search_ranker':
+    case 'facet_extractor':
+    case 'synonym_mapper':
+    case 'index_compactor':
+    case 'escalation_manager':
+    case 'digest_builder':
+    case 'channel_router':
+    case 'silence_enforcer':
+    case 'threshold_tuner':
+    case 'dag_scheduler':
+    case 'step_retrier':
+    case 'approval_gater':
+    case 'hook_dispatcher':
+    case 'cron_orchestrator':
+    case 'cost_allocator':
+    case 'billing_reconciler':
+    case 'spend_tracker':
+    case 'margin_calculator':
+    case 'chargeback_auditor':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
