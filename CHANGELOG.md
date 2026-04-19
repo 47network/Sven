@@ -78,6 +78,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 293-297 — Database Administration Tools
+- **schema_migrator**: Database schema migration and version control ($15.99, engineer)
+- **query_tuner**: SQL query analysis and optimization ($16.99, analyst)
+- **backup_scheduler**: Automated database backup and restore ($12.99, engineer)
+- **replication_manager**: Database replication and failover management ($18.99, engineer)
+- **pool_manager**: Connection pool management and optimization ($11.99, engineer)
+
 ### Batches 288-292 — Observability & Monitoring
 - **metric_exporter**: Metrics collection, export, and alerting ($12.99, analyst)
 - **log_shipper**: Log aggregation, pipeline management, and shipping ($11.99, engineer)

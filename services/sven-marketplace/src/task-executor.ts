@@ -1916,6 +1916,36 @@ export class TaskExecutor {
       case 'uptm_configure': return this.handleUptmConfigure(task);
       case 'uptm_list_incidents': return this.handleUptmListIncidents(task);
       case 'uptm_export_sla': return this.handleUptmExportSla(task);
+      case 'smig_configure': return this.handleSmigConfigure(task);
+      case 'smig_apply_migration': return this.handleSmigApplyMigration(task);
+      case 'smig_rollback_migration': return this.handleSmigRollbackMigration(task);
+      case 'smig_generate_diff': return this.handleSmigGenerateDiff(task);
+      case 'smig_list_history': return this.handleSmigListHistory(task);
+      case 'smig_optimize_schema': return this.handleSmigOptimizeSchema(task);
+      case 'qtun_configure': return this.handleQtunConfigure(task);
+      case 'qtun_analyze_query': return this.handleQtunAnalyzeQuery(task);
+      case 'qtun_suggest_indexes': return this.handleQtunSuggestIndexes(task);
+      case 'qtun_apply_optimization': return this.handleQtunApplyOptimization(task);
+      case 'qtun_list_history': return this.handleQtunListHistory(task);
+      case 'qtun_export_report': return this.handleQtunExportReport(task);
+      case 'bsched_configure': return this.handleBschedConfigure(task);
+      case 'bsched_run_backup': return this.handleBschedRunBackup(task);
+      case 'bsched_restore': return this.handleBschedRestore(task);
+      case 'bsched_enforce_retention': return this.handleBschedEnforceRetention(task);
+      case 'bsched_list_history': return this.handleBschedListHistory(task);
+      case 'bsched_export_report': return this.handleBschedExportReport(task);
+      case 'rplmgr_configure': return this.handleRplmgrConfigure(task);
+      case 'rplmgr_add_node': return this.handleRplmgrAddNode(task);
+      case 'rplmgr_failover': return this.handleRplmgrFailover(task);
+      case 'rplmgr_check_lag': return this.handleRplmgrCheckLag(task);
+      case 'rplmgr_verify_sync': return this.handleRplmgrVerifySync(task);
+      case 'rplmgr_export_report': return this.handleRplmgrExportReport(task);
+      case 'plmgr_configure': return this.handlePlmgrConfigure(task);
+      case 'plmgr_drain_connections': return this.handlePlmgrDrainConnections(task);
+      case 'plmgr_record_stats': return this.handlePlmgrRecordStats(task);
+      case 'plmgr_optimize_pool': return this.handlePlmgrOptimizePool(task);
+      case 'plmgr_list_connections': return this.handlePlmgrListConnections(task);
+      case 'plmgr_export_report': return this.handlePlmgrExportReport(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -13203,5 +13233,96 @@ export class TaskExecutor {
   }
   private async handleUptmExportSla(task: any): Promise<any> {
     return { skill: 'uptime_monitor', action: 'export-sla-report', configId: task.metadata?.configId, period: task.metadata?.period || 'monthly', format: task.metadata?.format || 'json' };
+  }
+
+  private async handleSmigConfigure(task: any): Promise<any> {
+    return { skill: 'schema_migrator', action: 'configure', dbType: task.metadata?.dbType || 'postgresql', migrationsDir: task.metadata?.migrationsDir || 'migrations', autoApply: task.metadata?.autoApply || false };
+  }
+  private async handleSmigApplyMigration(task: any): Promise<any> {
+    return { skill: 'schema_migrator', action: 'apply-migration', version: task.metadata?.version, name: task.metadata?.name, direction: task.metadata?.direction || 'up' };
+  }
+  private async handleSmigRollbackMigration(task: any): Promise<any> {
+    return { skill: 'schema_migrator', action: 'rollback-migration', version: task.metadata?.version, steps: task.metadata?.steps || 1 };
+  }
+  private async handleSmigGenerateDiff(task: any): Promise<any> {
+    return { skill: 'schema_migrator', action: 'generate-diff', fromVersion: task.metadata?.fromVersion, toVersion: task.metadata?.toVersion };
+  }
+  private async handleSmigListHistory(task: any): Promise<any> {
+    return { skill: 'schema_migrator', action: 'list-history', configId: task.metadata?.configId, since: task.metadata?.since, limit: task.metadata?.limit || 20 };
+  }
+  private async handleSmigOptimizeSchema(task: any): Promise<any> {
+    return { skill: 'schema_migrator', action: 'optimize-schema', configId: task.metadata?.configId, aggressiveness: task.metadata?.aggressiveness || 'moderate' };
+  }
+  private async handleQtunConfigure(task: any): Promise<any> {
+    return { skill: 'query_tuner', action: 'configure', dbType: task.metadata?.dbType || 'postgresql', slowQueryThreshold: task.metadata?.slowQueryThreshold || 1000, autoSuggest: task.metadata?.autoSuggest ?? true };
+  }
+  private async handleQtunAnalyzeQuery(task: any): Promise<any> {
+    return { skill: 'query_tuner', action: 'analyze-query', queryText: task.metadata?.queryText, explain: task.metadata?.explain ?? true };
+  }
+  private async handleQtunSuggestIndexes(task: any): Promise<any> {
+    return { skill: 'query_tuner', action: 'suggest-indexes', configId: task.metadata?.configId, tableName: task.metadata?.tableName };
+  }
+  private async handleQtunApplyOptimization(task: any): Promise<any> {
+    return { skill: 'query_tuner', action: 'apply-optimization', analysisId: task.metadata?.analysisId, optimizedQuery: task.metadata?.optimizedQuery };
+  }
+  private async handleQtunListHistory(task: any): Promise<any> {
+    return { skill: 'query_tuner', action: 'list-history', configId: task.metadata?.configId, since: task.metadata?.since, limit: task.metadata?.limit || 20 };
+  }
+  private async handleQtunExportReport(task: any): Promise<any> {
+    return { skill: 'query_tuner', action: 'export-report', configId: task.metadata?.configId, format: task.metadata?.format || 'json' };
+  }
+  private async handleBschedConfigure(task: any): Promise<any> {
+    return { skill: 'backup_scheduler', action: 'configure', backupType: task.metadata?.backupType || 'full', scheduleCron: task.metadata?.scheduleCron || '0 2 * * *', retentionCount: task.metadata?.retentionCount || 7 };
+  }
+  private async handleBschedRunBackup(task: any): Promise<any> {
+    return { skill: 'backup_scheduler', action: 'run-backup', configId: task.metadata?.configId, backupType: task.metadata?.backupType || 'full' };
+  }
+  private async handleBschedRestore(task: any): Promise<any> {
+    return { skill: 'backup_scheduler', action: 'restore', backupId: task.metadata?.backupId, targetDb: task.metadata?.targetDb, pointInTime: task.metadata?.pointInTime };
+  }
+  private async handleBschedEnforceRetention(task: any): Promise<any> {
+    return { skill: 'backup_scheduler', action: 'enforce-retention', configId: task.metadata?.configId };
+  }
+  private async handleBschedListHistory(task: any): Promise<any> {
+    return { skill: 'backup_scheduler', action: 'list-history', configId: task.metadata?.configId, since: task.metadata?.since, limit: task.metadata?.limit || 20 };
+  }
+  private async handleBschedExportReport(task: any): Promise<any> {
+    return { skill: 'backup_scheduler', action: 'export-report', configId: task.metadata?.configId, format: task.metadata?.format || 'json' };
+  }
+  private async handleRplmgrConfigure(task: any): Promise<any> {
+    return { skill: 'replication_manager', action: 'configure', replType: task.metadata?.replType || 'streaming', primaryHost: task.metadata?.primaryHost, syncMode: task.metadata?.syncMode || 'async' };
+  }
+  private async handleRplmgrAddNode(task: any): Promise<any> {
+    return { skill: 'replication_manager', action: 'add-node', nodeName: task.metadata?.nodeName, host: task.metadata?.host, role: task.metadata?.role || 'replica' };
+  }
+  private async handleRplmgrFailover(task: any): Promise<any> {
+    return { skill: 'replication_manager', action: 'failover', configId: task.metadata?.configId, newPrimary: task.metadata?.newPrimary };
+  }
+  private async handleRplmgrCheckLag(task: any): Promise<any> {
+    return { skill: 'replication_manager', action: 'check-lag', configId: task.metadata?.configId, nodeId: task.metadata?.nodeId };
+  }
+  private async handleRplmgrVerifySync(task: any): Promise<any> {
+    return { skill: 'replication_manager', action: 'verify-sync', configId: task.metadata?.configId };
+  }
+  private async handleRplmgrExportReport(task: any): Promise<any> {
+    return { skill: 'replication_manager', action: 'export-report', configId: task.metadata?.configId, format: task.metadata?.format || 'json' };
+  }
+  private async handlePlmgrConfigure(task: any): Promise<any> {
+    return { skill: 'pool_manager', action: 'configure', poolMode: task.metadata?.poolMode || 'transaction', minConnections: task.metadata?.minConnections || 5, maxConnections: task.metadata?.maxConnections || 100 };
+  }
+  private async handlePlmgrDrainConnections(task: any): Promise<any> {
+    return { skill: 'pool_manager', action: 'drain-connections', configId: task.metadata?.configId, graceful: task.metadata?.graceful ?? true };
+  }
+  private async handlePlmgrRecordStats(task: any): Promise<any> {
+    return { skill: 'pool_manager', action: 'record-stats', configId: task.metadata?.configId };
+  }
+  private async handlePlmgrOptimizePool(task: any): Promise<any> {
+    return { skill: 'pool_manager', action: 'optimize-pool', configId: task.metadata?.configId, aggressiveness: task.metadata?.aggressiveness || 'moderate' };
+  }
+  private async handlePlmgrListConnections(task: any): Promise<any> {
+    return { skill: 'pool_manager', action: 'list-connections', configId: task.metadata?.configId, state: task.metadata?.state };
+  }
+  private async handlePlmgrExportReport(task: any): Promise<any> {
+    return { skill: 'pool_manager', action: 'export-report', configId: task.metadata?.configId, format: task.metadata?.format || 'json' };
   }
 }

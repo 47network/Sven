@@ -314,3 +314,8 @@ export * from './agent-log-shipper';
 export * from './agent-alert-manager';
 export * from './agent-incident-responder';
 export * from './agent-uptime-monitor';
+export * from './agent-schema-migrator';
+export * from './agent-query-tuner';
+export * from './agent-backup-scheduler';
+export * from './agent-replication-manager';
+export * from './agent-pool-manager';

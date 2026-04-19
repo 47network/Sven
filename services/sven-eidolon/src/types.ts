@@ -88,6 +88,11 @@ export type EidolonBuildingKind =
   | 'alert_manager'
   | 'incident_responder'
   | 'uptime_monitor'
+  | 'schema_migrator'
+  | 'query_tuner'
+  | 'backup_scheduler'
+  | 'replication_manager'
+  | 'pool_manager'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -746,7 +751,7 @@ export type EidolonEventKind =
   | 'vmorch.vm_created' | 'vmorch.vm_migrated' | 'vmorch.snapshot_taken' | 'vmorch.vm_destroyed'
   | 'regmgr.repo_created' | 'regmgr.tag_pushed' | 'regmgr.retention_applied' | 'regmgr.vuln_found'
   | 'imgbld.build_started' | 'imgbld.build_completed' | 'imgbld.image_pushed' | 'imgbld.build_failed'
-  | 'artstore.artifact_uploaded' | 'artstore.artifact_downloaded' | 'artstore.retention_applied' | 'artstore.access_audited' | 'plrun.pipeline_triggered' | 'plrun.stage_completed' | 'plrun.run_passed' | 'plrun.run_failed' | 'torch.suite_executed' | 'torch.failure_analyzed' | 'torch.coverage_tracked' | 'torch.report_exported' | 'dpmgr.deploy_initiated' | 'dpmgr.health_verified' | 'dpmgr.deploy_promoted' | 'dpmgr.instances_drained' | 'rbctl.rollback_initiated' | 'rbctl.snapshot_restored' | 'rbctl.rollback_verified' | 'rbctl.report_exported' | 'relgk.candidate_evaluated' | 'relgk.gate_checked' | 'relgk.release_promoted' | 'relgk.candidate_rejected' | 'mexp.metric_recorded' | 'mexp.alert_triggered' | 'mexp.dashboard_exported' | 'mexp.alerts_listed' | 'lship.pipeline_created' | 'lship.logs_shipped' | 'lship.health_checked' | 'lship.config_exported' | 'almgr.rule_created' | 'almgr.alert_fired' | 'almgr.incident_acknowledged' | 'almgr.incident_resolved' | 'incrs.incident_opened' | 'incrs.diagnosis_completed' | 'incrs.remediation_executed' | 'incrs.postmortem_exported' | 'uptm.endpoint_added' | 'uptm.check_completed' | 'uptm.uptime_reported' | 'uptm.sla_exported'
+  | 'artstore.artifact_uploaded' | 'artstore.artifact_downloaded' | 'artstore.retention_applied' | 'artstore.access_audited' | 'plrun.pipeline_triggered' | 'plrun.stage_completed' | 'plrun.run_passed' | 'plrun.run_failed' | 'torch.suite_executed' | 'torch.failure_analyzed' | 'torch.coverage_tracked' | 'torch.report_exported' | 'dpmgr.deploy_initiated' | 'dpmgr.health_verified' | 'dpmgr.deploy_promoted' | 'dpmgr.instances_drained' | 'rbctl.rollback_initiated' | 'rbctl.snapshot_restored' | 'rbctl.rollback_verified' | 'rbctl.report_exported' | 'relgk.candidate_evaluated' | 'relgk.gate_checked' | 'relgk.release_promoted' | 'relgk.candidate_rejected' | 'mexp.metric_recorded' | 'mexp.alert_triggered' | 'mexp.dashboard_exported' | 'mexp.alerts_listed' | 'lship.pipeline_created' | 'lship.logs_shipped' | 'lship.health_checked' | 'lship.config_exported' | 'almgr.rule_created' | 'almgr.alert_fired' | 'almgr.incident_acknowledged' | 'almgr.incident_resolved' | 'incrs.incident_opened' | 'incrs.diagnosis_completed' | 'incrs.remediation_executed' | 'incrs.postmortem_exported' | 'uptm.endpoint_added' | 'uptm.check_completed' | 'uptm.uptime_reported' | 'uptm.sla_exported' | 'smig.migration_applied' | 'smig.migration_rolled_back' | 'smig.diff_generated' | 'smig.schema_optimized' | 'qtun.query_analyzed' | 'qtun.index_suggested' | 'qtun.optimization_applied' | 'qtun.report_exported' | 'bsched.backup_completed' | 'bsched.restore_completed' | 'bsched.retention_enforced' | 'bsched.schedule_updated' | 'rplmgr.node_added' | 'rplmgr.failover_completed' | 'rplmgr.lag_detected' | 'rplmgr.sync_verified' | 'plmgr.pool_configured' | 'plmgr.connections_drained' | 'plmgr.stats_recorded' | 'plmgr.pool_optimized'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1419,6 +1424,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'alert_manager':
     case 'incident_responder':
     case 'uptime_monitor':
+    case 'schema_migrator':
+    case 'query_tuner':
+    case 'backup_scheduler':
+    case 'replication_manager':
+    case 'pool_manager':
       case 'network_firewall':
       case 'threat_detector':
       return 'industrial';
