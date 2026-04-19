@@ -111,6 +111,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <button
             onClick={toggleSidebar}
             className="ml-auto rounded p-1 text-[var(--fg-muted)] hover:bg-slate-200 dark:hover:bg-slate-700"
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {collapsed ? <Menu className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </button>
@@ -132,6 +134,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                     ? 'bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-400'
                     : 'text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800',
                 )}
+                aria-label={item.label}
+                title={collapsed ? item.label : undefined}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
                 {!collapsed && <span>{item.label}</span>}
@@ -146,7 +150,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <button
             onClick={goToAdmin}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800"
-            title="Open Admin Console"
+            aria-label="Open Admin Console"
+            title={collapsed ? "Open Admin Console" : undefined}
           >
             <PanelTopOpen className="h-4 w-4" />
             {!collapsed && <span>Admin Console</span>}
@@ -155,6 +160,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <button
             onClick={cycleAvatar}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800"
+            aria-label={collapsed ? `Sven Form: ${AVATAR_META[avatarMode].label}` : undefined}
+            title={collapsed ? "Toggle Sven Form" : undefined}
           >
             <AvatarIcon className="h-4 w-4" />
             {!collapsed && <span>Sven Form: {AVATAR_META[avatarMode].label}</span>}
@@ -163,6 +170,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <button
             onClick={() => setVisualMode((v) => (v === 'futuristic' ? 'classic' : 'futuristic'))}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800"
+            aria-label={collapsed ? `Visual: ${visualMode === 'futuristic' ? 'Futuristic' : 'Classic'}` : undefined}
+            title={collapsed ? "Toggle Visual Mode" : undefined}
           >
             <Sparkles className="h-4 w-4" />
             {!collapsed && <span>Visual: {visualMode === 'futuristic' ? 'Futuristic' : 'Classic'}</span>}
@@ -171,6 +180,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <button
             onClick={() => setMotionEnabled((v) => !v)}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800"
+            aria-label={collapsed ? `Motion: ${motionEnabled ? 'On' : 'Off'}` : undefined}
+            title={collapsed ? "Toggle Motion" : undefined}
           >
             <Sparkles className="h-4 w-4" />
             {!collapsed && <span>Motion: {motionEnabled ? 'On' : 'Off'}</span>}
@@ -179,6 +190,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <button
             onClick={toggleTheme}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800"
+            aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={collapsed ? (dark ? 'Switch to light mode' : 'Switch to dark mode') : undefined}
           >
             {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             {!collapsed && <span>{dark ? 'Light mode' : 'Dark mode'}</span>}
@@ -197,6 +210,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <button
                 onClick={handleLogout}
                 className="rounded p-1 text-[var(--fg-muted)] hover:text-red-500"
+                aria-label="Logout"
                 title="Logout"
               >
                 <LogOut className="h-4 w-4" />
