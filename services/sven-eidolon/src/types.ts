@@ -1258,6 +1258,31 @@ export type EidolonBuildingKind =
   | 'quota_limiter_auditor'
   | 'quota_limiter_reporter'
   | 'quota_limiter_optimizer'
+  | 'tenant_isolator'
+  | 'tenant_isolator_monitor'
+  | 'tenant_isolator_auditor'
+  | 'tenant_isolator_reporter'
+  | 'tenant_isolator_optimizer'
+  | 'permission_resolver'
+  | 'permission_resolver_monitor'
+  | 'permission_resolver_auditor'
+  | 'permission_resolver_reporter'
+  | 'permission_resolver_optimizer'
+  | 'token_vault'
+  | 'token_vault_monitor'
+  | 'token_vault_auditor'
+  | 'token_vault_reporter'
+  | 'token_vault_optimizer'
+  | 'session_keeper'
+  | 'session_keeper_monitor'
+  | 'session_keeper_auditor'
+  | 'session_keeper_reporter'
+  | 'session_keeper_optimizer'
+  | 'auth_gateway'
+  | 'auth_gateway_monitor'
+  | 'auth_gateway_auditor'
+  | 'auth_gateway_reporter'
+  | 'auth_gateway_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -4935,6 +4960,81 @@ export type EidolonEventKind =
   | 'qlo.plan_created'
   | 'qlo.optimization_applied'
   | 'qlo.export_emitted'
+  | 'ti.entry_created'
+  | 'ti.config_updated'
+  | 'ti.export_emitted'
+  | 'tim.check_passed'
+  | 'tim.alert_raised'
+  | 'tim.export_emitted'
+  | 'tia.entry_logged'
+  | 'tia.violation_found'
+  | 'tia.export_emitted'
+  | 'tir.report_generated'
+  | 'tir.insight_found'
+  | 'tir.export_emitted'
+  | 'tio.plan_created'
+  | 'tio.optimization_applied'
+  | 'tio.export_emitted'
+  | 'pr.entry_created'
+  | 'pr.config_updated'
+  | 'pr.export_emitted'
+  | 'prm.check_passed'
+  | 'prm.alert_raised'
+  | 'prm.export_emitted'
+  | 'pra.entry_logged'
+  | 'pra.violation_found'
+  | 'pra.export_emitted'
+  | 'prr.report_generated'
+  | 'prr.insight_found'
+  | 'prr.export_emitted'
+  | 'pro.plan_created'
+  | 'pro.optimization_applied'
+  | 'pro.export_emitted'
+  | 'tv.entry_created'
+  | 'tv.config_updated'
+  | 'tv.export_emitted'
+  | 'tvm.check_passed'
+  | 'tvm.alert_raised'
+  | 'tvm.export_emitted'
+  | 'tva.entry_logged'
+  | 'tva.violation_found'
+  | 'tva.export_emitted'
+  | 'tvr.report_generated'
+  | 'tvr.insight_found'
+  | 'tvr.export_emitted'
+  | 'tvo.plan_created'
+  | 'tvo.optimization_applied'
+  | 'tvo.export_emitted'
+  | 'sk.entry_created'
+  | 'sk.config_updated'
+  | 'sk.export_emitted'
+  | 'skm.check_passed'
+  | 'skm.alert_raised'
+  | 'skm.export_emitted'
+  | 'ska.entry_logged'
+  | 'ska.violation_found'
+  | 'ska.export_emitted'
+  | 'skr.report_generated'
+  | 'skr.insight_found'
+  | 'skr.export_emitted'
+  | 'sko.plan_created'
+  | 'sko.optimization_applied'
+  | 'sko.export_emitted'
+  | 'ag.entry_created'
+  | 'ag.config_updated'
+  | 'ag.export_emitted'
+  | 'agm.check_passed'
+  | 'agm.alert_raised'
+  | 'agm.export_emitted'
+  | 'aga.entry_logged'
+  | 'aga.violation_found'
+  | 'aga.export_emitted'
+  | 'agr.report_generated'
+  | 'agr.insight_found'
+  | 'agr.export_emitted'
+  | 'ago.plan_created'
+  | 'ago.optimization_applied'
+  | 'ago.export_emitted'
   | 'ct.experiment_created'
   | 'ct.config_updated'
   | 'ct.export_emitted'
@@ -7835,6 +7935,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'quota_limiter_auditor':
     case 'quota_limiter_reporter':
     case 'quota_limiter_optimizer':
+    case 'tenant_isolator':
+    case 'tenant_isolator_monitor':
+    case 'tenant_isolator_auditor':
+    case 'tenant_isolator_reporter':
+    case 'tenant_isolator_optimizer':
+    case 'permission_resolver':
+    case 'permission_resolver_monitor':
+    case 'permission_resolver_auditor':
+    case 'permission_resolver_reporter':
+    case 'permission_resolver_optimizer':
+    case 'token_vault':
+    case 'token_vault_monitor':
+    case 'token_vault_auditor':
+    case 'token_vault_reporter':
+    case 'token_vault_optimizer':
+    case 'session_keeper':
+    case 'session_keeper_monitor':
+    case 'session_keeper_auditor':
+    case 'session_keeper_reporter':
+    case 'session_keeper_optimizer':
+    case 'auth_gateway':
+    case 'auth_gateway_monitor':
+    case 'auth_gateway_auditor':
+    case 'auth_gateway_reporter':
+    case 'auth_gateway_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
