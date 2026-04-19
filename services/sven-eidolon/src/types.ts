@@ -147,6 +147,11 @@ export type EidolonBuildingKind =
   | 'backup_orchestrator'
   | 'storage_optimizer'
   | 'health_monitor'
+  | 'credential_manager'
+  | 'certificate_manager'
+  | 'vpn_gateway'
+  | 'proxy_router'
+  | 'access_controller'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -687,6 +692,11 @@ export type EidolonEventKind =
   | 'backup.plan_created' | 'backup.job_completed' | 'backup.restore_verified' | 'backup.retention_cleaned'
   | 'storage.analysis_completed' | 'storage.dedup_finished' | 'storage.tier_moved' | 'storage.savings_realized'
   | 'health.endpoint_added' | 'health.check_failed' | 'health.incident_opened' | 'health.incident_resolved'
+  | 'credential.store_created' | 'credential.rotated' | 'credential.leaked' | 'credential.audit_completed'
+  | 'certificate.ca_created' | 'certificate.issued' | 'certificate.renewed' | 'certificate.revoked'
+  | 'vpn.network_created' | 'vpn.peer_connected' | 'vpn.session_established' | 'vpn.tunnel_failed'
+  | 'proxy.upstream_added' | 'proxy.route_configured' | 'proxy.health_failed' | 'proxy.traffic_anomaly'
+  | 'access.policy_created' | 'access.grant_issued' | 'access.grant_revoked' | 'access.violation_detected'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -837,6 +847,11 @@ export type EidolonEventKind =
   | 'backup.plan_created' | 'backup.job_completed' | 'backup.restore_verified' | 'backup.retention_cleaned'
   | 'storage.analysis_completed' | 'storage.dedup_finished' | 'storage.tier_moved' | 'storage.savings_realized'
   | 'health.endpoint_added' | 'health.check_failed' | 'health.incident_opened' | 'health.incident_resolved'
+  | 'credential.store_created' | 'credential.rotated' | 'credential.leaked' | 'credential.audit_completed'
+  | 'certificate.ca_created' | 'certificate.issued' | 'certificate.renewed' | 'certificate.revoked'
+  | 'vpn.network_created' | 'vpn.peer_connected' | 'vpn.session_established' | 'vpn.tunnel_failed'
+  | 'proxy.upstream_added' | 'proxy.route_configured' | 'proxy.health_failed' | 'proxy.traffic_anomaly'
+  | 'access.policy_created' | 'access.grant_issued' | 'access.grant_revoked' | 'access.violation_detected'
   | 'topology.scan_started' | 'topology.scan_completed' | 'topology.drift_detected' | 'topology.snapshot_created'
   | 'forensic.case_opened' | 'forensic.evidence_collected' | 'forensic.analysis_completed' | 'forensic.case_concluded'
   | 'patch.advisory_found' | 'patch.test_passed' | 'patch.deployed' | 'patch.rolled_back'
@@ -857,6 +872,11 @@ export type EidolonEventKind =
   | 'backup.plan_created' | 'backup.job_completed' | 'backup.restore_verified' | 'backup.retention_cleaned'
   | 'storage.analysis_completed' | 'storage.dedup_finished' | 'storage.tier_moved' | 'storage.savings_realized'
   | 'health.endpoint_added' | 'health.check_failed' | 'health.incident_opened' | 'health.incident_resolved'
+  | 'credential.store_created' | 'credential.rotated' | 'credential.leaked' | 'credential.audit_completed'
+  | 'certificate.ca_created' | 'certificate.issued' | 'certificate.renewed' | 'certificate.revoked'
+  | 'vpn.network_created' | 'vpn.peer_connected' | 'vpn.session_established' | 'vpn.tunnel_failed'
+  | 'proxy.upstream_added' | 'proxy.route_configured' | 'proxy.health_failed' | 'proxy.traffic_anomaly'
+  | 'access.policy_created' | 'access.grant_issued' | 'access.grant_revoked' | 'access.violation_detected'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -1198,5 +1218,12 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'firewall_controller':
     case 'health_monitor':
       return 'civic';
+    case 'credential_manager':
+    case 'certificate_manager':
+    case 'access_controller':
+      return 'civic';
+    case 'vpn_gateway':
+    case 'proxy_router':
+      return 'infrastructure';
   }
 }
