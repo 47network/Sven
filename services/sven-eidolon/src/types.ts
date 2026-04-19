@@ -633,6 +633,31 @@ export type EidolonBuildingKind =
   | 'cache_eviction_policy_runner'
   | 'cache_consistency_validator'
   | 'cache_hit_ratio_reporter'
+  | 'db_connection_pool_warden'
+  | 'db_query_optimizer'
+  | 'db_index_advisor'
+  | 'db_replication_lag_monitor'
+  | 'db_failover_arbiter'
+  | 'db_schema_migrator'
+  | 'db_data_redactor'
+  | 'db_backup_orchestrator'
+  | 'db_restore_validator'
+  | 'db_archive_tierer'
+  | 'warehouse_etl_loader'
+  | 'warehouse_partition_pruner'
+  | 'warehouse_query_router'
+  | 'warehouse_materialization_runner'
+  | 'warehouse_cost_attributor'
+  | 'lake_ingestion_validator'
+  | 'lake_compactor'
+  | 'lake_partition_evolver'
+  | 'lake_governance_enforcer'
+  | 'lake_export_packager'
+  | 'graph_node_writer'
+  | 'graph_edge_writer'
+  | 'graph_traversal_executor'
+  | 'graph_consistency_validator'
+  | 'graph_pattern_matcher'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -3370,6 +3395,106 @@ export type EidolonEventKind =
   | 'chrr.counters_aggregated'
   | 'chrr.ratio_computed'
   | 'chrr.report_emitted'
+  | 'dcpw.snapshot_taken'
+  | 'dcpw.thresholds_evaluated'
+  | 'dcpw.adjustments_applied'
+  | 'dcpw.audit_recorded'
+  | 'dqop.profile_received'
+  | 'dqop.plan_compared'
+  | 'dqop.recommendation_emitted'
+  | 'dqop.audit_recorded'
+  | 'diad.workload_received'
+  | 'diad.candidates_evaluated'
+  | 'diad.recommendations_emitted'
+  | 'diad.audit_recorded'
+  | 'drlm.sample_taken'
+  | 'drlm.lag_computed'
+  | 'drlm.thresholds_evaluated'
+  | 'drlm.alerts_emitted'
+  | 'dfar.signal_received'
+  | 'dfar.quorum_evaluated'
+  | 'dfar.failover_executed'
+  | 'dfar.audit_recorded'
+  | 'dsmg.plan_received'
+  | 'dsmg.preflight_validated'
+  | 'dsmg.migration_applied'
+  | 'dsmg.audit_recorded'
+  | 'dddr.job_received'
+  | 'dddr.policy_loaded'
+  | 'dddr.records_redacted'
+  | 'dddr.audit_recorded'
+  | 'dbbo.job_received'
+  | 'dbbo.snapshot_taken'
+  | 'dbbo.backup_persisted'
+  | 'dbbo.checksum_recorded'
+  | 'dbrv.check_scheduled'
+  | 'dbrv.restore_executed'
+  | 'dbrv.integrity_verified'
+  | 'dbrv.report_emitted'
+  | 'dbat.policy_received'
+  | 'dbat.candidates_selected'
+  | 'dbat.records_tiered'
+  | 'dbat.audit_recorded'
+  | 'wetl.batch_received'
+  | 'wetl.staging_loaded'
+  | 'wetl.merge_executed'
+  | 'wetl.audit_recorded'
+  | 'wppr.plan_received'
+  | 'wppr.partitions_evaluated'
+  | 'wppr.partitions_pruned'
+  | 'wppr.audit_recorded'
+  | 'wqrr.request_received'
+  | 'wqrr.cluster_resolved'
+  | 'wqrr.query_dispatched'
+  | 'wqrr.result_returned'
+  | 'wmrn.job_received'
+  | 'wmrn.dependencies_resolved'
+  | 'wmrn.materialization_built'
+  | 'wmrn.audit_recorded'
+  | 'wcat.record_received'
+  | 'wcat.usage_normalized'
+  | 'wcat.cost_attributed'
+  | 'wcat.report_emitted'
+  | 'lkiv.batch_received'
+  | 'lkiv.schema_checked'
+  | 'lkiv.records_validated'
+  | 'lkiv.report_emitted'
+  | 'lkcm.job_received'
+  | 'lkcm.files_scanned'
+  | 'lkcm.files_merged'
+  | 'lkcm.manifest_committed'
+  | 'lkpe.request_received'
+  | 'lkpe.layout_evaluated'
+  | 'lkpe.evolution_applied'
+  | 'lkpe.audit_recorded'
+  | 'lkge.rule_received'
+  | 'lkge.scope_resolved'
+  | 'lkge.controls_applied'
+  | 'lkge.audit_recorded'
+  | 'lkep.request_received'
+  | 'lkep.dataset_collected'
+  | 'lkep.package_built'
+  | 'lkep.signed_url_emitted'
+  | 'gnwr.batch_received'
+  | 'gnwr.nodes_validated'
+  | 'gnwr.nodes_persisted'
+  | 'gnwr.audit_recorded'
+  | 'gewr.batch_received'
+  | 'gewr.endpoints_validated'
+  | 'gewr.edges_persisted'
+  | 'gewr.audit_recorded'
+  | 'gtxe.request_received'
+  | 'gtxe.plan_constructed'
+  | 'gtxe.traversal_executed'
+  | 'gtxe.results_returned'
+  | 'gcsv.scan_scheduled'
+  | 'gcsv.invariants_checked'
+  | 'gcsv.violations_flagged'
+  | 'gcsv.report_emitted'
+  | 'gpmt.query_received'
+  | 'gpmt.pattern_compiled'
+  | 'gpmt.matches_collected'
+  | 'gpmt.results_returned'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -4460,6 +4585,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'cache_eviction_policy_runner':
     case 'cache_consistency_validator':
     case 'cache_hit_ratio_reporter':
+    case 'db_connection_pool_warden':
+    case 'db_query_optimizer':
+    case 'db_index_advisor':
+    case 'db_replication_lag_monitor':
+    case 'db_failover_arbiter':
+    case 'db_schema_migrator':
+    case 'db_data_redactor':
+    case 'db_backup_orchestrator':
+    case 'db_restore_validator':
+    case 'db_archive_tierer':
+    case 'warehouse_etl_loader':
+    case 'warehouse_partition_pruner':
+    case 'warehouse_query_router':
+    case 'warehouse_materialization_runner':
+    case 'warehouse_cost_attributor':
+    case 'lake_ingestion_validator':
+    case 'lake_compactor':
+    case 'lake_partition_evolver':
+    case 'lake_governance_enforcer':
+    case 'lake_export_packager':
+    case 'graph_node_writer':
+    case 'graph_edge_writer':
+    case 'graph_traversal_executor':
+    case 'graph_consistency_validator':
+    case 'graph_pattern_matcher':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
