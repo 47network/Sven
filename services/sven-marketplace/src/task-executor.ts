@@ -3263,6 +3263,36 @@ export class TaskExecutor {
       case 'rscp_bypass': return this.handleRscpBypass(task);
       case 'rscp_report': return this.handleRscpReport(task);
       case 'rscp_monitor': return this.handleRscpMonitor(task);
+      case 'ixbl_create': return this.handleIxblCreate(task);
+      case 'ixbl_rebuild': return this.handleIxblRebuild(task);
+      case 'ixbl_map': return this.handleIxblMap(task);
+      case 'ixbl_monitor': return this.handleIxblMonitor(task);
+      case 'ixbl_report': return this.handleIxblReport(task);
+      case 'ixbl_configure': return this.handleIxblConfigure(task);
+      case 'fcag_compute': return this.handleFcagCompute(task);
+      case 'fcag_cache': return this.handleFcagCache(task);
+      case 'fcag_update': return this.handleFcagUpdate(task);
+      case 'fcag_monitor': return this.handleFcagMonitor(task);
+      case 'fcag_report': return this.handleFcagReport(task);
+      case 'fcag_configure': return this.handleFcagConfigure(task);
+      case 'acen_serve': return this.handleAcenServe(task);
+      case 'acen_update': return this.handleAcenUpdate(task);
+      case 'acen_retrain': return this.handleAcenRetrain(task);
+      case 'acen_warm': return this.handleAcenWarm(task);
+      case 'acen_report': return this.handleAcenReport(task);
+      case 'acen_monitor': return this.handleAcenMonitor(task);
+      case 'rltn_apply': return this.handleRltnApply(task);
+      case 'rltn_boost': return this.handleRltnBoost(task);
+      case 'rltn_decay': return this.handleRltnDecay(task);
+      case 'rltn_experiment': return this.handleRltnExperiment(task);
+      case 'rltn_report': return this.handleRltnReport(task);
+      case 'rltn_monitor': return this.handleRltnMonitor(task);
+      case 'symg_add': return this.handleSymgAdd(task);
+      case 'symg_merge': return this.handleSymgMerge(task);
+      case 'symg_expand': return this.handleSymgExpand(task);
+      case 'symg_sync': return this.handleSymgSync(task);
+      case 'symg_report': return this.handleSymgReport(task);
+      case 'symg_monitor': return this.handleSymgMonitor(task);
     }
   }
 

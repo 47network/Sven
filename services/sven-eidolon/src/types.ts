@@ -213,6 +213,11 @@ export type EidolonBuildingKind =
   | 'route_balancer'
   | 'endpoint_cache'
   | 'response_compressor'
+  | 'index_builder'
+  | 'facet_aggregator'
+  | 'autocomplete_engine'
+  | 'relevance_tuner'
+  | 'synonym_manager'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -1265,6 +1270,26 @@ export type EidolonEventKind =
   | 'rscp.ratio_improved'
   | 'rscp.format_changed'
   | 'rscp.bypass_triggered'
+  | 'ixbl.index_created'
+  | 'ixbl.index_rebuilt'
+  | 'ixbl.mapping_updated'
+  | 'ixbl.build_completed'
+  | 'fcag.facet_computed'
+  | 'fcag.aggregation_cached'
+  | 'fcag.bucket_updated'
+  | 'fcag.stats_refreshed'
+  | 'acen.suggestion_served'
+  | 'acen.corpus_updated'
+  | 'acen.model_retrained'
+  | 'acen.cache_warmed'
+  | 'rltn.profile_applied'
+  | 'rltn.boost_adjusted'
+  | 'rltn.decay_updated'
+  | 'rltn.experiment_started'
+  | 'symg.synonym_added'
+  | 'symg.set_merged'
+  | 'symg.expansion_applied'
+  | 'symg.dictionary_synced'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1915,6 +1940,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'route_balancer':
     case 'endpoint_cache':
     case 'response_compressor':
+    case 'index_builder':
+    case 'facet_aggregator':
+    case 'autocomplete_engine':
+    case 'relevance_tuner':
+    case 'synonym_manager':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
