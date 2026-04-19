@@ -528,3 +528,8 @@ export * from './agent-backfill-runner';
 export * from './agent-lineage-tracer';
 export * from './agent-data-cataloger';
 export * from './agent-change-capture';
+export * from './agent-cert-renewer';
+export * from './agent-vault-syncer';
+export * from './agent-rbac-manager';
+export * from './agent-mfa-validator';
+export * from './agent-ip-allowlister';

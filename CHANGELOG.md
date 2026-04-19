@@ -27,6 +27,13 @@
 
 # Changelog
 
+## Batches 503-507 — Security & Access Control
+- cert_renewer: TLS certificate lifecycle management and automated renewal
+- vault_syncer: Secret vault synchronization and credential rotation
+- rbac_manager: Role-based access control management and policy enforcement
+- mfa_validator: Multi-factor authentication validation and challenge management
+- ip_allowlister: IP allowlist management and access control enforcement
+
 ## Batches 498-502 — Data Pipeline & ETL Part 2
 - Added dead_letter_handler, backfill_runner, lineage_tracer, data_cataloger, change_capture verticals
 - 5 migrations (20260621350000-20260621390000), 5 type files, 5 barrel exports
