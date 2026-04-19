@@ -858,6 +858,31 @@ export type EidolonBuildingKind =
   | 'cluster_capacity_planner'
   | 'cluster_scaling_policy_enforcer'
   | 'cluster_autoscaling_auditor'
+  | 'ingress_routing'
+  | 'ingress_routing_monitor'
+  | 'ingress_routing_auditor'
+  | 'ingress_routing_reporter'
+  | 'ingress_routing_optimizer'
+  | 'egress_gateway'
+  | 'egress_gateway_monitor'
+  | 'egress_gateway_auditor'
+  | 'egress_gateway_reporter'
+  | 'egress_gateway_optimizer'
+  | 'network_policy'
+  | 'network_policy_monitor'
+  | 'network_policy_auditor'
+  | 'network_policy_reporter'
+  | 'network_policy_optimizer'
+  | 'traffic_shaping'
+  | 'traffic_shaping_monitor'
+  | 'traffic_shaping_auditor'
+  | 'traffic_shaping_reporter'
+  | 'traffic_shaping_optimizer'
+  | 'rate_throttle'
+  | 'rate_throttle_monitor'
+  | 'rate_throttle_auditor'
+  | 'rate_throttle_reporter'
+  | 'rate_throttle_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -4445,6 +4470,81 @@ export type EidolonEventKind =
   | 'caa.audit_started'
   | 'caa.findings_reported'
   | 'caa.export_emitted'
+  | 'ir.rule_created'
+  | 'ir.config_updated'
+  | 'ir.export_emitted'
+  | 'irm.check_passed'
+  | 'irm.alert_raised'
+  | 'irm.export_emitted'
+  | 'ira.entry_logged'
+  | 'ira.violation_found'
+  | 'ira.export_emitted'
+  | 'irr.report_generated'
+  | 'irr.insight_found'
+  | 'irr.export_emitted'
+  | 'iro.plan_created'
+  | 'iro.optimization_applied'
+  | 'iro.export_emitted'
+  | 'eg.rule_created'
+  | 'eg.config_updated'
+  | 'eg.export_emitted'
+  | 'egm.check_passed'
+  | 'egm.alert_raised'
+  | 'egm.export_emitted'
+  | 'ega.entry_logged'
+  | 'ega.violation_found'
+  | 'ega.export_emitted'
+  | 'egr.report_generated'
+  | 'egr.insight_found'
+  | 'egr.export_emitted'
+  | 'ego.plan_created'
+  | 'ego.optimization_applied'
+  | 'ego.export_emitted'
+  | 'np.rule_created'
+  | 'np.config_updated'
+  | 'np.export_emitted'
+  | 'npm.check_passed'
+  | 'npm.alert_raised'
+  | 'npm.export_emitted'
+  | 'npa.entry_logged'
+  | 'npa.violation_found'
+  | 'npa.export_emitted'
+  | 'npr.report_generated'
+  | 'npr.insight_found'
+  | 'npr.export_emitted'
+  | 'npo.plan_created'
+  | 'npo.optimization_applied'
+  | 'npo.export_emitted'
+  | 'ts.rule_created'
+  | 'ts.config_updated'
+  | 'ts.export_emitted'
+  | 'tsm.check_passed'
+  | 'tsm.alert_raised'
+  | 'tsm.export_emitted'
+  | 'tsa.entry_logged'
+  | 'tsa.violation_found'
+  | 'tsa.export_emitted'
+  | 'tsr.report_generated'
+  | 'tsr.insight_found'
+  | 'tsr.export_emitted'
+  | 'tso.plan_created'
+  | 'tso.optimization_applied'
+  | 'tso.export_emitted'
+  | 'rt.rule_created'
+  | 'rt.config_updated'
+  | 'rt.export_emitted'
+  | 'rtm.check_passed'
+  | 'rtm.alert_raised'
+  | 'rtm.export_emitted'
+  | 'rta.entry_logged'
+  | 'rta.violation_found'
+  | 'rta.export_emitted'
+  | 'rtr.report_generated'
+  | 'rtr.insight_found'
+  | 'rtr.export_emitted'
+  | 'rto.plan_created'
+  | 'rto.optimization_applied'
+  | 'rto.export_emitted'
   | 'nfpm.analysis_completed'
   | 'nfpm.alert_triggered'
   | 'nfpm.export_emitted'
@@ -5835,6 +5935,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'cluster_capacity_planner':
     case 'cluster_scaling_policy_enforcer':
     case 'cluster_autoscaling_auditor':
+    case 'ingress_routing':
+    case 'ingress_routing_monitor':
+    case 'ingress_routing_auditor':
+    case 'ingress_routing_reporter':
+    case 'ingress_routing_optimizer':
+    case 'egress_gateway':
+    case 'egress_gateway_monitor':
+    case 'egress_gateway_auditor':
+    case 'egress_gateway_reporter':
+    case 'egress_gateway_optimizer':
+    case 'network_policy':
+    case 'network_policy_monitor':
+    case 'network_policy_auditor':
+    case 'network_policy_reporter':
+    case 'network_policy_optimizer':
+    case 'traffic_shaping':
+    case 'traffic_shaping_monitor':
+    case 'traffic_shaping_auditor':
+    case 'traffic_shaping_reporter':
+    case 'traffic_shaping_optimizer':
+    case 'rate_throttle':
+    case 'rate_throttle_monitor':
+    case 'rate_throttle_auditor':
+    case 'rate_throttle_reporter':
+    case 'rate_throttle_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
