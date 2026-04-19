@@ -498,3 +498,8 @@ export * from './agent-secret-scanner';
 export * from './agent-auth-auditor';
 export * from './agent-permission-mapper';
 export * from './agent-session-tracker';
+export * from './agent-incident-tracker';
+export * from './agent-sla-reporter';
+export * from './agent-anomaly-detector';
+export * from './agent-resource-scaler';
+export * from './agent-outage-predictor';
