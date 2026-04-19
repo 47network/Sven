@@ -1008,6 +1008,31 @@ export type EidolonBuildingKind =
   | 'billing_reconcile_auditor'
   | 'billing_reconcile_reporter'
   | 'billing_reconcile_optimizer'
+  | 'quota_management'
+  | 'quota_management_monitor'
+  | 'quota_management_auditor'
+  | 'quota_management_reporter'
+  | 'quota_management_optimizer'
+  | 'tenant_isolation'
+  | 'tenant_isolation_monitor'
+  | 'tenant_isolation_auditor'
+  | 'tenant_isolation_reporter'
+  | 'tenant_isolation_optimizer'
+  | 'data_retention'
+  | 'data_retention_monitor'
+  | 'data_retention_auditor'
+  | 'data_retention_reporter'
+  | 'data_retention_optimizer'
+  | 'backup_planner'
+  | 'backup_planner_monitor'
+  | 'backup_planner_auditor'
+  | 'backup_planner_reporter'
+  | 'backup_planner_optimizer'
+  | 'disaster_recovery'
+  | 'disaster_recovery_monitor'
+  | 'disaster_recovery_auditor'
+  | 'disaster_recovery_reporter'
+  | 'disaster_recovery_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -4745,6 +4770,81 @@ export type EidolonEventKind =
   | 'bro.plan_created'
   | 'bro.optimization_applied'
   | 'bro.export_emitted'
+  | 'qm.entry_created'
+  | 'qm.config_updated'
+  | 'qm.export_emitted'
+  | 'qmm.check_passed'
+  | 'qmm.alert_raised'
+  | 'qmm.export_emitted'
+  | 'qma.entry_logged'
+  | 'qma.violation_found'
+  | 'qma.export_emitted'
+  | 'qmr.report_generated'
+  | 'qmr.insight_found'
+  | 'qmr.export_emitted'
+  | 'qmo.plan_created'
+  | 'qmo.optimization_applied'
+  | 'qmo.export_emitted'
+  | 'ti.rule_created'
+  | 'ti.config_updated'
+  | 'ti.export_emitted'
+  | 'tim.check_passed'
+  | 'tim.alert_raised'
+  | 'tim.export_emitted'
+  | 'tia.entry_logged'
+  | 'tia.violation_found'
+  | 'tia.export_emitted'
+  | 'tir.report_generated'
+  | 'tir.insight_found'
+  | 'tir.export_emitted'
+  | 'tio.plan_created'
+  | 'tio.optimization_applied'
+  | 'tio.export_emitted'
+  | 'dr.policy_created'
+  | 'dr.config_updated'
+  | 'dr.export_emitted'
+  | 'drm.check_passed'
+  | 'drm.alert_raised'
+  | 'drm.export_emitted'
+  | 'dra.entry_logged'
+  | 'dra.violation_found'
+  | 'dra.export_emitted'
+  | 'drr.report_generated'
+  | 'drr.insight_found'
+  | 'drr.export_emitted'
+  | 'dro2.plan_created'
+  | 'dro2.optimization_applied'
+  | 'dro2.export_emitted'
+  | 'bp.entry_created'
+  | 'bp.config_updated'
+  | 'bp.export_emitted'
+  | 'bpm.check_passed'
+  | 'bpm.alert_raised'
+  | 'bpm.export_emitted'
+  | 'bpa.entry_logged'
+  | 'bpa.violation_found'
+  | 'bpa.export_emitted'
+  | 'bpr.report_generated'
+  | 'bpr.insight_found'
+  | 'bpr.export_emitted'
+  | 'bpo.plan_created'
+  | 'bpo.optimization_applied'
+  | 'bpo.export_emitted'
+  | 'drc.plan_created'
+  | 'drc.config_updated'
+  | 'drc.export_emitted'
+  | 'drcm.check_passed'
+  | 'drcm.alert_raised'
+  | 'drcm.export_emitted'
+  | 'drca.entry_logged'
+  | 'drca.violation_found'
+  | 'drca.export_emitted'
+  | 'drcr.report_generated'
+  | 'drcr.insight_found'
+  | 'drcr.export_emitted'
+  | 'drco.plan_created'
+  | 'drco.optimization_applied'
+  | 'drco.export_emitted'
   | 'eg.rule_created'
   | 'eg.config_updated'
   | 'eg.export_emitted'
@@ -6585,6 +6685,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'billing_reconcile_auditor':
     case 'billing_reconcile_reporter':
     case 'billing_reconcile_optimizer':
+    case 'quota_management':
+    case 'quota_management_monitor':
+    case 'quota_management_auditor':
+    case 'quota_management_reporter':
+    case 'quota_management_optimizer':
+    case 'tenant_isolation':
+    case 'tenant_isolation_monitor':
+    case 'tenant_isolation_auditor':
+    case 'tenant_isolation_reporter':
+    case 'tenant_isolation_optimizer':
+    case 'data_retention':
+    case 'data_retention_monitor':
+    case 'data_retention_auditor':
+    case 'data_retention_reporter':
+    case 'data_retention_optimizer':
+    case 'backup_planner':
+    case 'backup_planner_monitor':
+    case 'backup_planner_auditor':
+    case 'backup_planner_reporter':
+    case 'backup_planner_optimizer':
+    case 'disaster_recovery':
+    case 'disaster_recovery_monitor':
+    case 'disaster_recovery_auditor':
+    case 'disaster_recovery_reporter':
+    case 'disaster_recovery_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
