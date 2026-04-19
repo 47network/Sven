@@ -408,6 +408,31 @@ export type EidolonBuildingKind =
   | 'pvc_resizer'
   | 'csi_driver_manager'
   | 'storage_tiering_engine'
+  | 'build_pipeline_runner'
+  | 'artifact_promoter'
+  | 'release_orchestrator'
+  | 'rollback_coordinator'
+  | 'deployment_canary_steerer'
+  | 'dashboard_generator'
+  | 'slo_calculator'
+  | 'log_pipeline_router'
+  | 'metric_correlator'
+  | 'trace_sampler_v2'
+  | 'waf_engine'
+  | 'ddos_mitigator'
+  | 'penetration_tester'
+  | 'security_baseline_enforcer'
+  | 'asset_inventory_tracker'
+  | 'license_compliance_auditor'
+  | 'cost_anomaly_detector'
+  | 'budget_enforcer'
+  | 'cloud_billing_optimizer'
+  | 'reservation_planner'
+  | 'chaos_injector'
+  | 'fault_simulator'
+  | 'resilience_tester'
+  | 'dependency_mapper'
+  | 'blast_radius_calculator'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -2245,6 +2270,106 @@ export type EidolonEventKind =
   | 'stte.tier_demoted'
   | 'stte.access_pattern_analyzed'
   | 'stte.cost_optimized'
+  | 'bplr.run_started'
+  | 'bplr.stage_completed'
+  | 'bplr.artifact_published'
+  | 'bplr.run_failed'
+  | 'apmt.artifact_promoted'
+  | 'apmt.signature_verified'
+  | 'apmt.environment_targeted'
+  | 'apmt.rollback_prepared'
+  | 'rlor.release_planned'
+  | 'rlor.gate_approved'
+  | 'rlor.deployment_triggered'
+  | 'rlor.changelog_published'
+  | 'rbck.rollback_initiated'
+  | 'rbck.checkpoint_restored'
+  | 'rbck.traffic_redirected'
+  | 'rbck.completion_verified'
+  | 'dcst.canary_launched'
+  | 'dcst.metrics_evaluated'
+  | 'dcst.traffic_increased'
+  | 'dcst.canary_aborted'
+  | 'dbgn.dashboard_created'
+  | 'dbgn.panel_added'
+  | 'dbgn.template_applied'
+  | 'dbgn.export_completed'
+  | 'slcl.slo_calculated'
+  | 'slcl.error_budget_consumed'
+  | 'slcl.burn_rate_alerted'
+  | 'slcl.window_rolled'
+  | 'lpro.route_added'
+  | 'lpro.log_filtered'
+  | 'lpro.log_enriched'
+  | 'lpro.sink_dispatched'
+  | 'mtcr.correlation_detected'
+  | 'mtcr.causality_inferred'
+  | 'mtcr.pattern_learned'
+  | 'mtcr.alert_grouped'
+  | 'tsv2.decision_made'
+  | 'tsv2.tail_evaluated'
+  | 'tsv2.priority_assigned'
+  | 'tsv2.budget_enforced'
+  | 'wafe.rule_loaded'
+  | 'wafe.request_blocked'
+  | 'wafe.signature_updated'
+  | 'wafe.bypass_detected'
+  | 'ddmt.attack_detected'
+  | 'ddmt.mitigation_engaged'
+  | 'ddmt.scrubbing_activated'
+  | 'ddmt.attack_subsided'
+  | 'pntst.scan_started'
+  | 'pntst.vulnerability_found'
+  | 'pntst.exploit_validated'
+  | 'pntst.report_generated'
+  | 'sbsn.baseline_applied'
+  | 'sbsn.drift_detected'
+  | 'sbsn.remediation_executed'
+  | 'sbsn.compliance_verified'
+  | 'aitr.asset_discovered'
+  | 'aitr.attribute_updated'
+  | 'aitr.ownership_assigned'
+  | 'aitr.lifecycle_tracked'
+  | 'lcau.scan_completed'
+  | 'lcau.violation_found'
+  | 'lcau.expiration_alerted'
+  | 'lcau.report_published'
+  | 'cadt.anomaly_detected'
+  | 'cadt.baseline_updated'
+  | 'cadt.root_cause_identified'
+  | 'cadt.alert_triggered'
+  | 'bdef.budget_set'
+  | 'bdef.threshold_crossed'
+  | 'bdef.action_taken'
+  | 'bdef.period_reset'
+  | 'cbop.recommendation_generated'
+  | 'cbop.savings_calculated'
+  | 'cbop.action_applied'
+  | 'cbop.report_delivered'
+  | 'rspl.usage_analyzed'
+  | 'rspl.commitment_recommended'
+  | 'rspl.purchase_executed'
+  | 'rspl.coverage_optimized'
+  | 'chin.experiment_scheduled'
+  | 'chin.fault_injected'
+  | 'chin.steady_state_verified'
+  | 'chin.experiment_aborted'
+  | 'ftsm.scenario_loaded'
+  | 'ftsm.fault_simulated'
+  | 'ftsm.recovery_observed'
+  | 'ftsm.results_recorded'
+  | 'rstr.test_planned'
+  | 'rstr.workload_applied'
+  | 'rstr.recovery_measured'
+  | 'rstr.score_assigned'
+  | 'dpmp.graph_built'
+  | 'dpmp.node_added'
+  | 'dpmp.edge_inferred'
+  | 'dpmp.cycle_detected'
+  | 'brca.radius_computed'
+  | 'brca.impact_assessed'
+  | 'brca.containment_recommended'
+  | 'brca.simulation_completed'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -3110,6 +3235,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'pvc_resizer':
     case 'csi_driver_manager':
     case 'storage_tiering_engine':
+    case 'build_pipeline_runner':
+    case 'artifact_promoter':
+    case 'release_orchestrator':
+    case 'rollback_coordinator':
+    case 'deployment_canary_steerer':
+    case 'dashboard_generator':
+    case 'slo_calculator':
+    case 'log_pipeline_router':
+    case 'metric_correlator':
+    case 'trace_sampler_v2':
+    case 'waf_engine':
+    case 'ddos_mitigator':
+    case 'penetration_tester':
+    case 'security_baseline_enforcer':
+    case 'asset_inventory_tracker':
+    case 'license_compliance_auditor':
+    case 'cost_anomaly_detector':
+    case 'budget_enforcer':
+    case 'cloud_billing_optimizer':
+    case 'reservation_planner':
+    case 'chaos_injector':
+    case 'fault_simulator':
+    case 'resilience_tester':
+    case 'dependency_mapper':
+    case 'blast_radius_calculator':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
