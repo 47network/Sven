@@ -15,12 +15,12 @@ VS Code extension that adds **@sven** as a GitHub Copilot Chat participant.
 
 1. Install dependencies: `pnpm install`
 2. Build: `pnpm run build`
-3. Configure `sven.gatewayUrl` and `sven.apiToken` in VS Code settings
+3. Configure `sven.gatewayUrl` and `sven.extensionApiKey` in VS Code settings
 4. Press F5 to launch Extension Development Host
 
 ## Configuration
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `sven.gatewayUrl` | `https://sven.47network.org` | Sven gateway API URL |
-| `sven.apiToken` | _(empty)_ | JWT or API key for authentication |
+| `sven.gatewayUrl` | `http://127.0.0.1:3000` | Sven gateway API base URL |
+| `sven.extensionApiKey` | `sven-ext-47-dev` | Extension API key (`SVEN_EXTENSION_API_KEY` on gateway) |
