@@ -3203,6 +3203,36 @@ export class TaskExecutor {
       case 'chcp_sync': return this.handleChcpSync(task);
       case 'chcp_report': return this.handleChcpReport(task);
       case 'chcp_monitor': return this.handleChcpMonitor(task);
+      case 'ctrn_check': return this.handleCtrnCheck(task);
+      case 'ctrn_renew': return this.handleCtrnRenew(task);
+      case 'ctrn_revoke': return this.handleCtrnRevoke(task);
+      case 'ctrn_monitor': return this.handleCtrnMonitor(task);
+      case 'ctrn_report': return this.handleCtrnReport(task);
+      case 'ctrn_configure': return this.handleCtrnConfigure(task);
+      case 'vlsy_sync': return this.handleVlsySync(task);
+      case 'vlsy_connect': return this.handleVlsyConnect(task);
+      case 'vlsy_rotate': return this.handleVlsyRotate(task);
+      case 'vlsy_monitor': return this.handleVlsyMonitor(task);
+      case 'vlsy_report': return this.handleVlsyReport(task);
+      case 'vlsy_configure': return this.handleVlsyConfigure(task);
+      case 'rbmg_assign': return this.handleRbmgAssign(task);
+      case 'rbmg_grant': return this.handleRbmgGrant(task);
+      case 'rbmg_revoke': return this.handleRbmgRevoke(task);
+      case 'rbmg_update': return this.handleRbmgUpdate(task);
+      case 'rbmg_report': return this.handleRbmgReport(task);
+      case 'rbmg_monitor': return this.handleRbmgMonitor(task);
+      case 'mfvl_challenge': return this.handleMfvlChallenge(task);
+      case 'mfvl_validate': return this.handleMfvlValidate(task);
+      case 'mfvl_bypass': return this.handleMfvlBypass(task);
+      case 'mfvl_monitor': return this.handleMfvlMonitor(task);
+      case 'mfvl_report': return this.handleMfvlReport(task);
+      case 'mfvl_configure': return this.handleMfvlConfigure(task);
+      case 'ipal_add': return this.handleIpalAdd(task);
+      case 'ipal_remove': return this.handleIpalRemove(task);
+      case 'ipal_block': return this.handleIpalBlock(task);
+      case 'ipal_update': return this.handleIpalUpdate(task);
+      case 'ipal_report': return this.handleIpalReport(task);
+      case 'ipal_monitor': return this.handleIpalMonitor(task);
     }
   }
 

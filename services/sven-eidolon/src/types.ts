@@ -203,6 +203,11 @@ export type EidolonBuildingKind =
   | 'lineage_tracer'
   | 'data_cataloger'
   | 'change_capture'
+  | 'cert_renewer'
+  | 'vault_syncer'
+  | 'rbac_manager'
+  | 'mfa_validator'
+  | 'ip_allowlister'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -1215,6 +1220,26 @@ export type EidolonEventKind =
   | 'chcp.event_published'
   | 'chcp.snapshot_taken'
   | 'chcp.replication_synced'
+  | 'ctrn.cert_expiring'
+  | 'ctrn.cert_renewed'
+  | 'ctrn.cert_failed'
+  | 'ctrn.cert_revoked'
+  | 'vlsy.secret_synced'
+  | 'vlsy.vault_connected'
+  | 'vlsy.rotation_completed'
+  | 'vlsy.sync_failed'
+  | 'rbmg.role_assigned'
+  | 'rbmg.permission_granted'
+  | 'rbmg.access_revoked'
+  | 'rbmg.policy_updated'
+  | 'mfvl.challenge_issued'
+  | 'mfvl.validation_passed'
+  | 'mfvl.validation_failed'
+  | 'mfvl.bypass_detected'
+  | 'ipal.ip_added'
+  | 'ipal.ip_removed'
+  | 'ipal.access_blocked'
+  | 'ipal.allowlist_updated'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1855,6 +1880,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'lineage_tracer':
     case 'data_cataloger':
     case 'change_capture':
+    case 'cert_renewer':
+    case 'vault_syncer':
+    case 'rbac_manager':
+    case 'mfa_validator':
+    case 'ip_allowlister':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
