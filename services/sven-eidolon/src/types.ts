@@ -183,6 +183,11 @@ export type EidolonBuildingKind =
   | 'env_provisioner'
   | 'release_tagger'
   | 'stack_auditor'
+  | 'pod_scheduler'
+  | 'volume_manager'
+  | 'container_profiler'
+  | 'cluster_balancer'
+  | 'node_drainer'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -1115,6 +1120,26 @@ export type EidolonEventKind =
   | 'skad.vulnerability_found'
   | 'skad.license_checked'
   | 'skad.auto_fix_applied'
+  | 'pdsc.pod_scheduled'
+  | 'pdsc.pod_rescheduled'
+  | 'pdsc.scheduling_optimized'
+  | 'pdsc.pod_preempted'
+  | 'vlmg.volume_provisioned'
+  | 'vlmg.snapshot_created'
+  | 'vlmg.volume_resized'
+  | 'vlmg.backup_completed'
+  | 'cnpr.profile_captured'
+  | 'cnpr.analysis_completed'
+  | 'cnpr.threshold_triggered'
+  | 'cnpr.recommendation_generated'
+  | 'clbl.traffic_balanced'
+  | 'clbl.health_checked'
+  | 'clbl.circuit_opened'
+  | 'clbl.node_drained'
+  | 'nddr.drain_started'
+  | 'nddr.drain_completed'
+  | 'nddr.node_cordoned'
+  | 'nddr.node_uncordoned'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1735,6 +1760,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'env_provisioner':
     case 'release_tagger':
     case 'stack_auditor':
+    case 'pod_scheduler':
+    case 'volume_manager':
+    case 'container_profiler':
+    case 'cluster_balancer':
+    case 'node_drainer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

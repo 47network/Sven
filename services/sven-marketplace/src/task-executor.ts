@@ -3083,6 +3083,36 @@ export class TaskExecutor {
       case 'skad_outdated': return this.handleSkadOutdated(task);
       case 'skad_report': return this.handleSkadReport(task);
       case 'skad_monitor': return this.handleSkadMonitor(task);
+      case 'pdsc_schedule': return this.handlePdscSchedule(task);
+      case 'pdsc_reschedule': return this.handlePdscReschedule(task);
+      case 'pdsc_optimize': return this.handlePdscOptimize(task);
+      case 'pdsc_preempt': return this.handlePdscPreempt(task);
+      case 'pdsc_report': return this.handlePdscReport(task);
+      case 'pdsc_monitor': return this.handlePdscMonitor(task);
+      case 'vlmg_provision': return this.handleVlmgProvision(task);
+      case 'vlmg_snapshot': return this.handleVlmgSnapshot(task);
+      case 'vlmg_resize': return this.handleVlmgResize(task);
+      case 'vlmg_backup': return this.handleVlmgBackup(task);
+      case 'vlmg_report': return this.handleVlmgReport(task);
+      case 'vlmg_monitor': return this.handleVlmgMonitor(task);
+      case 'cnpr_profile': return this.handleCnprProfile(task);
+      case 'cnpr_analyze': return this.handleCnprAnalyze(task);
+      case 'cnpr_alert': return this.handleCnprAlert(task);
+      case 'cnpr_recommend': return this.handleCnprRecommend(task);
+      case 'cnpr_report': return this.handleCnprReport(task);
+      case 'cnpr_monitor': return this.handleCnprMonitor(task);
+      case 'clbl_balance': return this.handleClblBalance(task);
+      case 'clbl_health': return this.handleClblHealth(task);
+      case 'clbl_circuit': return this.handleClblCircuit(task);
+      case 'clbl_drain': return this.handleClblDrain(task);
+      case 'clbl_report': return this.handleClblReport(task);
+      case 'clbl_monitor': return this.handleClblMonitor(task);
+      case 'nddr_drain': return this.handleNddrDrain(task);
+      case 'nddr_cordon': return this.handleNddrCordon(task);
+      case 'nddr_uncordon': return this.handleNddrUncordon(task);
+      case 'nddr_status': return this.handleNddrStatus(task);
+      case 'nddr_report': return this.handleNddrReport(task);
+      case 'nddr_monitor': return this.handleNddrMonitor(task);
     }
   }
 
