@@ -1,3 +1,45 @@
+## [Unreleased] - Batches 808-832 (Webhooks, Auth/Tokens, IAM, Collaboration, File Storage)
+
+### Added — 25 new autonomous economy verticals across 5 domain groups
+
+**Batches 808-812 — Webhooks Subsystem:**
+- `outbound_webhook_dispatcher` — Webhook delivery with queueing and recording
+- `webhook_signature_verifier` — HMAC verification with timing-safe comparison
+- `webhook_retry_manager` — Exponential backoff with exhaustion handling
+- `webhook_event_logger` — Sanitized webhook event logging and querying
+- `webhook_subscription_registry` — Subscription lifecycle and revocation
+
+**Batches 813-817 — Auth & Token Services:**
+- `oauth_token_service` — RFC 6749 OAuth 2.0 token issuance and introspection
+- `api_key_issuer` — Cryptographically random API keys with scope attachment
+- `jwt_signer` — RS256/EdDSA JWT signing with key rotation
+- `session_store_manager` — Session lifecycle with TTL eviction
+- `refresh_token_rotator` — Rotation with reuse detection per OAuth 2.1
+
+**Batches 818-822 — Identity & Access Management:**
+- `user_directory_sync` — SCIM-driven directory sync with deprovisioning
+- `group_membership_resolver` — Nested group resolution with bounded recursion
+- `role_assignment_engine` — Policy-evaluated role assignment with audit
+- `permission_evaluator` — Deny-by-default access checks with reason logging
+- `audit_trail_recorder` — Tamper-evident audit recording with integrity sealing
+
+**Batches 823-827 — Document Collaboration:**
+- `document_versioning_engine` — Versioned commits with history pruning
+- `collaborative_editor_sync` — CRDT-based realtime editor sync
+- `change_proposal_router` — Proposal routing with reviewer selection
+- `approval_workflow_engine` — Multi-step approval workflow execution
+- `signature_collector` — E-signature collection with envelope sealing
+
+**Batches 828-832 — File Upload & Storage:**
+- `file_upload_processor` — Validated streamed uploads with atomic finalization
+- `multipart_chunk_assembler` — Chunk verification and ordered assembly
+- `virus_scan_dispatcher` — AV scan with quarantine on positive verdict
+- `metadata_extractor` — EXIF/document metadata extraction and persistence
+- `storage_tier_optimizer` — Cold-tier transitions with savings reporting
+
+### Tests
+- 275 new tests across 5 batch suites — all passing (5/5 suites, 275/275 tests)
+
 ## [Unreleased] - Batches 783-807 (Gateway, Event Routing, Cache/CDN, Documents, Messaging)
 
 ### Added — 25 new autonomous economy verticals across 5 domain groups
