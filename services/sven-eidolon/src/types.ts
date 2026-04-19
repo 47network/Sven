@@ -122,6 +122,11 @@ export type EidolonBuildingKind =
   | 'net_firewall'
   | 'recovery_vault'
   | 'perf_lab'
+  | 'sandbox_pod'
+  | 'secret_rotator'
+  | 'mirror_tap'
+  | 'compliance_desk'
+  | 'capacity_planner'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -622,6 +627,26 @@ export type EidolonEventKind =
   | 'perfprof.bottleneck_found'
   | 'perfprof.baseline_set'
   | 'perfprof.trend_degrading'
+  | 'sandbox.created'
+  | 'sandbox.execution_started'
+  | 'sandbox.violation_detected'
+  | 'sandbox.terminated'
+  | 'secretrot.policy_created'
+  | 'secretrot.secret_rotated'
+  | 'secretrot.rotation_failed'
+  | 'secretrot.expiring_soon'
+  | 'trafficmirror.mirror_created'
+  | 'trafficmirror.diff_detected'
+  | 'trafficmirror.replay_completed'
+  | 'trafficmirror.mirror_stopped'
+  | 'compliance.assessment_started'
+  | 'compliance.finding_submitted'
+  | 'compliance.report_generated'
+  | 'compliance.framework_updated'
+  | 'capacity.forecast_generated'
+  | 'capacity.breach_warning'
+  | 'capacity.action_proposed'
+  | 'capacity.action_completed'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -747,6 +772,11 @@ export type EidolonEventKind =
   | 'netpolicy.rule_created' | 'netpolicy.traffic_denied' | 'netpolicy.segment_created' | 'netpolicy.audit_logged'
   | 'dr.plan_created' | 'dr.failover_triggered' | 'dr.drill_completed' | 'dr.checkpoint_stale'
   | 'perfprof.profile_started' | 'perfprof.bottleneck_found' | 'perfprof.baseline_set' | 'perfprof.trend_degrading'
+  | 'sandbox.created' | 'sandbox.execution_started' | 'sandbox.violation_detected' | 'sandbox.terminated'
+  | 'secretrot.policy_created' | 'secretrot.secret_rotated' | 'secretrot.rotation_failed' | 'secretrot.expiring_soon'
+  | 'trafficmirror.mirror_created' | 'trafficmirror.diff_detected' | 'trafficmirror.replay_completed' | 'trafficmirror.mirror_stopped'
+  | 'compliance.assessment_started' | 'compliance.finding_submitted' | 'compliance.report_generated' | 'compliance.framework_updated'
+  | 'capacity.forecast_generated' | 'capacity.breach_warning' | 'capacity.action_proposed' | 'capacity.action_completed'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -1048,6 +1078,16 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'recovery_vault':
       return 'civic';
     case 'perf_lab':
+      return 'civic';
+    case 'sandbox_pod':
+      return 'civic';
+    case 'secret_rotator':
+      return 'civic';
+    case 'mirror_tap':
+      return 'civic';
+    case 'compliance_desk':
+      return 'market';
+    case 'capacity_planner':
       return 'civic';
   }
 }

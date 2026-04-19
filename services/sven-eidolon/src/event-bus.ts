@@ -652,6 +652,36 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.perfprof.bottleneck_found': 'perfprof.bottleneck_found',
   'sven.perfprof.baseline_set': 'perfprof.baseline_set',
   'sven.perfprof.trend_degrading': 'perfprof.trend_degrading',
+
+  // Batch 163 — runtime sandbox
+  'sven.sandbox.created': 'sandbox.created',
+  'sven.sandbox.execution_started': 'sandbox.execution_started',
+  'sven.sandbox.violation_detected': 'sandbox.violation_detected',
+  'sven.sandbox.terminated': 'sandbox.terminated',
+
+  // Batch 164 — secret rotation
+  'sven.secretrot.policy_created': 'secretrot.policy_created',
+  'sven.secretrot.secret_rotated': 'secretrot.secret_rotated',
+  'sven.secretrot.rotation_failed': 'secretrot.rotation_failed',
+  'sven.secretrot.expiring_soon': 'secretrot.expiring_soon',
+
+  // Batch 165 — traffic mirror
+  'sven.trafficmirror.mirror_created': 'trafficmirror.mirror_created',
+  'sven.trafficmirror.diff_detected': 'trafficmirror.diff_detected',
+  'sven.trafficmirror.replay_completed': 'trafficmirror.replay_completed',
+  'sven.trafficmirror.mirror_stopped': 'trafficmirror.mirror_stopped',
+
+  // Batch 166 — compliance report
+  'sven.compliance.assessment_started': 'compliance.assessment_started',
+  'sven.compliance.finding_submitted': 'compliance.finding_submitted',
+  'sven.compliance.report_generated': 'compliance.report_generated',
+  'sven.compliance.framework_updated': 'compliance.framework_updated',
+
+  // Batch 167 — capacity planning
+  'sven.capacity.forecast_generated': 'capacity.forecast_generated',
+  'sven.capacity.breach_warning': 'capacity.breach_warning',
+  'sven.capacity.action_proposed': 'capacity.action_proposed',
+  'sven.capacity.action_completed': 'capacity.action_completed',
 };
 
 export class EidolonEventBus {

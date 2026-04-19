@@ -184,3 +184,8 @@ export * from './agent-cost-allocation.js';
 export * from './agent-network-policy.js';
 export * from './agent-disaster-recovery.js';
 export * from './agent-performance-profiling.js';
+export * from './agent-runtime-sandbox.js';
+export * from './agent-secret-rotation.js';
+export * from './agent-traffic-mirror.js';
+export * from './agent-compliance-report.js';
+export * from './agent-capacity-planning.js';
