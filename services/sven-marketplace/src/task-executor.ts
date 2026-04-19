@@ -3233,6 +3233,36 @@ export class TaskExecutor {
       case 'ipal_update': return this.handleIpalUpdate(task);
       case 'ipal_report': return this.handleIpalReport(task);
       case 'ipal_monitor': return this.handleIpalMonitor(task);
+      case 'thct_apply': return this.handleThctApply(task);
+      case 'thct_limit': return this.handleThctLimit(task);
+      case 'thct_burst': return this.handleThctBurst(task);
+      case 'thct_monitor': return this.handleThctMonitor(task);
+      case 'thct_report': return this.handleThctReport(task);
+      case 'thct_configure': return this.handleThctConfigure(task);
+      case 'akrt_rotate': return this.handleAkrtRotate(task);
+      case 'akrt_expire': return this.handleAkrtExpire(task);
+      case 'akrt_revoke': return this.handleAkrtRevoke(task);
+      case 'akrt_schedule': return this.handleAkrtSchedule(task);
+      case 'akrt_report': return this.handleAkrtReport(task);
+      case 'akrt_monitor': return this.handleAkrtMonitor(task);
+      case 'rtbl_shift': return this.handleRtblShift(task);
+      case 'rtbl_update': return this.handleRtblUpdate(task);
+      case 'rtbl_failover': return this.handleRtblFailover(task);
+      case 'rtbl_health': return this.handleRtblHealth(task);
+      case 'rtbl_report': return this.handleRtblReport(task);
+      case 'rtbl_monitor': return this.handleRtblMonitor(task);
+      case 'epch_hit': return this.handleEpchHit(task);
+      case 'epch_miss': return this.handleEpchMiss(task);
+      case 'epch_evict': return this.handleEpchEvict(task);
+      case 'epch_expire': return this.handleEpchExpire(task);
+      case 'epch_report': return this.handleEpchReport(task);
+      case 'epch_monitor': return this.handleEpchMonitor(task);
+      case 'rscp_compress': return this.handleRscpCompress(task);
+      case 'rscp_improve': return this.handleRscpImprove(task);
+      case 'rscp_format': return this.handleRscpFormat(task);
+      case 'rscp_bypass': return this.handleRscpBypass(task);
+      case 'rscp_report': return this.handleRscpReport(task);
+      case 'rscp_monitor': return this.handleRscpMonitor(task);
     }
   }
 

@@ -27,6 +27,13 @@
 
 # Changelog
 
+## Batches 508-512 — API Gateway & Rate Limiting
+- throttle_controller: Request throttling and rate control management
+- api_key_rotator: API key rotation and lifecycle management
+- route_balancer: Route load balancing and traffic distribution
+- endpoint_cache: Endpoint response caching and TTL management
+- response_compressor: Response compression and optimization
+
 ## Batches 503-507 — Security & Access Control
 - cert_renewer: TLS certificate lifecycle management and automated renewal
 - vault_syncer: Secret vault synchronization and credential rotation

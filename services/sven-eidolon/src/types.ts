@@ -208,6 +208,11 @@ export type EidolonBuildingKind =
   | 'rbac_manager'
   | 'mfa_validator'
   | 'ip_allowlister'
+  | 'throttle_controller'
+  | 'api_key_rotator'
+  | 'route_balancer'
+  | 'endpoint_cache'
+  | 'response_compressor'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -1240,6 +1245,26 @@ export type EidolonEventKind =
   | 'ipal.ip_removed'
   | 'ipal.access_blocked'
   | 'ipal.allowlist_updated'
+  | 'thct.throttle_applied'
+  | 'thct.limit_exceeded'
+  | 'thct.burst_allowed'
+  | 'thct.rule_updated'
+  | 'akrt.key_rotated'
+  | 'akrt.key_expired'
+  | 'akrt.key_revoked'
+  | 'akrt.rotation_scheduled'
+  | 'rtbl.route_shifted'
+  | 'rtbl.weight_updated'
+  | 'rtbl.failover_triggered'
+  | 'rtbl.health_changed'
+  | 'epch.cache_hit'
+  | 'epch.cache_miss'
+  | 'epch.cache_evicted'
+  | 'epch.ttl_expired'
+  | 'rscp.compression_applied'
+  | 'rscp.ratio_improved'
+  | 'rscp.format_changed'
+  | 'rscp.bypass_triggered'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1885,6 +1910,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'rbac_manager':
     case 'mfa_validator':
     case 'ip_allowlister':
+    case 'throttle_controller':
+    case 'api_key_rotator':
+    case 'route_balancer':
+    case 'endpoint_cache':
+    case 'response_compressor':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
