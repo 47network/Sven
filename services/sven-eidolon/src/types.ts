@@ -1483,6 +1483,31 @@ export type EidolonBuildingKind =
   | 'chaos_exerciser_auditor'
   | 'chaos_exerciser_reporter'
   | 'chaos_exerciser_optimizer'
+  | 'env_allocator'
+  | 'env_allocator_monitor'
+  | 'env_allocator_auditor'
+  | 'env_allocator_reporter'
+  | 'env_allocator_optimizer'
+  | 'sandbox_manager'
+  | 'sandbox_manager_monitor'
+  | 'sandbox_manager_auditor'
+  | 'sandbox_manager_reporter'
+  | 'sandbox_manager_optimizer'
+  | 'snapshot_controller'
+  | 'snapshot_controller_monitor'
+  | 'snapshot_controller_auditor'
+  | 'snapshot_controller_reporter'
+  | 'snapshot_controller_optimizer'
+  | 'rollback_engine'
+  | 'rollback_engine_monitor'
+  | 'rollback_engine_auditor'
+  | 'rollback_engine_reporter'
+  | 'rollback_engine_optimizer'
+  | 'hotfix_deployer'
+  | 'hotfix_deployer_monitor'
+  | 'hotfix_deployer_auditor'
+  | 'hotfix_deployer_reporter'
+  | 'hotfix_deployer_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5175,6 +5200,81 @@ export type EidolonEventKind =
   | 'cexo.plan_created'
   | 'cexo.optimization_applied'
   | 'cexo.export_emitted'
+  | 'ea.entry_created'
+  | 'ea.config_updated'
+  | 'ea.export_emitted'
+  | 'eam.check_passed'
+  | 'eam.alert_raised'
+  | 'eam.export_emitted'
+  | 'eaa.entry_logged'
+  | 'eaa.violation_found'
+  | 'eaa.export_emitted'
+  | 'ear.report_generated'
+  | 'ear.insight_found'
+  | 'ear.export_emitted'
+  | 'eao.plan_created'
+  | 'eao.optimization_applied'
+  | 'eao.export_emitted'
+  | 'sm.entry_created'
+  | 'sm.config_updated'
+  | 'sm.export_emitted'
+  | 'smm.check_passed'
+  | 'smm.alert_raised'
+  | 'smm.export_emitted'
+  | 'sma.entry_logged'
+  | 'sma.violation_found'
+  | 'sma.export_emitted'
+  | 'smr.report_generated'
+  | 'smr.insight_found'
+  | 'smr.export_emitted'
+  | 'smo.plan_created'
+  | 'smo.optimization_applied'
+  | 'smo.export_emitted'
+  | 'sc.entry_created'
+  | 'sc.config_updated'
+  | 'sc.export_emitted'
+  | 'scm.check_passed'
+  | 'scm.alert_raised'
+  | 'scm.export_emitted'
+  | 'sca.entry_logged'
+  | 'sca.violation_found'
+  | 'sca.export_emitted'
+  | 'scr.report_generated'
+  | 'scr.insight_found'
+  | 'scr.export_emitted'
+  | 'sco.plan_created'
+  | 'sco.optimization_applied'
+  | 'sco.export_emitted'
+  | 're.entry_created'
+  | 're.config_updated'
+  | 're.export_emitted'
+  | 'rem.check_passed'
+  | 'rem.alert_raised'
+  | 'rem.export_emitted'
+  | 'rea.entry_logged'
+  | 'rea.violation_found'
+  | 'rea.export_emitted'
+  | 'rer.report_generated'
+  | 'rer.insight_found'
+  | 'rer.export_emitted'
+  | 'reo.plan_created'
+  | 'reo.optimization_applied'
+  | 'reo.export_emitted'
+  | 'hd.entry_created'
+  | 'hd.config_updated'
+  | 'hd.export_emitted'
+  | 'hdm.check_passed'
+  | 'hdm.alert_raised'
+  | 'hdm.export_emitted'
+  | 'hda.entry_logged'
+  | 'hda.violation_found'
+  | 'hda.export_emitted'
+  | 'hdr.report_generated'
+  | 'hdr.insight_found'
+  | 'hdr.export_emitted'
+  | 'hdo.plan_created'
+  | 'hdo.optimization_applied'
+  | 'hdo.export_emitted'
   | 'bg.entry_created'
   | 'bg.config_updated'
   | 'bg.export_emitted'
@@ -8960,6 +9060,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'chaos_exerciser_auditor':
     case 'chaos_exerciser_reporter':
     case 'chaos_exerciser_optimizer':
+    case 'env_allocator':
+    case 'env_allocator_monitor':
+    case 'env_allocator_auditor':
+    case 'env_allocator_reporter':
+    case 'env_allocator_optimizer':
+    case 'sandbox_manager':
+    case 'sandbox_manager_monitor':
+    case 'sandbox_manager_auditor':
+    case 'sandbox_manager_reporter':
+    case 'sandbox_manager_optimizer':
+    case 'snapshot_controller':
+    case 'snapshot_controller_monitor':
+    case 'snapshot_controller_auditor':
+    case 'snapshot_controller_reporter':
+    case 'snapshot_controller_optimizer':
+    case 'rollback_engine':
+    case 'rollback_engine_monitor':
+    case 'rollback_engine_auditor':
+    case 'rollback_engine_reporter':
+    case 'rollback_engine_optimizer':
+    case 'hotfix_deployer':
+    case 'hotfix_deployer_monitor':
+    case 'hotfix_deployer_auditor':
+    case 'hotfix_deployer_reporter':
+    case 'hotfix_deployer_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
