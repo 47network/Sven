@@ -817,3 +817,18 @@ skills/autonomous-economy/compliance-checker/SKILL.md filter=sven-private diff=s
 services/gateway-api/migrations/20260618640000_agent_threat_detector.sql filter=sven-private diff=sven-private
 packages/shared/src/agent-threat-detector.ts filter=sven-private diff=sven-private
 skills/autonomous-economy/threat-detector/SKILL.md filter=sven-private diff=sven-private
+services/gateway-api/migrations/20260618650000_agent_policy_engine.sql filter=sven-private
+packages/shared/src/agent-policy-engine.ts filter=sven-private
+skills/autonomous-economy/policy-engine/SKILL.md filter=sven-private
+services/gateway-api/migrations/20260618660000_agent_data_classifier.sql filter=sven-private
+packages/shared/src/agent-data-classifier.ts filter=sven-private
+skills/autonomous-economy/data-classifier/SKILL.md filter=sven-private
+services/gateway-api/migrations/20260618670000_agent_encryption_gateway.sql filter=sven-private
+packages/shared/src/agent-encryption-gateway.ts filter=sven-private
+skills/autonomous-economy/encryption-gateway/SKILL.md filter=sven-private
+services/gateway-api/migrations/20260618680000_agent_security_scanner.sql filter=sven-private
+packages/shared/src/agent-security-scanner.ts filter=sven-private
+skills/autonomous-economy/security-scanner/SKILL.md filter=sven-private
+services/gateway-api/migrations/20260618690000_agent_incident_manager.sql filter=sven-private
+packages/shared/src/agent-incident-manager.ts filter=sven-private
+skills/autonomous-economy/incident-manager/SKILL.md filter=sven-private
