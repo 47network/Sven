@@ -308,6 +308,31 @@ export type EidolonBuildingKind =
   | 'dlq_processor'
   | 'message_deduplicator'
   | 'topic_router'
+  | 'credential_broker'
+  | 'token_refresher'
+  | 'key_custodian'
+  | 'passphrase_generator'
+  | 'cert_watcher'
+  | 'cookie_manager'
+  | 'auth_flow_builder'
+  | 'scope_resolver'
+  | 'claim_validator'
+  | 'consent_tracker'
+  | 'geo_fencer'
+  | 'locale_adapter'
+  | 'timezone_syncer'
+  | 'region_router'
+  | 'latency_mapper'
+  | 'schema_linter'
+  | 'quality_scorer'
+  | 'retention_enforcer'
+  | 'column_profiler'
+  | 'pii_scanner'
+  | 'feature_toggler'
+  | 'experiment_runner'
+  | 'ab_splitter'
+  | 'rollout_planner'
+  | 'flag_archiver'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -1745,6 +1770,106 @@ export type EidolonEventKind =
   | 'tprt.rule_matched'
   | 'tprt.fallback_used'
   | 'tprt.route_updated'
+  | 'crdb.credential_issued'
+  | 'crdb.lease_renewed'
+  | 'crdb.lease_revoked'
+  | 'crdb.broker_rotated'
+  | 'tkrf.token_refreshed'
+  | 'tkrf.refresh_failed'
+  | 'tkrf.pool_replenished'
+  | 'tkrf.expiry_warned'
+  | 'kycs.key_generated'
+  | 'kycs.key_escrowed'
+  | 'kycs.key_recovered'
+  | 'kycs.custody_audited'
+  | 'ppgn.passphrase_created'
+  | 'ppgn.entropy_checked'
+  | 'ppgn.strength_scored'
+  | 'ppgn.policy_validated'
+  | 'crtw.cert_expiring'
+  | 'crtw.cert_renewed'
+  | 'crtw.chain_validated'
+  | 'crtw.revocation_detected'
+  | 'ckmg.cookie_set'
+  | 'ckmg.cookie_expired'
+  | 'ckmg.consent_updated'
+  | 'ckmg.policy_enforced'
+  | 'afbl.flow_created'
+  | 'afbl.step_completed'
+  | 'afbl.flow_validated'
+  | 'afbl.mfa_triggered'
+  | 'scrs.scope_resolved'
+  | 'scrs.scope_denied'
+  | 'scrs.hierarchy_updated'
+  | 'scrs.conflict_detected'
+  | 'clvd.claim_valid'
+  | 'clvd.claim_rejected'
+  | 'clvd.schema_updated'
+  | 'clvd.issuer_verified'
+  | 'cntk.consent_granted'
+  | 'cntk.consent_revoked'
+  | 'cntk.preference_updated'
+  | 'cntk.audit_logged'
+  | 'gofc.fence_created'
+  | 'gofc.boundary_crossed'
+  | 'gofc.zone_activated'
+  | 'gofc.violation_detected'
+  | 'lcad.locale_loaded'
+  | 'lcad.translation_applied'
+  | 'lcad.fallback_used'
+  | 'lcad.bundle_updated'
+  | 'tzsy.timezone_resolved'
+  | 'tzsy.dst_transition'
+  | 'tzsy.offset_updated'
+  | 'tzsy.anomaly_detected'
+  | 'rgrt.region_selected'
+  | 'rgrt.failover_triggered'
+  | 'rgrt.affinity_updated'
+  | 'rgrt.compliance_checked'
+  | 'ltmp.latency_measured'
+  | 'ltmp.route_optimized'
+  | 'ltmp.threshold_breached'
+  | 'ltmp.map_refreshed'
+  | 'sclr.schema_linted'
+  | 'sclr.violation_found'
+  | 'sclr.rule_updated'
+  | 'sclr.baseline_set'
+  | 'qlsc.score_computed'
+  | 'qlsc.threshold_breached'
+  | 'qlsc.trend_detected'
+  | 'qlsc.grade_assigned'
+  | 'rten.policy_applied'
+  | 'rten.data_purged'
+  | 'rten.exception_granted'
+  | 'rten.compliance_verified'
+  | 'clpr.profile_computed'
+  | 'clpr.anomaly_detected'
+  | 'clpr.distribution_shifted'
+  | 'clpr.cardinality_changed'
+  | 'piis.pii_detected'
+  | 'piis.scan_completed'
+  | 'piis.classification_updated'
+  | 'piis.redaction_applied'
+  | 'fttg.flag_enabled'
+  | 'fttg.flag_disabled'
+  | 'fttg.override_set'
+  | 'fttg.evaluation_logged'
+  | 'expr.experiment_started'
+  | 'expr.variant_assigned'
+  | 'expr.result_recorded'
+  | 'expr.experiment_concluded'
+  | 'absp.traffic_split'
+  | 'absp.ratio_adjusted'
+  | 'absp.cohort_created'
+  | 'absp.bias_detected'
+  | 'rlpl.plan_created'
+  | 'rlpl.phase_advanced'
+  | 'rlpl.rollback_triggered'
+  | 'rlpl.completion_reached'
+  | 'flar.flag_archived'
+  | 'flar.stale_detected'
+  | 'flar.cleanup_completed'
+  | 'flar.history_exported'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -2510,6 +2635,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'dlq_processor':
     case 'message_deduplicator':
     case 'topic_router':
+    case 'credential_broker':
+    case 'token_refresher':
+    case 'key_custodian':
+    case 'passphrase_generator':
+    case 'cert_watcher':
+    case 'cookie_manager':
+    case 'auth_flow_builder':
+    case 'scope_resolver':
+    case 'claim_validator':
+    case 'consent_tracker':
+    case 'geo_fencer':
+    case 'locale_adapter':
+    case 'timezone_syncer':
+    case 'region_router':
+    case 'latency_mapper':
+    case 'schema_linter':
+    case 'quality_scorer':
+    case 'retention_enforcer':
+    case 'column_profiler':
+    case 'pii_scanner':
+    case 'feature_toggler':
+    case 'experiment_runner':
+    case 'ab_splitter':
+    case 'rollout_planner':
+    case 'flag_archiver':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
