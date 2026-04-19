@@ -1946,6 +1946,36 @@ export class TaskExecutor {
       case 'plmgr_optimize_pool': return this.handlePlmgrOptimizePool(task);
       case 'plmgr_list_connections': return this.handlePlmgrListConnections(task);
       case 'plmgr_export_report': return this.handlePlmgrExportReport(task);
+      case 'vscan_configure': return this.handleVscanConfigure(task);
+      case 'vscan_run_scan': return this.handleVscanRunScan(task);
+      case 'vscan_patch_vuln': return this.handleVscanPatchVuln(task);
+      case 'vscan_list_vulns': return this.handleVscanListVulns(task);
+      case 'vscan_export_report': return this.handleVscanExportReport(task);
+      case 'vscan_auto_fix': return this.handleVscanAutoFix(task);
+      case 'crot_configure': return this.handleCrotConfigure(task);
+      case 'crot_rotate_credential': return this.handleCrotRotateCredential(task);
+      case 'crot_schedule_rotation': return this.handleCrotScheduleRotation(task);
+      case 'crot_sync_vault': return this.handleCrotSyncVault(task);
+      case 'crot_list_credentials': return this.handleCrotListCredentials(task);
+      case 'crot_export_report': return this.handleCrotExportReport(task);
+      case 'caud_configure': return this.handleCaudConfigure(task);
+      case 'caud_run_audit': return this.handleCaudRunAudit(task);
+      case 'caud_check_control': return this.handleCaudCheckControl(task);
+      case 'caud_generate_report': return this.handleCaudGenerateReport(task);
+      case 'caud_remediate': return this.handleCaudRemediate(task);
+      case 'caud_list_findings': return this.handleCaudListFindings(task);
+      case 'rbac_configure': return this.handleRbacConfigure(task);
+      case 'rbac_create_role': return this.handleRbacCreateRole(task);
+      case 'rbac_assign_role': return this.handleRbacAssignRole(task);
+      case 'rbac_revoke_role': return this.handleRbacRevokeRole(task);
+      case 'rbac_check_access': return this.handleRbacCheckAccess(task);
+      case 'rbac_export_report': return this.handleRbacExportReport(task);
+      case 'penf_configure': return this.handlePenfConfigure(task);
+      case 'penf_create_policy': return this.handlePenfCreatePolicy(task);
+      case 'penf_evaluate': return this.handlePenfEvaluate(task);
+      case 'penf_update_policy': return this.handlePenfUpdatePolicy(task);
+      case 'penf_list_decisions': return this.handlePenfListDecisions(task);
+      case 'penf_export_report': return this.handlePenfExportReport(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -13324,5 +13354,96 @@ export class TaskExecutor {
   }
   private async handlePlmgrExportReport(task: any): Promise<any> {
     return { skill: 'pool_manager', action: 'export-report', configId: task.metadata?.configId, format: task.metadata?.format || 'json' };
+  }
+
+  private async handleVscanConfigure(task: any): Promise<any> {
+    return { skill: 'vuln_scanner', action: 'configure', scanType: task.metadata?.scanType || 'dependency', scheduleCron: task.metadata?.scheduleCron, severityThreshold: task.metadata?.severityThreshold || 'high' };
+  }
+  private async handleVscanRunScan(task: any): Promise<any> {
+    return { skill: 'vuln_scanner', action: 'run-scan', target: task.metadata?.target, scanType: task.metadata?.scanType || 'dependency' };
+  }
+  private async handleVscanPatchVuln(task: any): Promise<any> {
+    return { skill: 'vuln_scanner', action: 'patch-vuln', vulnId: task.metadata?.vulnId, autoFix: task.metadata?.autoFix || false };
+  }
+  private async handleVscanListVulns(task: any): Promise<any> {
+    return { skill: 'vuln_scanner', action: 'list-vulns', scanId: task.metadata?.scanId, severity: task.metadata?.severity, patched: task.metadata?.patched };
+  }
+  private async handleVscanExportReport(task: any): Promise<any> {
+    return { skill: 'vuln_scanner', action: 'export-report', configId: task.metadata?.configId, format: task.metadata?.format || 'json' };
+  }
+  private async handleVscanAutoFix(task: any): Promise<any> {
+    return { skill: 'vuln_scanner', action: 'auto-fix', configId: task.metadata?.configId, severity: task.metadata?.severity || 'critical' };
+  }
+  private async handleCrotConfigure(task: any): Promise<any> {
+    return { skill: 'credential_rotator', action: 'configure', rotationInterval: task.metadata?.rotationInterval || 90, autoRotate: task.metadata?.autoRotate ?? true, vaultType: task.metadata?.vaultType || 'internal' };
+  }
+  private async handleCrotRotateCredential(task: any): Promise<any> {
+    return { skill: 'credential_rotator', action: 'rotate', credentialId: task.metadata?.credentialId };
+  }
+  private async handleCrotScheduleRotation(task: any): Promise<any> {
+    return { skill: 'credential_rotator', action: 'schedule', credentialId: task.metadata?.credentialId, nextRotation: task.metadata?.nextRotation };
+  }
+  private async handleCrotSyncVault(task: any): Promise<any> {
+    return { skill: 'credential_rotator', action: 'sync-vault', configId: task.metadata?.configId };
+  }
+  private async handleCrotListCredentials(task: any): Promise<any> {
+    return { skill: 'credential_rotator', action: 'list-credentials', configId: task.metadata?.configId, state: task.metadata?.state };
+  }
+  private async handleCrotExportReport(task: any): Promise<any> {
+    return { skill: 'credential_rotator', action: 'export-report', configId: task.metadata?.configId, format: task.metadata?.format || 'json' };
+  }
+  private async handleCaudConfigure(task: any): Promise<any> {
+    return { skill: 'compliance_auditor', action: 'configure', framework: task.metadata?.framework || 'soc2', scheduleCron: task.metadata?.scheduleCron, autoRemediate: task.metadata?.autoRemediate || false };
+  }
+  private async handleCaudRunAudit(task: any): Promise<any> {
+    return { skill: 'compliance_auditor', action: 'run-audit', configId: task.metadata?.configId, scope: task.metadata?.scope };
+  }
+  private async handleCaudCheckControl(task: any): Promise<any> {
+    return { skill: 'compliance_auditor', action: 'check-control', controlId: task.metadata?.controlId, evidence: task.metadata?.evidence || {} };
+  }
+  private async handleCaudGenerateReport(task: any): Promise<any> {
+    return { skill: 'compliance_auditor', action: 'generate-report', configId: task.metadata?.configId, periodStart: task.metadata?.periodStart, periodEnd: task.metadata?.periodEnd };
+  }
+  private async handleCaudRemediate(task: any): Promise<any> {
+    return { skill: 'compliance_auditor', action: 'remediate', checkId: task.metadata?.checkId, autoApply: task.metadata?.autoApply || false };
+  }
+  private async handleCaudListFindings(task: any): Promise<any> {
+    return { skill: 'compliance_auditor', action: 'list-findings', configId: task.metadata?.configId, compliant: task.metadata?.compliant, category: task.metadata?.category };
+  }
+  private async handleRbacConfigure(task: any): Promise<any> {
+    return { skill: 'rbac_controller', action: 'configure', defaultRole: task.metadata?.defaultRole || 'viewer', enforceMfa: task.metadata?.enforceMfa || false, sessionTimeout: task.metadata?.sessionTimeout || 60 };
+  }
+  private async handleRbacCreateRole(task: any): Promise<any> {
+    return { skill: 'rbac_controller', action: 'create-role', roleName: task.metadata?.roleName, permissions: task.metadata?.permissions || [], inheritsFrom: task.metadata?.inheritsFrom };
+  }
+  private async handleRbacAssignRole(task: any): Promise<any> {
+    return { skill: 'rbac_controller', action: 'assign-role', roleId: task.metadata?.roleId, principalType: task.metadata?.principalType || 'agent', principalId: task.metadata?.principalId };
+  }
+  private async handleRbacRevokeRole(task: any): Promise<any> {
+    return { skill: 'rbac_controller', action: 'revoke-role', assignmentId: task.metadata?.assignmentId };
+  }
+  private async handleRbacCheckAccess(task: any): Promise<any> {
+    return { skill: 'rbac_controller', action: 'check-access', principalId: task.metadata?.principalId, resource: task.metadata?.resource, action: task.metadata?.action };
+  }
+  private async handleRbacExportReport(task: any): Promise<any> {
+    return { skill: 'rbac_controller', action: 'export-report', configId: task.metadata?.configId, format: task.metadata?.format || 'json' };
+  }
+  private async handlePenfConfigure(task: any): Promise<any> {
+    return { skill: 'policy_enforcer', action: 'configure', policyEngine: task.metadata?.policyEngine || 'opa', enforcementMode: task.metadata?.enforcementMode || 'enforce', auditLog: task.metadata?.auditLog ?? true };
+  }
+  private async handlePenfCreatePolicy(task: any): Promise<any> {
+    return { skill: 'policy_enforcer', action: 'create-policy', policyName: task.metadata?.policyName, policyType: task.metadata?.policyType || 'resource', rules: task.metadata?.rules || [] };
+  }
+  private async handlePenfEvaluate(task: any): Promise<any> {
+    return { skill: 'policy_enforcer', action: 'evaluate', policyId: task.metadata?.policyId, action: task.metadata?.action, resource: task.metadata?.resource, principal: task.metadata?.principal };
+  }
+  private async handlePenfUpdatePolicy(task: any): Promise<any> {
+    return { skill: 'policy_enforcer', action: 'update-policy', policyId: task.metadata?.policyId, rules: task.metadata?.rules, active: task.metadata?.active };
+  }
+  private async handlePenfListDecisions(task: any): Promise<any> {
+    return { skill: 'policy_enforcer', action: 'list-decisions', policyId: task.metadata?.policyId, since: task.metadata?.since, allowed: task.metadata?.allowed };
+  }
+  private async handlePenfExportReport(task: any): Promise<any> {
+    return { skill: 'policy_enforcer', action: 'export-report', configId: task.metadata?.configId, format: task.metadata?.format || 'json' };
   }
 }

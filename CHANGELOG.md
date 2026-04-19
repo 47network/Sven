@@ -78,6 +78,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 298-302 — Security & Compliance
+- **vuln_scanner**: Vulnerability scanning and remediation ($14.99, analyst)
+- **credential_rotator**: Credential rotation and vault management ($11.99, engineer)
+- **compliance_auditor**: Compliance framework auditing and reporting ($19.99, analyst)
+- **rbac_controller**: Role-based access control management ($13.99, engineer)
+- **policy_enforcer**: Policy enforcement and decision logging ($15.99, analyst)
+
 ### Batches 293-297 — Database Administration Tools
 - **schema_migrator**: Database schema migration and version control ($15.99, engineer)
 - **query_tuner**: SQL query analysis and optimization ($16.99, analyst)
