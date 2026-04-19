@@ -733,6 +733,31 @@ export type EidolonBuildingKind =
   | 'risk_decision_dispatcher'
   | 'risk_appeal_handler'
   | 'risk_audit_logger'
+  | 'compliance_policy_loader'
+  | 'compliance_control_evaluator'
+  | 'compliance_evidence_collector'
+  | 'compliance_report_generator'
+  | 'compliance_audit_logger'
+  | 'kyc_identity_verifier'
+  | 'kyc_document_validator'
+  | 'kyc_risk_classifier'
+  | 'kyc_decision_recorder'
+  | 'kyc_audit_logger'
+  | 'aml_transaction_monitor'
+  | 'aml_pattern_detector'
+  | 'aml_alert_generator'
+  | 'aml_case_writer'
+  | 'aml_audit_logger'
+  | 'sanctions_list_loader'
+  | 'sanctions_name_screener'
+  | 'sanctions_match_resolver'
+  | 'sanctions_decision_recorder'
+  | 'sanctions_audit_logger'
+  | 'dlp_content_classifier'
+  | 'dlp_policy_evaluator'
+  | 'dlp_action_dispatcher'
+  | 'dlp_incident_writer'
+  | 'dlp_audit_logger'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -3870,6 +3895,106 @@ export type EidolonEventKind =
   | 'rkau.fields_validated'
   | 'rkau.record_persisted'
   | 'rkau.export_emitted'
+  | 'cppl.bundle_received'
+  | 'cppl.policies_validated'
+  | 'cppl.bundle_published'
+  | 'cppl.audit_recorded'
+  | 'ccev.check_received'
+  | 'ccev.controls_evaluated'
+  | 'ccev.results_emitted'
+  | 'ccev.audit_recorded'
+  | 'cecl.item_received'
+  | 'cecl.fields_validated'
+  | 'cecl.evidence_persisted'
+  | 'cecl.audit_recorded'
+  | 'crpg.request_received'
+  | 'crpg.evidence_loaded'
+  | 'crpg.report_generated'
+  | 'crpg.audit_recorded'
+  | 'caud.record_received'
+  | 'caud.fields_validated'
+  | 'caud.record_persisted'
+  | 'caud.export_emitted'
+  | 'kciv.claim_received'
+  | 'kciv.identity_verified'
+  | 'kciv.decision_emitted'
+  | 'kciv.audit_recorded'
+  | 'kcdv.submission_received'
+  | 'kcdv.document_validated'
+  | 'kcdv.decision_emitted'
+  | 'kcdv.audit_recorded'
+  | 'kcrc.request_received'
+  | 'kcrc.factors_loaded'
+  | 'kcrc.classification_emitted'
+  | 'kcrc.audit_recorded'
+  | 'kcdr.record_received'
+  | 'kcdr.fields_validated'
+  | 'kcdr.decision_persisted'
+  | 'kcdr.audit_recorded'
+  | 'kcau.record_received'
+  | 'kcau.fields_validated'
+  | 'kcau.record_persisted'
+  | 'kcau.export_emitted'
+  | 'amtm.event_received'
+  | 'amtm.fields_validated'
+  | 'amtm.transaction_evaluated'
+  | 'amtm.audit_recorded'
+  | 'ampd.request_received'
+  | 'ampd.events_loaded'
+  | 'ampd.patterns_detected'
+  | 'ampd.audit_recorded'
+  | 'amag.request_received'
+  | 'amag.alert_generated'
+  | 'amag.alert_dispatched'
+  | 'amag.audit_recorded'
+  | 'amcw.record_received'
+  | 'amcw.fields_validated'
+  | 'amcw.case_persisted'
+  | 'amcw.audit_recorded'
+  | 'amau.record_received'
+  | 'amau.fields_validated'
+  | 'amau.record_persisted'
+  | 'amau.export_emitted'
+  | 'snll.bundle_received'
+  | 'snll.list_validated'
+  | 'snll.bundle_published'
+  | 'snll.audit_recorded'
+  | 'snns.request_received'
+  | 'snns.list_loaded'
+  | 'snns.matches_emitted'
+  | 'snns.audit_recorded'
+  | 'snmr.review_received'
+  | 'snmr.match_resolved'
+  | 'snmr.decision_emitted'
+  | 'snmr.audit_recorded'
+  | 'sndr.record_received'
+  | 'sndr.fields_validated'
+  | 'sndr.decision_persisted'
+  | 'sndr.audit_recorded'
+  | 'snau.record_received'
+  | 'snau.fields_validated'
+  | 'snau.record_persisted'
+  | 'snau.export_emitted'
+  | 'dpcc.item_received'
+  | 'dpcc.classified'
+  | 'dpcc.classification_emitted'
+  | 'dpcc.audit_recorded'
+  | 'dppe.check_received'
+  | 'dppe.policy_evaluated'
+  | 'dppe.decision_emitted'
+  | 'dppe.audit_recorded'
+  | 'dpad.request_received'
+  | 'dpad.policy_evaluated'
+  | 'dpad.action_dispatched'
+  | 'dpad.audit_recorded'
+  | 'dpiw.record_received'
+  | 'dpiw.fields_validated'
+  | 'dpiw.incident_persisted'
+  | 'dpiw.audit_recorded'
+  | 'dpau.record_received'
+  | 'dpau.fields_validated'
+  | 'dpau.record_persisted'
+  | 'dpau.export_emitted'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -5060,6 +5185,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'risk_decision_dispatcher':
     case 'risk_appeal_handler':
     case 'risk_audit_logger':
+    case 'compliance_policy_loader':
+    case 'compliance_control_evaluator':
+    case 'compliance_evidence_collector':
+    case 'compliance_report_generator':
+    case 'compliance_audit_logger':
+    case 'kyc_identity_verifier':
+    case 'kyc_document_validator':
+    case 'kyc_risk_classifier':
+    case 'kyc_decision_recorder':
+    case 'kyc_audit_logger':
+    case 'aml_transaction_monitor':
+    case 'aml_pattern_detector':
+    case 'aml_alert_generator':
+    case 'aml_case_writer':
+    case 'aml_audit_logger':
+    case 'sanctions_list_loader':
+    case 'sanctions_name_screener':
+    case 'sanctions_match_resolver':
+    case 'sanctions_decision_recorder':
+    case 'sanctions_audit_logger':
+    case 'dlp_content_classifier':
+    case 'dlp_policy_evaluator':
+    case 'dlp_action_dispatcher':
+    case 'dlp_incident_writer':
+    case 'dlp_audit_logger':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
