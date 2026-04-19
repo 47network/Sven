@@ -188,6 +188,11 @@ export type EidolonBuildingKind =
   | 'container_profiler'
   | 'cluster_balancer'
   | 'node_drainer'
+  | 'span_collector'
+  | 'uptime_tracker'
+  | 'sla_monitor'
+  | 'cardinality_limiter'
+  | 'exemplar_sampler'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -1140,6 +1145,26 @@ export type EidolonEventKind =
   | 'nddr.drain_completed'
   | 'nddr.node_cordoned'
   | 'nddr.node_uncordoned'
+  | 'spcl.span_ingested'
+  | 'spcl.span_filtered'
+  | 'spcl.batch_flushed'
+  | 'spcl.export_completed'
+  | 'uptk.check_completed'
+  | 'uptk.downtime_detected'
+  | 'uptk.uptime_reported'
+  | 'uptk.alert_fired'
+  | 'slam.sla_evaluated'
+  | 'slam.violation_detected'
+  | 'slam.report_generated'
+  | 'slam.target_updated'
+  | 'cdlm.limit_applied'
+  | 'cdlm.series_dropped'
+  | 'cdlm.rule_updated'
+  | 'cdlm.threshold_breached'
+  | 'exsm.exemplar_captured'
+  | 'exsm.policy_applied'
+  | 'exsm.sample_exported'
+  | 'exsm.rate_adjusted'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1765,6 +1790,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'container_profiler':
     case 'cluster_balancer':
     case 'node_drainer':
+    case 'span_collector':
+    case 'uptime_tracker':
+    case 'sla_monitor':
+    case 'cardinality_limiter':
+    case 'exemplar_sampler':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

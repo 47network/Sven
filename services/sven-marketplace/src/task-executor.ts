@@ -3113,6 +3113,36 @@ export class TaskExecutor {
       case 'nddr_status': return this.handleNddrStatus(task);
       case 'nddr_report': return this.handleNddrReport(task);
       case 'nddr_monitor': return this.handleNddrMonitor(task);
+      case 'spcl_ingest': return this.handleSpclIngest(task);
+      case 'spcl_filter': return this.handleSpclFilter(task);
+      case 'spcl_flush': return this.handleSpclFlush(task);
+      case 'spcl_export': return this.handleSpclExport(task);
+      case 'spcl_report': return this.handleSpclReport(task);
+      case 'spcl_monitor': return this.handleSpclMonitor(task);
+      case 'uptk_check': return this.handleUptkCheck(task);
+      case 'uptk_detect': return this.handleUptkDetect(task);
+      case 'uptk_report': return this.handleUptkReport(task);
+      case 'uptk_alert': return this.handleUptkAlert(task);
+      case 'uptk_history': return this.handleUptkHistory(task);
+      case 'uptk_monitor': return this.handleUptkMonitor(task);
+      case 'slam_evaluate': return this.handleSlamEvaluate(task);
+      case 'slam_detect': return this.handleSlamDetect(task);
+      case 'slam_report': return this.handleSlamReport(task);
+      case 'slam_update': return this.handleSlamUpdate(task);
+      case 'slam_audit': return this.handleSlamAudit(task);
+      case 'slam_monitor': return this.handleSlamMonitor(task);
+      case 'cdlm_limit': return this.handleCdlmLimit(task);
+      case 'cdlm_drop': return this.handleCdlmDrop(task);
+      case 'cdlm_rule': return this.handleCdlmRule(task);
+      case 'cdlm_breach': return this.handleCdlmBreach(task);
+      case 'cdlm_report': return this.handleCdlmReport(task);
+      case 'cdlm_monitor': return this.handleCdlmMonitor(task);
+      case 'exsm_capture': return this.handleExsmCapture(task);
+      case 'exsm_policy': return this.handleExsmPolicy(task);
+      case 'exsm_export': return this.handleExsmExport(task);
+      case 'exsm_adjust': return this.handleExsmAdjust(task);
+      case 'exsm_report': return this.handleExsmReport(task);
+      case 'exsm_monitor': return this.handleExsmMonitor(task);
     }
   }
 

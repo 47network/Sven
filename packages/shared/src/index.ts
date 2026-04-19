@@ -513,3 +513,8 @@ export * from './agent-volume-manager';
 export * from './agent-container-profiler';
 export * from './agent-cluster-balancer';
 export * from './agent-node-drainer';
+export * from './agent-span-collector';
+export * from './agent-uptime-tracker';
+export * from './agent-sla-monitor';
+export * from './agent-cardinality-limiter';
+export * from './agent-exemplar-sampler';
