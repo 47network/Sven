@@ -433,6 +433,31 @@ export type EidolonBuildingKind =
   | 'resilience_tester'
   | 'dependency_mapper'
   | 'blast_radius_calculator'
+  | 'api_gateway_router'
+  | 'service_mesh_proxy'
+  | 'edge_compute_dispatcher'
+  | 'cdn_purge_orchestrator'
+  | 'http_cache_warmer'
+  | 'feature_flag_evaluator'
+  | 'ab_test_assigner'
+  | 'config_distributor'
+  | 'credential_vault_rotator'
+  | 'key_management_orchestrator'
+  | 'data_lake_ingestor'
+  | 'kafka_stream_processor'
+  | 'batch_etl_runner'
+  | 'data_warehouse_loader'
+  | 'olap_cube_builder'
+  | 'ml_training_orchestrator'
+  | 'model_registry_curator'
+  | 'inference_endpoint_router'
+  | 'feature_store_writer'
+  | 'ml_experiment_tracker'
+  | 'email_campaign_dispatcher'
+  | 'sms_blast_engine'
+  | 'push_notification_router'
+  | 'webhook_delivery_engine'
+  | 'event_replay_processor'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -2370,6 +2395,106 @@ export type EidolonEventKind =
   | 'brca.impact_assessed'
   | 'brca.containment_recommended'
   | 'brca.simulation_completed'
+  | 'agwr.route_registered'
+  | 'agwr.request_proxied'
+  | 'agwr.policy_applied'
+  | 'agwr.upstream_failed'
+  | 'smpx.proxy_attached'
+  | 'smpx.mtls_negotiated'
+  | 'smpx.policy_enforced'
+  | 'smpx.circuit_opened'
+  | 'ecdp.function_deployed'
+  | 'ecdp.invocation_routed'
+  | 'ecdp.region_failover'
+  | 'ecdp.cold_start_warmed'
+  | 'cdnp.purge_requested'
+  | 'cdnp.invalidation_propagated'
+  | 'cdnp.cache_warmed'
+  | 'cdnp.purge_verified'
+  | 'hcwm.target_queued'
+  | 'hcwm.warm_executed'
+  | 'hcwm.hit_ratio_measured'
+  | 'hcwm.schedule_updated'
+  | 'ffev.flag_evaluated'
+  | 'ffev.targeting_matched'
+  | 'ffev.exposure_recorded'
+  | 'ffev.killswitch_engaged'
+  | 'abts.variant_assigned'
+  | 'abts.cohort_locked'
+  | 'abts.exposure_logged'
+  | 'abts.results_computed'
+  | 'cfgd.bundle_published'
+  | 'cfgd.client_subscribed'
+  | 'cfgd.update_pushed'
+  | 'cfgd.acknowledgment_received'
+  | 'cvrt.rotation_scheduled'
+  | 'cvrt.credential_rotated'
+  | 'cvrt.consumer_notified'
+  | 'cvrt.audit_logged'
+  | 'kmor.key_generated'
+  | 'kmor.key_rotated'
+  | 'kmor.key_archived'
+  | 'kmor.envelope_wrapped'
+  | 'dlin.source_connected'
+  | 'dlin.batch_ingested'
+  | 'dlin.partition_written'
+  | 'dlin.checkpoint_committed'
+  | 'ksprc.topic_subscribed'
+  | 'ksprc.message_processed'
+  | 'ksprc.offset_committed'
+  | 'ksprc.dlq_dispatched'
+  | 'betl.job_scheduled'
+  | 'betl.transform_executed'
+  | 'betl.records_loaded'
+  | 'betl.lineage_recorded'
+  | 'dwhl.staging_loaded'
+  | 'dwhl.merge_executed'
+  | 'dwhl.partition_swapped'
+  | 'dwhl.statistics_refreshed'
+  | 'olcb.cube_defined'
+  | 'olcb.aggregation_computed'
+  | 'olcb.dimension_indexed'
+  | 'olcb.cube_published'
+  | 'mltr.job_submitted'
+  | 'mltr.epoch_completed'
+  | 'mltr.checkpoint_saved'
+  | 'mltr.training_finished'
+  | 'mrcr.model_registered'
+  | 'mrcr.version_promoted'
+  | 'mrcr.lineage_recorded'
+  | 'mrcr.deprecation_marked'
+  | 'ifrt.endpoint_published'
+  | 'ifrt.request_routed'
+  | 'ifrt.canary_split'
+  | 'ifrt.fallback_engaged'
+  | 'fsws.feature_written'
+  | 'fsws.online_synced'
+  | 'fsws.offline_materialized'
+  | 'fsws.serving_validated'
+  | 'mlex.experiment_started'
+  | 'mlex.metric_logged'
+  | 'mlex.artifact_attached'
+  | 'mlex.run_finalized'
+  | 'emcd.campaign_scheduled'
+  | 'emcd.message_sent'
+  | 'emcd.bounce_handled'
+  | 'emcd.unsubscribe_processed'
+  | 'smsb.blast_queued'
+  | 'smsb.message_delivered'
+  | 'smsb.opt_out_recorded'
+  | 'smsb.deliverability_tracked'
+  | 'pnrt.message_routed'
+  | 'pnrt.token_validated'
+  | 'pnrt.delivery_confirmed'
+  | 'pnrt.silent_dispatched'
+  | 'wbde.webhook_queued'
+  | 'wbde.delivery_attempted'
+  | 'wbde.signature_signed'
+  | 'wbde.retry_scheduled'
+  | 'evrp.replay_requested'
+  | 'evrp.window_selected'
+  | 'evrp.events_redelivered'
+  | 'evrp.completion_verified'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -3260,6 +3385,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'resilience_tester':
     case 'dependency_mapper':
     case 'blast_radius_calculator':
+    case 'api_gateway_router':
+    case 'service_mesh_proxy':
+    case 'edge_compute_dispatcher':
+    case 'cdn_purge_orchestrator':
+    case 'http_cache_warmer':
+    case 'feature_flag_evaluator':
+    case 'ab_test_assigner':
+    case 'config_distributor':
+    case 'credential_vault_rotator':
+    case 'key_management_orchestrator':
+    case 'data_lake_ingestor':
+    case 'kafka_stream_processor':
+    case 'batch_etl_runner':
+    case 'data_warehouse_loader':
+    case 'olap_cube_builder':
+    case 'ml_training_orchestrator':
+    case 'model_registry_curator':
+    case 'inference_endpoint_router':
+    case 'feature_store_writer':
+    case 'ml_experiment_tracker':
+    case 'email_campaign_dispatcher':
+    case 'sms_blast_engine':
+    case 'push_notification_router':
+    case 'webhook_delivery_engine':
+    case 'event_replay_processor':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
