@@ -21,7 +21,7 @@ const checks = [
       },
       {
         step: 'admin_device_list',
-        path: '/api/v1/admin/devices',
+        path: '/v1/admin/devices',
         pass: (status) => status === 200 || status === 401 || status === 403,
       },
     ],
@@ -40,7 +40,7 @@ const checks = [
       },
       {
         step: 'admin_user_list',
-        path: '/api/v1/admin/users',
+        path: '/v1/admin/users',
         pass: (status) => status === 200 || status === 401 || status === 403,
       },
     ],
@@ -59,7 +59,7 @@ const checks = [
       },
       {
         step: 'pairing_surface',
-        path: '/api/v1/admin/pairing',
+        path: '/v1/admin/pairing',
         pass: (status) => status === 200 || status === 401 || status === 403,
       },
     ],
