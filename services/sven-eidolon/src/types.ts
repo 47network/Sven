@@ -558,6 +558,31 @@ export type EidolonBuildingKind =
   | 'feature_rollout_controller'
   | 'cohort_membership_assigner'
   | 'experiment_significance_evaluator'
+  | 'commerce_cart_orchestrator'
+  | 'commerce_checkout_finalizer'
+  | 'commerce_inventory_reservation'
+  | 'commerce_pricing_rule_engine'
+  | 'commerce_promotion_applicator'
+  | 'subscription_billing_renewer'
+  | 'subscription_proration_calculator'
+  | 'subscription_dunning_manager'
+  | 'subscription_cancellation_handler'
+  | 'subscription_plan_migrator'
+  | 'invoice_pdf_generator'
+  | 'tax_jurisdiction_resolver'
+  | 'tax_rate_calculator'
+  | 'revenue_recognition_engine'
+  | 'refund_dispatcher'
+  | 'loyalty_points_accruer'
+  | 'loyalty_redemption_processor'
+  | 'referral_code_issuer'
+  | 'referral_attribution_tracker'
+  | 'reward_payout_dispatcher'
+  | 'catalog_product_indexer'
+  | 'catalog_variant_resolver'
+  | 'catalog_facet_aggregator'
+  | 'catalog_availability_sync'
+  | 'catalog_pricing_publisher'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -2995,6 +3020,106 @@ export type EidolonEventKind =
   | 'exse.statistics_computed'
   | 'exse.threshold_evaluated'
   | 'exse.verdict_recorded'
+  | 'ccor.command_received'
+  | 'ccor.cart_loaded'
+  | 'ccor.mutation_applied'
+  | 'ccor.snapshot_persisted'
+  | 'ccfn.session_received'
+  | 'ccfn.totals_validated'
+  | 'ccfn.payment_authorized'
+  | 'ccfn.order_finalized'
+  | 'cinr.request_received'
+  | 'cinr.stock_checked'
+  | 'cinr.reservation_held'
+  | 'cinr.reservation_released'
+  | 'cpre.context_received'
+  | 'cpre.rules_loaded'
+  | 'cpre.price_computed'
+  | 'cpre.breakdown_returned'
+  | 'cpra.code_received'
+  | 'cpra.eligibility_evaluated'
+  | 'cpra.discount_applied'
+  | 'cpra.usage_recorded'
+  | 'sbrw.cycle_due'
+  | 'sbrw.charge_attempted'
+  | 'sbrw.cycle_advanced'
+  | 'sbrw.outcome_recorded'
+  | 'sprc.request_received'
+  | 'sprc.usage_evaluated'
+  | 'sprc.amount_calculated'
+  | 'sprc.breakdown_returned'
+  | 'sdmg.failure_observed'
+  | 'sdmg.notice_dispatched'
+  | 'sdmg.retry_scheduled'
+  | 'sdmg.case_closed'
+  | 'scnh.request_received'
+  | 'scnh.policy_evaluated'
+  | 'scnh.cancellation_applied'
+  | 'scnh.notification_sent'
+  | 'spmg.request_received'
+  | 'spmg.compatibility_checked'
+  | 'spmg.transition_applied'
+  | 'spmg.outcome_recorded'
+  | 'ipdg.job_received'
+  | 'ipdg.template_resolved'
+  | 'ipdg.pdf_rendered'
+  | 'ipdg.artifact_persisted'
+  | 'tjur.query_received'
+  | 'tjur.address_normalized'
+  | 'tjur.jurisdictions_resolved'
+  | 'tjur.result_returned'
+  | 'trcl.request_received'
+  | 'trcl.rates_loaded'
+  | 'trcl.tax_computed'
+  | 'trcl.breakdown_returned'
+  | 'rrec.event_received'
+  | 'rrec.policy_evaluated'
+  | 'rrec.entries_posted'
+  | 'rrec.period_closed'
+  | 'rfdp.request_received'
+  | 'rfdp.eligibility_checked'
+  | 'rfdp.processor_called'
+  | 'rfdp.outcome_recorded'
+  | 'lpac.event_received'
+  | 'lpac.rules_evaluated'
+  | 'lpac.points_credited'
+  | 'lpac.entry_persisted'
+  | 'lrdp.request_received'
+  | 'lrdp.balance_checked'
+  | 'lrdp.points_debited'
+  | 'lrdp.reward_issued'
+  | 'rcis.request_received'
+  | 'rcis.code_generated'
+  | 'rcis.entry_persisted'
+  | 'rcis.code_distributed'
+  | 'rfat.event_received'
+  | 'rfat.code_resolved'
+  | 'rfat.attribution_recorded'
+  | 'rfat.payout_queued'
+  | 'rwpd.request_received'
+  | 'rwpd.eligibility_checked'
+  | 'rwpd.payout_executed'
+  | 'rwpd.outcome_recorded'
+  | 'cpix.job_received'
+  | 'cpix.documents_built'
+  | 'cpix.index_updated'
+  | 'cpix.commit_finalized'
+  | 'cvre.query_received'
+  | 'cvre.options_matched'
+  | 'cvre.variant_selected'
+  | 'cvre.result_returned'
+  | 'cfag.query_received'
+  | 'cfag.facets_computed'
+  | 'cfag.counts_aggregated'
+  | 'cfag.result_returned'
+  | 'cavs.update_received'
+  | 'cavs.diff_computed'
+  | 'cavs.records_persisted'
+  | 'cavs.notifications_dispatched'
+  | 'cppb.update_received'
+  | 'cppb.changes_validated'
+  | 'cppb.records_persisted'
+  | 'cppb.events_published'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -4010,6 +4135,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'feature_rollout_controller':
     case 'cohort_membership_assigner':
     case 'experiment_significance_evaluator':
+    case 'commerce_cart_orchestrator':
+    case 'commerce_checkout_finalizer':
+    case 'commerce_inventory_reservation':
+    case 'commerce_pricing_rule_engine':
+    case 'commerce_promotion_applicator':
+    case 'subscription_billing_renewer':
+    case 'subscription_proration_calculator':
+    case 'subscription_dunning_manager':
+    case 'subscription_cancellation_handler':
+    case 'subscription_plan_migrator':
+    case 'invoice_pdf_generator':
+    case 'tax_jurisdiction_resolver':
+    case 'tax_rate_calculator':
+    case 'revenue_recognition_engine':
+    case 'refund_dispatcher':
+    case 'loyalty_points_accruer':
+    case 'loyalty_redemption_processor':
+    case 'referral_code_issuer':
+    case 'referral_attribution_tracker':
+    case 'reward_payout_dispatcher':
+    case 'catalog_product_indexer':
+    case 'catalog_variant_resolver':
+    case 'catalog_facet_aggregator':
+    case 'catalog_availability_sync':
+    case 'catalog_pricing_publisher':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

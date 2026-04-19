@@ -1,3 +1,45 @@
+## [Unreleased] - Batches 858-882 (Commerce Checkout, Subscriptions, Invoicing/Tax, Loyalty/Referral, Catalog)
+
+### Added — 25 new autonomous economy verticals across 5 domain groups
+
+**Batches 858-862 — Commerce Checkout:**
+- `commerce_cart_orchestrator` — Cart command ingestion with atomic snapshots
+- `commerce_checkout_finalizer` — Totals validation and atomic order finalization
+- `commerce_inventory_reservation` — Time-bounded stock holds with TTL release
+- `commerce_pricing_rule_engine` — Deterministic pricing with breakdown return
+- `commerce_promotion_applicator` — Code eligibility evaluation and discount application
+
+**Batches 863-867 — Subscriptions & Billing:**
+- `subscription_billing_renewer` — Cycle detection with charge attempts and outcome recording
+- `subscription_proration_calculator` — Usage-based proration for plan changes
+- `subscription_dunning_manager` — Failure observation with notice dispatch and retry scheduling
+- `subscription_cancellation_handler` — Policy-driven immediate or end-of-cycle cancellation
+- `subscription_plan_migrator` — Compatibility-checked transactional plan transitions
+
+**Batches 868-872 — Invoicing, Tax & Revenue:**
+- `invoice_pdf_generator` — Sandboxed template rendering with tamper-evident persistence
+- `tax_jurisdiction_resolver` — Address-normalized nested jurisdiction lookup
+- `tax_rate_calculator` — Jurisdiction-aware line-item tax computation
+- `revenue_recognition_engine` — ASC 606 deferred and recognized entry posting
+- `refund_dispatcher` — Eligibility-checked processor invocation with audit
+
+**Batches 873-877 — Loyalty & Referral:**
+- `loyalty_points_accruer` — Rule-evaluated points credit with ledger persistence
+- `loyalty_redemption_processor` — Atomic balance debit with reward issuance
+- `referral_code_issuer` — Collision-safe generation and secure distribution
+- `referral_attribution_tracker` — Code resolution with payout queueing
+- `reward_payout_dispatcher` — Eligibility-validated payment-rail execution
+
+**Batches 878-882 — Product Catalog:**
+- `catalog_product_indexer` — Document construction with atomic commit finalization
+- `catalog_variant_resolver` — Option matching with structured result return
+- `catalog_facet_aggregator` — Bucketed faceting with bounded result return
+- `catalog_availability_sync` — Stock diff computation with downstream notification
+- `catalog_pricing_publisher` — Validated pricing persistence with event publication
+
+### Tests
+- 275 new tests across 5 batch suites — all passing (5/5 suites, 275/275 tests)
+
 ## [Unreleased] - Batches 833-857 (Media Processing, Email, SMS/Voice, Notifications, Experimentation)
 
 ### Added — 25 new autonomous economy verticals across 5 domain groups
