@@ -27,6 +27,13 @@
 
 # Changelog
 
+## Batches 528-532 — Identity & SSO
+- oauth_provider: OAuth 2.0 provider management and client registration
+- saml_bridge: SAML federation bridge and SSO assertion handling
+- token_minter: JWT/token minting and lifecycle management
+- session_rotator: Session rotation and key regeneration policies
+- identity_linker: Cross-provider identity linking and account merging
+
 ## Batches 523-527 — Storage & File Management
 - blob_archiver: Blob storage archival and lifecycle management
 - file_deduplicator: File deduplication and hash-based storage optimization

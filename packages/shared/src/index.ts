@@ -553,3 +553,8 @@ export * from './agent-file-deduplicator';
 export * from './agent-storage-tierer';
 export * from './agent-media-transcoder';
 export * from './agent-thumbnail-generator';
+export * from './agent-oauth-provider';
+export * from './agent-saml-bridge';
+export * from './agent-token-minter';
+export * from './agent-session-rotator';
+export * from './agent-identity-linker';
