@@ -1408,6 +1408,31 @@ export type EidolonBuildingKind =
   | 'release_drafter_auditor'
   | 'release_drafter_reporter'
   | 'release_drafter_optimizer'
+  | 'changelog_engine'
+  | 'changelog_engine_monitor'
+  | 'changelog_engine_auditor'
+  | 'changelog_engine_reporter'
+  | 'changelog_engine_optimizer'
+  | 'version_bumper'
+  | 'version_bumper_monitor'
+  | 'version_bumper_auditor'
+  | 'version_bumper_reporter'
+  | 'version_bumper_optimizer'
+  | 'tag_manager'
+  | 'tag_manager_monitor'
+  | 'tag_manager_auditor'
+  | 'tag_manager_reporter'
+  | 'tag_manager_optimizer'
+  | 'branch_protector'
+  | 'branch_protector_monitor'
+  | 'branch_protector_auditor'
+  | 'branch_protector_reporter'
+  | 'branch_protector_optimizer'
+  | 'merge_resolver'
+  | 'merge_resolver_monitor'
+  | 'merge_resolver_auditor'
+  | 'merge_resolver_reporter'
+  | 'merge_resolver_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5535,6 +5560,81 @@ export type EidolonEventKind =
   | 'rdo.plan_created'
   | 'rdo.optimization_applied'
   | 'rdo.export_emitted'
+  | 'ce.entry_created'
+  | 'ce.config_updated'
+  | 'ce.export_emitted'
+  | 'cem.check_passed'
+  | 'cem.alert_raised'
+  | 'cem.export_emitted'
+  | 'cea2.entry_logged'
+  | 'cea2.violation_found'
+  | 'cea2.export_emitted'
+  | 'cer.report_generated'
+  | 'cer.insight_found'
+  | 'cer.export_emitted'
+  | 'ceo.plan_created'
+  | 'ceo.optimization_applied'
+  | 'ceo.export_emitted'
+  | 'vb.entry_created'
+  | 'vb.config_updated'
+  | 'vb.export_emitted'
+  | 'vbm.check_passed'
+  | 'vbm.alert_raised'
+  | 'vbm.export_emitted'
+  | 'vba.entry_logged'
+  | 'vba.violation_found'
+  | 'vba.export_emitted'
+  | 'vbr.report_generated'
+  | 'vbr.insight_found'
+  | 'vbr.export_emitted'
+  | 'vbo.plan_created'
+  | 'vbo.optimization_applied'
+  | 'vbo.export_emitted'
+  | 'tm.entry_created'
+  | 'tm.config_updated'
+  | 'tm.export_emitted'
+  | 'tmm.check_passed'
+  | 'tmm.alert_raised'
+  | 'tmm.export_emitted'
+  | 'tma.entry_logged'
+  | 'tma.violation_found'
+  | 'tma.export_emitted'
+  | 'tmr.report_generated'
+  | 'tmr.insight_found'
+  | 'tmr.export_emitted'
+  | 'tmo.plan_created'
+  | 'tmo.optimization_applied'
+  | 'tmo.export_emitted'
+  | 'bp.entry_created'
+  | 'bp.config_updated'
+  | 'bp.export_emitted'
+  | 'bpm.check_passed'
+  | 'bpm.alert_raised'
+  | 'bpm.export_emitted'
+  | 'bpa.entry_logged'
+  | 'bpa.violation_found'
+  | 'bpa.export_emitted'
+  | 'bpr.report_generated'
+  | 'bpr.insight_found'
+  | 'bpr.export_emitted'
+  | 'bpo.plan_created'
+  | 'bpo.optimization_applied'
+  | 'bpo.export_emitted'
+  | 'mr.entry_created'
+  | 'mr.config_updated'
+  | 'mr.export_emitted'
+  | 'mrm.check_passed'
+  | 'mrm.alert_raised'
+  | 'mrm.export_emitted'
+  | 'mra.entry_logged'
+  | 'mra.violation_found'
+  | 'mra.export_emitted'
+  | 'mrr.report_generated'
+  | 'mrr.insight_found'
+  | 'mrr.export_emitted'
+  | 'mro.plan_created'
+  | 'mro.optimization_applied'
+  | 'mro.export_emitted'
   | 'ct.experiment_created'
   | 'ct.config_updated'
   | 'ct.export_emitted'
@@ -8585,6 +8685,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'release_drafter_auditor':
     case 'release_drafter_reporter':
     case 'release_drafter_optimizer':
+    case 'changelog_engine':
+    case 'changelog_engine_monitor':
+    case 'changelog_engine_auditor':
+    case 'changelog_engine_reporter':
+    case 'changelog_engine_optimizer':
+    case 'version_bumper':
+    case 'version_bumper_monitor':
+    case 'version_bumper_auditor':
+    case 'version_bumper_reporter':
+    case 'version_bumper_optimizer':
+    case 'tag_manager':
+    case 'tag_manager_monitor':
+    case 'tag_manager_auditor':
+    case 'tag_manager_reporter':
+    case 'tag_manager_optimizer':
+    case 'branch_protector':
+    case 'branch_protector_monitor':
+    case 'branch_protector_auditor':
+    case 'branch_protector_reporter':
+    case 'branch_protector_optimizer':
+    case 'merge_resolver':
+    case 'merge_resolver_monitor':
+    case 'merge_resolver_auditor':
+    case 'merge_resolver_reporter':
+    case 'merge_resolver_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
