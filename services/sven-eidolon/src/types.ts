@@ -1158,6 +1158,31 @@ export type EidolonBuildingKind =
   | 'bandwidth_allocator_auditor'
   | 'bandwidth_allocator_reporter'
   | 'bandwidth_allocator_optimizer'
+  | 'storage_broker'
+  | 'storage_broker_monitor'
+  | 'storage_broker_auditor'
+  | 'storage_broker_reporter'
+  | 'storage_broker_optimizer'
+  | 'volume_controller'
+  | 'volume_controller_monitor'
+  | 'volume_controller_auditor'
+  | 'volume_controller_reporter'
+  | 'volume_controller_optimizer'
+  | 'replica_sync'
+  | 'replica_sync_monitor'
+  | 'replica_sync_auditor'
+  | 'replica_sync_reporter'
+  | 'replica_sync_optimizer'
+  | 'cache_primer'
+  | 'cache_primer_monitor'
+  | 'cache_primer_auditor'
+  | 'cache_primer_reporter'
+  | 'cache_primer_optimizer'
+  | 'queue_conductor'
+  | 'queue_conductor_monitor'
+  | 'queue_conductor_auditor'
+  | 'queue_conductor_reporter'
+  | 'queue_conductor_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5345,6 +5370,81 @@ export type EidolonEventKind =
   | 'bao.plan_created'
   | 'bao.optimization_applied'
   | 'bao.export_emitted'
+  | 'sb.entry_created'
+  | 'sb.config_updated'
+  | 'sb.export_emitted'
+  | 'sbm.check_passed'
+  | 'sbm.alert_raised'
+  | 'sbm.export_emitted'
+  | 'sba.entry_logged'
+  | 'sba.violation_found'
+  | 'sba.export_emitted'
+  | 'sbr.report_generated'
+  | 'sbr.insight_found'
+  | 'sbr.export_emitted'
+  | 'sbo.plan_created'
+  | 'sbo.optimization_applied'
+  | 'sbo.export_emitted'
+  | 'vc.entry_created'
+  | 'vc.config_updated'
+  | 'vc.export_emitted'
+  | 'vcm.check_passed'
+  | 'vcm.alert_raised'
+  | 'vcm.export_emitted'
+  | 'vca.entry_logged'
+  | 'vca.violation_found'
+  | 'vca.export_emitted'
+  | 'vcr.report_generated'
+  | 'vcr.insight_found'
+  | 'vcr.export_emitted'
+  | 'vco.plan_created'
+  | 'vco.optimization_applied'
+  | 'vco.export_emitted'
+  | 'rs.entry_created'
+  | 'rs.config_updated'
+  | 'rs.export_emitted'
+  | 'rsm.check_passed'
+  | 'rsm.alert_raised'
+  | 'rsm.export_emitted'
+  | 'rsa.entry_logged'
+  | 'rsa.violation_found'
+  | 'rsa.export_emitted'
+  | 'rsr.report_generated'
+  | 'rsr.insight_found'
+  | 'rsr.export_emitted'
+  | 'rso.plan_created'
+  | 'rso.optimization_applied'
+  | 'rso.export_emitted'
+  | 'cp.entry_created'
+  | 'cp.config_updated'
+  | 'cp.export_emitted'
+  | 'cpm.check_passed'
+  | 'cpm.alert_raised'
+  | 'cpm.export_emitted'
+  | 'cpa.entry_logged'
+  | 'cpa.violation_found'
+  | 'cpa.export_emitted'
+  | 'cpr.report_generated'
+  | 'cpr.insight_found'
+  | 'cpr.export_emitted'
+  | 'cpo.plan_created'
+  | 'cpo.optimization_applied'
+  | 'cpo.export_emitted'
+  | 'qc.entry_created'
+  | 'qc.config_updated'
+  | 'qc.export_emitted'
+  | 'qcm.check_passed'
+  | 'qcm.alert_raised'
+  | 'qcm.export_emitted'
+  | 'qca.entry_logged'
+  | 'qca.violation_found'
+  | 'qca.export_emitted'
+  | 'qcr.report_generated'
+  | 'qcr.insight_found'
+  | 'qcr.export_emitted'
+  | 'qco.plan_created'
+  | 'qco.optimization_applied'
+  | 'qco.export_emitted'
   | 'eg.rule_created'
   | 'eg.config_updated'
   | 'eg.export_emitted'
@@ -7335,6 +7435,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'bandwidth_allocator_auditor':
     case 'bandwidth_allocator_reporter':
     case 'bandwidth_allocator_optimizer':
+    case 'storage_broker':
+    case 'storage_broker_monitor':
+    case 'storage_broker_auditor':
+    case 'storage_broker_reporter':
+    case 'storage_broker_optimizer':
+    case 'volume_controller':
+    case 'volume_controller_monitor':
+    case 'volume_controller_auditor':
+    case 'volume_controller_reporter':
+    case 'volume_controller_optimizer':
+    case 'replica_sync':
+    case 'replica_sync_monitor':
+    case 'replica_sync_auditor':
+    case 'replica_sync_reporter':
+    case 'replica_sync_optimizer':
+    case 'cache_primer':
+    case 'cache_primer_monitor':
+    case 'cache_primer_auditor':
+    case 'cache_primer_reporter':
+    case 'cache_primer_optimizer':
+    case 'queue_conductor':
+    case 'queue_conductor_monitor':
+    case 'queue_conductor_auditor':
+    case 'queue_conductor_reporter':
+    case 'queue_conductor_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
