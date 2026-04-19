@@ -23,6 +23,11 @@ part of the live Sven environment.
 |---|---|---|---|---|
 | VM12 | 10.47.47.12 | `talk.sven.systems` | Rocket.Chat | Reverse-proxied by VM4 nginx with WebSocket upgrade support and dedicated Let's Encrypt certificate paths under `/etc/letsencrypt/live/talk.sven.systems/` |
 
+### Domain routing notes
+
+- `misiuni.ro` and `misiuni.from.sven.systems` are active Misiuni platform domains.
+- Route both domains through the same Sven edge ingress policy on VM4 used for other platform hosts.
+
 ### Resource Requirements
 
 #### Minimum Specifications

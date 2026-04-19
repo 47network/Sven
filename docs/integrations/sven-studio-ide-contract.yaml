@@ -1,0 +1,647 @@
+schema_version: 1
+generated_at: 2026-04-18
+document_type: sven_studio_ide_integration_contract
+target: sven_studio_ide
+public_api_contract_version: 2026-02-16.v1
+public_api_contract_surfaces:
+  - auth
+  - chat
+  - approvals
+  - admin
+  - stats
+  - preferences
+sources:
+  repo_routes:
+    - services/gateway-api/src/routes/auth.ts
+    - services/gateway-api/src/routes/canvas.ts
+    - services/gateway-api/src/routes/search.ts
+    - services/gateway-api/src/routes/streams.ts
+    - services/gateway-api/src/routes/deployment.ts
+    - services/gateway-api/src/routes/admin/git.ts
+    - apps/canvas-ui/src/lib/api.ts
+    - packages/shared/src/sdk/http-client.ts
+  infra_reference: user_supplied_47_infrastructure_reference_april_2026
+
+auth:
+  session_model:
+    accepted_credentials:
+      - type: cookie
+        name: sven_session
+      - type: bearer
+        description: opaque_sven_session_id
+    rejected_assumptions:
+      - raw_keycloak_access_tokens_are_not_accepted_directly_on_protected_v1_routes
+  cookies:
+    session_cookie: sven_session
+    refresh_cookie: sven_refresh
+  ttl_seconds:
+    access_token: 604800
+    refresh_token: 7776000
+  keycloak_defaults:
+    base_url: http://127.0.0.1:8081
+    realm: sven
+    client_id: sven-gateway
+  flows:
+    sso_status:
+      method: GET
+      path: /v1/auth/sso/status
+      auth: optional
+      response_fields:
+        - organization_id
+        - config
+        - providers
+        - local_auth_available
+    local_login:
+      method: POST
+      path: /v1/auth/login
+      follow_up:
+        - POST /v1/auth/totp/verify
+    oidc_direct_exchange:
+      method: POST
+      path: /v1/auth/sso
+      request:
+        required_fields:
+          - provider
+          - id_token
+        optional_fields:
+          - account_id
+          - nonce
+        required_values:
+          provider: oidc
+      response_fields:
+        - provider
+        - user_id
+        - username
+        - role
+        - membership_role
+        - active_organization_id
+        - access_token
+        - refresh_token
+        - token_type
+        - expires_in
+    oidc_browser_flow:
+      start:
+        method: POST
+        path: /v1/auth/sso/oidc/start
+        request:
+          required_fields:
+            - account_id
+        response_fields:
+          - provider
+          - account_id
+          - authorization_url
+          - state
+          - expires_in_seconds
+      callback:
+        method: POST
+        path: /v1/auth/sso/oidc/callback
+        request:
+          required_fields:
+            - state
+            - code
+        notes:
+          - redirect_uri_is_not_client_overrideable_on_callback
+          - configured_org_callback_url_is_used
+    device_flow:
+      start:
+        method: POST
+        path: /v1/auth/device/start
+        request:
+          optional_fields:
+            - client_name
+            - client_type
+            - scope
+        response_fields:
+          - device_code
+          - user_code
+          - verification_uri
+          - verification_uri_complete
+          - expires_in
+          - interval
+      confirm:
+        method: POST
+        path: /v1/auth/device/confirm
+        auth: active_session_required
+        request:
+          required_fields:
+            - user_code
+      token:
+        method: POST
+        path: /v1/auth/device/token
+        request:
+          required_fields:
+            - device_code
+        response_states:
+          - pending_status_returned_when_not_yet_approved
+          - authorized_returns_access_and_refresh_tokens
+    token_exchange:
+      method: GET
+      path: /v1/auth/token-exchange
+      query:
+        required:
+          - token
+        optional:
+          - redirect
+    refresh:
+      method: POST
+      path: /v1/auth/refresh
+      request:
+        accepted_fields:
+          - refresh_token
+          - refreshToken
+        also_accepts_cookie: sven_refresh
+      response_fields:
+        - access_token
+        - refresh_token
+        - token_type
+        - expires_in
+  multi_org:
+    list:
+      method: GET
+      path: /v1/users/me/organizations
+    activate:
+      method: PUT
+      path: /v1/users/me/active-organization
+      request:
+        required_fields:
+          - organization_id
+    requirement:
+      most_chat_run_approval_and_search_routes_require_active_organization: true
+
+recommended_studio_path:
+  - authenticate_with_device_flow_or_oidc_exchange
+  - list_orgs_and_set_active_org
+  - create_or_reuse_chat
+  - send_work_via_post_v1_chats_chatId_messages
+  - subscribe_to_sse_via_v1_stream_or_chat_specific_stream
+  - resolve_runs_artifacts_approvals_and_search_from_existing_public_routes
+
+public_endpoints:
+  health:
+    - method: GET
+      path: /healthz
+    - method: GET
+      path: /readyz
+    - method: GET
+      path: /v1/contracts/version
+  identity:
+    - method: GET
+      path: /v1/me
+      response_fields:
+        - id
+        - username
+        - display_name
+        - role
+        - created_at
+        - active_organization_id
+    - method: GET
+      path: /v1/auth/me
+      response_fields:
+        - id
+        - username
+        - display_name
+        - bio
+        - avatar_url
+        - timezone
+        - status_emoji
+        - status_text
+        - role
+        - created_at
+        - active_organization_id
+        - active_organization_name
+        - active_organization_slug
+  chats:
+    - method: GET
+      path: /v1/chats
+    - method: POST
+      path: /v1/chats
+    - method: GET
+      path: /v1/chats/:chatId
+    - method: PATCH
+      path: /v1/chats/:chatId
+    - method: DELETE
+      path: /v1/chats/:chatId
+    - method: GET
+      path: /v1/chats/:chatId/messages
+    - method: POST
+      path: /v1/chats/:chatId/messages
+      request_fields:
+        required:
+          - text
+        optional:
+          - mode
+          - response_length
+          - personality
+          - memory_context
+          - reply_to_message_id
+      behavior:
+        direct_dispatch:
+          status_code: 201
+          fields:
+            - status
+            - queued
+        queued_dispatch:
+          status_code: 202
+          fields:
+            - status
+            - queued
+            - queue_id
+            - queue_position
+        queue_full:
+          status_code: 429
+          error_code: QUEUE_DEPTH_EXCEEDED
+      event_bus:
+        publish_subject: inbound.message.canvas
+    - method: DELETE
+      path: /v1/chats/:chatId/queue/:queueId
+    - method: GET
+      path: /v1/chats/:chatId/agent-state
+    - method: POST
+      path: /v1/chats/:chatId/agent/pause
+    - method: POST
+      path: /v1/chats/:chatId/agent/resume
+    - method: POST
+      path: /v1/chats/:chatId/agent/nudge
+  runs:
+    - method: GET
+      path: /v1/runs/:runId
+      response_fields:
+        - id
+        - tool_name
+        - chat_id
+        - user_id
+        - approval_id
+        - status
+        - prev_hash
+        - run_hash
+        - canonical_io_sha256
+        - duration_ms
+        - created_at
+        - completed_at
+        - context_message_id
+        - linked_artifacts
+  artifacts:
+    - method: GET
+      path: /v1/artifacts/:artifactId
+      response_fields:
+        - id
+        - chat_id
+        - message_id
+        - name
+        - mime_type
+        - size_bytes
+        - created_at
+        - is_private
+        - download_url
+    - method: GET
+      path: /v1/artifacts/:artifactId/download
+  approvals:
+    - method: GET
+      path: /v1/approvals
+      filters:
+        - status
+        - chat_id
+        - query
+        - requester
+        - limit
+        - offset
+    - method: GET
+      path: /v1/approvals/export
+      filters:
+        - status
+        - chat_id
+        - query
+        - requester
+        - max_rows
+        - format
+    - method: POST
+      path: /v1/approvals/:id/vote
+      request_fields:
+        required:
+          - decision
+      allowed_values:
+        decision:
+          - approve
+          - deny
+          - reject
+      event_bus:
+        publish_subject: approval.updated
+  search:
+    - method: POST
+      path: /v1/search
+      description: federated_messages_tool_runs_artifacts_search
+    - method: POST
+      path: /v1/search/messages
+      description: full_text_message_search
+    - method: POST
+      path: /v1/search/semantic
+      request_requirements:
+        embedding_dimension: 1536
+    - method: POST
+      path: /v1/search/unified
+      supported_scopes:
+        - messages
+        - files
+        - contacts
+  realtime:
+    - method: GET
+      path: /v1/stream
+      transport: sse
+      event_names:
+        - message
+        - approval
+        - agent.paused
+        - agent.resumed
+        - agent.nudged
+    - method: GET
+      path: /v1/chats/:chatId/a2ui/stream
+      transport: sse
+    - method: POST
+      path: /v1/streams
+      description: create_resumable_owned_stream
+    - method: POST
+      path: /v1/streams/:id/events
+      description: append_stream_event
+    - method: GET
+      path: /v1/streams/:id/events
+      description: poll_stream_events
+    - method: GET
+      path: /v1/streams/:id/sse
+      transport: sse
+      supports_last_event_id: true
+  deployment:
+    - method: GET
+      path: /v1/config/deployment
+      response_fields:
+        - mode
+        - setup_complete
+    - method: POST
+      path: /v1/config/deployment/setup
+      request_fields:
+        required:
+          - mode
+          - username
+          - password
+        optional:
+          - display_name
+      valid_mode_values:
+        - personal
+        - multi_user
+
+admin_only:
+  deployment:
+    - method: PUT
+      path: /v1/admin/deployment
+  events:
+    - method: GET
+      path: /v1/admin/events
+      transport: sse
+      event_names:
+        - approval.changed
+        - tool_run.changed
+        - chat.changed
+        - user.changed
+        - health.status
+        - health.degraded
+  git:
+    providers:
+      - local
+      - forgejo
+      - github
+    routes:
+      - method: POST
+        path: /v1/admin/git/repos
+      - method: GET
+        path: /v1/admin/git/repos/:id/status
+      - method: POST
+        path: /v1/admin/git/repos/:id/sync
+      - method: GET
+        path: /v1/admin/git/repos/:id/pull-requests
+      - method: POST
+        path: /v1/admin/git/repos/:repo_id/pull-requests/:pr_id/merge
+    provider_requirements:
+      forgejo:
+        required_fields:
+          - repoOwner
+          - tokenRef
+          - repoUrl
+          - baseUrl
+      github:
+        required_fields:
+          - repoOwner
+          - tokenRef
+          - repoUrl
+      local:
+        repoUrl_must_be_filesystem_path: true
+    restrictions:
+      repo_url_must_be_http_or_https_for_forgejo_and_github: true
+      blocked_hosts:
+        - localhost
+        - 127.0.0.1
+        - ::1
+        - 0.0.0.0
+        - metadata.google.internal
+        - 169.254.169.254
+        - rfc1918_private_ipv4_ranges
+      protected_branch_merge_requires_explicit_approval: true
+      protected_branch_names:
+        - main
+        - master
+  editor:
+    routes:
+      - /v1/admin/editor/tree
+      - /v1/admin/editor/file
+      - /v1/admin/editor/mkdir
+      - /v1/admin/editor/rename
+      - /v1/admin/editor/search
+      - /v1/admin/editor/git/status
+      - /v1/admin/editor/git/diff
+  agents:
+    routes:
+      - /v1/admin/agents
+      - /v1/admin/agents/:id/config
+      - /v1/admin/agents/:id/spawn-session
+      - /v1/admin/agents/sessions/list
+      - /v1/admin/agents/sessions/:sessionId/history
+      - /v1/admin/agents/sessions/send
+
+knowledge_base:
+  public_ingestion_api_present: false
+  current_public_search_contract:
+    federated_search: /v1/search
+    full_text_search: /v1/search/messages
+    semantic_search: /v1/search/semantic
+    unified_search: /v1/search/unified
+  semantic_embedding_dimension: 1536
+  incompatible_assumptions:
+    - do_not_assume_768_dimension_vectors_are_accepted
+
+infra_topology:
+  wireguard_cidr: 10.47.47.0/24
+  vms:
+    sven_platform: 10.47.47.8
+    sven_ai: 10.47.47.9
+    sven_data: 10.47.47.10
+    sven_adapters: 10.47.47.11
+    kaldorei: 10.47.47.13
+  lan:
+    gateway_dns: 192.168.10.1
+    dev_machine: 192.168.10.79
+  public_domains:
+    - sven.systems
+    - app.sven.systems
+    - talk.sven.systems
+  ingress:
+    public_https_port: 44747
+    internal_gateway_bind: 127.0.0.1:3000
+    internal_nginx_ingress: 8088
+  model_endpoints:
+    openai_compatible_local: http://10.47.47.9:8080/v1
+    ollama_embeddings: http://10.47.47.13:11434
+
+shared_state:
+  authority: postgres
+  tables:
+    - users
+    - sessions
+    - organizations
+    - organization_memberships
+    - sso_identities
+    - oidc_auth_states
+    - device_codes
+    - auth_user_rate_limits
+    - settings_global
+    - chats
+    - chat_members
+    - messages
+    - artifacts
+    - tool_runs
+    - approvals
+    - approval_votes
+    - session_settings
+    - agent_nudge_events
+    - git_repos
+    - git_operations
+    - git_pull_requests
+  transport:
+    nats_or_jetstream_subjects:
+      - inbound.message.canvas
+      - approval.updated
+      - ui.a2ui.event
+  caveats:
+    - v1_streams_is_in_memory_and_gateway_instance_local
+    - v1_streams_is_not_durable_shared_state
+
+errors:
+  shared_client_error_types:
+    - NETWORK
+    - TIMEOUT
+    - AUTH
+    - FORBIDDEN
+    - NOT_FOUND
+    - CONFLICT
+    - RATE_LIMIT
+    - VALIDATION
+    - SERVER
+    - CIRCUIT_OPEN
+    - UNKNOWN
+  confirmed_gateway_error_codes:
+    - UNAUTHENTICATED
+    - SESSION_EXPIRED
+    - AUTH_FAILED
+    - LOCKED_OUT
+    - ADMIN_TOTP_REQUIRED
+    - REFRESH_EXPIRED
+    - RATE_LIMITED
+    - QUEUE_DEPTH_EXCEEDED
+    - ORG_REQUIRED
+    - NOT_A_MEMBER
+    - TOKEN_EXCHANGE_DISABLED
+    - TOKEN_EXCHANGE_UNAVAILABLE
+    - INVALID_TOKEN
+    - EXPIRED
+    - INVALID_STATE
+    - SSO_DISABLED
+    - ACCOUNT_REQUIRED
+    - ACCOUNT_NOT_FOUND
+    - OIDC_DISCOVERY_FAILED
+    - OIDC_TOKEN_EXCHANGE_FAILED
+    - OIDC_JWKS_UNAVAILABLE
+    - OIDC_TOKEN_SIGNATURE_INVALID
+    - OIDC_CLAIMS_INVALID
+    - OIDC_SUBJECT_MISMATCH
+    - OIDC_ISSUER_MISMATCH
+    - OIDC_AUDIENCE_MISMATCH
+    - OIDC_NONCE_MISMATCH
+    - OIDC_NONCE_MISSING
+    - OIDC_TOKEN_EXPIRED
+    - OIDC_TOKEN_IAT_INVALID
+    - MISSING_STORAGE
+    - UPSTREAM_TIMEOUT
+    - UPSTREAM_FAILED
+    - ARTIFACT_NOT_FOUND
+    - APPROVAL_REQUIRED
+  rate_limit_headers:
+    - X-RateLimit-Limit
+    - X-RateLimit-Remaining
+    - X-RateLimit-Reset
+    - Retry-After
+
+rate_limits:
+  code_defaults:
+    brute_force_attempts: 5
+    brute_force_lockout_minutes: 15
+    totp_attempts: 5
+    device_code_ttl_seconds: 1800
+    device_token_poll_interval_seconds: 5
+    per_user_api_limit:
+      max_requests: 300
+      window_seconds: 60
+  deployed_policy_from_infra_reference:
+    global_api_per_minute: 200
+    login_per_minute: 10
+    bootstrap_per_minute: 3
+    totp_per_minute: 5
+    brute_force_attempts: 5
+    brute_force_window_minutes: 15
+
+implemented_now:
+  - session_based_public_auth
+  - device_flow_login
+  - oidc_direct_exchange
+  - oidc_browser_flow
+  - multi_org_switching
+  - public_chat_send_and_queueing
+  - public_run_lookup
+  - public_artifact_lookup_and_download
+  - public_approvals_and_voting
+  - federated_search
+  - public_sse_streaming
+  - resumable_owned_stream_api
+  - deployment_mode_bootstrap
+  - admin_git_repo_and_pr_workflow
+  - admin_editor_workspace_endpoints
+  - admin_agent_session_endpoints
+
+needs_new_api_or_platform_decision:
+  - id: public_websocket_for_studio
+    reason: not_found_in_public_gateway_route_code
+  - id: public_pty_or_terminal_runtime
+    reason: not_found
+  - id: public_ide_sandbox_lifecycle
+    reason: not_found
+  - id: public_deployment_run_status
+    reason: not_found
+  - id: public_knowledge_ingestion_api
+    reason: not_found
+  - id: private_forgejo_repo_registration_support
+    reason: blocked_by_current_admin_repo_url_validation
+  - id: semantic_search_768_dimension_support
+    reason: current_route_schema_requires_1536
+
+non_assumptions:
+  - do_not_use_raw_keycloak_access_tokens_against_protected_v1_routes
+  - do_not_claim_a_public_studio_websocket_contract_exists
+  - do_not_claim_a_public_terminal_or_pty_api_exists
+  - do_not_claim_semantic_search_accepts_768_dimension_embeddings
+  - do_not_claim_private_or_wireguard_only_forgejo_urls_are_valid_for_current_admin_git_registration
