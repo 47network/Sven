@@ -453,3 +453,8 @@ export * from './agent-key-escrow';
 export * from './agent-config-auditor';
 export * from './agent-uptime-sentinel';
 export * from './agent-drift-detector';
+export * from './agent-payload-transformer';
+export * from './agent-queue-orchestrator';
+export * from './agent-data-pipeline-runner';
+export * from './agent-message-broker-admin';
+export * from './agent-retry-scheduler';

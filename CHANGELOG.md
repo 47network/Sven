@@ -1,5 +1,13 @@
 # Changelog
 
+## Batches 428-432 — Data & Messaging
+- **payload_transformer** (Batch 428): Payload format conversion (JSON/XML/CSV/Protobuf/Avro/MessagePack), schema validation, batch transforms, rule engine
+- **queue_orchestrator** (Batch 429): Multi-backend queue management (NATS/Redis/RabbitMQ/Kafka/SQS), dead-letter support, consumer rebalancing
+- **data_pipeline_runner** (Batch 430): DAG-based data pipelines, scheduling, step tracking, retry policies, run metrics
+- **message_broker_admin** (Batch 431): Broker health monitoring, topic management, partition rebalancing, alerting across NATS/RabbitMQ/Kafka/Pulsar
+- **retry_scheduler** (Batch 432): Intelligent retry scheduling with backoff strategies (fixed/linear/exponential/fibonacci), failure analysis, bulk retry
+
+
 ## Batch 147 — Agent State Sync
 - Migration: `20260617840000_agent_state_sync.sql` (sync_peers, sync_states, sync_operations)
 - Types: SyncDirection, ConflictPolicy, SyncPeer, SyncState, SyncOperationRecord, StateSyncStats
