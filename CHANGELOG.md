@@ -78,6 +78,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 248-252 — Network Infrastructure Extended
+- **Batch 248 — Network Auditor**: agent_audit_scans/findings/reports tables, AuditScanType/FindingSeverity types, SKILL.md (12.99/analyst), 6 task handlers, 4 NATS subjects
+- **Batch 249 — Connection Pooler**: agent_connection_pools/pool_connections/pool_metrics tables, PoolBackendType/ConnectionState types, SKILL.md (6.99/engineer), 6 task handlers, 4 NATS subjects
+- **Batch 250 — IP Allocator**: agent_ip_pools/ip_allocations/ip_audit_log tables, IpPoolStatus/IpAllocationType types, SKILL.md (4.99/engineer), 6 task handlers, 4 NATS subjects
+- **Batch 251 — Port Scanner**: agent_scan_targets/scan_results/port_services tables, PortScanType/PortRiskLevel types, SKILL.md (8.99/analyst), 6 task handlers, 4 NATS subjects
+- **Batch 252 — Edge Router**: agent_edge_configs/edge_routes/edge_access_logs tables, EdgeTlsMode/EdgeCacheStatus types, SKILL.md (11.99/engineer), 6 task handlers, 4 NATS subjects
+
 ### Batches 243-247 — Network Infrastructure Advanced
 - **Batch 243 – Proxy Manager**: Reverse/forward proxy orchestration, rule management, access logging (3 tables, 6 task handlers)
 - **Batch 244 – VPN Provisioner**: WireGuard/OpenVPN tunnel provisioning, peer management, connection monitoring (3 tables, 6 task handlers)

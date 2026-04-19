@@ -269,3 +269,8 @@ export * from './agent-vpn-provisioner.js';
 export * from './agent-bandwidth-optimizer.js';
 export * from './agent-latency-analyzer.js';
 export * from './agent-packet-inspector.js';
+export * from './agent-network-auditor.js';
+export * from './agent-connection-pooler.js';
+export * from './agent-ip-allocator.js';
+export * from './agent-port-scanner.js';
+export * from './agent-edge-router.js';
