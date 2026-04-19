@@ -1083,6 +1083,31 @@ export type EidolonBuildingKind =
   | 'access_review_auditor'
   | 'access_review_reporter'
   | 'access_review_optimizer'
+  | 'change_management'
+  | 'change_management_monitor'
+  | 'change_management_auditor'
+  | 'change_management_reporter'
+  | 'change_management_optimizer'
+  | 'release_gating'
+  | 'release_gating_monitor'
+  | 'release_gating_auditor'
+  | 'release_gating_reporter'
+  | 'release_gating_optimizer'
+  | 'canary_release'
+  | 'canary_release_monitor'
+  | 'canary_release_auditor'
+  | 'canary_release_reporter'
+  | 'canary_release_optimizer'
+  | 'blue_green'
+  | 'blue_green_monitor'
+  | 'blue_green_auditor'
+  | 'blue_green_reporter'
+  | 'blue_green_optimizer'
+  | 'rollback_planner'
+  | 'rollback_planner_monitor'
+  | 'rollback_planner_auditor'
+  | 'rollback_planner_reporter'
+  | 'rollback_planner_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5045,6 +5070,81 @@ export type EidolonEventKind =
   | 'arvo.plan_created'
   | 'arvo.optimization_applied'
   | 'arvo.export_emitted'
+  | 'cm.entry_created'
+  | 'cm.config_updated'
+  | 'cm.export_emitted'
+  | 'cmm.check_passed'
+  | 'cmm.alert_raised'
+  | 'cmm.export_emitted'
+  | 'cma.entry_logged'
+  | 'cma.violation_found'
+  | 'cma.export_emitted'
+  | 'cmr.report_generated'
+  | 'cmr.insight_found'
+  | 'cmr.export_emitted'
+  | 'cmo.plan_created'
+  | 'cmo.optimization_applied'
+  | 'cmo.export_emitted'
+  | 'rg.entry_created'
+  | 'rg.config_updated'
+  | 'rg.export_emitted'
+  | 'rgm.check_passed'
+  | 'rgm.alert_raised'
+  | 'rgm.export_emitted'
+  | 'rga.entry_logged'
+  | 'rga.violation_found'
+  | 'rga.export_emitted'
+  | 'rgr.report_generated'
+  | 'rgr.insight_found'
+  | 'rgr.export_emitted'
+  | 'rgo.plan_created'
+  | 'rgo.optimization_applied'
+  | 'rgo.export_emitted'
+  | 'cnr.entry_created'
+  | 'cnr.config_updated'
+  | 'cnr.export_emitted'
+  | 'cnrm.check_passed'
+  | 'cnrm.alert_raised'
+  | 'cnrm.export_emitted'
+  | 'cnra.entry_logged'
+  | 'cnra.violation_found'
+  | 'cnra.export_emitted'
+  | 'cnrr.report_generated'
+  | 'cnrr.insight_found'
+  | 'cnrr.export_emitted'
+  | 'cnro.plan_created'
+  | 'cnro.optimization_applied'
+  | 'cnro.export_emitted'
+  | 'bg.entry_created'
+  | 'bg.config_updated'
+  | 'bg.export_emitted'
+  | 'bgm.check_passed'
+  | 'bgm.alert_raised'
+  | 'bgm.export_emitted'
+  | 'bga.entry_logged'
+  | 'bga.violation_found'
+  | 'bga.export_emitted'
+  | 'bgr.report_generated'
+  | 'bgr.insight_found'
+  | 'bgr.export_emitted'
+  | 'bgo.plan_created'
+  | 'bgo.optimization_applied'
+  | 'bgo.export_emitted'
+  | 'rbp.entry_created'
+  | 'rbp.config_updated'
+  | 'rbp.export_emitted'
+  | 'rbpm.check_passed'
+  | 'rbpm.alert_raised'
+  | 'rbpm.export_emitted'
+  | 'rbpa.entry_logged'
+  | 'rbpa.violation_found'
+  | 'rbpa.export_emitted'
+  | 'rbpr.report_generated'
+  | 'rbpr.insight_found'
+  | 'rbpr.export_emitted'
+  | 'rbpo.plan_created'
+  | 'rbpo.optimization_applied'
+  | 'rbpo.export_emitted'
   | 'eg.rule_created'
   | 'eg.config_updated'
   | 'eg.export_emitted'
@@ -6960,6 +7060,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'access_review_auditor':
     case 'access_review_reporter':
     case 'access_review_optimizer':
+    case 'change_management':
+    case 'change_management_monitor':
+    case 'change_management_auditor':
+    case 'change_management_reporter':
+    case 'change_management_optimizer':
+    case 'release_gating':
+    case 'release_gating_monitor':
+    case 'release_gating_auditor':
+    case 'release_gating_reporter':
+    case 'release_gating_optimizer':
+    case 'canary_release':
+    case 'canary_release_monitor':
+    case 'canary_release_auditor':
+    case 'canary_release_reporter':
+    case 'canary_release_optimizer':
+    case 'blue_green':
+    case 'blue_green_monitor':
+    case 'blue_green_auditor':
+    case 'blue_green_reporter':
+    case 'blue_green_optimizer':
+    case 'rollback_planner':
+    case 'rollback_planner_monitor':
+    case 'rollback_planner_auditor':
+    case 'rollback_planner_reporter':
+    case 'rollback_planner_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
