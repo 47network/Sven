@@ -1583,6 +1583,31 @@ export type EidolonBuildingKind =
   | 'reconciliation_agent_auditor'
   | 'reconciliation_agent_reporter'
   | 'reconciliation_agent_optimizer'
+  | 'cashflow_planner'
+  | 'cashflow_planner_monitor'
+  | 'cashflow_planner_auditor'
+  | 'cashflow_planner_reporter'
+  | 'cashflow_planner_optimizer'
+  | 'subscription_manager'
+  | 'subscription_manager_monitor'
+  | 'subscription_manager_auditor'
+  | 'subscription_manager_reporter'
+  | 'subscription_manager_optimizer'
+  | 'pricing_engine'
+  | 'pricing_engine_monitor'
+  | 'pricing_engine_auditor'
+  | 'pricing_engine_reporter'
+  | 'pricing_engine_optimizer'
+  | 'discount_manager'
+  | 'discount_manager_monitor'
+  | 'discount_manager_auditor'
+  | 'discount_manager_reporter'
+  | 'discount_manager_optimizer'
+  | 'refund_processor'
+  | 'refund_processor_monitor'
+  | 'refund_processor_auditor'
+  | 'refund_processor_reporter'
+  | 'refund_processor_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5215,6 +5240,81 @@ export type EidolonEventKind =
   | 'rao.plan_created'
   | 'rao.optimization_applied'
   | 'rao.export_emitted'
+  | 'cfp.entry_created'
+  | 'cfp.config_updated'
+  | 'cfp.export_emitted'
+  | 'cfpm.check_passed'
+  | 'cfpm.alert_raised'
+  | 'cfpm.export_emitted'
+  | 'cfpa.entry_logged'
+  | 'cfpa.violation_found'
+  | 'cfpa.export_emitted'
+  | 'cfpr.report_generated'
+  | 'cfpr.insight_found'
+  | 'cfpr.export_emitted'
+  | 'cfpo.plan_created'
+  | 'cfpo.optimization_applied'
+  | 'cfpo.export_emitted'
+  | 'sm.entry_created'
+  | 'sm.config_updated'
+  | 'sm.export_emitted'
+  | 'smm.check_passed'
+  | 'smm.alert_raised'
+  | 'smm.export_emitted'
+  | 'sma.entry_logged'
+  | 'sma.violation_found'
+  | 'sma.export_emitted'
+  | 'smr.report_generated'
+  | 'smr.insight_found'
+  | 'smr.export_emitted'
+  | 'smo.plan_created'
+  | 'smo.optimization_applied'
+  | 'smo.export_emitted'
+  | 'pe.entry_created'
+  | 'pe.config_updated'
+  | 'pe.export_emitted'
+  | 'pem.check_passed'
+  | 'pem.alert_raised'
+  | 'pem.export_emitted'
+  | 'pea.entry_logged'
+  | 'pea.violation_found'
+  | 'pea.export_emitted'
+  | 'per.report_generated'
+  | 'per.insight_found'
+  | 'per.export_emitted'
+  | 'peo.plan_created'
+  | 'peo.optimization_applied'
+  | 'peo.export_emitted'
+  | 'dm.entry_created'
+  | 'dm.config_updated'
+  | 'dm.export_emitted'
+  | 'dmm.check_passed'
+  | 'dmm.alert_raised'
+  | 'dmm.export_emitted'
+  | 'dma.entry_logged'
+  | 'dma.violation_found'
+  | 'dma.export_emitted'
+  | 'dmr.report_generated'
+  | 'dmr.insight_found'
+  | 'dmr.export_emitted'
+  | 'dmo.plan_created'
+  | 'dmo.optimization_applied'
+  | 'dmo.export_emitted'
+  | 'rp.entry_created'
+  | 'rp.config_updated'
+  | 'rp.export_emitted'
+  | 'rpm.check_passed'
+  | 'rpm.alert_raised'
+  | 'rpm.export_emitted'
+  | 'rpa.entry_logged'
+  | 'rpa.violation_found'
+  | 'rpa.export_emitted'
+  | 'rpr.report_generated'
+  | 'rpr.insight_found'
+  | 'rpr.export_emitted'
+  | 'rpo.plan_created'
+  | 'rpo.optimization_applied'
+  | 'rpo.export_emitted'
   | 'ct.entry_created'
   | 'ct.config_updated'
   | 'ct.export_emitted'
@@ -9460,6 +9560,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'reconciliation_agent_auditor':
     case 'reconciliation_agent_reporter':
     case 'reconciliation_agent_optimizer':
+    case 'cashflow_planner':
+    case 'cashflow_planner_monitor':
+    case 'cashflow_planner_auditor':
+    case 'cashflow_planner_reporter':
+    case 'cashflow_planner_optimizer':
+    case 'subscription_manager':
+    case 'subscription_manager_monitor':
+    case 'subscription_manager_auditor':
+    case 'subscription_manager_reporter':
+    case 'subscription_manager_optimizer':
+    case 'pricing_engine':
+    case 'pricing_engine_monitor':
+    case 'pricing_engine_auditor':
+    case 'pricing_engine_reporter':
+    case 'pricing_engine_optimizer':
+    case 'discount_manager':
+    case 'discount_manager_monitor':
+    case 'discount_manager_auditor':
+    case 'discount_manager_reporter':
+    case 'discount_manager_optimizer':
+    case 'refund_processor':
+    case 'refund_processor_monitor':
+    case 'refund_processor_auditor':
+    case 'refund_processor_reporter':
+    case 'refund_processor_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
