@@ -3443,6 +3443,36 @@ export class TaskExecutor {
       case 'cmph_escalate': return this.handleCmphEscalate(task);
       case 'cmph_report': return this.handleCmphReport(task);
       case 'cmph_monitor': return this.handleCmphMonitor(task);
+      case 'atwr_record': return this.handleAtwrRecord(task);
+      case 'atwr_rotate': return this.handleAtwrRotate(task);
+      case 'atwr_detect': return this.handleAtwrDetect(task);
+      case 'atwr_export': return this.handleAtwrExport(task);
+      case 'atwr_report': return this.handleAtwrReport(task);
+      case 'atwr_monitor': return this.handleAtwrMonitor(task);
+      case 'gvad_start': return this.handleGvadStart(task);
+      case 'gvad_find': return this.handleGvadFind(task);
+      case 'gvad_remediate': return this.handleGvadRemediate(task);
+      case 'gvad_close': return this.handleGvadClose(task);
+      case 'gvad_report': return this.handleGvadReport(task);
+      case 'gvad_monitor': return this.handleGvadMonitor(task);
+      case 'rgsc_scan': return this.handleRgscScan(task);
+      case 'rgsc_violate': return this.handleRgscViolate(task);
+      case 'rgsc_complete': return this.handleRgscComplete(task);
+      case 'rgsc_update': return this.handleRgscUpdate(task);
+      case 'rgsc_report': return this.handleRgscReport(task);
+      case 'rgsc_monitor': return this.handleRgscMonitor(task);
+      case 'csmg_grant': return this.handleCsmgGrant(task);
+      case 'csmg_revoke': return this.handleCsmgRevoke(task);
+      case 'csmg_update': return this.handleCsmgUpdate(task);
+      case 'csmg_audit': return this.handleCsmgAudit(task);
+      case 'csmg_report': return this.handleCsmgReport(task);
+      case 'csmg_monitor': return this.handleCsmgMonitor(task);
+      case 'rtsc_apply': return this.handleRtscApply(task);
+      case 'rtsc_purge': return this.handleRtscPurge(task);
+      case 'rtsc_extend': return this.handleRtscExtend(task);
+      case 'rtsc_schedule': return this.handleRtscSchedule(task);
+      case 'rtsc_report': return this.handleRtscReport(task);
+      case 'rtsc_monitor': return this.handleRtscMonitor(task);
     }
   }
 

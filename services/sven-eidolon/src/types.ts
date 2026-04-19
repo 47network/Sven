@@ -243,6 +243,11 @@ export type EidolonBuildingKind =
   | 'step_coordinator'
   | 'saga_runner'
   | 'compensation_handler'
+  | 'audit_trail_writer'
+  | 'governance_auditor'
+  | 'regulation_scanner'
+  | 'consent_manager'
+  | 'retention_scheduler'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -1420,6 +1425,26 @@ export type EidolonEventKind =
   | 'cmph.rollback_executed'
   | 'cmph.recovery_completed'
   | 'cmph.escalation_required'
+  | 'atwr.entry_recorded'
+  | 'atwr.trail_rotated'
+  | 'atwr.tamper_detected'
+  | 'atwr.export_completed'
+  | 'gvad.audit_started'
+  | 'gvad.finding_reported'
+  | 'gvad.remediation_required'
+  | 'gvad.audit_closed'
+  | 'rgsc.scan_initiated'
+  | 'rgsc.violation_found'
+  | 'rgsc.scan_completed'
+  | 'rgsc.rule_updated'
+  | 'csmg.consent_granted'
+  | 'csmg.consent_revoked'
+  | 'csmg.preference_updated'
+  | 'csmg.audit_requested'
+  | 'rtsc.policy_applied'
+  | 'rtsc.data_purged'
+  | 'rtsc.retention_extended'
+  | 'rtsc.schedule_updated'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -2120,6 +2145,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'step_coordinator':
     case 'saga_runner':
     case 'compensation_handler':
+    case 'audit_trail_writer':
+    case 'governance_auditor':
+    case 'regulation_scanner':
+    case 'consent_manager':
+    case 'retention_scheduler':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
