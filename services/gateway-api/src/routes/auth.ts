@@ -180,10 +180,29 @@ function isLoopbackAddress(value: unknown): boolean {
     || normalized === 'localhost';
 }
 
-function toSafeLocalRedirectPath(value: unknown): string {
+export function toSafeLocalRedirectPath(value: unknown): string {
   const raw = String(value || '').trim();
-  if (!raw.startsWith('/')) return '/';
-  if (raw.startsWith('//')) return '/';
+  if (!raw) return '/';
+
+  const isSafe = (s: string) => {
+    const normalized = s.trim();
+    return normalized.startsWith('/') &&
+           !normalized.startsWith('//') &&
+           !normalized.includes('\\') &&
+           !hasAsciiControlChars(normalized);
+  };
+
+  if (!isSafe(raw)) return '/';
+
+  try {
+    const decoded = decodeURIComponent(raw);
+    if (decoded !== raw && !isSafe(decoded)) {
+      return '/';
+    }
+  } catch {
+    // ignore malformed URI sequences
+  }
+
   return raw;
 }
 
@@ -491,24 +510,8 @@ function hasAsciiControlChars(value: string): boolean {
   return false;
 }
 
-function normalizeTokenExchangeRedirectTarget(raw: unknown): string {
-  const value = String(raw || '').trim();
-  if (!value) return '/';
-  const candidates = [value];
-  try {
-    candidates.push(decodeURIComponent(value));
-  } catch {
-    // ignore malformed URI sequences and rely on raw candidate only
-  }
-  for (const candidate of candidates) {
-    const normalized = String(candidate || '').trim();
-    if (!normalized.startsWith('/')) continue;
-    if (normalized.startsWith('//')) continue;
-    if (normalized.includes('\\')) continue;
-    if (hasAsciiControlChars(normalized)) continue;
-    return normalized;
-  }
-  return '/';
+export function normalizeTokenExchangeRedirectTarget(raw: unknown): string {
+  return toSafeLocalRedirectPath(raw);
 }
 
 function maskDebugToken(value: unknown): string | null {
