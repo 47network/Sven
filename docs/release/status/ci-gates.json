@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-04-19T15:11:25.303Z",
-  "source_branch": "main",
-  "source_head_sha": "198189754817bf9b2bcb598297dbe593c57c426a",
+  "generated_at": "2026-04-19T15:13:22.144Z",
+  "source_branch": "public-codeql-redos-fix-2",
+  "source_head_sha": "0322be2f28b62c3794e1e3b01367861624216bf0",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-19T15:11:00.997Z",
-    "branch": "main",
-    "total_runs": 1000
+    "captured_at": "2026-04-19T15:13:21.640Z",
+    "branch": "public-codeql-redos-fix-2",
+    "total_runs": 13
   },
   "final_dod_ci": true,
   "parity_e2e_ci": true,
@@ -37,10 +37,10 @@
   "security_baseline_ci": false,
   "gate_provenance": {
     "final_dod_ci": {
-      "run_id": 24632160176,
-      "head_sha": "198189754817bf9b2bcb598297dbe593c57c426a",
-      "head_branch": "main",
-      "event": "push",
+      "run_id": 24632156036,
+      "head_sha": "0322be2f28b62c3794e1e3b01367861624216bf0",
+      "head_branch": "public-codeql-redos-fix-2",
+      "event": "pull_request",
       "status": "completed",
       "conclusion": "success",
       "workflow_id": 261310863,
@@ -50,23 +50,22 @@
       "decision": "target_sha_completed_run"
     },
     "parity_e2e_ci": {
-      "run_id": 24632160167,
-      "head_sha": "198189754817bf9b2bcb598297dbe593c57c426a",
-      "head_branch": "main",
-      "event": "push",
-      "status": "in_progress",
-      "conclusion": null,
+      "run_id": 24632156034,
+      "head_sha": "0322be2f28b62c3794e1e3b01367861624216bf0",
+      "head_branch": "public-codeql-redos-fix-2",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310885,
       "workflow_name": "parity-e2e",
       "matched_target_sha": true,
       "gate_key": "parity_e2e_ci",
-      "decision": "preserved_previous_pass_non_final_target_sha",
-      "previous_gate_value": true
+      "decision": "target_sha_completed_run"
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -80,7 +79,7 @@
     "agent_zero_parity_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": "pass",
       "conclusion": "success",
@@ -90,12 +89,12 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-19T15:10:58.163Z"
+      "generated_at": "2026-04-19T15:13:18.774Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -110,7 +109,7 @@
     "mcp_server_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -120,12 +119,12 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-19T15:10:59.341Z"
+      "generated_at": "2026-04-19T15:13:19.973Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -135,12 +134,12 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-19T15:11:00.531Z"
+      "generated_at": "2026-04-19T15:13:21.188Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -155,7 +154,7 @@
     "d9_keycloak_interop_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -168,7 +167,7 @@
     "release_ops_drill_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -180,10 +179,10 @@
       "previous_gate_value": false
     },
     "mobile_auth_session_smoke_ci": {
-      "run_id": 24632160174,
-      "head_sha": "198189754817bf9b2bcb598297dbe593c57c426a",
-      "head_branch": "main",
-      "event": "push",
+      "run_id": 24632156066,
+      "head_sha": "0322be2f28b62c3794e1e3b01367861624216bf0",
+      "head_branch": "public-codeql-redos-fix-2",
+      "event": "pull_request",
       "status": "completed",
       "conclusion": "success",
       "workflow_id": 261310875,
@@ -195,7 +194,7 @@
     "mobile_release_readiness_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -209,7 +208,7 @@
     "backup_restore_api_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -223,7 +222,7 @@
     "flutter_user_app_device_farm_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -236,7 +235,7 @@
     "desktop_release_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -244,13 +243,13 @@
       "workflow_name": "desktop-tauri-release",
       "matched_target_sha": false,
       "gate_key": "desktop_tauri_release_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "198189754817bf9b2bcb598297dbe593c57c426a"
+      "decision": "no_runs_for_branch",
+      "previous_gate_value": false
     },
     "ui_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -258,13 +257,13 @@
       "workflow_name": "ui-e2e-accessibility",
       "matched_target_sha": false,
       "gate_key": "ui_e2e_accessibility_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "198189754817bf9b2bcb598297dbe593c57c426a"
+      "decision": "no_runs_for_branch",
+      "previous_gate_value": false
     },
     "mobile_coverage_gate_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -278,7 +277,7 @@
     "csrf_auth_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -292,7 +291,7 @@
     "client_env_governance_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -300,13 +299,13 @@
       "workflow_name": "client-env-governance",
       "matched_target_sha": false,
       "gate_key": "client_env_governance_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "198189754817bf9b2bcb598297dbe593c57c426a"
+      "decision": "no_runs_for_branch",
+      "previous_gate_value": false
     },
     "backend_capability_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -320,7 +319,7 @@
     "security_privacy_governance_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -334,7 +333,7 @@
     "privacy_admin_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -348,7 +347,7 @@
     "ops_shell_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -357,7 +356,7 @@
       "matched_target_sha": false,
       "gate_key": "ops_shell_ci",
       "decision": "not_required_scope_clean",
-      "target_sha": "198189754817bf9b2bcb598297dbe593c57c426a",
+      "previous_gate_value": true,
       "scope_source": "no_changed_files_detected",
       "scope_globs": [
         "scripts/ops/**/*.sh",
@@ -374,7 +373,7 @@
     "skill_quarantine_scan_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -388,7 +387,7 @@
     "security_audit_unified_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "public-codeql-redos-fix-2",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -400,10 +399,10 @@
       "previous_gate_value": false
     },
     "security_baseline_ci": {
-      "run_id": 24632160159,
-      "head_sha": "198189754817bf9b2bcb598297dbe593c57c426a",
-      "head_branch": "main",
-      "event": "push",
+      "run_id": 24632156058,
+      "head_sha": "0322be2f28b62c3794e1e3b01367861624216bf0",
+      "head_branch": "public-codeql-redos-fix-2",
+      "event": "pull_request",
       "status": "completed",
       "conclusion": "failure",
       "workflow_id": 261310894,
@@ -441,10 +440,10 @@
     "final-dod-e2e": {
       "pass": true,
       "provenance": {
-        "run_id": 24632160176,
-        "head_sha": "198189754817bf9b2bcb598297dbe593c57c426a",
-        "head_branch": "main",
-        "event": "push",
+        "run_id": 24632156036,
+        "head_sha": "0322be2f28b62c3794e1e3b01367861624216bf0",
+        "head_branch": "public-codeql-redos-fix-2",
+        "event": "pull_request",
         "status": "completed",
         "conclusion": "success",
         "workflow_id": 261310863,
@@ -458,35 +457,35 @@
     "parity-e2e": {
       "pass": true,
       "provenance": {
-        "run_id": 24632160167,
-        "head_sha": "198189754817bf9b2bcb598297dbe593c57c426a",
-        "head_branch": "main",
-        "event": "push",
-        "status": "in_progress",
-        "conclusion": null,
+        "run_id": 24632156034,
+        "head_sha": "0322be2f28b62c3794e1e3b01367861624216bf0",
+        "head_branch": "public-codeql-redos-fix-2",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310885,
         "workflow_name": "parity-e2e",
         "matched_target_sha": true,
         "gate_key": "parity_e2e_ci",
-        "decision": "preserved_previous_pass_non_final_target_sha",
-        "previous_gate_value": true
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "parity_e2e_ci"
     },
     "d9-keycloak-interop-gate": {
-      "pass": true,
+      "pass": false,
       "provenance": {
-        "run_id": 24632160178,
-        "head_sha": "198189754817bf9b2bcb598297dbe593c57c426a",
-        "head_branch": "main",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "success",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": "public-codeql-redos-fix-2",
+        "event": null,
+        "status": null,
+        "conclusion": null,
         "workflow_id": 261310855,
         "workflow_name": "d9-keycloak-interop-gate",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "d9_keycloak_interop_gate_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "d9_keycloak_interop_gate_ci"
     },
@@ -495,7 +494,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "public-codeql-redos-fix-2",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -511,10 +510,10 @@
     "mobile-auth-session-smoke": {
       "pass": true,
       "provenance": {
-        "run_id": 24632160174,
-        "head_sha": "198189754817bf9b2bcb598297dbe593c57c426a",
-        "head_branch": "main",
-        "event": "push",
+        "run_id": 24632156066,
+        "head_sha": "0322be2f28b62c3794e1e3b01367861624216bf0",
+        "head_branch": "public-codeql-redos-fix-2",
+        "event": "pull_request",
         "status": "completed",
         "conclusion": "success",
         "workflow_id": 261310875,
@@ -530,7 +529,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "public-codeql-redos-fix-2",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -548,7 +547,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "public-codeql-redos-fix-2",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -556,8 +555,8 @@
         "workflow_name": "desktop-tauri-release",
         "matched_target_sha": false,
         "gate_key": "desktop_tauri_release_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "198189754817bf9b2bcb598297dbe593c57c426a"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "desktop_tauri_release_ci"
     },
@@ -566,7 +565,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "public-codeql-redos-fix-2",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -574,18 +573,18 @@
         "workflow_name": "ui-e2e-accessibility",
         "matched_target_sha": false,
         "gate_key": "ui_e2e_accessibility_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "198189754817bf9b2bcb598297dbe593c57c426a"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "ui_e2e_accessibility_ci"
     },
     "gateway-coverage-gate": {
       "pass": true,
       "provenance": {
-        "run_id": 24632160175,
-        "head_sha": "198189754817bf9b2bcb598297dbe593c57c426a",
-        "head_branch": "main",
-        "event": "push",
+        "run_id": 24632156038,
+        "head_sha": "0322be2f28b62c3794e1e3b01367861624216bf0",
+        "head_branch": "public-codeql-redos-fix-2",
+        "event": "pull_request",
         "status": "completed",
         "conclusion": "success",
         "workflow_id": 261310871,
@@ -601,7 +600,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "public-codeql-redos-fix-2",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -609,17 +608,17 @@
         "workflow_name": "client-env-governance",
         "matched_target_sha": false,
         "gate_key": "client_env_governance_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "198189754817bf9b2bcb598297dbe593c57c426a"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "client_env_governance_ci"
     },
     "deployment-pipeline": {
       "pass": false,
       "provenance": {
-        "run_id": 24632160165,
-        "head_sha": "198189754817bf9b2bcb598297dbe593c57c426a",
-        "head_branch": "main",
+        "run_id": 24632152874,
+        "head_sha": "0322be2f28b62c3794e1e3b01367861624216bf0",
+        "head_branch": "public-codeql-redos-fix-2",
         "event": "push",
         "status": "in_progress",
         "conclusion": null,
@@ -635,9 +634,9 @@
     "env-secrets-governance": {
       "pass": true,
       "provenance": {
-        "run_id": 24632160193,
-        "head_sha": "198189754817bf9b2bcb598297dbe593c57c426a",
-        "head_branch": "main",
+        "run_id": 24632152864,
+        "head_sha": "0322be2f28b62c3794e1e3b01367861624216bf0",
+        "head_branch": "public-codeql-redos-fix-2",
         "event": "push",
         "status": "completed",
         "conclusion": "success",
@@ -652,10 +651,10 @@
     "security-baseline": {
       "pass": false,
       "provenance": {
-        "run_id": 24632160159,
-        "head_sha": "198189754817bf9b2bcb598297dbe593c57c426a",
-        "head_branch": "main",
-        "event": "push",
+        "run_id": 24632156058,
+        "head_sha": "0322be2f28b62c3794e1e3b01367861624216bf0",
+        "head_branch": "public-codeql-redos-fix-2",
+        "event": "pull_request",
         "status": "completed",
         "conclusion": "failure",
         "workflow_id": 261310894,
@@ -671,7 +670,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "public-codeql-redos-fix-2",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -689,7 +688,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "public-codeql-redos-fix-2",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -707,7 +706,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "public-codeql-redos-fix-2",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -715,8 +714,8 @@
         "workflow_name": "release-supply-chain",
         "matched_target_sha": false,
         "gate_key": "release_supply_chain_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "198189754817bf9b2bcb598297dbe593c57c426a"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "release_supply_chain_ci"
     },
@@ -725,7 +724,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "public-codeql-redos-fix-2",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -733,8 +732,8 @@
         "workflow_name": "ops-shell-ci",
         "matched_target_sha": false,
         "gate_key": "ops_shell_ci_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "198189754817bf9b2bcb598297dbe593c57c426a"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "ops_shell_ci_ci"
     },
@@ -743,7 +742,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "public-codeql-redos-fix-2",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -759,10 +758,10 @@
     "gateway-bridge-contract-tests": {
       "pass": true,
       "provenance": {
-        "run_id": 24632160166,
-        "head_sha": "198189754817bf9b2bcb598297dbe593c57c426a",
-        "head_branch": "main",
-        "event": "push",
+        "run_id": 24632156064,
+        "head_sha": "0322be2f28b62c3794e1e3b01367861624216bf0",
+        "head_branch": "public-codeql-redos-fix-2",
+        "event": "pull_request",
         "status": "completed",
         "conclusion": "success",
         "workflow_id": 261310869,
