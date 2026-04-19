@@ -488,3 +488,8 @@ export * from './agent-proxy-configurator';
 export * from './agent-webhook-router';
 export * from './agent-egress-filter';
 export * from './agent-request-validator';
+export * from './agent-data-replicator';
+export * from './agent-data-partitioner';
+export * from './agent-data-archiver';
+export * from './agent-table-optimizer';
+export * from './agent-query-analyzer';

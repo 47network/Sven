@@ -1,3 +1,12 @@
+## Batches 463-467 — Data Infrastructure
+- **Batch 463** — data_replicator: Cross-database replication, sync, conflict resolution
+- **Batch 464** — data_partitioner: Table partitioning strategy, rebalancing, retention
+- **Batch 465** — data_archiver: Data archival, compression, cold storage, retention enforcement
+- **Batch 466** — table_optimizer: Bloat detection, vacuum scheduling, index maintenance
+- **Batch 467** — query_analyzer: Slow query detection, execution plan review, optimization
+- Migrations: 20260621000000–20260621040000
+- EK prefixes: drep, dpar, darc, tbop, qanl
+
 # Changelog
 
 ## Batches 443-447 — Infrastructure Operations

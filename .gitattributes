@@ -1560,3 +1560,28 @@ skills/autonomous-economy/proxy-configurator/** filter=sven-private
 skills/autonomous-economy/webhook-router/** filter=sven-private
 skills/autonomous-economy/egress-filter/** filter=sven-private
 skills/autonomous-economy/request-validator/** filter=sven-private
+
+# Batch 463 — data_replicator
+services/gateway-api/migrations/20260621000000_agent_data_replicator.sql filter=sven-private
+packages/shared/src/agent-data-replicator.ts filter=sven-private
+skills/autonomous-economy/data-replicator/** filter=sven-private
+
+# Batch 464 — data_partitioner
+services/gateway-api/migrations/20260621010000_agent_data_partitioner.sql filter=sven-private
+packages/shared/src/agent-data-partitioner.ts filter=sven-private
+skills/autonomous-economy/data-partitioner/** filter=sven-private
+
+# Batch 465 — data_archiver
+services/gateway-api/migrations/20260621020000_agent_data_archiver.sql filter=sven-private
+packages/shared/src/agent-data-archiver.ts filter=sven-private
+skills/autonomous-economy/data-archiver/** filter=sven-private
+
+# Batch 466 — table_optimizer
+services/gateway-api/migrations/20260621030000_agent_table_optimizer.sql filter=sven-private
+packages/shared/src/agent-table-optimizer.ts filter=sven-private
+skills/autonomous-economy/table-optimizer/** filter=sven-private
+
+# Batch 467 — query_analyzer
+services/gateway-api/migrations/20260621040000_agent_query_analyzer.sql filter=sven-private
+packages/shared/src/agent-query-analyzer.ts filter=sven-private
+skills/autonomous-economy/query-analyzer/** filter=sven-private
