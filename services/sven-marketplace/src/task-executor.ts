@@ -3053,6 +3053,36 @@ export class TaskExecutor {
       case 'outp_evaluate': return this.handleOutpEvaluate(task);
       case 'outp_status': return this.handleOutpStatus(task);
       case 'outp_report': return this.handleOutpReport(task);
+      case 'sinj_inject': return this.handleSinjInject(task);
+      case 'sinj_rotate': return this.handleSinjRotate(task);
+      case 'sinj_audit': return this.handleSinjAudit(task);
+      case 'sinj_revoke': return this.handleSinjRevoke(task);
+      case 'sinj_report': return this.handleSinjReport(task);
+      case 'sinj_monitor': return this.handleSinjMonitor(task);
+      case 'dpvr_verify': return this.handleDpvrVerify(task);
+      case 'dpvr_health': return this.handleDpvrHealth(task);
+      case 'dpvr_smoke': return this.handleDpvrSmoke(task);
+      case 'dpvr_rollback': return this.handleDpvrRollback(task);
+      case 'dpvr_report': return this.handleDpvrReport(task);
+      case 'dpvr_monitor': return this.handleDpvrMonitor(task);
+      case 'envp_provision': return this.handleEnvpProvision(task);
+      case 'envp_teardown': return this.handleEnvpTeardown(task);
+      case 'envp_extend': return this.handleEnvpExtend(task);
+      case 'envp_list': return this.handleEnvpList(task);
+      case 'envp_report': return this.handleEnvpReport(task);
+      case 'envp_monitor': return this.handleEnvpMonitor(task);
+      case 'rltg_tag': return this.handleRltgTag(task);
+      case 'rltg_bump': return this.handleRltgBump(task);
+      case 'rltg_notes': return this.handleRltgNotes(task);
+      case 'rltg_sign': return this.handleRltgSign(task);
+      case 'rltg_report': return this.handleRltgReport(task);
+      case 'rltg_monitor': return this.handleRltgMonitor(task);
+      case 'skad_audit': return this.handleSkadAudit(task);
+      case 'skad_vulnerabilities': return this.handleSkadVulnerabilities(task);
+      case 'skad_licenses': return this.handleSkadLicenses(task);
+      case 'skad_outdated': return this.handleSkadOutdated(task);
+      case 'skad_report': return this.handleSkadReport(task);
+      case 'skad_monitor': return this.handleSkadMonitor(task);
     }
   }
 

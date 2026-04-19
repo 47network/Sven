@@ -178,6 +178,11 @@ export type EidolonBuildingKind =
   | 'anomaly_detector'
   | 'resource_scaler'
   | 'outage_predictor'
+  | 'secret_injector'
+  | 'deploy_verifier'
+  | 'env_provisioner'
+  | 'release_tagger'
+  | 'stack_auditor'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -1090,6 +1095,26 @@ export type EidolonEventKind =
   | 'outp.correlation_found'
   | 'outp.model_retrained'
   | 'outp.accuracy_evaluated'
+  | 'sinj.secret_injected'
+  | 'sinj.secret_rotated'
+  | 'sinj.secret_revoked'
+  | 'sinj.audit_generated'
+  | 'dpvr.verification_passed'
+  | 'dpvr.verification_failed'
+  | 'dpvr.smoke_completed'
+  | 'dpvr.rollback_checked'
+  | 'envp.env_provisioned'
+  | 'envp.env_torn_down'
+  | 'envp.ttl_extended'
+  | 'envp.cleanup_completed'
+  | 'rltg.tag_created'
+  | 'rltg.version_bumped'
+  | 'rltg.notes_generated'
+  | 'rltg.tag_signed'
+  | 'skad.audit_completed'
+  | 'skad.vulnerability_found'
+  | 'skad.license_checked'
+  | 'skad.auto_fix_applied'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1705,6 +1730,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'anomaly_detector':
     case 'resource_scaler':
     case 'outage_predictor':
+    case 'secret_injector':
+    case 'deploy_verifier':
+    case 'env_provisioner':
+    case 'release_tagger':
+    case 'stack_auditor':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
