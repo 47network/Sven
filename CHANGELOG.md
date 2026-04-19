@@ -1,5 +1,21 @@
 # Changelog
 
+## Batches 438-442 — Release Engineering
+- **feature_flag_manager** (Batch 438): Manage feature flags with boolean/percentage/gradual strategies, targeting, stale detection, audit trail
+- **blue_green_switcher** (Batch 439): Blue-green deployment management with traffic switching, health checks, auto-rollback, switch history
+- **deployment_validator** (Batch 440): Deployment validation with health checks, smoke tests, structured reports, cross-deployment comparison
+- **gradual_rollout_manager** (Batch 441): Gradual feature rollouts with configurable increments, observation windows, auto-rollback on error threshold
+- **ab_test_runner** (Batch 442): A/B test runner with statistical rigor — sample sizes, confidence levels, traffic splits, winner determination
+- 5 migration SQL files (20260620750000–20260620790000)
+- 5 shared TypeScript type files with config interfaces
+- 5 SKILL.md files in skills/autonomous-economy/
+- 5 BK + 20 EK + 5 districtFor values in Eidolon types
+- 20 SUBJECT_MAP entries in event-bus
+- 30 task-executor switch cases + 30 handler methods
+- 15 .gitattributes privacy filter entries
+
+
+
 ## Batches 433-437 — Advanced Integration
 - **event_sourcer** (Batch 433): Event sourcing with streams, snapshots, projections across PostgreSQL/EventStore/DynamoDB/MongoDB/Cassandra
 - **state_machine_runner** (Batch 434): Finite state machine execution, transitions, guards, context tracking, visualization

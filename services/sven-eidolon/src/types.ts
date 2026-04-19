@@ -138,6 +138,11 @@ export type EidolonBuildingKind =
   | 'request_router'
   | 'load_balancer_agent'
   | 'circuit_breaker_agent'
+  | 'feature_flag_manager'
+  | 'blue_green_switcher'
+  | 'deployment_validator'
+  | 'gradual_rollout_manager'
+  | 'ab_test_runner'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -890,6 +895,26 @@ export type EidolonEventKind =
   | 'cbag.circuit_tripped'
   | 'cbag.circuit_reset'
   | 'cbag.half_open_entered'
+  | 'ffmg.flag_created'
+  | 'ffmg.flag_toggled'
+  | 'ffmg.rollout_set'
+  | 'ffmg.flag_evaluated'
+  | 'bgsw.environment_created'
+  | 'bgsw.traffic_switched'
+  | 'bgsw.health_checked'
+  | 'bgsw.rollback_triggered'
+  | 'dpvl.validation_started'
+  | 'dpvl.check_passed'
+  | 'dpvl.check_failed'
+  | 'dpvl.report_generated'
+  | 'grlm.rollout_created'
+  | 'grlm.step_advanced'
+  | 'grlm.rollout_paused'
+  | 'grlm.rollout_completed'
+  | 'abtr.test_created'
+  | 'abtr.test_started'
+  | 'abtr.event_recorded'
+  | 'abtr.test_concluded'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1465,6 +1490,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'request_router':
     case 'load_balancer_agent':
     case 'circuit_breaker_agent':
+    case 'feature_flag_manager':
+    case 'blue_green_switcher':
+    case 'deployment_validator':
+    case 'gradual_rollout_manager':
+    case 'ab_test_runner':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

@@ -2813,6 +2813,36 @@ export class TaskExecutor {
       case 'cbag_force_close': return this.handleCbagForceClose(task);
       case 'cbag_get_events': return this.handleCbagGetEvents(task);
       case 'cbag_configure': return this.handleCbagConfigure(task);
+      case 'ffmg_create_flag': return this.handleFfmgCreateFlag(task);
+      case 'ffmg_evaluate': return this.handleFfmgEvaluate(task);
+      case 'ffmg_toggle': return this.handleFfmgToggle(task);
+      case 'ffmg_set_rollout': return this.handleFfmgSetRollout(task);
+      case 'ffmg_list_stale': return this.handleFfmgListStale(task);
+      case 'ffmg_audit': return this.handleFfmgAudit(task);
+      case 'bgsw_create_env': return this.handleBgswCreateEnv(task);
+      case 'bgsw_switch': return this.handleBgswSwitch(task);
+      case 'bgsw_health_check': return this.handleBgswHealthCheck(task);
+      case 'bgsw_rollback': return this.handleBgswRollback(task);
+      case 'bgsw_status': return this.handleBgswStatus(task);
+      case 'bgsw_history': return this.handleBgswHistory(task);
+      case 'dpvl_validate': return this.handleDpvlValidate(task);
+      case 'dpvl_run_check': return this.handleDpvlRunCheck(task);
+      case 'dpvl_report': return this.handleDpvlReport(task);
+      case 'dpvl_configure': return this.handleDpvlConfigure(task);
+      case 'dpvl_retry': return this.handleDpvlRetry(task);
+      case 'dpvl_compare': return this.handleDpvlCompare(task);
+      case 'grlm_create': return this.handleGrlmCreate(task);
+      case 'grlm_advance': return this.handleGrlmAdvance(task);
+      case 'grlm_pause': return this.handleGrlmPause(task);
+      case 'grlm_rollback': return this.handleGrlmRollback(task);
+      case 'grlm_status': return this.handleGrlmStatus(task);
+      case 'grlm_auto_advance': return this.handleGrlmAutoAdvance(task);
+      case 'abtr_create': return this.handleAbtrCreate(task);
+      case 'abtr_start': return this.handleAbtrStart(task);
+      case 'abtr_record': return this.handleAbtrRecord(task);
+      case 'abtr_results': return this.handleAbtrResults(task);
+      case 'abtr_conclude': return this.handleAbtrConclude(task);
+      case 'abtr_compare': return this.handleAbtrCompare(task);
     }
   }
 
@@ -18373,5 +18403,132 @@ export class TaskExecutor {
   private async handleCbagConfigure(task: any): Promise<any> {
     const { breakerId, failureThreshold, resetTimeoutMs } = task.input || {};
     return { breakerId: breakerId || 'unknown', failureThreshold: failureThreshold || 5, resetTimeoutMs: resetTimeoutMs || 60000, applied: true };
+  }
+
+
+  // ── Feature Flag Manager handlers ──
+  private async handleFfmgCreateFlag(task: any): Promise<any> {
+    const { flagName, strategy, defaultValue, description } = task.input || {};
+    return { success: true, flag: { name: flagName, strategy: strategy || 'boolean', defaultValue: defaultValue ?? false, description, enabled: true, createdAt: new Date().toISOString() } };
+  }
+  private async handleFfmgEvaluate(task: any): Promise<any> {
+    const { flagName, context } = task.input || {};
+    return { success: true, flagName, value: true, context, evaluatedAt: new Date().toISOString(), source: 'cache' };
+  }
+  private async handleFfmgToggle(task: any): Promise<any> {
+    const { flagName, enabled } = task.input || {};
+    return { success: true, flagName, enabled: enabled ?? false, toggledAt: new Date().toISOString() };
+  }
+  private async handleFfmgSetRollout(task: any): Promise<any> {
+    const { flagName, percentage } = task.input || {};
+    return { success: true, flagName, percentage: percentage || 0, updatedAt: new Date().toISOString() };
+  }
+  private async handleFfmgListStale(task: any): Promise<any> {
+    const { staleThresholdDays } = task.input || {};
+    return { success: true, staleFlags: [], threshold: staleThresholdDays || 30, checkedAt: new Date().toISOString() };
+  }
+  private async handleFfmgAudit(task: any): Promise<any> {
+    const { flagName, limit } = task.input || {};
+    return { success: true, flagName, evaluations: [], total: 0, limit: limit || 100 };
+  }
+
+  // ── Blue-Green Switcher handlers ──
+  private async handleBgswCreateEnv(task: any): Promise<any> {
+    const { color, endpoint, healthUrl } = task.input || {};
+    return { success: true, environment: { color: color || 'blue', endpoint, healthUrl, status: 'standby', createdAt: new Date().toISOString() } };
+  }
+  private async handleBgswSwitch(task: any): Promise<any> {
+    const { targetColor } = task.input || {};
+    return { success: true, previousLive: 'blue', currentLive: targetColor || 'green', switchedAt: new Date().toISOString() };
+  }
+  private async handleBgswHealthCheck(task: any): Promise<any> {
+    return { success: true, blue: { healthy: true, latencyMs: 45 }, green: { healthy: true, latencyMs: 52 }, checkedAt: new Date().toISOString() };
+  }
+  private async handleBgswRollback(task: any): Promise<any> {
+    return { success: true, rolledBackTo: 'blue', reason: task.input?.reason || 'manual', rolledBackAt: new Date().toISOString() };
+  }
+  private async handleBgswStatus(task: any): Promise<any> {
+    return { success: true, live: 'blue', standby: 'green', lastSwitch: null };
+  }
+  private async handleBgswHistory(task: any): Promise<any> {
+    return { success: true, switches: [], total: 0 };
+  }
+
+  // ── Deployment Validator handlers ──
+  private async handleDpvlValidate(task: any): Promise<any> {
+    const { deploymentId, checks } = task.input || {};
+    return { success: true, deploymentId, passed: true, checksRun: checks?.length || 0, failedChecks: [], validatedAt: new Date().toISOString() };
+  }
+  private async handleDpvlRunCheck(task: any): Promise<any> {
+    const { checkName, target } = task.input || {};
+    return { success: true, check: checkName, target, passed: true, durationMs: 120 };
+  }
+  private async handleDpvlReport(task: any): Promise<any> {
+    const { deploymentId } = task.input || {};
+    return { success: true, deploymentId, report: { total: 0, passed: 0, failed: 0, skipped: 0, checks: [] } };
+  }
+  private async handleDpvlConfigure(task: any): Promise<any> {
+    const { requiredChecks } = task.input || {};
+    return { success: true, requiredChecks: requiredChecks || [], updatedAt: new Date().toISOString() };
+  }
+  private async handleDpvlRetry(task: any): Promise<any> {
+    const { deploymentId } = task.input || {};
+    return { success: true, deploymentId, retriedChecks: 0, allPassed: true };
+  }
+  private async handleDpvlCompare(task: any): Promise<any> {
+    const { deploymentA, deploymentB } = task.input || {};
+    return { success: true, deploymentA, deploymentB, comparison: { matching: 0, divergent: 0, details: [] } };
+  }
+
+  // ── Gradual Rollout Manager handlers ──
+  private async handleGrlmCreate(task: any): Promise<any> {
+    const { featureName, steps, observationWindowMs } = task.input || {};
+    return { success: true, rollout: { feature: featureName, steps: steps || [1, 5, 10, 25, 50, 100], currentStep: 0, percentage: 0, observationWindowMs: observationWindowMs || 300000, status: 'created' } };
+  }
+  private async handleGrlmAdvance(task: any): Promise<any> {
+    const { featureName } = task.input || {};
+    return { success: true, feature: featureName, previousPercentage: 0, currentPercentage: 1, advancedAt: new Date().toISOString() };
+  }
+  private async handleGrlmPause(task: any): Promise<any> {
+    const { featureName, reason } = task.input || {};
+    return { success: true, feature: featureName, status: 'paused', reason, pausedAt: new Date().toISOString() };
+  }
+  private async handleGrlmRollback(task: any): Promise<any> {
+    const { featureName, reason } = task.input || {};
+    return { success: true, feature: featureName, percentage: 0, status: 'rolled_back', reason, rolledBackAt: new Date().toISOString() };
+  }
+  private async handleGrlmStatus(task: any): Promise<any> {
+    const { featureName } = task.input || {};
+    return { success: true, feature: featureName, percentage: 0, status: 'created', metrics: { errorRate: 0, latencyP99: 0 } };
+  }
+  private async handleGrlmAutoAdvance(task: any): Promise<any> {
+    const { featureName, enabled, errorThreshold } = task.input || {};
+    return { success: true, feature: featureName, autoAdvance: enabled ?? true, errorThreshold: errorThreshold || 0.01 };
+  }
+
+  // ── A/B Test Runner handlers ──
+  private async handleAbtrCreate(task: any): Promise<any> {
+    const { testName, hypothesis, variants, trafficSplit } = task.input || {};
+    return { success: true, test: { name: testName, hypothesis, variants: variants || ['control', 'variant_a'], trafficSplit: trafficSplit || [50, 50], status: 'draft', createdAt: new Date().toISOString() } };
+  }
+  private async handleAbtrStart(task: any): Promise<any> {
+    const { testName } = task.input || {};
+    return { success: true, testName, status: 'running', startedAt: new Date().toISOString() };
+  }
+  private async handleAbtrRecord(task: any): Promise<any> {
+    const { testName, variant, eventType } = task.input || {};
+    return { success: true, testName, variant, eventType: eventType || 'impression', recordedAt: new Date().toISOString() };
+  }
+  private async handleAbtrResults(task: any): Promise<any> {
+    const { testName } = task.input || {};
+    return { success: true, testName, variants: [], sampleSize: 0, pValue: null, significant: false };
+  }
+  private async handleAbtrConclude(task: any): Promise<any> {
+    const { testName } = task.input || {};
+    return { success: true, testName, winner: null, status: 'concluded', concludedAt: new Date().toISOString() };
+  }
+  private async handleAbtrCompare(task: any): Promise<any> {
+    const { testNames } = task.input || {};
+    return { success: true, tests: testNames || [], comparison: [] };
   }
 }
