@@ -683,6 +683,31 @@ export type EidolonBuildingKind =
   | 'ml_inference_result_validator'
   | 'ml_inference_drift_monitor'
   | 'ml_inference_explainability_logger'
+  | 'feature_store_value_writer'
+  | 'feature_store_server'
+  | 'feature_store_freshness_monitor'
+  | 'feature_store_lineage_tracker'
+  | 'feature_store_backfill_runner'
+  | 'model_registry_publisher'
+  | 'model_registry_signer'
+  | 'model_registry_promoter'
+  | 'model_registry_lineage_tracker'
+  | 'model_registry_deprecation_warden'
+  | 'experiment_tracker_writer'
+  | 'experiment_tracker_aggregator'
+  | 'experiment_tracker_artifact_linker'
+  | 'experiment_tracker_reporter'
+  | 'experiment_tracker_governance_enforcer'
+  | 'ab_test_assignment_router'
+  | 'ab_test_exposure_logger'
+  | 'ab_test_metrics_aggregator'
+  | 'ab_test_significance_evaluator'
+  | 'ab_test_rollback_arbiter'
+  | 'recommendation_candidate_generator'
+  | 'recommendation_relevance_ranker'
+  | 'recommendation_diversifier'
+  | 'recommendation_explanation_logger'
+  | 'recommendation_feedback_collector'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -3620,6 +3645,106 @@ export type EidolonEventKind =
   | 'miel.features_attributed'
   | 'miel.record_persisted'
   | 'miel.audit_recorded'
+  | 'fsvw.batch_received'
+  | 'fsvw.values_validated'
+  | 'fsvw.values_persisted'
+  | 'fsvw.audit_recorded'
+  | 'fsvr.request_received'
+  | 'fsvr.features_resolved'
+  | 'fsvr.values_returned'
+  | 'fsvr.audit_recorded'
+  | 'fsfm.scan_scheduled'
+  | 'fsfm.staleness_evaluated'
+  | 'fsfm.alerts_emitted'
+  | 'fsfm.report_emitted'
+  | 'fslt.event_received'
+  | 'fslt.lineage_recorded'
+  | 'fslt.queries_served'
+  | 'fslt.audit_recorded'
+  | 'fsbr.job_received'
+  | 'fsbr.window_resolved'
+  | 'fsbr.values_backfilled'
+  | 'fsbr.audit_recorded'
+  | 'mrgp.artifact_received'
+  | 'mrgp.metadata_validated'
+  | 'mrgp.artifact_published'
+  | 'mrgp.audit_recorded'
+  | 'mrgs.request_received'
+  | 'mrgs.artifact_hashed'
+  | 'mrgs.signature_recorded'
+  | 'mrgs.audit_recorded'
+  | 'mrgm.request_received'
+  | 'mrgm.gates_evaluated'
+  | 'mrgm.promotion_applied'
+  | 'mrgm.audit_recorded'
+  | 'mrgl.event_received'
+  | 'mrgl.lineage_recorded'
+  | 'mrgl.queries_served'
+  | 'mrgl.audit_recorded'
+  | 'mrgd.policy_received'
+  | 'mrgd.candidates_evaluated'
+  | 'mrgd.notices_emitted'
+  | 'mrgd.audit_recorded'
+  | 'etwr.record_received'
+  | 'etwr.fields_validated'
+  | 'etwr.run_persisted'
+  | 'etwr.audit_recorded'
+  | 'etag.job_received'
+  | 'etag.runs_aggregated'
+  | 'etag.summary_persisted'
+  | 'etag.audit_recorded'
+  | 'etal.request_received'
+  | 'etal.artifact_resolved'
+  | 'etal.link_persisted'
+  | 'etal.audit_recorded'
+  | 'etrp.request_received'
+  | 'etrp.runs_collected'
+  | 'etrp.report_built'
+  | 'etrp.signed_url_emitted'
+  | 'etge.rule_received'
+  | 'etge.scope_resolved'
+  | 'etge.controls_applied'
+  | 'etge.audit_recorded'
+  | 'abar.request_received'
+  | 'abar.bucket_computed'
+  | 'abar.variant_returned'
+  | 'abar.audit_recorded'
+  | 'abel.event_received'
+  | 'abel.fields_validated'
+  | 'abel.exposure_persisted'
+  | 'abel.audit_recorded'
+  | 'abma.batch_received'
+  | 'abma.metrics_aggregated'
+  | 'abma.summary_persisted'
+  | 'abma.audit_recorded'
+  | 'abse.check_received'
+  | 'abse.statistics_computed'
+  | 'abse.decision_emitted'
+  | 'abse.audit_recorded'
+  | 'abra.signal_received'
+  | 'abra.thresholds_evaluated'
+  | 'abra.rollback_executed'
+  | 'abra.audit_recorded'
+  | 'rcgn.request_received'
+  | 'rcgn.candidates_retrieved'
+  | 'rcgn.candidates_filtered'
+  | 'rcgn.results_returned'
+  | 'rrrk.request_received'
+  | 'rrrk.scores_computed'
+  | 'rrrk.results_ordered'
+  | 'rrrk.audit_recorded'
+  | 'rcdv.request_received'
+  | 'rcdv.constraints_applied'
+  | 'rcdv.results_returned'
+  | 'rcdv.audit_recorded'
+  | 'rcxl.record_received'
+  | 'rcxl.features_attributed'
+  | 'rcxl.record_persisted'
+  | 'rcxl.audit_recorded'
+  | 'rcfc.event_received'
+  | 'rcfc.fields_validated'
+  | 'rcfc.feedback_persisted'
+  | 'rcfc.audit_recorded'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -4760,6 +4885,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'ml_inference_result_validator':
     case 'ml_inference_drift_monitor':
     case 'ml_inference_explainability_logger':
+    case 'feature_store_value_writer':
+    case 'feature_store_server':
+    case 'feature_store_freshness_monitor':
+    case 'feature_store_lineage_tracker':
+    case 'feature_store_backfill_runner':
+    case 'model_registry_publisher':
+    case 'model_registry_signer':
+    case 'model_registry_promoter':
+    case 'model_registry_lineage_tracker':
+    case 'model_registry_deprecation_warden':
+    case 'experiment_tracker_writer':
+    case 'experiment_tracker_aggregator':
+    case 'experiment_tracker_artifact_linker':
+    case 'experiment_tracker_reporter':
+    case 'experiment_tracker_governance_enforcer':
+    case 'ab_test_assignment_router':
+    case 'ab_test_exposure_logger':
+    case 'ab_test_metrics_aggregator':
+    case 'ab_test_significance_evaluator':
+    case 'ab_test_rollback_arbiter':
+    case 'recommendation_candidate_generator':
+    case 'recommendation_relevance_ranker':
+    case 'recommendation_diversifier':
+    case 'recommendation_explanation_logger':
+    case 'recommendation_feedback_collector':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
