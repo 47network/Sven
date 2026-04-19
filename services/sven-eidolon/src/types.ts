@@ -163,6 +163,11 @@ export type EidolonBuildingKind =
   | 'webhook_router'
   | 'egress_filter'
   | 'request_validator'
+  | 'data_replicator'
+  | 'data_partitioner'
+  | 'data_archiver'
+  | 'table_optimizer'
+  | 'query_analyzer'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -1015,6 +1020,26 @@ export type EidolonEventKind =
   | 'rqvl.input_sanitized'
   | 'rqvl.rate_limited'
   | 'rqvl.audit_completed'
+  | 'drep.sync_completed'
+  | 'drep.conflict_detected'
+  | 'drep.lag_warning'
+  | 'drep.failover_triggered'
+  | 'dpar.partition_created'
+  | 'dpar.rebalance_completed'
+  | 'dpar.pruning_completed'
+  | 'dpar.plan_generated'
+  | 'darc.archive_completed'
+  | 'darc.restore_completed'
+  | 'darc.retention_enforced'
+  | 'darc.verification_passed'
+  | 'tbop.health_checked'
+  | 'tbop.vacuum_completed'
+  | 'tbop.index_recommended'
+  | 'tbop.defrag_completed'
+  | 'qanl.slow_query_found'
+  | 'qanl.plan_analyzed'
+  | 'qanl.index_suggested'
+  | 'qanl.query_optimized'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1615,6 +1640,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'webhook_router':
     case 'egress_filter':
     case 'request_validator':
+    case 'data_replicator':
+    case 'data_partitioner':
+    case 'data_archiver':
+    case 'table_optimizer':
+    case 'query_analyzer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

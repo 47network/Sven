@@ -2963,6 +2963,36 @@ export class TaskExecutor {
       case 'rqvl_audit': return this.handleRqvlAudit(task);
       case 'rqvl_schema': return this.handleRqvlSchema(task);
       case 'rqvl_report': return this.handleRqvlReport(task);
+      case 'drep_setup': return this.handleDrepSetup(task);
+      case 'drep_monitor': return this.handleDrepMonitor(task);
+      case 'drep_conflict': return this.handleDrepConflict(task);
+      case 'drep_failover': return this.handleDrepFailover(task);
+      case 'drep_status': return this.handleDrepStatus(task);
+      case 'drep_sync': return this.handleDrepSync(task);
+      case 'dpar_plan': return this.handleDparPlan(task);
+      case 'dpar_create': return this.handleDparCreate(task);
+      case 'dpar_rebalance': return this.handleDparRebalance(task);
+      case 'dpar_prune': return this.handleDparPrune(task);
+      case 'dpar_status': return this.handleDparStatus(task);
+      case 'dpar_list': return this.handleDparList(task);
+      case 'darc_archive': return this.handleDarcArchive(task);
+      case 'darc_verify': return this.handleDarcVerify(task);
+      case 'darc_restore': return this.handleDarcRestore(task);
+      case 'darc_retention': return this.handleDarcRetention(task);
+      case 'darc_status': return this.handleDarcStatus(task);
+      case 'darc_list': return this.handleDarcList(task);
+      case 'tbop_health': return this.handleTbopHealth(task);
+      case 'tbop_vacuum': return this.handleTbopVacuum(task);
+      case 'tbop_index': return this.handleTbopIndex(task);
+      case 'tbop_defrag': return this.handleTbopDefrag(task);
+      case 'tbop_recommend': return this.handleTbopRecommend(task);
+      case 'tbop_report': return this.handleTbopReport(task);
+      case 'qanl_slow': return this.handleQanlSlow(task);
+      case 'qanl_plan': return this.handleQanlPlan(task);
+      case 'qanl_index': return this.handleQanlIndex(task);
+      case 'qanl_optimize': return this.handleQanlOptimize(task);
+      case 'qanl_report': return this.handleQanlReport(task);
+      case 'qanl_monitor': return this.handleQanlMonitor(task);
     }
   }
 
