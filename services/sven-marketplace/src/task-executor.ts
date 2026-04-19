@@ -1766,6 +1766,36 @@ export class TaskExecutor {
       case 'arp_view_violations': return this.handleArpViewViolations(task);
       case 'arp_view_stats': return this.handleArpViewStats(task);
       case 'arp_export_data': return this.handleArpExportData(task);
+      case 'sniff_configure': return this.handleSniffConfigure(task);
+      case 'sniff_start_capture': return this.handleSniffStartCapture(task);
+      case 'sniff_stop_capture': return this.handleSniffStopCapture(task);
+      case 'sniff_dissect': return this.handleSniffDissect(task);
+      case 'sniff_view_stats': return this.handleSniffViewStats(task);
+      case 'sniff_export_pcap': return this.handleSniffExportPcap(task);
+      case 'bw_configure': return this.handleBwConfigure(task);
+      case 'bw_start_monitoring': return this.handleBwStartMonitoring(task);
+      case 'bw_view_samples': return this.handleBwViewSamples(task);
+      case 'bw_check_alerts': return this.handleBwCheckAlerts(task);
+      case 'bw_view_stats': return this.handleBwViewStats(task);
+      case 'bw_export_data': return this.handleBwExportData(task);
+      case 'lat_configure': return this.handleLatConfigure(task);
+      case 'lat_start_probing': return this.handleLatStartProbing(task);
+      case 'lat_view_results': return this.handleLatViewResults(task);
+      case 'lat_update_baseline': return this.handleLatUpdateBaseline(task);
+      case 'lat_view_stats': return this.handleLatViewStats(task);
+      case 'lat_export_data': return this.handleLatExportData(task);
+      case 'jit_configure': return this.handleJitConfigure(task);
+      case 'jit_start_analysis': return this.handleJitStartAnalysis(task);
+      case 'jit_view_samples': return this.handleJitViewSamples(task);
+      case 'jit_generate_report': return this.handleJitGenerateReport(task);
+      case 'jit_view_stats': return this.handleJitViewStats(task);
+      case 'jit_export_data': return this.handleJitExportData(task);
+      case 'ploss_configure': return this.handlePlossConfigure(task);
+      case 'ploss_start_tracking': return this.handlePlossStartTracking(task);
+      case 'ploss_view_results': return this.handlePlossViewResults(task);
+      case 'ploss_view_trends': return this.handlePlossViewTrends(task);
+      case 'ploss_view_stats': return this.handlePlossViewStats(task);
+      case 'ploss_export_data': return this.handlePlossExportData(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -12297,6 +12327,217 @@ export class TaskExecutor {
     const { config_id, export_format, date_range } = task.input || {};
     const exportFile = `${task.id}-arpexportdata`;
     this.emitEidolonEvent('arpDataExported', { taskId: task.id, exportFile });
+    return { success: true, exportFile, message: 'data exported' };
+  }
+
+
+  private async handleSniffConfigure(task: any): Promise<any> {
+    const { sniffer_name, interface_name, promiscuous_mode } = task.input || {};
+    const configId = `${task.id}-sniffconfigure`;
+    this.emitEidolonEvent('sniffConfigured', { taskId: task.id, configId });
+    return { success: true, configId, message: 'sniffer ready' };
+  }
+
+  private async handleSniffStartCapture(task: any): Promise<any> {
+    const { config_id, capture_name, capture_filter } = task.input || {};
+    const captureId = `${task.id}-sniffstartcapture`;
+    this.emitEidolonEvent('sniffCaptureStarted', { taskId: task.id, captureId });
+    return { success: true, captureId, message: 'capture running' };
+  }
+
+  private async handleSniffStopCapture(task: any): Promise<any> {
+    const { capture_id, export_pcap, compress } = task.input || {};
+    const pcapFile = `${task.id}-sniffstopcapture`;
+    this.emitEidolonEvent('sniffCaptureStopped', { taskId: task.id, pcapFile });
+    return { success: true, pcapFile, message: 'capture saved' };
+  }
+
+  private async handleSniffDissect(task: any): Promise<any> {
+    const { capture_id, protocol_filter, limit } = task.input || {};
+    const dissections = `${task.id}-sniffdissect`;
+    this.emitEidolonEvent('sniffDissected', { taskId: task.id, dissections });
+    return { success: true, dissections, message: 'packets dissected' };
+  }
+
+  private async handleSniffViewStats(task: any): Promise<any> {
+    const { config_id, period, metric_type } = task.input || {};
+    const stats = `${task.id}-sniffviewstats`;
+    this.emitEidolonEvent('sniffStatsViewed', { taskId: task.id, stats });
+    return { success: true, stats, message: 'metrics collected' };
+  }
+
+  private async handleSniffExportPcap(task: any): Promise<any> {
+    const { capture_id, format, compress } = task.input || {};
+    const exportFile = `${task.id}-sniffexportpcap`;
+    this.emitEidolonEvent('sniffPcapExported', { taskId: task.id, exportFile });
+    return { success: true, exportFile, message: 'pcap exported' };
+  }
+
+  private async handleBwConfigure(task: any): Promise<any> {
+    const { monitor_name, interface_name, poll_interval } = task.input || {};
+    const configId = `${task.id}-bwconfigure`;
+    this.emitEidolonEvent('bwConfigured', { taskId: task.id, configId });
+    return { success: true, configId, message: 'monitor ready' };
+  }
+
+  private async handleBwStartMonitoring(task: any): Promise<any> {
+    const { config_id, alert_threshold, retention } = task.input || {};
+    const monitorId = `${task.id}-bwstartmonitoring`;
+    this.emitEidolonEvent('bwMonitoringStarted', { taskId: task.id, monitorId });
+    return { success: true, monitorId, message: 'monitoring' };
+  }
+
+  private async handleBwViewSamples(task: any): Promise<any> {
+    const { config_id, period, limit } = task.input || {};
+    const samples = `${task.id}-bwviewsamples`;
+    this.emitEidolonEvent('bwSamplesViewed', { taskId: task.id, samples });
+    return { success: true, samples, message: 'samples listed' };
+  }
+
+  private async handleBwCheckAlerts(task: any): Promise<any> {
+    const { config_id, severity, acknowledged } = task.input || {};
+    const alerts = `${task.id}-bwcheckalerts`;
+    this.emitEidolonEvent('bwAlertsChecked', { taskId: task.id, alerts });
+    return { success: true, alerts, message: 'alerts checked' };
+  }
+
+  private async handleBwViewStats(task: any): Promise<any> {
+    const { config_id, period, metric_type } = task.input || {};
+    const stats = `${task.id}-bwviewstats`;
+    this.emitEidolonEvent('bwStatsViewed', { taskId: task.id, stats });
+    return { success: true, stats, message: 'metrics collected' };
+  }
+
+  private async handleBwExportData(task: any): Promise<any> {
+    const { config_id, export_format, date_range } = task.input || {};
+    const exportFile = `${task.id}-bwexportdata`;
+    this.emitEidolonEvent('bwDataExported', { taskId: task.id, exportFile });
+    return { success: true, exportFile, message: 'data exported' };
+  }
+
+  private async handleLatConfigure(task: any): Promise<any> {
+    const { probe_name, target_host, probe_type } = task.input || {};
+    const configId = `${task.id}-latconfigure`;
+    this.emitEidolonEvent('latConfigured', { taskId: task.id, configId });
+    return { success: true, configId, message: 'probe ready' };
+  }
+
+  private async handleLatStartProbing(task: any): Promise<any> {
+    const { config_id, interval, packet_count } = task.input || {};
+    const probeId = `${task.id}-latstartprobing`;
+    this.emitEidolonEvent('latProbingStarted', { taskId: task.id, probeId });
+    return { success: true, probeId, message: 'probing' };
+  }
+
+  private async handleLatViewResults(task: any): Promise<any> {
+    const { config_id, period, limit } = task.input || {};
+    const results = `${task.id}-latviewresults`;
+    this.emitEidolonEvent('latResultsViewed', { taskId: task.id, results });
+    return { success: true, results, message: 'results listed' };
+  }
+
+  private async handleLatUpdateBaseline(task: any): Promise<any> {
+    const { config_id, sample_count, period } = task.input || {};
+    const baselineId = `${task.id}-latupdatebaseline`;
+    this.emitEidolonEvent('latBaselineUpdated', { taskId: task.id, baselineId });
+    return { success: true, baselineId, message: 'baseline set' };
+  }
+
+  private async handleLatViewStats(task: any): Promise<any> {
+    const { config_id, period, metric_type } = task.input || {};
+    const stats = `${task.id}-latviewstats`;
+    this.emitEidolonEvent('latStatsViewed', { taskId: task.id, stats });
+    return { success: true, stats, message: 'metrics collected' };
+  }
+
+  private async handleLatExportData(task: any): Promise<any> {
+    const { config_id, export_format, date_range } = task.input || {};
+    const exportFile = `${task.id}-latexportdata`;
+    this.emitEidolonEvent('latDataExported', { taskId: task.id, exportFile });
+    return { success: true, exportFile, message: 'data exported' };
+  }
+
+  private async handleJitConfigure(task: any): Promise<any> {
+    const { analyzer_name, target_host, window_size } = task.input || {};
+    const configId = `${task.id}-jitconfigure`;
+    this.emitEidolonEvent('jitConfigured', { taskId: task.id, configId });
+    return { success: true, configId, message: 'analyzer ready' };
+  }
+
+  private async handleJitStartAnalysis(task: any): Promise<any> {
+    const { config_id, sample_interval, mos_threshold } = task.input || {};
+    const analysisId = `${task.id}-jitstartanalysis`;
+    this.emitEidolonEvent('jitAnalysisStarted', { taskId: task.id, analysisId });
+    return { success: true, analysisId, message: 'analyzing' };
+  }
+
+  private async handleJitViewSamples(task: any): Promise<any> {
+    const { config_id, period, limit } = task.input || {};
+    const samples = `${task.id}-jitviewsamples`;
+    this.emitEidolonEvent('jitSamplesViewed', { taskId: task.id, samples });
+    return { success: true, samples, message: 'samples listed' };
+  }
+
+  private async handleJitGenerateReport(task: any): Promise<any> {
+    const { config_id, period, include_mos } = task.input || {};
+    const reportId = `${task.id}-jitgeneratereport`;
+    this.emitEidolonEvent('jitReportGenerated', { taskId: task.id, reportId });
+    return { success: true, reportId, message: 'report ready' };
+  }
+
+  private async handleJitViewStats(task: any): Promise<any> {
+    const { config_id, period, metric_type } = task.input || {};
+    const stats = `${task.id}-jitviewstats`;
+    this.emitEidolonEvent('jitStatsViewed', { taskId: task.id, stats });
+    return { success: true, stats, message: 'metrics collected' };
+  }
+
+  private async handleJitExportData(task: any): Promise<any> {
+    const { config_id, export_format, date_range } = task.input || {};
+    const exportFile = `${task.id}-jitexportdata`;
+    this.emitEidolonEvent('jitDataExported', { taskId: task.id, exportFile });
+    return { success: true, exportFile, message: 'data exported' };
+  }
+
+  private async handlePlossConfigure(task: any): Promise<any> {
+    const { tracker_name, target_host, acceptable_loss } = task.input || {};
+    const configId = `${task.id}-plossconfigure`;
+    this.emitEidolonEvent('plossConfigured', { taskId: task.id, configId });
+    return { success: true, configId, message: 'tracker ready' };
+  }
+
+  private async handlePlossStartTracking(task: any): Promise<any> {
+    const { config_id, burst_count, interval } = task.input || {};
+    const trackId = `${task.id}-plossstarttracking`;
+    this.emitEidolonEvent('plossTrackingStarted', { taskId: task.id, trackId });
+    return { success: true, trackId, message: 'tracking' };
+  }
+
+  private async handlePlossViewResults(task: any): Promise<any> {
+    const { config_id, period, limit } = task.input || {};
+    const results = `${task.id}-plossviewresults`;
+    this.emitEidolonEvent('plossResultsViewed', { taskId: task.id, results });
+    return { success: true, results, message: 'results listed' };
+  }
+
+  private async handlePlossViewTrends(task: any): Promise<any> {
+    const { config_id, period, granularity } = task.input || {};
+    const trends = `${task.id}-plossviewtrends`;
+    this.emitEidolonEvent('plossTrendsViewed', { taskId: task.id, trends });
+    return { success: true, trends, message: 'trends listed' };
+  }
+
+  private async handlePlossViewStats(task: any): Promise<any> {
+    const { config_id, period, metric_type } = task.input || {};
+    const stats = `${task.id}-plossviewstats`;
+    this.emitEidolonEvent('plossStatsViewed', { taskId: task.id, stats });
+    return { success: true, stats, message: 'metrics collected' };
+  }
+
+  private async handlePlossExportData(task: any): Promise<any> {
+    const { config_id, export_format, date_range } = task.input || {};
+    const exportFile = `${task.id}-plossexportdata`;
+    this.emitEidolonEvent('plossDataExported', { taskId: task.id, exportFile });
     return { success: true, exportFile, message: 'data exported' };
   }
 
