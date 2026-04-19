@@ -1,3 +1,45 @@
+## [Unreleased] - Batches 733-757 (Edge/CDN, Config/Flags, Data Pipelines, ML Platform, Notifications)
+
+### Added — 25 new autonomous economy verticals across 5 domain groups
+
+**Batches 733-737 — Edge & CDN:**
+- `api_gateway_router` — API gateway routing with policy application and upstream proxying
+- `service_mesh_proxy` — Service mesh sidecar with mTLS, policy enforcement, circuit breaking
+- `edge_compute_dispatcher` — Edge function dispatching with regional routing and failover
+- `cdn_purge_orchestrator` — CDN cache purge with invalidation propagation and verification
+- `http_cache_warmer` — HTTP cache pre-warming with hit-ratio measurement
+
+**Batches 738-742 — Configuration & Feature Flags:**
+- `feature_flag_evaluator` — Flag evaluation with targeting, exposure recording, killswitch
+- `ab_test_assigner` — A/B variant assignment with cohort locking and result computation
+- `config_distributor` — Dynamic config distribution with subscription and acknowledgment
+- `credential_vault_rotator` — Credential rotation with consumer notification and audit
+- `key_management_orchestrator` — Crypto key generation, rotation, archival, envelope encryption
+
+**Batches 743-747 — Data Pipelines:**
+- `data_lake_ingestor` — Data lake ingestion with partitioned writes and checkpoint commits
+- `kafka_stream_processor` — Kafka stream processing with offset commits and DLQ dispatch
+- `batch_etl_runner` — Batch ETL with scheduling, transformation, lineage recording
+- `data_warehouse_loader` — Warehouse loading with staging, atomic merge, partition swap
+- `olap_cube_builder` — OLAP cube building with dimension indexing and aggregation
+
+**Batches 748-752 — ML Platform:**
+- `ml_training_orchestrator` — Training orchestration with epoch tracking and checkpoints
+- `model_registry_curator` — Model registry with version promotion and lineage
+- `inference_endpoint_router` — Inference endpoint routing with canary splits and fallback
+- `feature_store_writer` — Feature store with online sync and offline materialization
+- `ml_experiment_tracker` — Experiment tracking with metrics, artifacts, run finalization
+
+**Batches 753-757 — Notifications & Delivery:**
+- `email_campaign_dispatcher` — Email campaigns with bounce handling and unsubscribe
+- `sms_blast_engine` — SMS delivery with opt-out recording and deliverability tracking
+- `push_notification_router` — Push routing across APNs/FCM with token validation
+- `webhook_delivery_engine` — Webhook delivery with HMAC signing and exponential backoff
+- `event_replay_processor` — Event replay with window selection and idempotent redelivery
+
+### Tests
+- 275 new tests across 5 batch suites — all passing (5/5 suites, 275/275 tests)
+
 ## [Unreleased] - Batches 708-732 (CI/CD, Observability, Security, FinOps, Reliability)
 
 ### Added — 25 new autonomous economy verticals across 5 domain groups
