@@ -198,6 +198,11 @@ export type EidolonBuildingKind =
   | 'batch_scheduler'
   | 'partition_manager'
   | 'watermark_tracker'
+  | 'dead_letter_handler'
+  | 'backfill_runner'
+  | 'lineage_tracer'
+  | 'data_cataloger'
+  | 'change_capture'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -1190,6 +1195,26 @@ export type EidolonEventKind =
   | 'wmtk.lag_detected'
   | 'wmtk.checkpoint_saved'
   | 'wmtk.recovery_completed'
+  | 'dlhd.message_quarantined'
+  | 'dlhd.retry_attempted'
+  | 'dlhd.message_discarded'
+  | 'dlhd.dlq_cleared'
+  | 'bfrl.backfill_started'
+  | 'bfrl.chunk_processed'
+  | 'bfrl.backfill_completed'
+  | 'bfrl.backfill_failed'
+  | 'lntc.lineage_captured'
+  | 'lntc.dependency_found'
+  | 'lntc.graph_updated'
+  | 'lntc.impact_analyzed'
+  | 'dtcl.asset_registered'
+  | 'dtcl.schema_indexed'
+  | 'dtcl.classification_applied'
+  | 'dtcl.catalog_refreshed'
+  | 'chcp.change_detected'
+  | 'chcp.event_published'
+  | 'chcp.snapshot_taken'
+  | 'chcp.replication_synced'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1825,6 +1850,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'batch_scheduler':
     case 'partition_manager':
     case 'watermark_tracker':
+    case 'dead_letter_handler':
+    case 'backfill_runner':
+    case 'lineage_tracer':
+    case 'data_cataloger':
+    case 'change_capture':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

@@ -3173,6 +3173,36 @@ export class TaskExecutor {
       case 'wmtk_recover': return this.handleWmtkRecover(task);
       case 'wmtk_report': return this.handleWmtkReport(task);
       case 'wmtk_monitor': return this.handleWmtkMonitor(task);
+      case 'dlhd_quarantine': return this.handleDlhdQuarantine(task);
+      case 'dlhd_retry': return this.handleDlhdRetry(task);
+      case 'dlhd_discard': return this.handleDlhdDiscard(task);
+      case 'dlhd_clear': return this.handleDlhdClear(task);
+      case 'dlhd_report': return this.handleDlhdReport(task);
+      case 'dlhd_monitor': return this.handleDlhdMonitor(task);
+      case 'bfrl_start': return this.handleBfrlStart(task);
+      case 'bfrl_chunk': return this.handleBfrlChunk(task);
+      case 'bfrl_complete': return this.handleBfrlComplete(task);
+      case 'bfrl_fail': return this.handleBfrlFail(task);
+      case 'bfrl_report': return this.handleBfrlReport(task);
+      case 'bfrl_monitor': return this.handleBfrlMonitor(task);
+      case 'lntc_capture': return this.handleLntcCapture(task);
+      case 'lntc_dependency': return this.handleLntcDependency(task);
+      case 'lntc_graph': return this.handleLntcGraph(task);
+      case 'lntc_impact': return this.handleLntcImpact(task);
+      case 'lntc_report': return this.handleLntcReport(task);
+      case 'lntc_monitor': return this.handleLntcMonitor(task);
+      case 'dtcl_register': return this.handleDtclRegister(task);
+      case 'dtcl_index': return this.handleDtclIndex(task);
+      case 'dtcl_classify': return this.handleDtclClassify(task);
+      case 'dtcl_refresh': return this.handleDtclRefresh(task);
+      case 'dtcl_report': return this.handleDtclReport(task);
+      case 'dtcl_monitor': return this.handleDtclMonitor(task);
+      case 'chcp_detect': return this.handleChcpDetect(task);
+      case 'chcp_publish': return this.handleChcpPublish(task);
+      case 'chcp_snapshot': return this.handleChcpSnapshot(task);
+      case 'chcp_sync': return this.handleChcpSync(task);
+      case 'chcp_report': return this.handleChcpReport(task);
+      case 'chcp_monitor': return this.handleChcpMonitor(task);
     }
   }
 
