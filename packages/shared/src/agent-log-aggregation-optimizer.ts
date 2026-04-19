@@ -1,4 +1,4 @@
-export interface LogAggregationEntry {
+export interface LogAggregationOptPlan {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface LogAggregationEntry {
   updatedAt: string;
 }
 
-export interface LogAggregationConfig {
+export interface LogAggregationOptConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface LogAggregationResult {
+export interface LogAggregationOptResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;

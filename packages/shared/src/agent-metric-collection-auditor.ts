@@ -1,4 +1,4 @@
-export interface LogAggregationEntry {
+export interface MetricCollectionAuditEntry {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface LogAggregationEntry {
   updatedAt: string;
 }
 
-export interface LogAggregationConfig {
+export interface MetricCollectionAuditConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface LogAggregationResult {
+export interface MetricCollectionAuditResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;
