@@ -463,3 +463,8 @@ export * from './agent-state-machine-runner';
 export * from './agent-request-router';
 export * from './agent-load-balancer-agent';
 export * from './agent-circuit-breaker-agent';
+export * from './agent-feature-flag-manager';
+export * from './agent-blue-green-switcher';
+export * from './agent-deployment-validator';
+export * from './agent-gradual-rollout-manager';
+export * from './agent-ab-test-runner';
