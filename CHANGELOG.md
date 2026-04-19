@@ -1,5 +1,13 @@
 # Changelog
 
+## Batches 433-437 — Advanced Integration
+- **event_sourcer** (Batch 433): Event sourcing with streams, snapshots, projections across PostgreSQL/EventStore/DynamoDB/MongoDB/Cassandra
+- **state_machine_runner** (Batch 434): Finite state machine execution, transitions, guards, context tracking, visualization
+- **request_router** (Batch 435): Intelligent request routing with round-robin/weighted/least-connections/hash/priority strategies
+- **load_balancer_agent** (Batch 436): Backend management with health checks, connection draining, algorithm configuration
+- **circuit_breaker_agent** (Batch 437): Circuit breaker pattern with closed/open/half-open states, failure tracking, auto-recovery
+
+
 ## Batches 428-432 — Data & Messaging
 - **payload_transformer** (Batch 428): Payload format conversion (JSON/XML/CSV/Protobuf/Avro/MessagePack), schema validation, batch transforms, rule engine
 - **queue_orchestrator** (Batch 429): Multi-backend queue management (NATS/Redis/RabbitMQ/Kafka/SQS), dead-letter support, consumer rebalancing
