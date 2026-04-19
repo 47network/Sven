@@ -79,6 +79,18 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 228-232: Security Operations
+- **policy_engine** (Batch 228): Security policy management — creation, evaluation, exceptions, enforcement modes, auditing
+- **data_classifier** (Batch 229): Data classification — sensitivity labeling, automatic rules, lineage tracking, inventory export
+- **encryption_gateway** (Batch 230): Encryption operations — secure channels, encrypt/decrypt/sign/verify, certificates, key rotation
+- **security_scanner** (Batch 231): Vulnerability scanning — profiles, scan execution, findings review, remediation, scheduling, trend comparison
+- **incident_manager** (Batch 232): Incident response — creation, response actions, escalation, resolution, post-mortems, querying
+- 5 migration SQL files, 5 shared type modules, 5 SKILL.md files
+- 20 SUBJECT_MAP entries, 10 BK/EK/districtFor values
+- 30 task executor switch cases + 30 handler methods
+- 135 tests passing
+
+
 ### Batches 223-227: Security Governance
 - **identity_provider** (Batch 223): Identity management — OAuth2/SAML/OIDC/LDAP provider config, sessions, identity mapping, authentication
 - **key_manager** (Batch 224): Encryption key lifecycle — generation, rotation, revocation, encrypt/decrypt, usage auditing

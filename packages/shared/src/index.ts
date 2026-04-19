@@ -249,3 +249,8 @@ export * from './agent-key-manager.js';
 export * from './agent-audit-logger.js';
 export * from './agent-compliance-checker.js';
 export * from './agent-threat-detector.js';
+export * from './agent-policy-engine.js';
+export * from './agent-data-classifier.js';
+export * from './agent-encryption-gateway.js';
+export * from './agent-security-scanner.js';
+export * from './agent-incident-manager.js';
