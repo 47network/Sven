@@ -508,6 +508,31 @@ export type EidolonBuildingKind =
   | 'mobile_push_router'
   | 'voice_call_dialer'
   | 'fax_gateway'
+  | 'outbound_webhook_dispatcher'
+  | 'webhook_signature_verifier'
+  | 'webhook_retry_manager'
+  | 'webhook_event_logger'
+  | 'webhook_subscription_registry'
+  | 'oauth_token_service'
+  | 'api_key_issuer'
+  | 'jwt_signer'
+  | 'session_store_manager'
+  | 'refresh_token_rotator'
+  | 'user_directory_sync'
+  | 'group_membership_resolver'
+  | 'role_assignment_engine'
+  | 'permission_evaluator'
+  | 'audit_trail_recorder'
+  | 'document_versioning_engine'
+  | 'collaborative_editor_sync'
+  | 'change_proposal_router'
+  | 'approval_workflow_engine'
+  | 'signature_collector'
+  | 'file_upload_processor'
+  | 'multipart_chunk_assembler'
+  | 'virus_scan_dispatcher'
+  | 'metadata_extractor'
+  | 'storage_tier_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -2745,6 +2770,106 @@ export type EidolonEventKind =
   | 'faxg.transmission_started'
   | 'faxg.pages_sent'
   | 'faxg.delivery_confirmed'
+  | 'owhd.delivery_queued'
+  | 'owhd.endpoint_called'
+  | 'owhd.response_received'
+  | 'owhd.delivery_recorded'
+  | 'whsv.signature_extracted'
+  | 'whsv.payload_canonicalized'
+  | 'whsv.hmac_computed'
+  | 'whsv.match_decided'
+  | 'whrm.failure_observed'
+  | 'whrm.backoff_computed'
+  | 'whrm.retry_scheduled'
+  | 'whrm.exhaustion_handled'
+  | 'whel.event_received'
+  | 'whel.payload_sanitized'
+  | 'whel.entry_persisted'
+  | 'whel.query_served'
+  | 'whsr.subscription_created'
+  | 'whsr.endpoint_validated'
+  | 'whsr.subscription_updated'
+  | 'whsr.subscription_revoked'
+  | 'oats.grant_validated'
+  | 'oats.token_issued'
+  | 'oats.token_introspected'
+  | 'oats.token_revoked'
+  | 'akis.request_authorized'
+  | 'akis.key_generated'
+  | 'akis.scope_attached'
+  | 'akis.key_distributed'
+  | 'jwts.claims_assembled'
+  | 'jwts.header_built'
+  | 'jwts.signature_generated'
+  | 'jwts.token_emitted'
+  | 'sssm.session_created'
+  | 'sssm.session_loaded'
+  | 'sssm.session_invalidated'
+  | 'sssm.eviction_run'
+  | 'rftr.refresh_received'
+  | 'rftr.reuse_detected'
+  | 'rftr.token_rotated'
+  | 'rftr.family_revoked'
+  | 'udsy.scim_received'
+  | 'udsy.diff_computed'
+  | 'udsy.users_upserted'
+  | 'udsy.deprovisioning_executed'
+  | 'gmre.query_received'
+  | 'gmre.hierarchy_walked'
+  | 'gmre.cache_consulted'
+  | 'gmre.membership_returned'
+  | 'rasn.request_received'
+  | 'rasn.policy_evaluated'
+  | 'rasn.assignment_persisted'
+  | 'rasn.notification_sent'
+  | 'pmev.check_received'
+  | 'pmev.policies_loaded'
+  | 'pmev.decision_computed'
+  | 'pmev.reason_logged'
+  | 'atrc.event_received'
+  | 'atrc.entry_normalized'
+  | 'atrc.entry_persisted'
+  | 'atrc.integrity_sealed'
+  | 'dvge.commit_received'
+  | 'dvge.diff_computed'
+  | 'dvge.version_persisted'
+  | 'dvge.history_pruned'
+  | 'cesy.operation_received'
+  | 'cesy.crdt_merged'
+  | 'cesy.peers_broadcasted'
+  | 'cesy.snapshot_committed'
+  | 'cprr.proposal_submitted'
+  | 'cprr.reviewers_selected'
+  | 'cprr.notifications_dispatched'
+  | 'cprr.outcome_recorded'
+  | 'awfe.case_created'
+  | 'awfe.step_advanced'
+  | 'awfe.approver_notified'
+  | 'awfe.case_finalized'
+  | 'sigc.request_initiated'
+  | 'sigc.signer_invited'
+  | 'sigc.signature_captured'
+  | 'sigc.envelope_sealed'
+  | 'fupr.upload_initiated'
+  | 'fupr.size_validated'
+  | 'fupr.bytes_received'
+  | 'fupr.upload_finalized'
+  | 'mcas.chunk_received'
+  | 'mcas.checksum_verified'
+  | 'mcas.chunks_assembled'
+  | 'mcas.assembly_completed'
+  | 'vscd.scan_queued'
+  | 'vscd.engine_invoked'
+  | 'vscd.verdict_recorded'
+  | 'vscd.quarantine_triggered'
+  | 'mdex.payload_loaded'
+  | 'mdex.exif_parsed'
+  | 'mdex.fields_normalized'
+  | 'mdex.metadata_persisted'
+  | 'stop.usage_analyzed'
+  | 'stop.candidates_selected'
+  | 'stop.tier_transitioned'
+  | 'stop.savings_reported'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -3710,6 +3835,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'mobile_push_router':
     case 'voice_call_dialer':
     case 'fax_gateway':
+    case 'outbound_webhook_dispatcher':
+    case 'webhook_signature_verifier':
+    case 'webhook_retry_manager':
+    case 'webhook_event_logger':
+    case 'webhook_subscription_registry':
+    case 'oauth_token_service':
+    case 'api_key_issuer':
+    case 'jwt_signer':
+    case 'session_store_manager':
+    case 'refresh_token_rotator':
+    case 'user_directory_sync':
+    case 'group_membership_resolver':
+    case 'role_assignment_engine':
+    case 'permission_evaluator':
+    case 'audit_trail_recorder':
+    case 'document_versioning_engine':
+    case 'collaborative_editor_sync':
+    case 'change_proposal_router':
+    case 'approval_workflow_engine':
+    case 'signature_collector':
+    case 'file_upload_processor':
+    case 'multipart_chunk_assembler':
+    case 'virus_scan_dispatcher':
+    case 'metadata_extractor':
+    case 'storage_tier_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
