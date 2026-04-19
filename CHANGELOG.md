@@ -36,6 +36,18 @@
 
 # Changelog
 
+## Batches 558-562 — Search & Discovery
+- semantic_indexer: Semantic document indexing with vector embeddings
+- faceted_search: Multi-faceted search with dynamic filtering and ranking
+- suggestion_engine: Intelligent suggestion generation with ML-based ranking
+- autocomplete_builder: Prefix-tree autocomplete with frequency-based ranking
+- catalog_crawler: Automated catalog crawling and product discovery
+- 5 migrations, shared types, barrel exports, SKILL.md files
+- Eidolon BK/EK/districtFor wiring, event-bus SUBJECT_MAP entries
+- Task-executor switch cases, .gitattributes privacy filters
+- 55/55 tests passing
+
+
 ## Batches 553-557 — Notification & Alerting
 - threshold_monitor: Threshold monitoring with configurable breach detection
 - escalation_router: Multi-level escalation routing and timeout management

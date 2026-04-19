@@ -258,6 +258,11 @@ export type EidolonBuildingKind =
   | 'notification_templater'
   | 'digest_aggregator'
   | 'channel_gateway'
+  | 'semantic_indexer'
+  | 'faceted_search'
+  | 'suggestion_engine'
+  | 'autocomplete_builder'
+  | 'catalog_crawler'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -1495,6 +1500,26 @@ export type EidolonEventKind =
   | 'chgw.delivery_failed'
   | 'chgw.channel_degraded'
   | 'chgw.failover_activated'
+  | 'sidx.document_indexed'
+  | 'sidx.index_rebuilt'
+  | 'sidx.embedding_generated'
+  | 'sidx.index_optimized'
+  | 'fcsr.query_executed'
+  | 'fcsr.facet_computed'
+  | 'fcsr.result_ranked'
+  | 'fcsr.cache_refreshed'
+  | 'sgen.suggestion_generated'
+  | 'sgen.model_trained'
+  | 'sgen.feedback_received'
+  | 'sgen.config_updated'
+  | 'acbl.tree_built'
+  | 'acbl.completion_served'
+  | 'acbl.dictionary_updated'
+  | 'acbl.stats_computed'
+  | 'ctcr.crawl_started'
+  | 'ctcr.page_indexed'
+  | 'ctcr.crawl_completed'
+  | 'ctcr.error_encountered'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -2210,6 +2235,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'notification_templater':
     case 'digest_aggregator':
     case 'channel_gateway':
+    case 'semantic_indexer':
+    case 'faceted_search':
+    case 'suggestion_engine':
+    case 'autocomplete_builder':
+    case 'catalog_crawler':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

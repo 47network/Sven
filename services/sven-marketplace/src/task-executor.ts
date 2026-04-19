@@ -3533,6 +3533,36 @@ export class TaskExecutor {
       case 'chgw_failover': return this.handleChgwFailover(task);
       case 'chgw_report': return this.handleChgwReport(task);
       case 'chgw_monitor': return this.handleChgwMonitor(task);
+      case 'sidx_index': return this.handleSidxIndex(task);
+      case 'sidx_rebuild': return this.handleSidxRebuild(task);
+      case 'sidx_embed': return this.handleSidxEmbed(task);
+      case 'sidx_optimize': return this.handleSidxOptimize(task);
+      case 'sidx_report': return this.handleSidxReport(task);
+      case 'sidx_monitor': return this.handleSidxMonitor(task);
+      case 'fcsr_query': return this.handleFcsrQuery(task);
+      case 'fcsr_facet': return this.handleFcsrFacet(task);
+      case 'fcsr_rank': return this.handleFcsrRank(task);
+      case 'fcsr_cache': return this.handleFcsrCache(task);
+      case 'fcsr_report': return this.handleFcsrReport(task);
+      case 'fcsr_monitor': return this.handleFcsrMonitor(task);
+      case 'sgen_generate': return this.handleSgenGenerate(task);
+      case 'sgen_train': return this.handleSgenTrain(task);
+      case 'sgen_feedback': return this.handleSgenFeedback(task);
+      case 'sgen_config': return this.handleSgenConfig(task);
+      case 'sgen_report': return this.handleSgenReport(task);
+      case 'sgen_monitor': return this.handleSgenMonitor(task);
+      case 'acbl_build': return this.handleAcblBuild(task);
+      case 'acbl_serve': return this.handleAcblServe(task);
+      case 'acbl_update': return this.handleAcblUpdate(task);
+      case 'acbl_stats': return this.handleAcblStats(task);
+      case 'acbl_report': return this.handleAcblReport(task);
+      case 'acbl_monitor': return this.handleAcblMonitor(task);
+      case 'ctcr_crawl': return this.handleCtcrCrawl(task);
+      case 'ctcr_page': return this.handleCtcrPage(task);
+      case 'ctcr_complete': return this.handleCtcrComplete(task);
+      case 'ctcr_error': return this.handleCtcrError(task);
+      case 'ctcr_report': return this.handleCtcrReport(task);
+      case 'ctcr_monitor': return this.handleCtcrMonitor(task);
     }
   }
 
