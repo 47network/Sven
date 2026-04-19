@@ -2993,6 +2993,36 @@ export class TaskExecutor {
       case 'qanl_optimize': return this.handleQanlOptimize(task);
       case 'qanl_report': return this.handleQanlReport(task);
       case 'qanl_monitor': return this.handleQanlMonitor(task);
+      case 'tkrt_rotate': return this.handleTkrtRotate(task);
+      case 'tkrt_schedule': return this.handleTkrtSchedule(task);
+      case 'tkrt_health': return this.handleTkrtHealth(task);
+      case 'tkrt_revoke': return this.handleTkrtRevoke(task);
+      case 'tkrt_status': return this.handleTkrtStatus(task);
+      case 'tkrt_list': return this.handleTkrtList(task);
+      case 'scsc_full': return this.handleScscFull(task);
+      case 'scsc_incremental': return this.handleScscIncremental(task);
+      case 'scsc_verify': return this.handleScscVerify(task);
+      case 'scsc_remediate': return this.handleScscRemediate(task);
+      case 'scsc_report': return this.handleScscReport(task);
+      case 'scsc_status': return this.handleScscStatus(task);
+      case 'auad_audit': return this.handleAuadAudit(task);
+      case 'auad_compliance': return this.handleAuadCompliance(task);
+      case 'auad_anomaly': return this.handleAuadAnomaly(task);
+      case 'auad_report': return this.handleAuadReport(task);
+      case 'auad_status': return this.handleAuadStatus(task);
+      case 'auad_schedule': return this.handleAuadSchedule(task);
+      case 'pmmp_map': return this.handlePmmpMap(task);
+      case 'pmmp_check': return this.handlePmmpCheck(task);
+      case 'pmmp_excessive': return this.handlePmmpExcessive(task);
+      case 'pmmp_optimize': return this.handlePmmpOptimize(task);
+      case 'pmmp_report': return this.handlePmmpReport(task);
+      case 'pmmp_export': return this.handlePmmpExport(task);
+      case 'sntr_list': return this.handleSntrList(task);
+      case 'sntr_anomaly': return this.handleSntrAnomaly(task);
+      case 'sntr_enforce': return this.handleSntrEnforce(task);
+      case 'sntr_analytics': return this.handleSntrAnalytics(task);
+      case 'sntr_terminate': return this.handleSntrTerminate(task);
+      case 'sntr_report': return this.handleSntrReport(task);
     }
   }
 

@@ -168,6 +168,11 @@ export type EidolonBuildingKind =
   | 'data_archiver'
   | 'table_optimizer'
   | 'query_analyzer'
+  | 'token_rotator'
+  | 'secret_scanner'
+  | 'auth_auditor'
+  | 'permission_mapper'
+  | 'session_tracker'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -1040,6 +1045,26 @@ export type EidolonEventKind =
   | 'qanl.plan_analyzed'
   | 'qanl.index_suggested'
   | 'qanl.query_optimized'
+  | 'tkrt.rotation_completed'
+  | 'tkrt.token_revoked'
+  | 'tkrt.health_checked'
+  | 'tkrt.grace_expired'
+  | 'scsc.scan_completed'
+  | 'scsc.secret_found'
+  | 'scsc.finding_verified'
+  | 'scsc.remediation_applied'
+  | 'auad.audit_completed'
+  | 'auad.anomaly_detected'
+  | 'auad.compliance_checked'
+  | 'auad.report_generated'
+  | 'pmmp.roles_mapped'
+  | 'pmmp.access_checked'
+  | 'pmmp.excessive_found'
+  | 'pmmp.hierarchy_optimized'
+  | 'sntr.sessions_listed'
+  | 'sntr.anomaly_detected'
+  | 'sntr.limits_enforced'
+  | 'sntr.analytics_generated'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1645,6 +1670,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'data_archiver':
     case 'table_optimizer':
     case 'query_analyzer':
+    case 'token_rotator':
+    case 'secret_scanner':
+    case 'auth_auditor':
+    case 'permission_mapper':
+    case 'session_tracker':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
