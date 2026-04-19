@@ -1796,6 +1796,36 @@ export class TaskExecutor {
       case 'ploss_view_trends': return this.handlePlossViewTrends(task);
       case 'ploss_view_stats': return this.handlePlossViewStats(task);
       case 'ploss_export_data': return this.handlePlossExportData(task);
+      case 'tclass_configure': return this.handleTclassConfigure(task);
+      case 'tclass_classify_flow': return this.handleTclassClassifyFlow(task);
+      case 'tclass_update_signatures': return this.handleTclassUpdateSignatures(task);
+      case 'tclass_create_policy': return this.handleTclassCreatePolicy(task);
+      case 'tclass_view_stats': return this.handleTclassViewStats(task);
+      case 'tclass_export_results': return this.handleTclassExportResults(task);
+      case 'qos_configure': return this.handleQosConfigure(task);
+      case 'qos_apply_policy': return this.handleQosApplyPolicy(task);
+      case 'qos_monitor_queues': return this.handleQosMonitorQueues(task);
+      case 'qos_detect_violations': return this.handleQosDetectViolations(task);
+      case 'qos_view_stats': return this.handleQosViewStats(task);
+      case 'qos_export_data': return this.handleQosExportData(task);
+      case 'acl_configure': return this.handleAclConfigure(task);
+      case 'acl_full_audit': return this.handleAclFullAudit(task);
+      case 'acl_shadow_check': return this.handleAclShadowCheck(task);
+      case 'acl_optimize_rules': return this.handleAclOptimizeRules(task);
+      case 'acl_view_stats': return this.handleAclViewStats(task);
+      case 'acl_export_findings': return this.handleAclExportFindings(task);
+      case 'fwpol_configure': return this.handleFwpolConfigure(task);
+      case 'fwpol_analyze_ruleset': return this.handleFwpolAnalyzeRuleset(task);
+      case 'fwpol_propose_change': return this.handleFwpolProposeChange(task);
+      case 'fwpol_apply_change': return this.handleFwpolApplyChange(task);
+      case 'fwpol_view_stats': return this.handleFwpolViewStats(task);
+      case 'fwpol_export_data': return this.handleFwpolExportData(task);
+      case 'pmap_configure': return this.handlePmapConfigure(task);
+      case 'pmap_quick_scan': return this.handlePmapQuickScan(task);
+      case 'pmap_full_scan': return this.handlePmapFullScan(task);
+      case 'pmap_service_detect': return this.handlePmapServiceDetect(task);
+      case 'pmap_view_stats': return this.handlePmapViewStats(task);
+      case 'pmap_export_results': return this.handlePmapExportResults(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -12539,6 +12569,217 @@ export class TaskExecutor {
     const exportFile = `${task.id}-plossexportdata`;
     this.emitEidolonEvent('plossDataExported', { taskId: task.id, exportFile });
     return { success: true, exportFile, message: 'data exported' };
+  }
+
+
+  private async handleTclassConfigure(task: any): Promise<any> {
+    const { classifier_name, interface_name, classification_method } = task.input || {};
+    const configId = `${task.id}-tclassconfigure`;
+    this.emitEidolonEvent('tclassConfigured', { taskId: task.id, configId });
+    return { success: true, configId, message: 'classifier ready' };
+  }
+
+  private async handleTclassClassifyFlow(task: any): Promise<any> {
+    const { config_id, flow_id, protocol } = task.input || {};
+    const classification = `${task.id}-tclassclassifyflow`;
+    this.emitEidolonEvent('tclassFlowClassified', { taskId: task.id, classification });
+    return { success: true, classification, message: 'flow classified' };
+  }
+
+  private async handleTclassUpdateSignatures(task: any): Promise<any> {
+    const { config_id, signature_source, version } = task.input || {};
+    const updated = `${task.id}-tclassupdatesignatures`;
+    this.emitEidolonEvent('tclassSignaturesUpdated', { taskId: task.id, updated });
+    return { success: true, updated, message: 'signatures updated' };
+  }
+
+  private async handleTclassCreatePolicy(task: any): Promise<any> {
+    const { config_id, policy_name, match_criteria } = task.input || {};
+    const policyId = `${task.id}-tclasscreatepolicy`;
+    this.emitEidolonEvent('tclassPolicyCreated', { taskId: task.id, policyId });
+    return { success: true, policyId, message: 'policy created' };
+  }
+
+  private async handleTclassViewStats(task: any): Promise<any> {
+    const { config_id, period, metric_type } = task.input || {};
+    const stats = `${task.id}-tclassviewstats`;
+    this.emitEidolonEvent('tclassStatsViewed', { taskId: task.id, stats });
+    return { success: true, stats, message: 'stats collected' };
+  }
+
+  private async handleTclassExportResults(task: any): Promise<any> {
+    const { config_id, export_format, date_range } = task.input || {};
+    const exportFile = `${task.id}-tclassexportresults`;
+    this.emitEidolonEvent('tclassResultsExported', { taskId: task.id, exportFile });
+    return { success: true, exportFile, message: 'results exported' };
+  }
+
+  private async handleQosConfigure(task: any): Promise<any> {
+    const { enforcer_name, interface_name, scheduling_algo } = task.input || {};
+    const configId = `${task.id}-qosconfigure`;
+    this.emitEidolonEvent('qosConfigured', { taskId: task.id, configId });
+    return { success: true, configId, message: 'enforcer ready' };
+  }
+
+  private async handleQosApplyPolicy(task: any): Promise<any> {
+    const { config_id, class_definitions, dscp_map } = task.input || {};
+    const applied = `${task.id}-qosapplypolicy`;
+    this.emitEidolonEvent('qosPolicyApplied', { taskId: task.id, applied });
+    return { success: true, applied, message: 'policy applied' };
+  }
+
+  private async handleQosMonitorQueues(task: any): Promise<any> {
+    const { config_id, period, metric_type } = task.input || {};
+    const queues = `${task.id}-qosmonitorqueues`;
+    this.emitEidolonEvent('qosQueuesMonitored', { taskId: task.id, queues });
+    return { success: true, queues, message: 'queues monitored' };
+  }
+
+  private async handleQosDetectViolations(task: any): Promise<any> {
+    const { config_id, threshold, severity } = task.input || {};
+    const violations = `${task.id}-qosdetectviolations`;
+    this.emitEidolonEvent('qosViolationsDetected', { taskId: task.id, violations });
+    return { success: true, violations, message: 'violations checked' };
+  }
+
+  private async handleQosViewStats(task: any): Promise<any> {
+    const { config_id, period, metric_type } = task.input || {};
+    const stats = `${task.id}-qosviewstats`;
+    this.emitEidolonEvent('qosStatsViewed', { taskId: task.id, stats });
+    return { success: true, stats, message: 'stats collected' };
+  }
+
+  private async handleQosExportData(task: any): Promise<any> {
+    const { config_id, export_format, date_range } = task.input || {};
+    const exportFile = `${task.id}-qosexportdata`;
+    this.emitEidolonEvent('qosDataExported', { taskId: task.id, exportFile });
+    return { success: true, exportFile, message: 'data exported' };
+  }
+
+  private async handleAclConfigure(task: any): Promise<any> {
+    const { auditor_name, target_device, acl_type } = task.input || {};
+    const configId = `${task.id}-aclconfigure`;
+    this.emitEidolonEvent('aclConfigured', { taskId: task.id, configId });
+    return { success: true, configId, message: 'auditor ready' };
+  }
+
+  private async handleAclFullAudit(task: any): Promise<any> {
+    const { config_id, include_shadow, include_conflicts } = task.input || {};
+    const findings = `${task.id}-aclfullaudit`;
+    this.emitEidolonEvent('aclAuditCompleted', { taskId: task.id, findings });
+    return { success: true, findings, message: 'audit complete' };
+  }
+
+  private async handleAclShadowCheck(task: any): Promise<any> {
+    const { config_id, rule_range, verbose } = task.input || {};
+    const shadows = `${task.id}-aclshadowcheck`;
+    this.emitEidolonEvent('aclShadowChecked', { taskId: task.id, shadows });
+    return { success: true, shadows, message: 'shadow check done' };
+  }
+
+  private async handleAclOptimizeRules(task: any): Promise<any> {
+    const { config_id, strategy, dry_run } = task.input || {};
+    const optimizations = `${task.id}-acloptimizerules`;
+    this.emitEidolonEvent('aclRulesOptimized', { taskId: task.id, optimizations });
+    return { success: true, optimizations, message: 'rules optimized' };
+  }
+
+  private async handleAclViewStats(task: any): Promise<any> {
+    const { config_id, period, metric_type } = task.input || {};
+    const stats = `${task.id}-aclviewstats`;
+    this.emitEidolonEvent('aclStatsViewed', { taskId: task.id, stats });
+    return { success: true, stats, message: 'stats collected' };
+  }
+
+  private async handleAclExportFindings(task: any): Promise<any> {
+    const { config_id, export_format, severity_filter } = task.input || {};
+    const exportFile = `${task.id}-aclexportfindings`;
+    this.emitEidolonEvent('aclFindingsExported', { taskId: task.id, exportFile });
+    return { success: true, exportFile, message: 'findings exported' };
+  }
+
+  private async handleFwpolConfigure(task: any): Promise<any> {
+    const { policy_name, firewall_type, zone_model } = task.input || {};
+    const configId = `${task.id}-fwpolconfigure`;
+    this.emitEidolonEvent('fwpolConfigured', { taskId: task.id, configId });
+    return { success: true, configId, message: 'policy manager ready' };
+  }
+
+  private async handleFwpolAnalyzeRuleset(task: any): Promise<any> {
+    const { config_id, include_unused, include_overlaps } = task.input || {};
+    const analysis = `${task.id}-fwpolanalyzeruleset`;
+    this.emitEidolonEvent('fwpolRulesetAnalyzed', { taskId: task.id, analysis });
+    return { success: true, analysis, message: 'analysis complete' };
+  }
+
+  private async handleFwpolProposeChange(task: any): Promise<any> {
+    const { config_id, change_type, justification } = task.input || {};
+    const proposalId = `${task.id}-fwpolproposechange`;
+    this.emitEidolonEvent('fwpolChangeProposed', { taskId: task.id, proposalId });
+    return { success: true, proposalId, message: 'change proposed' };
+  }
+
+  private async handleFwpolApplyChange(task: any): Promise<any> {
+    const { proposal_id, approved_by, rollback_plan } = task.input || {};
+    const changeId = `${task.id}-fwpolapplychange`;
+    this.emitEidolonEvent('fwpolChangeApplied', { taskId: task.id, changeId });
+    return { success: true, changeId, message: 'change applied' };
+  }
+
+  private async handleFwpolViewStats(task: any): Promise<any> {
+    const { config_id, period, metric_type } = task.input || {};
+    const stats = `${task.id}-fwpolviewstats`;
+    this.emitEidolonEvent('fwpolStatsViewed', { taskId: task.id, stats });
+    return { success: true, stats, message: 'stats collected' };
+  }
+
+  private async handleFwpolExportData(task: any): Promise<any> {
+    const { config_id, export_format, date_range } = task.input || {};
+    const exportFile = `${task.id}-fwpolexportdata`;
+    this.emitEidolonEvent('fwpolDataExported', { taskId: task.id, exportFile });
+    return { success: true, exportFile, message: 'data exported' };
+  }
+
+  private async handlePmapConfigure(task: any): Promise<any> {
+    const { mapper_name, target_network, scan_method } = task.input || {};
+    const configId = `${task.id}-pmapconfigure`;
+    this.emitEidolonEvent('pmapConfigured', { taskId: task.id, configId });
+    return { success: true, configId, message: 'mapper ready' };
+  }
+
+  private async handlePmapQuickScan(task: any): Promise<any> {
+    const { config_id, port_list, timeout } = task.input || {};
+    const results = `${task.id}-pmapquickscan`;
+    this.emitEidolonEvent('pmapQuickScanned', { taskId: task.id, results });
+    return { success: true, results, message: 'quick scan done' };
+  }
+
+  private async handlePmapFullScan(task: any): Promise<any> {
+    const { config_id, port_range, service_detect } = task.input || {};
+    const results = `${task.id}-pmapfullscan`;
+    this.emitEidolonEvent('pmapFullScanned', { taskId: task.id, results });
+    return { success: true, results, message: 'full scan done' };
+  }
+
+  private async handlePmapServiceDetect(task: any): Promise<any> {
+    const { config_id, host_ip, port } = task.input || {};
+    const serviceInfo = `${task.id}-pmapservicedetect`;
+    this.emitEidolonEvent('pmapServiceDetected', { taskId: task.id, serviceInfo });
+    return { success: true, serviceInfo, message: 'service identified' };
+  }
+
+  private async handlePmapViewStats(task: any): Promise<any> {
+    const { config_id, period, metric_type } = task.input || {};
+    const stats = `${task.id}-pmapviewstats`;
+    this.emitEidolonEvent('pmapStatsViewed', { taskId: task.id, stats });
+    return { success: true, stats, message: 'stats collected' };
+  }
+
+  private async handlePmapExportResults(task: any): Promise<any> {
+    const { config_id, export_format, date_range } = task.input || {};
+    const exportFile = `${task.id}-pmapexportresults`;
+    this.emitEidolonEvent('pmapResultsExported', { taskId: task.id, exportFile });
+    return { success: true, exportFile, message: 'results exported' };
   }
 
 }

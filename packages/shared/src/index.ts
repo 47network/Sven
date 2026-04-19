@@ -294,3 +294,8 @@ export * from './agent-bandwidth-monitor.js';
 export * from './agent-latency-probe.js';
 export * from './agent-jitter-analyzer.js';
 export * from './agent-packet-loss-tracker.js';
+export * from './agent-traffic-classifier';
+export * from './agent-qos-enforcer';
+export * from './agent-acl-auditor';
+export * from './agent-firewall-policy';
+export * from './agent-port-mapper';

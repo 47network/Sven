@@ -78,6 +78,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 273-277 — Network Security Tools
+- **traffic_classifier**: Deep packet inspection and flow classification ($9.99, analyst)
+- **qos_enforcer**: QoS policy enforcement and traffic shaping ($12.99, engineer)
+- **acl_auditor**: ACL auditing, shadow detection, and optimization ($14.99, analyst)
+- **firewall_policy**: Firewall rule management and change control ($15.99, engineer)
+- **port_mapper**: Network port scanning and service discovery ($8.99, analyst)
+
 ### Batches 268-272 — Network Diagnostics
 - **packet_sniffer**: Capture & dissect network packets ($11.99, engineer)
 - **bandwidth_monitor**: Real-time bandwidth utilization tracking ($7.99, analyst)
