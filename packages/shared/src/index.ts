@@ -329,3 +329,8 @@ export * from './agent-stream-ingester';
 export * from './agent-event-router';
 export * from './agent-queue-manager';
 export * from './agent-pubsub-gateway';
+export * from './agent-container-builder';
+export * from './agent-image-registry';
+export * from './agent-orchestrator';
+export * from './agent-svc-mesh';
+export * from './agent-config-manager';
