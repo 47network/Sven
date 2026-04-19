@@ -1458,6 +1458,31 @@ export type EidolonBuildingKind =
   | 'api_spec_builder_auditor'
   | 'api_spec_builder_reporter'
   | 'api_spec_builder_optimizer'
+  | 'test_conductor'
+  | 'test_conductor_monitor'
+  | 'test_conductor_auditor'
+  | 'test_conductor_reporter'
+  | 'test_conductor_optimizer'
+  | 'coverage_tracker'
+  | 'coverage_tracker_monitor'
+  | 'coverage_tracker_auditor'
+  | 'coverage_tracker_reporter'
+  | 'coverage_tracker_optimizer'
+  | 'perf_benchmarker'
+  | 'perf_benchmarker_monitor'
+  | 'perf_benchmarker_auditor'
+  | 'perf_benchmarker_reporter'
+  | 'perf_benchmarker_optimizer'
+  | 'load_simulator'
+  | 'load_simulator_monitor'
+  | 'load_simulator_auditor'
+  | 'load_simulator_reporter'
+  | 'load_simulator_optimizer'
+  | 'chaos_exerciser'
+  | 'chaos_exerciser_monitor'
+  | 'chaos_exerciser_auditor'
+  | 'chaos_exerciser_reporter'
+  | 'chaos_exerciser_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5105,6 +5130,51 @@ export type EidolonEventKind =
   | 'cto.plan_created'
   | 'cto.optimization_applied'
   | 'cto.export_emitted'
+  | 'pb.entry_created'
+  | 'pb.config_updated'
+  | 'pb.export_emitted'
+  | 'pbm.check_passed'
+  | 'pbm.alert_raised'
+  | 'pbm.export_emitted'
+  | 'pba.entry_logged'
+  | 'pba.violation_found'
+  | 'pba.export_emitted'
+  | 'pbr.report_generated'
+  | 'pbr.insight_found'
+  | 'pbr.export_emitted'
+  | 'pbo.plan_created'
+  | 'pbo.optimization_applied'
+  | 'pbo.export_emitted'
+  | 'ls.entry_created'
+  | 'ls.config_updated'
+  | 'ls.export_emitted'
+  | 'lsm.check_passed'
+  | 'lsm.alert_raised'
+  | 'lsm.export_emitted'
+  | 'lsa.entry_logged'
+  | 'lsa.violation_found'
+  | 'lsa.export_emitted'
+  | 'lsr.report_generated'
+  | 'lsr.insight_found'
+  | 'lsr.export_emitted'
+  | 'lso.plan_created'
+  | 'lso.optimization_applied'
+  | 'lso.export_emitted'
+  | 'cex.entry_created'
+  | 'cex.config_updated'
+  | 'cex.export_emitted'
+  | 'cexm.check_passed'
+  | 'cexm.alert_raised'
+  | 'cexm.export_emitted'
+  | 'cexa.entry_logged'
+  | 'cexa.violation_found'
+  | 'cexa.export_emitted'
+  | 'cexr.report_generated'
+  | 'cexr.insight_found'
+  | 'cexr.export_emitted'
+  | 'cexo.plan_created'
+  | 'cexo.optimization_applied'
+  | 'cexo.export_emitted'
   | 'bg.entry_created'
   | 'bg.config_updated'
   | 'bg.export_emitted'
@@ -5285,6 +5355,36 @@ export type EidolonEventKind =
   | 'asbo.plan_created'
   | 'asbo.optimization_applied'
   | 'asbo.export_emitted'
+  | 'tc2.entry_created'
+  | 'tc2.config_updated'
+  | 'tc2.export_emitted'
+  | 'tcm2.check_passed'
+  | 'tcm2.alert_raised'
+  | 'tcm2.export_emitted'
+  | 'tca2.entry_logged'
+  | 'tca2.violation_found'
+  | 'tca2.export_emitted'
+  | 'tcr2.report_generated'
+  | 'tcr2.insight_found'
+  | 'tcr2.export_emitted'
+  | 'tco2.plan_created'
+  | 'tco2.optimization_applied'
+  | 'tco2.export_emitted'
+  | 'ct.entry_created'
+  | 'ct.config_updated'
+  | 'ct.export_emitted'
+  | 'ctm.check_passed'
+  | 'ctm.alert_raised'
+  | 'ctm.export_emitted'
+  | 'cta.entry_logged'
+  | 'cta.violation_found'
+  | 'cta.export_emitted'
+  | 'ctr.report_generated'
+  | 'ctr.insight_found'
+  | 'ctr.export_emitted'
+  | 'cto.plan_created'
+  | 'cto.optimization_applied'
+  | 'cto.export_emitted'
   | 'me.entry_created'
   | 'me.config_updated'
   | 'me.export_emitted'
@@ -8835,6 +8935,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'api_spec_builder_auditor':
     case 'api_spec_builder_reporter':
     case 'api_spec_builder_optimizer':
+    case 'test_conductor':
+    case 'test_conductor_monitor':
+    case 'test_conductor_auditor':
+    case 'test_conductor_reporter':
+    case 'test_conductor_optimizer':
+    case 'coverage_tracker':
+    case 'coverage_tracker_monitor':
+    case 'coverage_tracker_auditor':
+    case 'coverage_tracker_reporter':
+    case 'coverage_tracker_optimizer':
+    case 'perf_benchmarker':
+    case 'perf_benchmarker_monitor':
+    case 'perf_benchmarker_auditor':
+    case 'perf_benchmarker_reporter':
+    case 'perf_benchmarker_optimizer':
+    case 'load_simulator':
+    case 'load_simulator_monitor':
+    case 'load_simulator_auditor':
+    case 'load_simulator_reporter':
+    case 'load_simulator_optimizer':
+    case 'chaos_exerciser':
+    case 'chaos_exerciser_monitor':
+    case 'chaos_exerciser_auditor':
+    case 'chaos_exerciser_reporter':
+    case 'chaos_exerciser_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
