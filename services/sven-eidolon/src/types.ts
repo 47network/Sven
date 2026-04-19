@@ -1508,6 +1508,31 @@ export type EidolonBuildingKind =
   | 'hotfix_deployer_auditor'
   | 'hotfix_deployer_reporter'
   | 'hotfix_deployer_optimizer'
+  | 'release_sentinel'
+  | 'release_sentinel_monitor'
+  | 'release_sentinel_auditor'
+  | 'release_sentinel_reporter'
+  | 'release_sentinel_optimizer'
+  | 'deploy_scheduler'
+  | 'deploy_scheduler_monitor'
+  | 'deploy_scheduler_auditor'
+  | 'deploy_scheduler_reporter'
+  | 'deploy_scheduler_optimizer'
+  | 'infra_prober'
+  | 'infra_prober_monitor'
+  | 'infra_prober_auditor'
+  | 'infra_prober_reporter'
+  | 'infra_prober_optimizer'
+  | 'compliance_verifier'
+  | 'compliance_verifier_monitor'
+  | 'compliance_verifier_auditor'
+  | 'compliance_verifier_reporter'
+  | 'compliance_verifier_optimizer'
+  | 'drift_reconciler'
+  | 'drift_reconciler_monitor'
+  | 'drift_reconciler_auditor'
+  | 'drift_reconciler_reporter'
+  | 'drift_reconciler_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5275,6 +5300,81 @@ export type EidolonEventKind =
   | 'hdo.plan_created'
   | 'hdo.optimization_applied'
   | 'hdo.export_emitted'
+  | 'rs.entry_created'
+  | 'rs.config_updated'
+  | 'rs.export_emitted'
+  | 'rsm.check_passed'
+  | 'rsm.alert_raised'
+  | 'rsm.export_emitted'
+  | 'rsa.entry_logged'
+  | 'rsa.violation_found'
+  | 'rsa.export_emitted'
+  | 'rsr.report_generated'
+  | 'rsr.insight_found'
+  | 'rsr.export_emitted'
+  | 'rso.plan_created'
+  | 'rso.optimization_applied'
+  | 'rso.export_emitted'
+  | 'ds.entry_created'
+  | 'ds.config_updated'
+  | 'ds.export_emitted'
+  | 'dsm.check_passed'
+  | 'dsm.alert_raised'
+  | 'dsm.export_emitted'
+  | 'dsa.entry_logged'
+  | 'dsa.violation_found'
+  | 'dsa.export_emitted'
+  | 'dsr.report_generated'
+  | 'dsr.insight_found'
+  | 'dsr.export_emitted'
+  | 'dso.plan_created'
+  | 'dso.optimization_applied'
+  | 'dso.export_emitted'
+  | 'ip.entry_created'
+  | 'ip.config_updated'
+  | 'ip.export_emitted'
+  | 'ipm.check_passed'
+  | 'ipm.alert_raised'
+  | 'ipm.export_emitted'
+  | 'ipa.entry_logged'
+  | 'ipa.violation_found'
+  | 'ipa.export_emitted'
+  | 'ipr.report_generated'
+  | 'ipr.insight_found'
+  | 'ipr.export_emitted'
+  | 'ipo.plan_created'
+  | 'ipo.optimization_applied'
+  | 'ipo.export_emitted'
+  | 'cv.entry_created'
+  | 'cv.config_updated'
+  | 'cv.export_emitted'
+  | 'cvm.check_passed'
+  | 'cvm.alert_raised'
+  | 'cvm.export_emitted'
+  | 'cva.entry_logged'
+  | 'cva.violation_found'
+  | 'cva.export_emitted'
+  | 'cvr.report_generated'
+  | 'cvr.insight_found'
+  | 'cvr.export_emitted'
+  | 'cvo.plan_created'
+  | 'cvo.optimization_applied'
+  | 'cvo.export_emitted'
+  | 'dr.entry_created'
+  | 'dr.config_updated'
+  | 'dr.export_emitted'
+  | 'drm.check_passed'
+  | 'drm.alert_raised'
+  | 'drm.export_emitted'
+  | 'dra.entry_logged'
+  | 'dra.violation_found'
+  | 'dra.export_emitted'
+  | 'drr.report_generated'
+  | 'drr.insight_found'
+  | 'drr.export_emitted'
+  | 'dro.plan_created'
+  | 'dro.optimization_applied'
+  | 'dro.export_emitted'
   | 'bg.entry_created'
   | 'bg.config_updated'
   | 'bg.export_emitted'
@@ -9085,6 +9185,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'hotfix_deployer_auditor':
     case 'hotfix_deployer_reporter':
     case 'hotfix_deployer_optimizer':
+    case 'release_sentinel':
+    case 'release_sentinel_monitor':
+    case 'release_sentinel_auditor':
+    case 'release_sentinel_reporter':
+    case 'release_sentinel_optimizer':
+    case 'deploy_scheduler':
+    case 'deploy_scheduler_monitor':
+    case 'deploy_scheduler_auditor':
+    case 'deploy_scheduler_reporter':
+    case 'deploy_scheduler_optimizer':
+    case 'infra_prober':
+    case 'infra_prober_monitor':
+    case 'infra_prober_auditor':
+    case 'infra_prober_reporter':
+    case 'infra_prober_optimizer':
+    case 'compliance_verifier':
+    case 'compliance_verifier_monitor':
+    case 'compliance_verifier_auditor':
+    case 'compliance_verifier_reporter':
+    case 'compliance_verifier_optimizer':
+    case 'drift_reconciler':
+    case 'drift_reconciler_monitor':
+    case 'drift_reconciler_auditor':
+    case 'drift_reconciler_reporter':
+    case 'drift_reconciler_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
