@@ -268,6 +268,11 @@ export type EidolonBuildingKind =
   | 'burst_handler'
   | 'reservation_clerk'
   | 'utilization_tracker'
+  | 'step_sequencer'
+  | 'gate_keeper'
+  | 'parallel_joiner'
+  | 'timeout_watcher'
+  | 'retry_orchestrator'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -1545,6 +1550,26 @@ export type EidolonEventKind =
   | 'utlz.threshold_exceeded'
   | 'utlz.trend_computed'
   | 'utlz.report_generated'
+  | 'stsq.sequence_started'
+  | 'stsq.step_completed'
+  | 'stsq.sequence_finished'
+  | 'stsq.step_failed'
+  | 'gtkp.gate_evaluated'
+  | 'gtkp.gate_passed'
+  | 'gtkp.gate_blocked'
+  | 'gtkp.override_applied'
+  | 'prjn.fork_initiated'
+  | 'prjn.branch_completed'
+  | 'prjn.join_resolved'
+  | 'prjn.timeout_triggered'
+  | 'tmwt.watch_started'
+  | 'tmwt.deadline_approaching'
+  | 'tmwt.timeout_fired'
+  | 'tmwt.watch_cancelled'
+  | 'rtyo.retry_scheduled'
+  | 'rtyo.attempt_made'
+  | 'rtyo.success_after_retry'
+  | 'rtyo.max_retries_exceeded'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -2270,6 +2295,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'burst_handler':
     case 'reservation_clerk':
     case 'utilization_tracker':
+    case 'step_sequencer':
+    case 'gate_keeper':
+    case 'parallel_joiner':
+    case 'timeout_watcher':
+    case 'retry_orchestrator':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

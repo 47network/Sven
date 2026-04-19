@@ -3593,6 +3593,36 @@ export class TaskExecutor {
       case 'utlz_generate': return this.handleUtlzGenerate(task);
       case 'utlz_report': return this.handleUtlzReport(task);
       case 'utlz_monitor': return this.handleUtlzMonitor(task);
+      case 'stsq_start': return this.handleStsqStart(task);
+      case 'stsq_step': return this.handleStsqStep(task);
+      case 'stsq_finish': return this.handleStsqFinish(task);
+      case 'stsq_fail': return this.handleStsqFail(task);
+      case 'stsq_report': return this.handleStsqReport(task);
+      case 'stsq_monitor': return this.handleStsqMonitor(task);
+      case 'gtkp_evaluate': return this.handleGtkpEvaluate(task);
+      case 'gtkp_pass': return this.handleGtkpPass(task);
+      case 'gtkp_block': return this.handleGtkpBlock(task);
+      case 'gtkp_override': return this.handleGtkpOverride(task);
+      case 'gtkp_report': return this.handleGtkpReport(task);
+      case 'gtkp_monitor': return this.handleGtkpMonitor(task);
+      case 'prjn_fork': return this.handlePrjnFork(task);
+      case 'prjn_branch': return this.handlePrjnBranch(task);
+      case 'prjn_join': return this.handlePrjnJoin(task);
+      case 'prjn_timeout': return this.handlePrjnTimeout(task);
+      case 'prjn_report': return this.handlePrjnReport(task);
+      case 'prjn_monitor': return this.handlePrjnMonitor(task);
+      case 'tmwt_start': return this.handleTmwtStart(task);
+      case 'tmwt_approaching': return this.handleTmwtApproaching(task);
+      case 'tmwt_fire': return this.handleTmwtFire(task);
+      case 'tmwt_cancel': return this.handleTmwtCancel(task);
+      case 'tmwt_report': return this.handleTmwtReport(task);
+      case 'tmwt_monitor': return this.handleTmwtMonitor(task);
+      case 'rtyo_schedule': return this.handleRtyoSchedule(task);
+      case 'rtyo_attempt': return this.handleRtyoAttempt(task);
+      case 'rtyo_success': return this.handleRtyoSuccess(task);
+      case 'rtyo_exceeded': return this.handleRtyoExceeded(task);
+      case 'rtyo_report': return this.handleRtyoReport(task);
+      case 'rtyo_monitor': return this.handleRtyoMonitor(task);
     }
   }
 
