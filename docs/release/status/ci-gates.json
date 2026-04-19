@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-04-19T20:00:41.249Z",
+  "generated_at": "2026-04-19T20:02:32.042Z",
   "source_branch": "public-local-sync",
   "source_head_sha": "80f3a93a4c836da35acad14ed0fb30682b70e301",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-19T20:00:40.554Z",
+    "captured_at": "2026-04-19T20:02:31.393Z",
     "branch": "public-local-sync",
     "total_runs": 22
   },
@@ -54,14 +54,13 @@
       "head_sha": "80f3a93a4c836da35acad14ed0fb30682b70e301",
       "head_branch": "public-local-sync",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310885,
       "workflow_name": "parity-e2e",
       "matched_target_sha": true,
       "gate_key": "parity_e2e_ci",
-      "decision": "preserved_previous_pass_non_final_target_sha",
-      "previous_gate_value": true
+      "decision": "target_sha_completed_run"
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
@@ -90,7 +89,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-19T20:00:37.783Z"
+      "generated_at": "2026-04-19T20:02:28.668Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -120,7 +119,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-19T20:00:38.959Z"
+      "generated_at": "2026-04-19T20:02:29.821Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -135,7 +134,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-19T20:00:40.161Z"
+      "generated_at": "2026-04-19T20:02:31.043Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -458,14 +457,13 @@
         "head_sha": "80f3a93a4c836da35acad14ed0fb30682b70e301",
         "head_branch": "public-local-sync",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310885,
         "workflow_name": "parity-e2e",
         "matched_target_sha": true,
         "gate_key": "parity_e2e_ci",
-        "decision": "preserved_previous_pass_non_final_target_sha",
-        "previous_gate_value": true
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "parity_e2e_ci"
     },
