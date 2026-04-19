@@ -3023,6 +3023,36 @@ export class TaskExecutor {
       case 'sntr_analytics': return this.handleSntrAnalytics(task);
       case 'sntr_terminate': return this.handleSntrTerminate(task);
       case 'sntr_report': return this.handleSntrReport(task);
+      case 'intr_create': return this.handleIntrCreate(task);
+      case 'intr_escalate': return this.handleIntrEscalate(task);
+      case 'intr_assign': return this.handleIntrAssign(task);
+      case 'intr_resolve': return this.handleIntrResolve(task);
+      case 'intr_timeline': return this.handleIntrTimeline(task);
+      case 'intr_status': return this.handleIntrStatus(task);
+      case 'slar_generate': return this.handleSlarGenerate(task);
+      case 'slar_breach': return this.handleSlarBreach(task);
+      case 'slar_trend': return this.handleSlarTrend(task);
+      case 'slar_forecast': return this.handleSlarForecast(task);
+      case 'slar_status': return this.handleSlarStatus(task);
+      case 'slar_export': return this.handleSlarExport(task);
+      case 'andt_detect': return this.handleAndtDetect(task);
+      case 'andt_baseline': return this.handleAndtBaseline(task);
+      case 'andt_sensitivity': return this.handleAndtSensitivity(task);
+      case 'andt_investigate': return this.handleAndtInvestigate(task);
+      case 'andt_status': return this.handleAndtStatus(task);
+      case 'andt_report': return this.handleAndtReport(task);
+      case 'rscl_evaluate': return this.handleRsclEvaluate(task);
+      case 'rscl_up': return this.handleRsclUp(task);
+      case 'rscl_down': return this.handleRsclDown(task);
+      case 'rscl_forecast': return this.handleRsclForecast(task);
+      case 'rscl_status': return this.handleRsclStatus(task);
+      case 'rscl_history': return this.handleRsclHistory(task);
+      case 'outp_predict': return this.handleOutpPredict(task);
+      case 'outp_correlate': return this.handleOutpCorrelate(task);
+      case 'outp_train': return this.handleOutpTrain(task);
+      case 'outp_evaluate': return this.handleOutpEvaluate(task);
+      case 'outp_status': return this.handleOutpStatus(task);
+      case 'outp_report': return this.handleOutpReport(task);
     }
   }
 

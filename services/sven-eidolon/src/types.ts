@@ -173,6 +173,11 @@ export type EidolonBuildingKind =
   | 'auth_auditor'
   | 'permission_mapper'
   | 'session_tracker'
+  | 'incident_tracker'
+  | 'sla_reporter'
+  | 'anomaly_detector'
+  | 'resource_scaler'
+  | 'outage_predictor'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -1065,6 +1070,26 @@ export type EidolonEventKind =
   | 'sntr.anomaly_detected'
   | 'sntr.limits_enforced'
   | 'sntr.analytics_generated'
+  | 'intr.incident_created'
+  | 'intr.incident_escalated'
+  | 'intr.incident_resolved'
+  | 'intr.responder_assigned'
+  | 'slar.report_generated'
+  | 'slar.breach_detected'
+  | 'slar.compliance_checked'
+  | 'slar.trend_analyzed'
+  | 'andt.anomaly_detected'
+  | 'andt.baseline_updated'
+  | 'andt.sensitivity_adjusted'
+  | 'andt.investigation_complete'
+  | 'rscl.scaled_up'
+  | 'rscl.scaled_down'
+  | 'rscl.threshold_breached'
+  | 'rscl.forecast_generated'
+  | 'outp.outage_predicted'
+  | 'outp.correlation_found'
+  | 'outp.model_retrained'
+  | 'outp.accuracy_evaluated'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1675,6 +1700,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'auth_auditor':
     case 'permission_mapper':
     case 'session_tracker':
+    case 'incident_tracker':
+    case 'sla_reporter':
+    case 'anomaly_detector':
+    case 'resource_scaler':
+    case 'outage_predictor':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

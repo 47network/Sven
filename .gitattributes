@@ -1610,3 +1610,28 @@ skills/autonomous-economy/permission-mapper/** filter=sven-private
 services/gateway-api/migrations/20260621090000_agent_session_tracker.sql filter=sven-private
 packages/shared/src/agent-session-tracker.ts filter=sven-private
 skills/autonomous-economy/session-tracker/** filter=sven-private
+
+# Batch 473 — incident_tracker
+services/gateway-api/migrations/20260621100000_agent_incident_tracker.sql filter=sven-private
+packages/shared/src/agent-incident-tracker.ts filter=sven-private
+skills/autonomous-economy/incident-tracker/** filter=sven-private
+
+# Batch 474 — sla_reporter
+services/gateway-api/migrations/20260621110000_agent_sla_reporter.sql filter=sven-private
+packages/shared/src/agent-sla-reporter.ts filter=sven-private
+skills/autonomous-economy/sla-reporter/** filter=sven-private
+
+# Batch 475 — anomaly_detector
+services/gateway-api/migrations/20260621120000_agent_anomaly_detector.sql filter=sven-private
+packages/shared/src/agent-anomaly-detector.ts filter=sven-private
+skills/autonomous-economy/anomaly-detector/** filter=sven-private
+
+# Batch 476 — resource_scaler
+services/gateway-api/migrations/20260621130000_agent_resource_scaler.sql filter=sven-private
+packages/shared/src/agent-resource-scaler.ts filter=sven-private
+skills/autonomous-economy/resource-scaler/** filter=sven-private
+
+# Batch 477 — outage_predictor
+services/gateway-api/migrations/20260621140000_agent_outage_predictor.sql filter=sven-private
+packages/shared/src/agent-outage-predictor.ts filter=sven-private
+skills/autonomous-economy/outage-predictor/** filter=sven-private
