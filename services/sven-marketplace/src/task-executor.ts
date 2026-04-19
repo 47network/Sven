@@ -3653,6 +3653,36 @@ export class TaskExecutor {
       case 'cfpr_index': return this.handleCfprIndex(task);
       case 'cfpr_report': return this.handleCfprReport(task);
       case 'cfpr_monitor': return this.handleCfprMonitor(task);
+      case 'stsv_send': return this.handleStsvSend(task);
+      case 'stsv_response': return this.handleStsvResponse(task);
+      case 'stsv_score': return this.handleStsvScore(task);
+      case 'stsv_trend': return this.handleStsvTrend(task);
+      case 'stsv_report': return this.handleStsvReport(task);
+      case 'stsv_monitor': return this.handleStsvMonitor(task);
+      case 'npsc_calculate': return this.handleNpscCalculate(task);
+      case 'npsc_benchmark': return this.handleNpscBenchmark(task);
+      case 'npsc_segment': return this.handleNpscSegment(task);
+      case 'npsc_alert': return this.handleNpscAlert(task);
+      case 'npsc_report': return this.handleNpscReport(task);
+      case 'npsc_monitor': return this.handleNpscMonitor(task);
+      case 'chrp_predict': return this.handleChrpPredict(task);
+      case 'chrp_highrisk': return this.handleChrpHighrisk(task);
+      case 'chrp_intervene': return this.handleChrpIntervene(task);
+      case 'chrp_retrain': return this.handleChrpRetrain(task);
+      case 'chrp_report': return this.handleChrpReport(task);
+      case 'chrp_monitor': return this.handleChrpMonitor(task);
+      case 'fbag_collect': return this.handleFbagCollect(task);
+      case 'fbag_theme': return this.handleFbagTheme(task);
+      case 'fbag_summary': return this.handleFbagSummary(task);
+      case 'fbag_action': return this.handleFbagAction(task);
+      case 'fbag_report': return this.handleFbagReport(task);
+      case 'fbag_monitor': return this.handleFbagMonitor(task);
+      case 'sntr_record': return this.handleSntrRecord(task);
+      case 'sntr_shift': return this.handleSntrShift(task);
+      case 'sntr_analyze': return this.handleSntrAnalyze(task);
+      case 'sntr_raise': return this.handleSntrRaise(task);
+      case 'sntr_report': return this.handleSntrReport(task);
+      case 'sntr_monitor': return this.handleSntrMonitor(task);
     }
   }
 

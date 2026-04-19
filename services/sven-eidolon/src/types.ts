@@ -278,6 +278,11 @@ export type EidolonBuildingKind =
   | 'nsfw_detector'
   | 'bias_auditor'
   | 'content_fingerprinter'
+  | 'satisfaction_surveyor'
+  | 'nps_calculator'
+  | 'churn_predictor'
+  | 'feedback_aggregator'
+  | 'sentiment_tracker'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -1595,6 +1600,26 @@ export type EidolonEventKind =
   | 'cfpr.duplicate_found'
   | 'cfpr.near_match_detected'
   | 'cfpr.index_updated'
+  | 'stsv.survey_sent'
+  | 'stsv.response_received'
+  | 'stsv.score_computed'
+  | 'stsv.trend_detected'
+  | 'npsc.score_calculated'
+  | 'npsc.benchmark_compared'
+  | 'npsc.segment_identified'
+  | 'npsc.alert_triggered'
+  | 'chrp.prediction_made'
+  | 'chrp.high_risk_detected'
+  | 'chrp.intervention_suggested'
+  | 'chrp.model_retrained'
+  | 'fbag.feedback_collected'
+  | 'fbag.theme_extracted'
+  | 'fbag.summary_generated'
+  | 'fbag.action_item_created'
+  | 'sntr.reading_recorded'
+  | 'sntr.shift_detected'
+  | 'sntr.trend_analyzed'
+  | 'sntr.alert_raised'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -2330,6 +2355,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'nsfw_detector':
     case 'bias_auditor':
     case 'content_fingerprinter':
+    case 'satisfaction_surveyor':
+    case 'nps_calculator':
+    case 'churn_predictor':
+    case 'feedback_aggregator':
+    case 'sentiment_tracker':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
