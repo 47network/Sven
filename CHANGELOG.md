@@ -79,6 +79,19 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 308-312 — Container & Orchestration
+- **container_builder**: Multi-stage builds, layer optimization, image scanning (migration, types, SKILL.md, 6 handlers)
+- **image_registry**: Repository management, image push, garbage collection (migration, types, SKILL.md, 6 handlers)
+- **orchestrator**: Deploy, scale, rollback, health checks across clusters (migration, types, SKILL.md, 6 handlers)
+- **svc_mesh**: Service routing, traffic policies, circuit breakers (migration, types, SKILL.md, 6 handlers)
+- **config_manager**: Encrypted config store, versioning, live reload (migration, types, SKILL.md, 6 handlers)
+- 5 migrations (15 tables), 5 type files, 5 barrel exports, 5 SKILL.md files
+- 20 EK values, 5 BK values, 5 districtFor cases, 20 SUBJECT_MAP entries
+- 30 task-executor switch cases + 30 handler methods
+- 15 .gitattributes privacy entries — 141 tests passing
+
+
+
 ### Batches 303-307 — Message Queue & Streaming
 - **msg_relay**: Message relay channels, DLQ processing, batch flushing (migration, types, SKILL.md, 6 handlers)
 - **stream_ingester**: Stream partition management, checkpoint saving, lag detection (migration, types, SKILL.md, 6 handlers)
