@@ -1,4 +1,4 @@
-export interface TrafficShapingRule {
+export interface NetworkPolicyOptPlan {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface TrafficShapingRule {
   updatedAt: string;
 }
 
-export interface TrafficShapingConfig {
+export interface NetworkPolicyOptConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface TrafficShapingResult {
+export interface NetworkPolicyOptResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;

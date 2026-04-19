@@ -1,3 +1,8 @@
+## Batches 1158-1182 — Ingress Routing, Egress Gateway, Network Policy, Traffic Shaping, Rate Throttle
+- 25 verticals (5 groups × 5): full management + monitoring + auditing + reporting + optimization
+- 275 tests passing | migration timestamps 20260627950000–20260628190000
+- Renamed ingress_controller → ingress_routing, rate_limiter → rate_throttle (conflict avoidance)
+
 ## Batches 1108-1132 — Network Firewall / Network ACL / DNS / Load Balancer / VPN Tunnel
 
 - **Batch 1108-1112 · Network Firewall Management** — policy manager, rule auditor, threat detector, traffic analyzer, compliance checker
