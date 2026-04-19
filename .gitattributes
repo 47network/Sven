@@ -1289,3 +1289,24 @@ skills/autonomous-economy/pipeline-orchestrator/SKILL.md filter=sven-private
 skills/autonomous-economy/data-enricher/SKILL.md filter=sven-private
 skills/autonomous-economy/etl-scheduler/SKILL.md filter=sven-private
 skills/autonomous-economy/format-converter/SKILL.md filter=sven-private
+
+# Batch 378 — Knowledge Indexer
+services/gateway-api/migrations/20260620150000_agent_knowledge_indexer.sql filter=sven-private
+packages/shared/src/agent-knowledge-indexer.ts filter=sven-private
+skills/autonomous-economy/knowledge-indexer/SKILL.md filter=sven-private
+# Batch 379 — Semantic Searcher
+services/gateway-api/migrations/20260620160000_agent_semantic_searcher.sql filter=sven-private
+packages/shared/src/agent-semantic-searcher.ts filter=sven-private
+skills/autonomous-economy/semantic-searcher/SKILL.md filter=sven-private
+# Batch 380 — Taxonomy Builder
+services/gateway-api/migrations/20260620170000_agent_taxonomy_builder.sql filter=sven-private
+packages/shared/src/agent-taxonomy-builder.ts filter=sven-private
+skills/autonomous-economy/taxonomy-builder/SKILL.md filter=sven-private
+# Batch 381 — Content Curator
+services/gateway-api/migrations/20260620180000_agent_content_curator.sql filter=sven-private
+packages/shared/src/agent-content-curator.ts filter=sven-private
+skills/autonomous-economy/content-curator/SKILL.md filter=sven-private
+# Batch 382 — Insight Extractor
+services/gateway-api/migrations/20260620190000_agent_insight_extractor.sql filter=sven-private
+packages/shared/src/agent-insight-extractor.ts filter=sven-private
+skills/autonomous-economy/insight-extractor/SKILL.md filter=sven-private

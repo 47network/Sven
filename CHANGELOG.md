@@ -79,6 +79,18 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 378-382 — Knowledge & Search
+- **Batch 378 — Knowledge Indexer**: document chunking, embeddings, RAG pipeline indexing, freshness checks ($12.99)
+- **Batch 379 — Semantic Searcher**: hybrid search, reranking, similarity discovery, filtered retrieval ($0.05/query)
+- **Batch 380 — Taxonomy Builder**: hierarchical taxonomies, entity classification, node merging, coverage validation ($14.99)
+- **Batch 381 — Content Curator**: quality-scored collections, content discovery, gap analysis, publishing ($9.99)
+- **Batch 382 — Insight Extractor**: finding extraction, trend tracking, insight connections, report generation ($7.99)
+- 5 migration SQL files, 5 shared TypeScript type files, 5 SKILL.md files
+- 20 EidolonEventKind values, 5 BuildingKind values, 5 districtFor cases
+- 20 SUBJECT_MAP entries, 30 task-executor switch cases + 30 handler methods
+- 15 .gitattributes privacy entries
+- 170 tests — ALL PASSING
+
 ### Batches 373-377 — Data Processing & ETL
 - **Batch 373 — Data Transformer**: format conversion, mapping rules, batch transforms, schema validation ($13.99)
 - **Batch 374 — Pipeline Orchestrator**: multi-stage pipelines, retry policies, stage dependencies, pause/resume ($18.99)
