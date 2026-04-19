@@ -78,6 +78,19 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 353-357 — Platform Services
+- **Event Replayer** (Batch 353): Replay event streams, create checkpoints, filter/analyze/compare/export events ($12.99)
+- **Cache Warmer** (Batch 354): Warm caches, analyze hit rates, configure TTL, evict stale, predict access patterns ($10.99)
+- **Job Scheduler** (Batch 355): Schedule/run/pause jobs, retry failed, list executions, analyze performance ($15.99)
+- **Feature Toggle** (Batch 356): Create/evaluate/archive feature flags, update rollouts, analyze impact ($11.99)
+- **Data Migrator** (Batch 357): Create/validate migration plans, execute/rollback migrations, compare schemas ($18.99)
+- 5 migration SQL files, 5 shared type modules, 5 SKILL.md files
+- 30 task-executor switch cases + 30 handler methods
+- 5 BK + 20 EK + 5 districtFor + 20 SUBJECT_MAP entries
+- 15 .gitattributes privacy entries
+- 215 Jest tests — all passing
+
+
 ### Batches 348-352 — Observability & Infrastructure
 - **log_router** (Batch 348): Log routing pipelines with filtering, sampling, and multi-destination support
 - **config_sync** (Batch 349): Configuration synchronization with conflict resolution and encryption

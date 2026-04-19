@@ -375,3 +375,8 @@ export * from './agent-config-sync';
 export * from './agent-health-prober';
 export * from './agent-quota-enforcer';
 export * from './agent-topology-mapper';
+export * from './agent-event-replayer';
+export * from './agent-cache-warmer';
+export * from './agent-job-scheduler';
+export * from './agent-feature-toggle';
+export * from './agent-data-migrator';
