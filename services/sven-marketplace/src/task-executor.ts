@@ -1886,6 +1886,36 @@ export class TaskExecutor {
       case 'relgk_configure_gates': return this.handleRelgkConfigureGates(task);
       case 'relgk_reject_candidate': return this.handleRelgkRejectCandidate(task);
       case 'relgk_export_report': return this.handleRelgkExportReport(task);
+      case 'mexp_record_metric': return this.handleMexpRecordMetric(task);
+      case 'mexp_configure_export': return this.handleMexpConfigureExport(task);
+      case 'mexp_create_alert': return this.handleMexpCreateAlert(task);
+      case 'mexp_query_metrics': return this.handleMexpQueryMetrics(task);
+      case 'mexp_export_dashboard': return this.handleMexpExportDashboard(task);
+      case 'mexp_list_alerts': return this.handleMexpListAlerts(task);
+      case 'lship_create_pipeline': return this.handleLshipCreatePipeline(task);
+      case 'lship_configure_destination': return this.handleLshipConfigureDestination(task);
+      case 'lship_ship_logs': return this.handleLshipShipLogs(task);
+      case 'lship_query_logs': return this.handleLshipQueryLogs(task);
+      case 'lship_health_check': return this.handleLshipHealthCheck(task);
+      case 'lship_export_config': return this.handleLshipExportConfig(task);
+      case 'almgr_create_rule': return this.handleAlmgrCreateRule(task);
+      case 'almgr_fire_alert': return this.handleAlmgrFireAlert(task);
+      case 'almgr_acknowledge': return this.handleAlmgrAcknowledge(task);
+      case 'almgr_resolve': return this.handleAlmgrResolve(task);
+      case 'almgr_silence_rule': return this.handleAlmgrSilenceRule(task);
+      case 'almgr_export_incidents': return this.handleAlmgrExportIncidents(task);
+      case 'incrs_open_incident': return this.handleIncrsOpenIncident(task);
+      case 'incrs_diagnose': return this.handleIncrsDiagnose(task);
+      case 'incrs_remediate': return this.handleIncrsRemediate(task);
+      case 'incrs_escalate': return this.handleIncrsEscalate(task);
+      case 'incrs_run_runbook': return this.handleIncrsRunRunbook(task);
+      case 'incrs_export_postmortem': return this.handleIncrsExportPostmortem(task);
+      case 'uptm_add_endpoint': return this.handleUptmAddEndpoint(task);
+      case 'uptm_check_now': return this.handleUptmCheckNow(task);
+      case 'uptm_get_uptime': return this.handleUptmGetUptime(task);
+      case 'uptm_configure': return this.handleUptmConfigure(task);
+      case 'uptm_list_incidents': return this.handleUptmListIncidents(task);
+      case 'uptm_export_sla': return this.handleUptmExportSla(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -13082,5 +13112,96 @@ export class TaskExecutor {
   }
   private async handleRelgkExportReport(task: any): Promise<any> {
     return { skill: 'release_gatekeeper', action: 'export-report', configId: task.metadata?.configId, since: task.metadata?.since, format: task.metadata?.format || 'json' };
+  }
+
+  private async handleMexpRecordMetric(task: any): Promise<any> {
+    return { skill: 'metric_exporter', action: 'record-metric', metricName: task.metadata?.metricName, metricType: task.metadata?.metricType || 'gauge', value: task.metadata?.value || 0, labels: task.metadata?.labels || {} };
+  }
+  private async handleMexpConfigureExport(task: any): Promise<any> {
+    return { skill: 'metric_exporter', action: 'configure-export', exportFormat: task.metadata?.exportFormat || 'prometheus', scrapeInterval: task.metadata?.scrapeInterval || 15, retentionDays: task.metadata?.retentionDays || 30 };
+  }
+  private async handleMexpCreateAlert(task: any): Promise<any> {
+    return { skill: 'metric_exporter', action: 'create-alert', metricName: task.metadata?.metricName, condition: task.metadata?.condition, threshold: task.metadata?.threshold, severity: task.metadata?.severity || 'warning' };
+  }
+  private async handleMexpQueryMetrics(task: any): Promise<any> {
+    return { skill: 'metric_exporter', action: 'query-metrics', metricName: task.metadata?.metricName, labels: task.metadata?.labels || {}, since: task.metadata?.since, until: task.metadata?.until };
+  }
+  private async handleMexpExportDashboard(task: any): Promise<any> {
+    return { skill: 'metric_exporter', action: 'export-dashboard', configId: task.metadata?.configId, format: task.metadata?.format || 'json', metrics: task.metadata?.metrics || [] };
+  }
+  private async handleMexpListAlerts(task: any): Promise<any> {
+    return { skill: 'metric_exporter', action: 'list-alerts', configId: task.metadata?.configId, severity: task.metadata?.severity, active: task.metadata?.active ?? true };
+  }
+  private async handleLshipCreatePipeline(task: any): Promise<any> {
+    return { skill: 'log_shipper', action: 'create-pipeline', pipelineName: task.metadata?.pipelineName, source: task.metadata?.source, filters: task.metadata?.filters || [], transforms: task.metadata?.transforms || [] };
+  }
+  private async handleLshipConfigureDestination(task: any): Promise<any> {
+    return { skill: 'log_shipper', action: 'configure-destination', destType: task.metadata?.destType || 'opensearch', connectionUrl: task.metadata?.connectionUrl, indexPattern: task.metadata?.indexPattern || 'logs-%Y.%m.%d' };
+  }
+  private async handleLshipShipLogs(task: any): Promise<any> {
+    return { skill: 'log_shipper', action: 'ship-logs', pipelineId: task.metadata?.pipelineId, batchSize: task.metadata?.batchSize || 1000, flush: task.metadata?.flush || false };
+  }
+  private async handleLshipQueryLogs(task: any): Promise<any> {
+    return { skill: 'log_shipper', action: 'query-logs', query: task.metadata?.query, index: task.metadata?.index, since: task.metadata?.since, limit: task.metadata?.limit || 100 };
+  }
+  private async handleLshipHealthCheck(task: any): Promise<any> {
+    return { skill: 'log_shipper', action: 'health-check', destinationId: task.metadata?.destinationId };
+  }
+  private async handleLshipExportConfig(task: any): Promise<any> {
+    return { skill: 'log_shipper', action: 'export-config', configId: task.metadata?.configId, format: task.metadata?.format || 'json' };
+  }
+  private async handleAlmgrCreateRule(task: any): Promise<any> {
+    return { skill: 'alert_manager', action: 'create-rule', ruleName: task.metadata?.ruleName, condition: task.metadata?.condition, severity: task.metadata?.severity || 'warning', channels: task.metadata?.channels || ['nats'] };
+  }
+  private async handleAlmgrFireAlert(task: any): Promise<any> {
+    return { skill: 'alert_manager', action: 'fire-alert', ruleId: task.metadata?.ruleId, message: task.metadata?.message, labels: task.metadata?.labels || {} };
+  }
+  private async handleAlmgrAcknowledge(task: any): Promise<any> {
+    return { skill: 'alert_manager', action: 'acknowledge', incidentId: task.metadata?.incidentId, acknowledgedBy: task.metadata?.acknowledgedBy || 'system' };
+  }
+  private async handleAlmgrResolve(task: any): Promise<any> {
+    return { skill: 'alert_manager', action: 'resolve', incidentId: task.metadata?.incidentId, resolution: task.metadata?.resolution };
+  }
+  private async handleAlmgrSilenceRule(task: any): Promise<any> {
+    return { skill: 'alert_manager', action: 'silence-rule', ruleId: task.metadata?.ruleId, durationMinutes: task.metadata?.durationMinutes || 60, reason: task.metadata?.reason };
+  }
+  private async handleAlmgrExportIncidents(task: any): Promise<any> {
+    return { skill: 'alert_manager', action: 'export-incidents', configId: task.metadata?.configId, since: task.metadata?.since, severity: task.metadata?.severity, format: task.metadata?.format || 'json' };
+  }
+  private async handleIncrsOpenIncident(task: any): Promise<any> {
+    return { skill: 'incident_responder', action: 'open-incident', severity: task.metadata?.severity || 'medium', title: task.metadata?.title, description: task.metadata?.description, assignTo: task.metadata?.assignTo };
+  }
+  private async handleIncrsDiagnose(task: any): Promise<any> {
+    return { skill: 'incident_responder', action: 'diagnose', incidentId: task.metadata?.incidentId, diagnosticTests: task.metadata?.diagnosticTests || [] };
+  }
+  private async handleIncrsRemediate(task: any): Promise<any> {
+    return { skill: 'incident_responder', action: 'remediate', incidentId: task.metadata?.incidentId, actionType: task.metadata?.actionType || 'diagnose', parameters: task.metadata?.parameters || {} };
+  }
+  private async handleIncrsEscalate(task: any): Promise<any> {
+    return { skill: 'incident_responder', action: 'escalate', incidentId: task.metadata?.incidentId, escalationLevel: task.metadata?.escalationLevel || 1, reason: task.metadata?.reason };
+  }
+  private async handleIncrsRunRunbook(task: any): Promise<any> {
+    return { skill: 'incident_responder', action: 'run-runbook', incidentId: task.metadata?.incidentId, runbookName: task.metadata?.runbookName };
+  }
+  private async handleIncrsExportPostmortem(task: any): Promise<any> {
+    return { skill: 'incident_responder', action: 'export-postmortem', incidentId: task.metadata?.incidentId, format: task.metadata?.format || 'markdown' };
+  }
+  private async handleUptmAddEndpoint(task: any): Promise<any> {
+    return { skill: 'uptime_monitor', action: 'add-endpoint', url: task.metadata?.url, method: task.metadata?.method || 'GET', headers: task.metadata?.headers || {}, expectedStatus: task.metadata?.expectedStatus || 200 };
+  }
+  private async handleUptmCheckNow(task: any): Promise<any> {
+    return { skill: 'uptime_monitor', action: 'check-now', endpointId: task.metadata?.endpointId };
+  }
+  private async handleUptmGetUptime(task: any): Promise<any> {
+    return { skill: 'uptime_monitor', action: 'get-uptime', endpointId: task.metadata?.endpointId, since: task.metadata?.since, until: task.metadata?.until };
+  }
+  private async handleUptmConfigure(task: any): Promise<any> {
+    return { skill: 'uptime_monitor', action: 'configure', checkInterval: task.metadata?.checkInterval || 60, timeoutMs: task.metadata?.timeoutMs || 5000, alertAfterFailures: task.metadata?.alertAfterFailures || 3 };
+  }
+  private async handleUptmListIncidents(task: any): Promise<any> {
+    return { skill: 'uptime_monitor', action: 'list-incidents', endpointId: task.metadata?.endpointId, since: task.metadata?.since, limit: task.metadata?.limit || 20 };
+  }
+  private async handleUptmExportSla(task: any): Promise<any> {
+    return { skill: 'uptime_monitor', action: 'export-sla-report', configId: task.metadata?.configId, period: task.metadata?.period || 'monthly', format: task.metadata?.format || 'json' };
   }
 }
