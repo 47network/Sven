@@ -1,3 +1,25 @@
+## Batches 608-632 — Secrets, Auth, Geo, Data Gov, Feature Flags
+
+### Batches 608-612: Secrets & Credential Management
+- credential_broker, token_refresher, key_custodian, passphrase_generator, cert_watcher
+- Migrations, shared types, SKILL.md, Eidolon BK/EK/districtFor, event-bus, task-executor, .gitattributes, tests (55/55)
+
+### Batches 613-617: Auth & Identity
+- cookie_manager, auth_flow_builder, scope_resolver, claim_validator, consent_tracker
+- Migrations, shared types, SKILL.md, Eidolon BK/EK/districtFor, event-bus, task-executor, .gitattributes, tests (55/55)
+
+### Batches 618-622: Geo & Localization
+- geo_fencer, locale_adapter, timezone_syncer, region_router, latency_mapper
+- Migrations, shared types, SKILL.md, Eidolon BK/EK/districtFor, event-bus, task-executor, .gitattributes, tests (55/55)
+
+### Batches 623-627: Data Governance
+- schema_linter, quality_scorer, retention_enforcer, column_profiler, pii_scanner
+- Migrations, shared types, SKILL.md, Eidolon BK/EK/districtFor, event-bus, task-executor, .gitattributes, tests (55/55)
+
+### Batches 628-632: Feature Flags & Experimentation
+- feature_toggler, experiment_runner, ab_splitter, rollout_planner, flag_archiver
+- Migrations, shared types, SKILL.md, Eidolon BK/EK/districtFor, event-bus, task-executor, .gitattributes, tests (55/55)
+
 ## Batches 538-542 — Workflow & Orchestration
 - **Batch 538** — pipeline_executor: Pipeline execution and step orchestration
 - **Batch 539** — task_dispatcher: Task dispatch and worker assignment
