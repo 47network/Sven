@@ -127,7 +127,7 @@ export type EidolonBuildingKind =
   | 'intrusion_guard'
   | 'rbac_enforcer'
   | 'siem_connector'
-  | 'forensic_analyzer' | 'workflow_engine' | 'task_scheduler' | 'cron_manager' | 'job_orchestrator' | 'batch_processor'
+  | 'forensic_analyzer' | 'workflow_engine' | 'task_scheduler' | 'cron_manager' | 'job_orchestrator' | 'batch_processor' | 'feature_flag' | 'rollback_manager' | 'blue_green_router' | 'chaos_tester' | 'deployment_gate'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -826,7 +826,7 @@ export type EidolonEventKind =
   | 'fran.case_created'
   | 'fran.evidence_collected'
   | 'fran.timeline_analyzed'
-  | 'fran.case_closed' | 'wfen.workflow_created' | 'wfen.workflow_executed' | 'wfen.step_completed' | 'wfen.execution_failed' | 'tskd.job_scheduled' | 'tskd.job_executed' | 'tskd.job_failed' | 'tskd.schedule_paused' | 'crmg.cron_triggered' | 'crmg.cron_failed' | 'crmg.entry_created' | 'crmg.entry_disabled' | 'jorc.job_submitted' | 'jorc.job_completed' | 'jorc.job_dead_letter' | 'jorc.deps_resolved' | 'btpr.batch_started' | 'btpr.batch_completed' | 'btpr.item_failed' | 'btpr.progress_updated'
+  | 'fran.case_closed' | 'wfen.workflow_created' | 'wfen.workflow_executed' | 'wfen.step_completed' | 'wfen.execution_failed' | 'tskd.job_scheduled' | 'tskd.job_executed' | 'tskd.job_failed' | 'tskd.schedule_paused' | 'crmg.cron_triggered' | 'crmg.cron_failed' | 'crmg.entry_created' | 'crmg.entry_disabled' | 'jorc.job_submitted' | 'jorc.job_completed' | 'jorc.job_dead_letter' | 'jorc.deps_resolved' | 'btpr.batch_started' | 'btpr.batch_completed' | 'btpr.item_failed' | 'btpr.progress_updated' | 'fflg.flag_created' | 'fflg.flag_evaluated' | 'fflg.rollout_changed' | 'fflg.flag_toggled' | 'rbmg.snapshot_created' | 'rbmg.rollback_executed' | 'rbmg.version_restored' | 'rbmg.snapshot_expired' | 'bgrn.slot_deployed' | 'bgrn.traffic_switched' | 'bgrn.health_changed' | 'bgrn.warmup_completed' | 'chts.experiment_started' | 'chts.experiment_completed' | 'chts.experiment_aborted' | 'chts.hypothesis_validated' | 'dpgt.checks_passed' | 'dpgt.gate_approved' | 'dpgt.gate_rejected' | 'dpgt.override_applied'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1544,6 +1544,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'cron_manager':
     case 'job_orchestrator':
     case 'batch_processor':
+    case 'feature_flag':
+    case 'rollback_manager':
+    case 'blue_green_router':
+    case 'chaos_tester':
+    case 'deployment_gate':
       case 'network_firewall':
       case 'threat_detector':
       return 'industrial';

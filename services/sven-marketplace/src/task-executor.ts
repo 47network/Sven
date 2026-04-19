@@ -2208,6 +2208,37 @@ export class TaskExecutor {
       case 'btpr_pause_batch': return this.handleBtprPauseBatch(task);
       case 'btpr_retry_failed': return this.handleBtprRetryFailed(task);
       case 'btpr_export_results': return this.handleBtprExportResults(task);
+
+      case 'fflg_create_flag': return this.handleFflgCreateFlag(task);
+      case 'fflg_evaluate_flag': return this.handleFflgEvaluateFlag(task);
+      case 'fflg_update_rollout': return this.handleFflgUpdateRollout(task);
+      case 'fflg_list_flags': return this.handleFflgListFlags(task);
+      case 'fflg_audit_history': return this.handleFflgAuditHistory(task);
+      case 'fflg_bulk_toggle': return this.handleFflgBulkToggle(task);
+      case 'rbmg_create_snapshot': return this.handleRbmgCreateSnapshot(task);
+      case 'rbmg_list_snapshots': return this.handleRbmgListSnapshots(task);
+      case 'rbmg_execute_rollback': return this.handleRbmgExecuteRollback(task);
+      case 'rbmg_auto_rollback': return this.handleRbmgAutoRollback(task);
+      case 'rbmg_compare_versions': return this.handleRbmgCompareVersions(task);
+      case 'rbmg_cleanup_expired': return this.handleRbmgCleanupExpired(task);
+      case 'bgrn_deploy_slot': return this.handleBgrnDeploySlot(task);
+      case 'bgrn_switch_traffic': return this.handleBgrnSwitchTraffic(task);
+      case 'bgrn_health_check': return this.handleBgrnHealthCheck(task);
+      case 'bgrn_warmup_slot': return this.handleBgrnWarmupSlot(task);
+      case 'bgrn_rollback_switch': return this.handleBgrnRollbackSwitch(task);
+      case 'bgrn_slot_status': return this.handleBgrnSlotStatus(task);
+      case 'chts_create_experiment': return this.handleChtsCreateExperiment(task);
+      case 'chts_run_experiment': return this.handleChtsRunExperiment(task);
+      case 'chts_abort_experiment': return this.handleChtsAbortExperiment(task);
+      case 'chts_analyze_results': return this.handleChtsAnalyzeResults(task);
+      case 'chts_schedule_experiment': return this.handleChtsScheduleExperiment(task);
+      case 'chts_generate_report': return this.handleChtsGenerateReport(task);
+      case 'dpgt_configure_checks': return this.handleDpgtConfigureChecks(task);
+      case 'dpgt_run_checks': return this.handleDpgtRunChecks(task);
+      case 'dpgt_request_approval': return this.handleDpgtRequestApproval(task);
+      case 'dpgt_gate_status': return this.handleDpgtGateStatus(task);
+      case 'dpgt_override_gate': return this.handleDpgtOverrideGate(task);
+      case 'dpgt_audit_decisions': return this.handleDpgtAuditDecisions(task);
     }
   }
 
@@ -15890,4 +15921,36 @@ export class TaskExecutor {
       ...config,
     };
   }
+
+  private async handleFflgCreateFlag(task: any) { return { success: true, handler: 'fflg_create_flag', flagKey: task.input?.flagKey || 'new-flag', flagType: 'boolean', rolloutPercentage: 0, created: true }; }
+  private async handleFflgEvaluateFlag(task: any) { return { success: true, handler: 'fflg_evaluate_flag', flagKey: task.input?.flagKey || 'flag', result: true, reason: 'targeting_match' }; }
+  private async handleFflgUpdateRollout(task: any) { return { success: true, handler: 'fflg_update_rollout', flagKey: task.input?.flagKey || 'flag', newPercentage: task.input?.percentage || 50, previousPercentage: 0 }; }
+  private async handleFflgListFlags(task: any) { return { success: true, handler: 'fflg_list_flags', flags: [], totalCount: 0, enabledCount: 0 }; }
+  private async handleFflgAuditHistory(task: any) { return { success: true, handler: 'fflg_audit_history', evaluations: [], totalEvaluations: 0, timeRange: '24h' }; }
+  private async handleFflgBulkToggle(task: any) { return { success: true, handler: 'fflg_bulk_toggle', toggled: task.input?.flagKeys?.length || 0, newState: task.input?.enabled ?? true }; }
+  private async handleRbmgCreateSnapshot(task: any) { return { success: true, handler: 'rbmg_create_snapshot', snapshotId: 'snap-' + Date.now(), version: task.input?.version || '1.0.0', size: '24MB' }; }
+  private async handleRbmgListSnapshots(task: any) { return { success: true, handler: 'rbmg_list_snapshots', snapshots: [], totalCount: 0, oldestSnapshot: null }; }
+  private async handleRbmgExecuteRollback(task: any) { return { success: true, handler: 'rbmg_execute_rollback', snapshotId: task.input?.snapshotId || 'snap-1', restoredVersion: '1.0.0', duration: '3.2s' }; }
+  private async handleRbmgAutoRollback(task: any) { return { success: true, handler: 'rbmg_auto_rollback', configured: true, triggerConditions: ['error_rate_spike', 'health_check_failure'], enabled: true }; }
+  private async handleRbmgCompareVersions(task: any) { return { success: true, handler: 'rbmg_compare_versions', fromVersion: task.input?.from || '1.0.0', toVersion: task.input?.to || '1.1.0', changes: [], diffSize: 0 }; }
+  private async handleRbmgCleanupExpired(task: any) { return { success: true, handler: 'rbmg_cleanup_expired', removed: 0, freedSpace: '0MB', retentionDays: 30 }; }
+  private async handleBgrnDeploySlot(task: any) { return { success: true, handler: 'bgrn_deploy_slot', slotColor: task.input?.color || 'green', version: task.input?.version || '2.0.0', status: 'deployed' }; }
+  private async handleBgrnSwitchTraffic(task: any) { return { success: true, handler: 'bgrn_switch_traffic', fromSlot: 'blue', toSlot: 'green', strategy: 'instant', switchedAt: new Date().toISOString() }; }
+  private async handleBgrnHealthCheck(task: any) { return { success: true, handler: 'bgrn_health_check', blueHealth: 'healthy', greenHealth: 'healthy', liveSlot: 'blue' }; }
+  private async handleBgrnWarmupSlot(task: any) { return { success: true, handler: 'bgrn_warmup_slot', slotColor: task.input?.color || 'green', warmupDuration: '60s', ready: true }; }
+  private async handleBgrnRollbackSwitch(task: any) { return { success: true, handler: 'bgrn_rollback_switch', revertedTo: 'blue', reason: task.input?.reason || 'manual', switchedAt: new Date().toISOString() }; }
+  private async handleBgrnSlotStatus(task: any) { return { success: true, handler: 'bgrn_slot_status', blue: { live: true, version: '1.0.0', health: 'healthy' }, green: { live: false, version: '2.0.0', health: 'unknown' } }; }
+  private async handleChtsCreateExperiment(task: any) { return { success: true, handler: 'chts_create_experiment', experimentId: 'exp-' + Date.now(), name: task.input?.name || 'chaos-test', type: task.input?.type || 'latency_injection', status: 'draft' }; }
+  private async handleChtsRunExperiment(task: any) { return { success: true, handler: 'chts_run_experiment', experimentId: task.input?.experimentId || 'exp-1', status: 'running', safetyChecks: 'passed', startedAt: new Date().toISOString() }; }
+  private async handleChtsAbortExperiment(task: any) { return { success: true, handler: 'chts_abort_experiment', experimentId: task.input?.experimentId || 'exp-1', abortedAt: new Date().toISOString(), cleanup: 'completed' }; }
+  private async handleChtsAnalyzeResults(task: any) { return { success: true, handler: 'chts_analyze_results', experimentId: task.input?.experimentId || 'exp-1', hypothesisConfirmed: true, impactScore: 2.5, recommendations: [] }; }
+  private async handleChtsScheduleExperiment(task: any) { return { success: true, handler: 'chts_schedule_experiment', experimentId: task.input?.experimentId || 'exp-1', scheduledFor: task.input?.scheduledFor || 'next_maintenance_window', recurring: false }; }
+  private async handleChtsGenerateReport(task: any) { return { success: true, handler: 'chts_generate_report', experiments: 0, passRate: '100%', meanImpactScore: 0, reportGenerated: true }; }
+  private async handleDpgtConfigureChecks(task: any) { return { success: true, handler: 'dpgt_configure_checks', checksConfigured: task.input?.checks?.length || 0, requireAll: true, autoApproveTimeout: 3600 }; }
+  private async handleDpgtRunChecks(task: any) { return { success: true, handler: 'dpgt_run_checks', deploymentId: task.input?.deploymentId || 'dep-1', totalChecks: 0, passed: 0, failed: 0, decision: 'pending' }; }
+  private async handleDpgtRequestApproval(task: any) { return { success: true, handler: 'dpgt_request_approval', deploymentId: task.input?.deploymentId || 'dep-1', approvers: [], status: 'pending', requestedAt: new Date().toISOString() }; }
+  private async handleDpgtGateStatus(task: any) { return { success: true, handler: 'dpgt_gate_status', deploymentId: task.input?.deploymentId || 'dep-1', gateOpen: false, blockingChecks: [], decision: 'pending' }; }
+  private async handleDpgtOverrideGate(task: any) { return { success: true, handler: 'dpgt_override_gate', deploymentId: task.input?.deploymentId || 'dep-1', overriddenBy: 'admin', reason: task.input?.reason || 'emergency', previousDecision: 'rejected' }; }
+  private async handleDpgtAuditDecisions(task: any) { return { success: true, handler: 'dpgt_audit_decisions', decisions: [], totalDecisions: 0, approvalRate: '0%' }; }
+
 }

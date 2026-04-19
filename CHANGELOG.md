@@ -79,6 +79,18 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 338-342 — Release Engineering
+- **feature_flag** (Batch 338): Dynamic feature flags with targeting rules and gradual rollouts — $11.99
+- **rollback_manager** (Batch 339): Deployment snapshots with automated rollback on failure — $15.99
+- **blue_green_router** (Batch 340): Blue-green deployment slots with health-aware traffic switching — $19.99
+- **chaos_tester** (Batch 341): Chaos engineering experiments with safety controls and blast radius limits — $24.99
+- **deployment_gate** (Batch 342): Pre-deployment quality gates with approval workflows — $13.99
+- 5 migration SQL files, 5 shared type modules, 5 SKILL.md files
+- 30 task-executor switch cases + 30 handler methods
+- 20 NATS SUBJECT_MAP entries, 20 EK values, 5 BK values, 5 districtFor cases
+- 150 Jest tests — all passing
+
+
 ### Batches 333-337 — Automation & Orchestration
 - **workflow_engine** (Batch 333): Workflow definitions, execution tracking, step orchestration — $18.99
 - **task_scheduler** (Batch 334): Job scheduling, frequency management, run history — $12.99

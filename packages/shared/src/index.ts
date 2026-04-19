@@ -359,3 +359,8 @@ export * from './agent-task-scheduler';
 export * from './agent-cron-manager';
 export * from './agent-job-orchestrator';
 export * from './agent-batch-processor';
+export * from './agent-feature-flag';
+export * from './agent-rollback-manager';
+export * from './agent-blue-green-router';
+export * from './agent-chaos-tester';
+export * from './agent-deployment-gate';
