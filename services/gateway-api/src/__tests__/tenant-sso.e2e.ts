@@ -301,8 +301,9 @@ describe('D2 tenant SSO phase1', () => {
 
     const samlXml = [
       '<?xml version="1.0"?>',
-      '<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol">',
+      '<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">',
       '<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">',
+      '<ds:Signature><ds:KeyInfo><ds:X509Data><ds:X509Certificate>TEST</ds:X509Certificate></ds:X509Data></ds:KeyInfo></ds:Signature>',
       '<saml:Subject><saml:NameID>tenant-saml-user</saml:NameID></saml:Subject>',
       '<saml:AttributeStatement>',
       '<saml:Attribute Name="email"><saml:AttributeValue>saml-user@example.com</saml:AttributeValue></saml:Attribute>',
