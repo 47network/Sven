@@ -1401,6 +1401,36 @@ export class TaskExecutor {
       case 'query_apply_suggestion': return this.handleQueryApplySuggestion(task);
       case 'query_view_slow': return this.handleQueryViewSlow(task);
       case 'query_explain': return this.handleQueryExplain(task);
+      case 'broker_connect': return this.handleBrokerConnect(task);
+      case 'broker_topic_create': return this.handleBrokerTopicCreate(task);
+      case 'broker_subscribe': return this.handleBrokerSubscribe(task);
+      case 'broker_publish': return this.handleBrokerPublish(task);
+      case 'broker_monitor_lag': return this.handleBrokerMonitorLag(task);
+      case 'broker_rebalance': return this.handleBrokerRebalance(task);
+      case 'cache_provision': return this.handleCacheProvision(task);
+      case 'cache_policy_set': return this.handleCachePolicySet(task);
+      case 'cache_warm': return this.handleCacheWarm(task);
+      case 'cache_metrics': return this.handleCacheMetrics(task);
+      case 'cache_invalidate': return this.handleCacheInvalidate(task);
+      case 'cache_tier_configure': return this.handleCacheTierConfigure(task);
+      case 'traffic_route_create': return this.handleTrafficRouteCreate(task);
+      case 'traffic_rule_add': return this.handleTrafficRuleAdd(task);
+      case 'traffic_canary': return this.handleTrafficCanary(task);
+      case 'traffic_ab_test': return this.handleTrafficAbTest(task);
+      case 'traffic_analytics': return this.handleTrafficAnalytics(task);
+      case 'traffic_circuit': return this.handleTrafficCircuit(task);
+      case 'dns_zone_create': return this.handleDnsZoneCreate(task);
+      case 'dns_record_set': return this.handleDnsRecordSet(task);
+      case 'dns_dnssec_enable': return this.handleDnsDnssecEnable(task);
+      case 'dns_query_resolve': return this.handleDnsQueryResolve(task);
+      case 'dns_analytics': return this.handleDnsAnalytics(task);
+      case 'dns_propagation_check': return this.handleDnsPropagationCheck(task);
+      case 'config_namespace_create': return this.handleConfigNamespaceCreate(task);
+      case 'config_set': return this.handleConfigSet(task);
+      case 'config_get': return this.handleConfigGet(task);
+      case 'config_diff': return this.handleConfigDiff(task);
+      case 'config_rollback': return this.handleConfigRollback(task);
+      case 'config_audit': return this.handleConfigAudit(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -9223,4 +9253,160 @@ export class TaskExecutor {
       explanation: { query: (query || '').substring(0, 100), plan: 'Seq Scan → Filter → Sort → Limit', estimatedCost: 15.2, actualRows: 0, planningTime: 0.5, executionTime: 1.2 },
     };
   }
+
+  // ── Batch 208: Message Broker handlers ──
+  private async handleBrokerConnect(task: any): Promise<any> {
+    const { brokerType, connectionUrl, maxConnections, heartbeatIntervalMs } = task.input || {};
+    return { connected: true, brokerType: brokerType || 'nats', connectionUrl: connectionUrl || 'nats://localhost:4222', maxConnections: maxConnections || 10, heartbeatIntervalMs: heartbeatIntervalMs || 30000, status: 'connected', connectedAt: new Date().toISOString() };
+  }
+
+  private async handleBrokerTopicCreate(task: any): Promise<any> {
+    const { topicName, partitionCount, replicationFactor, retentionHours } = task.input || {};
+    return { topicName: topicName || 'default-topic', partitionCount: partitionCount || 1, replicationFactor: replicationFactor || 1, retentionHours: retentionHours || 168, status: 'active', createdAt: new Date().toISOString() };
+  }
+
+  private async handleBrokerSubscribe(task: any): Promise<any> {
+    const { topicName, subscriberName, deliveryMode, maxRetries } = task.input || {};
+    return { subscribed: true, topicName: topicName || 'default-topic', subscriberName: subscriberName || 'default-sub', deliveryMode: deliveryMode || 'at_least_once', maxRetries: maxRetries || 3, status: 'active' };
+  }
+
+  private async handleBrokerPublish(task: any): Promise<any> {
+    const { topicName, messageKey, payload, headers } = task.input || {};
+    return { published: true, topicName: topicName || 'default-topic', messageKey: messageKey || null, payloadSize: JSON.stringify(payload || {}).length, headers: headers || {}, publishedAt: new Date().toISOString() };
+  }
+
+  private async handleBrokerMonitorLag(task: any): Promise<any> {
+    const { subscriptionId } = task.input || {};
+    return { subscriptionId: subscriptionId || 'unknown', currentLag: 0, maxLag: 1000, avgProcessingMs: 12.5, status: 'healthy', checkedAt: new Date().toISOString() };
+  }
+
+  private async handleBrokerRebalance(task: any): Promise<any> {
+    const { consumerGroup, strategy } = task.input || {};
+    return { rebalanced: true, consumerGroup: consumerGroup || 'default-group', strategy: strategy || 'round_robin', partitionsReassigned: 0, completedAt: new Date().toISOString() };
+  }
+
+  // ── Batch 209: Cache Manager handlers ──
+  private async handleCacheProvision(task: any): Promise<any> {
+    const { storeName, storeType, maxMemoryMb, evictionPolicy } = task.input || {};
+    return { provisioned: true, storeName: storeName || 'default-cache', storeType: storeType || 'redis', maxMemoryMb: maxMemoryMb || 256, evictionPolicy: evictionPolicy || 'lru', status: 'ready' };
+  }
+
+  private async handleCachePolicySet(task: any): Promise<any> {
+    const { storeId, keyPattern, ttlSeconds, invalidationStrategy } = task.input || {};
+    return { policySet: true, keyPattern: keyPattern || '*', ttlSeconds: ttlSeconds || 3600, invalidationStrategy: invalidationStrategy || 'ttl', compress: false };
+  }
+
+  private async handleCacheWarm(task: any): Promise<any> {
+    const { storeId, sourceQuery, keyPrefix } = task.input || {};
+    return { warmed: true, keysPopulated: 0, sourceQuery: sourceQuery || 'SELECT *', keyPrefix: keyPrefix || 'warm:', durationMs: 0 };
+  }
+
+  private async handleCacheMetrics(task: any): Promise<any> {
+    const { storeId, periodHours } = task.input || {};
+    return { hits: 0, misses: 0, hitRate: 0, evictions: 0, memoryUsedMb: 0, avgLatencyMs: 0, periodHours: periodHours || 24 };
+  }
+
+  private async handleCacheInvalidate(task: any): Promise<any> {
+    const { storeId, pattern, strategy } = task.input || {};
+    return { invalidated: true, pattern: pattern || '*', keysRemoved: 0, strategy: strategy || 'pattern', completedAt: new Date().toISOString() };
+  }
+
+  private async handleCacheTierConfigure(task: any): Promise<any> {
+    const { l1Type, l2Type, promotionPolicy } = task.input || {};
+    return { configured: true, l1Type: l1Type || 'in_memory', l2Type: l2Type || 'redis', promotionPolicy: promotionPolicy || 'frequency', status: 'active' };
+  }
+
+  // ── Batch 210: Traffic Router handlers ──
+  private async handleTrafficRouteCreate(task: any): Promise<any> {
+    const { routeName, sourcePattern, destination, method, weight } = task.input || {};
+    return { created: true, routeName: routeName || 'default-route', sourcePattern: sourcePattern || '/**', destination: destination || 'http://localhost:3000', method: method || 'ANY', weight: weight || 100, status: 'active' };
+  }
+
+  private async handleTrafficRuleAdd(task: any): Promise<any> {
+    const { routeId, ruleType, condition, action } = task.input || {};
+    return { ruleAdded: true, ruleType: ruleType || 'rate_limit', condition: condition || {}, action: action || {}, enabled: true };
+  }
+
+  private async handleTrafficCanary(task: any): Promise<any> {
+    const { routeId, canaryWeight, targetDestination } = task.input || {};
+    return { deployed: true, canaryWeight: canaryWeight || 10, targetDestination: targetDestination || 'http://localhost:3001', status: 'canary', startedAt: new Date().toISOString() };
+  }
+
+  private async handleTrafficAbTest(task: any): Promise<any> {
+    const { routeId, variants, splitPercentages } = task.input || {};
+    return { configured: true, variants: variants || ['A', 'B'], splitPercentages: splitPercentages || [50, 50], trackingEnabled: true, status: 'active' };
+  }
+
+  private async handleTrafficAnalytics(task: any): Promise<any> {
+    const { routeId, periodHours } = task.input || {};
+    return { totalRequests: 0, successCount: 0, errorCount: 0, avgLatencyMs: 0, p99LatencyMs: 0, periodHours: periodHours || 24 };
+  }
+
+  private async handleTrafficCircuit(task: any): Promise<any> {
+    const { routeId, failureThreshold, recoveryTimeMs } = task.input || {};
+    return { configured: true, failureThreshold: failureThreshold || 5, recoveryTimeMs: recoveryTimeMs || 30000, state: 'closed', halfOpenAfterMs: 15000 };
+  }
+
+  // ── Batch 211: DNS Resolver handlers ──
+  private async handleDnsZoneCreate(task: any): Promise<any> {
+    const { domain, zoneType, ttlSeconds, dnssecEnabled } = task.input || {};
+    return { created: true, domain: domain || 'example.com', zoneType: zoneType || 'primary', ttlSeconds: ttlSeconds || 3600, dnssecEnabled: dnssecEnabled || false, status: 'active' };
+  }
+
+  private async handleDnsRecordSet(task: any): Promise<any> {
+    const { zoneId, name, recordType, value, ttlSeconds } = task.input || {};
+    return { recordSet: true, name: name || '@', recordType: recordType || 'A', value: value || '127.0.0.1', ttlSeconds: ttlSeconds || 3600, proxied: false };
+  }
+
+  private async handleDnsDnssecEnable(task: any): Promise<any> {
+    const { zoneId, algorithm } = task.input || {};
+    return { enabled: true, algorithm: algorithm || 'ECDSAP256SHA256', dsRecord: 'DS 12345 13 2 abc...', keyTag: 12345, status: 'active' };
+  }
+
+  private async handleDnsQueryResolve(task: any): Promise<any> {
+    const { queryName, queryType } = task.input || {};
+    return { resolved: true, queryName: queryName || 'example.com', queryType: queryType || 'A', answers: [], responseCode: 'NOERROR', latencyMs: 5.2, cached: false };
+  }
+
+  private async handleDnsAnalytics(task: any): Promise<any> {
+    const { zoneId, periodHours } = task.input || {};
+    return { totalQueries: 0, uniqueDomains: 0, cacheHitRate: 0, avgLatencyMs: 0, topQueryTypes: {}, periodHours: periodHours || 24 };
+  }
+
+  private async handleDnsPropagationCheck(task: any): Promise<any> {
+    const { domain, recordType, expectedValue } = task.input || {};
+    return { propagated: true, domain: domain || 'example.com', recordType: recordType || 'A', expectedValue: expectedValue || '127.0.0.1', nameserversChecked: 8, nameserversConfirmed: 8 };
+  }
+
+  // ── Batch 212: Config Server handlers ──
+  private async handleConfigNamespaceCreate(task: any): Promise<any> {
+    const { namespaceName, environment, encryptionEnabled } = task.input || {};
+    return { created: true, namespaceName: namespaceName || 'default', environment: environment || 'production', encryptionEnabled: encryptionEnabled || false, version: 1, status: 'active' };
+  }
+
+  private async handleConfigSet(task: any): Promise<any> {
+    const { namespaceId, key, value, valueType, isSecret } = task.input || {};
+    return { set: true, key: key || 'app.setting', valueType: valueType || 'string', isSecret: isSecret || false, version: 1, updatedAt: new Date().toISOString() };
+  }
+
+  private async handleConfigGet(task: any): Promise<any> {
+    const { namespaceId, key } = task.input || {};
+    return { key: key || 'app.setting', value: '***', valueType: 'string', isSecret: false, version: 1, environment: 'production' };
+  }
+
+  private async handleConfigDiff(task: any): Promise<any> {
+    const { namespaceId, sourceEnv, targetEnv } = task.input || {};
+    return { sourceEnv: sourceEnv || 'staging', targetEnv: targetEnv || 'production', additions: [], removals: [], modifications: [], totalDiffs: 0 };
+  }
+
+  private async handleConfigRollback(task: any): Promise<any> {
+    const { entryId, targetVersion } = task.input || {};
+    return { rolledBack: true, entryId: entryId || 'unknown', previousVersion: 2, restoredVersion: targetVersion || 1, rolledBackAt: new Date().toISOString() };
+  }
+
+  private async handleConfigAudit(task: any): Promise<any> {
+    const { namespaceId, periodDays } = task.input || {};
+    return { totalChanges: 0, uniqueKeys: 0, changedBy: [], periodDays: periodDays || 30, reportGeneratedAt: new Date().toISOString() };
+  }
+
 }

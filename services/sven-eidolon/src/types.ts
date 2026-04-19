@@ -166,7 +166,7 @@ export type EidolonBuildingKind =
   | 'schema_validator'
   | 'etl_processor'
   | 'data_catalog'
-  | 'query_optimizer'
+  | 'query_optimizer' | 'message_broker' | 'cache_manager' | 'traffic_router' | 'dns_resolver' | 'config_server'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -726,7 +726,7 @@ export type EidolonEventKind =
   | 'schema.definition_created' | 'schema.validation_failed' | 'schema.evolution_checked' | 'schema.compatibility_broken'
   | 'etl.pipeline_created' | 'etl.run_started' | 'etl.run_completed' | 'etl.run_failed'
   | 'catalog.asset_registered' | 'catalog.lineage_traced' | 'catalog.profile_completed' | 'catalog.quality_scored'
-  | 'query.analyzed' | 'query.suggestion_generated' | 'query.plan_cached' | 'query.optimization_applied'
+  | 'query.analyzed' | 'query.suggestion_generated' | 'query.plan_cached' | 'query.optimization_applied' | 'broker.connection_established' | 'broker.topic_created' | 'broker.subscription_added' | 'broker.message_published' | 'cache.store_provisioned' | 'cache.policy_configured' | 'cache.warmup_completed' | 'cache.invalidation_triggered' | 'traffic.route_created' | 'traffic.rule_applied' | 'traffic.canary_deployed' | 'traffic.analytics_generated' | 'dns.zone_created' | 'dns.record_updated' | 'dns.dnssec_enabled' | 'dns.propagation_verified' | 'config.namespace_created' | 'config.entry_updated' | 'config.secret_encrypted' | 'config.rollback_executed'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -896,7 +896,7 @@ export type EidolonEventKind =
   | 'schema.definition_created' | 'schema.validation_failed' | 'schema.evolution_checked' | 'schema.compatibility_broken'
   | 'etl.pipeline_created' | 'etl.run_started' | 'etl.run_completed' | 'etl.run_failed'
   | 'catalog.asset_registered' | 'catalog.lineage_traced' | 'catalog.profile_completed' | 'catalog.quality_scored'
-  | 'query.analyzed' | 'query.suggestion_generated' | 'query.plan_cached' | 'query.optimization_applied'
+  | 'query.analyzed' | 'query.suggestion_generated' | 'query.plan_cached' | 'query.optimization_applied' | 'broker.connection_established' | 'broker.topic_created' | 'broker.subscription_added' | 'broker.message_published' | 'cache.store_provisioned' | 'cache.policy_configured' | 'cache.warmup_completed' | 'cache.invalidation_triggered' | 'traffic.route_created' | 'traffic.rule_applied' | 'traffic.canary_deployed' | 'traffic.analytics_generated' | 'dns.zone_created' | 'dns.record_updated' | 'dns.dnssec_enabled' | 'dns.propagation_verified' | 'config.namespace_created' | 'config.entry_updated' | 'config.secret_encrypted' | 'config.rollback_executed'
   | 'topology.scan_started' | 'topology.scan_completed' | 'topology.drift_detected' | 'topology.snapshot_created'
   | 'forensic.case_opened' | 'forensic.evidence_collected' | 'forensic.analysis_completed' | 'forensic.case_concluded'
   | 'patch.advisory_found' | 'patch.test_passed' | 'patch.deployed' | 'patch.rolled_back'
@@ -936,7 +936,7 @@ export type EidolonEventKind =
   | 'schema.definition_created' | 'schema.validation_failed' | 'schema.evolution_checked' | 'schema.compatibility_broken'
   | 'etl.pipeline_created' | 'etl.run_started' | 'etl.run_completed' | 'etl.run_failed'
   | 'catalog.asset_registered' | 'catalog.lineage_traced' | 'catalog.profile_completed' | 'catalog.quality_scored'
-  | 'query.analyzed' | 'query.suggestion_generated' | 'query.plan_cached' | 'query.optimization_applied'
+  | 'query.analyzed' | 'query.suggestion_generated' | 'query.plan_cached' | 'query.optimization_applied' | 'broker.connection_established' | 'broker.topic_created' | 'broker.subscription_added' | 'broker.message_published' | 'cache.store_provisioned' | 'cache.policy_configured' | 'cache.warmup_completed' | 'cache.invalidation_triggered' | 'traffic.route_created' | 'traffic.rule_applied' | 'traffic.canary_deployed' | 'traffic.analytics_generated' | 'dns.zone_created' | 'dns.record_updated' | 'dns.dnssec_enabled' | 'dns.propagation_verified' | 'config.namespace_created' | 'config.entry_updated' | 'config.secret_encrypted' | 'config.rollback_executed'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -1306,6 +1306,16 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'data_catalog':
       return 'civic';
     case 'query_optimizer':
+      return 'civic';
+    case 'message_broker':
+      return 'industrial';
+    case 'cache_manager':
+      return 'industrial';
+    case 'traffic_router':
+      return 'industrial';
+    case 'dns_resolver':
+      return 'civic';
+    case 'config_server':
       return 'civic';
   }
 }
