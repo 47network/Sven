@@ -1491,6 +1491,36 @@ export class TaskExecutor {
       case 'traffic_detect_threats': return this.handleTrafficDetectThreats(task);
       case 'traffic_forensic_analysis': return this.handleTrafficForensicAnalysis(task);
       case 'traffic_baseline': return this.handleTrafficBaseline(task);
+      case 'idp_configure_provider': return this.handleIdpConfigureProvider(task);
+      case 'idp_create_session': return this.handleIdpCreateSession(task);
+      case 'idp_map_identity': return this.handleIdpMapIdentity(task);
+      case 'idp_authenticate': return this.handleIdpAuthenticate(task);
+      case 'idp_revoke_session': return this.handleIdpRevokeSession(task);
+      case 'idp_list_providers': return this.handleIdpListProviders(task);
+      case 'key_generate': return this.handleKeyGenerate(task);
+      case 'key_rotate': return this.handleKeyRotate(task);
+      case 'key_revoke': return this.handleKeyRevoke(task);
+      case 'key_encrypt': return this.handleKeyEncrypt(task);
+      case 'key_decrypt': return this.handleKeyDecrypt(task);
+      case 'key_audit_usage': return this.handleKeyAuditUsage(task);
+      case 'audit_create_log': return this.handleAuditCreateLog(task);
+      case 'audit_create_policy': return this.handleAuditCreatePolicy(task);
+      case 'audit_query_logs': return this.handleAuditQueryLogs(task);
+      case 'audit_trigger_alert': return this.handleAuditTriggerAlert(task);
+      case 'audit_apply_retention': return this.handleAuditApplyRetention(task);
+      case 'audit_export_logs': return this.handleAuditExportLogs(task);
+      case 'compliance_add_framework': return this.handleComplianceAddFramework(task);
+      case 'compliance_run_check': return this.handleComplianceRunCheck(task);
+      case 'compliance_generate_report': return this.handleComplianceGenerateReport(task);
+      case 'compliance_track_violation': return this.handleComplianceTrackViolation(task);
+      case 'compliance_remediate': return this.handleComplianceRemediate(task);
+      case 'compliance_certify': return this.handleComplianceCertify(task);
+      case 'threat_create_rule': return this.handleThreatCreateRule(task);
+      case 'threat_detect': return this.handleThreatDetect(task);
+      case 'threat_respond': return this.handleThreatRespond(task);
+      case 'threat_investigate': return this.handleThreatInvestigate(task);
+      case 'threat_mitigate': return this.handleThreatMitigate(task);
+      case 'threat_report': return this.handleThreatReport(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -10367,6 +10397,456 @@ export class TaskExecutor {
       period: config.period || null,
       timestamp: new Date().toISOString(),
       description: 'Establish traffic baseline',
+    };
+  }
+
+  private async handleIdpConfigureProvider(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'identity_provider',
+      taskType: 'idp_configure_provider',
+      providerId: 'idp-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      providerType: config.providerType || null,
+      configuration: config.configuration || null,
+      status: config.status || null,
+      timestamp: new Date().toISOString(),
+      description: 'Configure identity provider',
+    };
+  }
+
+  private async handleIdpCreateSession(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'identity_provider',
+      taskType: 'idp_create_session',
+      sessionId: 'idpsess-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      subjectId: config.subjectId || null,
+      claims: config.claims || null,
+      expiresAt: config.expiresAt || null,
+      timestamp: new Date().toISOString(),
+      description: 'Create identity session',
+    };
+  }
+
+  private async handleIdpMapIdentity(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'identity_provider',
+      taskType: 'idp_map_identity',
+      mappingId: 'idpmap-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      externalId: config.externalId || null,
+      internalAgentId: config.internalAgentId || null,
+      role: config.role || null,
+      timestamp: new Date().toISOString(),
+      description: 'Map external identity',
+    };
+  }
+
+  private async handleIdpAuthenticate(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'identity_provider',
+      taskType: 'idp_authenticate',
+      authId: 'auth-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      method: config.method || null,
+      verified: config.verified || null,
+      claims: config.claims || null,
+      timestamp: new Date().toISOString(),
+      description: 'Authenticate via provider',
+    };
+  }
+
+  private async handleIdpRevokeSession(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'identity_provider',
+      taskType: 'idp_revoke_session',
+      revocationId: 'idprev-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      sessionId: config.sessionId || null,
+      reason: config.reason || null,
+      revokedAt: config.revokedAt || null,
+      timestamp: new Date().toISOString(),
+      description: 'Revoke identity session',
+    };
+  }
+
+  private async handleIdpListProviders(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'identity_provider',
+      taskType: 'idp_list_providers',
+      listId: 'idplist-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      providers: config.providers || null,
+      totalCount: config.totalCount || null,
+      activeCount: config.activeCount || null,
+      timestamp: new Date().toISOString(),
+      description: 'List identity providers',
+    };
+  }
+
+  private async handleKeyGenerate(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'key_manager',
+      taskType: 'key_generate',
+      keyId: 'keygen-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      algorithm: config.algorithm || null,
+      keyType: config.keyType || null,
+      expiresAt: config.expiresAt || null,
+      timestamp: new Date().toISOString(),
+      description: 'Generate encryption key',
+    };
+  }
+
+  private async handleKeyRotate(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'key_manager',
+      taskType: 'key_rotate',
+      rotationId: 'keyrot-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      keyId: config.keyId || null,
+      newVersion: config.newVersion || null,
+      reason: config.reason || null,
+      timestamp: new Date().toISOString(),
+      description: 'Rotate encryption key',
+    };
+  }
+
+  private async handleKeyRevoke(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'key_manager',
+      taskType: 'key_revoke',
+      revocationId: 'keyrev-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      keyId: config.keyId || null,
+      reason: config.reason || null,
+      revokedAt: config.revokedAt || null,
+      timestamp: new Date().toISOString(),
+      description: 'Revoke encryption key',
+    };
+  }
+
+  private async handleKeyEncrypt(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'key_manager',
+      taskType: 'key_encrypt',
+      operationId: 'enc-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      keyId: config.keyId || null,
+      algorithm: config.algorithm || null,
+      ciphertextSize: config.ciphertextSize || null,
+      timestamp: new Date().toISOString(),
+      description: 'Encrypt data with key',
+    };
+  }
+
+  private async handleKeyDecrypt(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'key_manager',
+      taskType: 'key_decrypt',
+      operationId: 'dec-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      keyId: config.keyId || null,
+      algorithm: config.algorithm || null,
+      plaintextSize: config.plaintextSize || null,
+      timestamp: new Date().toISOString(),
+      description: 'Decrypt data with key',
+    };
+  }
+
+  private async handleKeyAuditUsage(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'key_manager',
+      taskType: 'key_audit_usage',
+      auditId: 'keyaudit-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      keyId: config.keyId || null,
+      operationCount: config.operationCount || null,
+      lastUsed: config.lastUsed || null,
+      timestamp: new Date().toISOString(),
+      description: 'Audit key usage logs',
+    };
+  }
+
+  private async handleAuditCreateLog(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'audit_logger',
+      taskType: 'audit_create_log',
+      logId: 'alog-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      action: config.action || null,
+      resourceType: config.resourceType || null,
+      severity: config.severity || null,
+      timestamp: new Date().toISOString(),
+      description: 'Create audit log entry',
+    };
+  }
+
+  private async handleAuditCreatePolicy(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'audit_logger',
+      taskType: 'audit_create_policy',
+      policyId: 'apol-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      policyName: config.policyName || null,
+      resourceTypes: config.resourceTypes || null,
+      retentionDays: config.retentionDays || null,
+      timestamp: new Date().toISOString(),
+      description: 'Create audit policy',
+    };
+  }
+
+  private async handleAuditQueryLogs(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'audit_logger',
+      taskType: 'audit_query_logs',
+      queryId: 'aquery-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      filters: config.filters || null,
+      resultCount: config.resultCount || null,
+      timeRange: config.timeRange || null,
+      timestamp: new Date().toISOString(),
+      description: 'Query audit logs',
+    };
+  }
+
+  private async handleAuditTriggerAlert(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'audit_logger',
+      taskType: 'audit_trigger_alert',
+      alertId: 'aalert-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      alertType: config.alertType || null,
+      policyId: config.policyId || null,
+      logId: config.logId || null,
+      timestamp: new Date().toISOString(),
+      description: 'Trigger audit alert',
+    };
+  }
+
+  private async handleAuditApplyRetention(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'audit_logger',
+      taskType: 'audit_apply_retention',
+      retentionId: 'aret-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      policyId: config.policyId || null,
+      deletedCount: config.deletedCount || null,
+      retainedCount: config.retainedCount || null,
+      timestamp: new Date().toISOString(),
+      description: 'Apply log retention policy',
+    };
+  }
+
+  private async handleAuditExportLogs(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'audit_logger',
+      taskType: 'audit_export_logs',
+      exportId: 'aexp-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      format: config.format || null,
+      recordCount: config.recordCount || null,
+      fileSize: config.fileSize || null,
+      timestamp: new Date().toISOString(),
+      description: 'Export audit logs',
+    };
+  }
+
+  private async handleComplianceAddFramework(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'compliance_checker',
+      taskType: 'compliance_add_framework',
+      frameworkId: 'cfw-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      frameworkName: config.frameworkName || null,
+      frameworkType: config.frameworkType || null,
+      version: config.version || null,
+      timestamp: new Date().toISOString(),
+      description: 'Add compliance framework',
+    };
+  }
+
+  private async handleComplianceRunCheck(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'compliance_checker',
+      taskType: 'compliance_run_check',
+      checkId: 'cchk-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      frameworkId: config.frameworkId || null,
+      category: config.category || null,
+      status: config.status || null,
+      timestamp: new Date().toISOString(),
+      description: 'Run compliance check',
+    };
+  }
+
+  private async handleComplianceGenerateReport(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'compliance_checker',
+      taskType: 'compliance_generate_report',
+      reportId: 'crpt-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      frameworkId: config.frameworkId || null,
+      passRate: config.passRate || null,
+      totalChecks: config.totalChecks || null,
+      timestamp: new Date().toISOString(),
+      description: 'Generate compliance report',
+    };
+  }
+
+  private async handleComplianceTrackViolation(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'compliance_checker',
+      taskType: 'compliance_track_violation',
+      violationId: 'cviol-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      checkId: config.checkId || null,
+      severity: config.severity || null,
+      details: config.details || null,
+      timestamp: new Date().toISOString(),
+      description: 'Track compliance violation',
+    };
+  }
+
+  private async handleComplianceRemediate(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'compliance_checker',
+      taskType: 'compliance_remediate',
+      remediationId: 'crem-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      violationId: config.violationId || null,
+      actionTaken: config.actionTaken || null,
+      status: config.status || null,
+      timestamp: new Date().toISOString(),
+      description: 'Remediate compliance issue',
+    };
+  }
+
+  private async handleComplianceCertify(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'compliance_checker',
+      taskType: 'compliance_certify',
+      certId: 'ccert-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      frameworkId: config.frameworkId || null,
+      passRate: config.passRate || null,
+      validUntil: config.validUntil || null,
+      timestamp: new Date().toISOString(),
+      description: 'Issue compliance certification',
+    };
+  }
+
+  private async handleThreatCreateRule(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'threat_detector',
+      taskType: 'threat_create_rule',
+      ruleId: 'trule-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      ruleName: config.ruleName || null,
+      ruleType: config.ruleType || null,
+      severity: config.severity || null,
+      timestamp: new Date().toISOString(),
+      description: 'Create threat detection rule',
+    };
+  }
+
+  private async handleThreatDetect(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'threat_detector',
+      taskType: 'threat_detect',
+      detectionId: 'tdet-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      threatType: config.threatType || null,
+      severity: config.severity || null,
+      source: config.source || null,
+      timestamp: new Date().toISOString(),
+      description: 'Run threat detection',
+    };
+  }
+
+  private async handleThreatRespond(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'threat_detector',
+      taskType: 'threat_respond',
+      responseId: 'tresp-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      detectionId: config.detectionId || null,
+      responseType: config.responseType || null,
+      result: config.result || null,
+      timestamp: new Date().toISOString(),
+      description: 'Execute threat response',
+    };
+  }
+
+  private async handleThreatInvestigate(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'threat_detector',
+      taskType: 'threat_investigate',
+      investigationId: 'tinv-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      detectionId: config.detectionId || null,
+      findings: config.findings || null,
+      timeline: config.timeline || null,
+      timestamp: new Date().toISOString(),
+      description: 'Investigate threat',
+    };
+  }
+
+  private async handleThreatMitigate(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'threat_detector',
+      taskType: 'threat_mitigate',
+      mitigationId: 'tmit-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      detectionId: config.detectionId || null,
+      actions: config.actions || null,
+      status: config.status || null,
+      timestamp: new Date().toISOString(),
+      description: 'Mitigate detected threat',
+    };
+  }
+
+  private async handleThreatReport(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'threat_detector',
+      taskType: 'threat_report',
+      reportId: 'trpt-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      period: config.period || null,
+      threats: config.threats || null,
+      mitigated: config.mitigated || null,
+      timestamp: new Date().toISOString(),
+      description: 'Generate threat report',
     };
   }
 }
