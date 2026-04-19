@@ -1,4 +1,4 @@
-export interface AccessReviewEntry {
+export interface AccessReviewReport {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface AccessReviewEntry {
   updatedAt: string;
 }
 
-export interface AccessReviewConfig {
+export interface AccessReviewReportConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface AccessReviewResult {
+export interface AccessReviewReportResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;

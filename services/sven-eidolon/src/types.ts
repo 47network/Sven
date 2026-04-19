@@ -1058,6 +1058,31 @@ export type EidolonBuildingKind =
   | 'alert_routing_auditor'
   | 'alert_routing_reporter'
   | 'alert_routing_optimizer'
+  | 'sla_compliance'
+  | 'sla_compliance_monitor'
+  | 'sla_compliance_auditor'
+  | 'sla_compliance_reporter'
+  | 'sla_compliance_optimizer'
+  | 'uptime_prober'
+  | 'uptime_prober_monitor'
+  | 'uptime_prober_auditor'
+  | 'uptime_prober_reporter'
+  | 'uptime_prober_optimizer'
+  | 'drift_detection'
+  | 'drift_detection_monitor'
+  | 'drift_detection_auditor'
+  | 'drift_detection_reporter'
+  | 'drift_detection_optimizer'
+  | 'credential_rotation'
+  | 'credential_rotation_monitor'
+  | 'credential_rotation_auditor'
+  | 'credential_rotation_reporter'
+  | 'credential_rotation_optimizer'
+  | 'access_review'
+  | 'access_review_monitor'
+  | 'access_review_auditor'
+  | 'access_review_reporter'
+  | 'access_review_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -4945,6 +4970,81 @@ export type EidolonEventKind =
   | 'aro.plan_created'
   | 'aro.optimization_applied'
   | 'aro.export_emitted'
+  | 'slc.entry_created'
+  | 'slc.config_updated'
+  | 'slc.export_emitted'
+  | 'slcm.check_passed'
+  | 'slcm.alert_raised'
+  | 'slcm.export_emitted'
+  | 'slca.entry_logged'
+  | 'slca.violation_found'
+  | 'slca.export_emitted'
+  | 'slcr.report_generated'
+  | 'slcr.insight_found'
+  | 'slcr.export_emitted'
+  | 'slco.plan_created'
+  | 'slco.optimization_applied'
+  | 'slco.export_emitted'
+  | 'up.entry_created'
+  | 'up.config_updated'
+  | 'up.export_emitted'
+  | 'upm.check_passed'
+  | 'upm.alert_raised'
+  | 'upm.export_emitted'
+  | 'upa.entry_logged'
+  | 'upa.violation_found'
+  | 'upa.export_emitted'
+  | 'upr.report_generated'
+  | 'upr.insight_found'
+  | 'upr.export_emitted'
+  | 'upo.plan_created'
+  | 'upo.optimization_applied'
+  | 'upo.export_emitted'
+  | 'dd.entry_created'
+  | 'dd.config_updated'
+  | 'dd.export_emitted'
+  | 'ddm.check_passed'
+  | 'ddm.alert_raised'
+  | 'ddm.export_emitted'
+  | 'dda.entry_logged'
+  | 'dda.violation_found'
+  | 'dda.export_emitted'
+  | 'ddr.report_generated'
+  | 'ddr.insight_found'
+  | 'ddr.export_emitted'
+  | 'ddo.plan_created'
+  | 'ddo.optimization_applied'
+  | 'ddo.export_emitted'
+  | 'cr.entry_created'
+  | 'cr.config_updated'
+  | 'cr.export_emitted'
+  | 'crm.check_passed'
+  | 'crm.alert_raised'
+  | 'crm.export_emitted'
+  | 'cra.entry_logged'
+  | 'cra.violation_found'
+  | 'cra.export_emitted'
+  | 'crr.report_generated'
+  | 'crr.insight_found'
+  | 'crr.export_emitted'
+  | 'cro.plan_created'
+  | 'cro.optimization_applied'
+  | 'cro.export_emitted'
+  | 'arv.entry_created'
+  | 'arv.config_updated'
+  | 'arv.export_emitted'
+  | 'arvm.check_passed'
+  | 'arvm.alert_raised'
+  | 'arvm.export_emitted'
+  | 'arva.entry_logged'
+  | 'arva.violation_found'
+  | 'arva.export_emitted'
+  | 'arvr.report_generated'
+  | 'arvr.insight_found'
+  | 'arvr.export_emitted'
+  | 'arvo.plan_created'
+  | 'arvo.optimization_applied'
+  | 'arvo.export_emitted'
   | 'eg.rule_created'
   | 'eg.config_updated'
   | 'eg.export_emitted'
@@ -6835,6 +6935,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'alert_routing_auditor':
     case 'alert_routing_reporter':
     case 'alert_routing_optimizer':
+    case 'sla_compliance':
+    case 'sla_compliance_monitor':
+    case 'sla_compliance_auditor':
+    case 'sla_compliance_reporter':
+    case 'sla_compliance_optimizer':
+    case 'uptime_prober':
+    case 'uptime_prober_monitor':
+    case 'uptime_prober_auditor':
+    case 'uptime_prober_reporter':
+    case 'uptime_prober_optimizer':
+    case 'drift_detection':
+    case 'drift_detection_monitor':
+    case 'drift_detection_auditor':
+    case 'drift_detection_reporter':
+    case 'drift_detection_optimizer':
+    case 'credential_rotation':
+    case 'credential_rotation_monitor':
+    case 'credential_rotation_auditor':
+    case 'credential_rotation_reporter':
+    case 'credential_rotation_optimizer':
+    case 'access_review':
+    case 'access_review_monitor':
+    case 'access_review_auditor':
+    case 'access_review_reporter':
+    case 'access_review_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
