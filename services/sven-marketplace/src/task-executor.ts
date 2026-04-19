@@ -2693,6 +2693,36 @@ export class TaskExecutor {
       case 'rsqt_release_resources': return this.handleRsqtReleaseResources(task);
       case 'rsqt_list_quotes': return this.handleRsqtListQuotes(task);
       case 'rsqt_get_spending': return this.handleRsqtGetSpending(task);
+      case 'incd_declare_incident': return this.handleIncdDeclareIncident(task);
+      case 'incd_assign_responder': return this.handleIncdAssignResponder(task);
+      case 'incd_escalate': return this.handleIncdEscalate(task);
+      case 'incd_update_timeline': return this.handleIncdUpdateTimeline(task);
+      case 'incd_resolve_incident': return this.handleIncdResolveIncident(task);
+      case 'incd_generate_postmortem': return this.handleIncdGeneratePostmortem(task);
+      case 'flij_create_experiment': return this.handleFlijCreateExperiment(task);
+      case 'flij_run_experiment': return this.handleFlijRunExperiment(task);
+      case 'flij_abort_experiment': return this.handleFlijAbortExperiment(task);
+      case 'flij_analyze_results': return this.handleFlijAnalyzeResults(task);
+      case 'flij_generate_report': return this.handleFlijGenerateReport(task);
+      case 'flij_schedule_gameday': return this.handleFlijScheduleGameday(task);
+      case 'smrt_register_service': return this.handleSmrtRegisterService(task);
+      case 'smrt_configure_routing': return this.handleSmrtConfigureRouting(task);
+      case 'smrt_create_rule': return this.handleSmrtCreateRule(task);
+      case 'smrt_health_check': return this.handleSmrtHealthCheck(task);
+      case 'smrt_toggle_circuit_breaker': return this.handleSmrtToggleCircuitBreaker(task);
+      case 'smrt_export_topology': return this.handleSmrtExportTopology(task);
+      case 'copt_analyze_cache': return this.handleCoptAnalyzeCache(task);
+      case 'copt_optimize_ttl': return this.handleCoptOptimizeTtl(task);
+      case 'copt_warm_cache': return this.handleCoptWarmCache(task);
+      case 'copt_evict_stale': return this.handleCoptEvictStale(task);
+      case 'copt_resize_cache': return this.handleCoptResizeCache(task);
+      case 'copt_generate_report': return this.handleCoptGenerateReport(task);
+      case 'lgix_create_index': return this.handleLgixCreateIndex(task);
+      case 'lgix_ingest_logs': return this.handleLgixIngestLogs(task);
+      case 'lgix_search_logs': return this.handleLgixSearchLogs(task);
+      case 'lgix_save_query': return this.handleLgixSaveQuery(task);
+      case 'lgix_configure_retention': return this.handleLgixConfigureRetention(task);
+      case 'lgix_export_results': return this.handleLgixExportResults(task);
     }
   }
 
@@ -17771,5 +17801,37 @@ export class TaskExecutor {
   private async handleRsqtReleaseResources(task: any): Promise<any> { return { success: true, allocationId: task.input?.allocationId, released: true }; }
   private async handleRsqtListQuotes(task: any): Promise<any> { return { success: true, quotes: [], total: 0 }; }
   private async handleRsqtGetSpending(task: any): Promise<any> { return { success: true, totalSpent: 0, currency: '47Token', breakdown: [] }; }
+
+
+  private async handleIncdDeclareIncident(task: any): Promise<any> { return { success: true, incidentId: `inc-${Date.now()}`, title: task.input?.title, severity: task.input?.severity || 'medium', status: 'open' }; }
+  private async handleIncdAssignResponder(task: any): Promise<any> { return { success: true, incidentId: task.input?.incidentId, assignedAgentId: task.input?.responderAgentId }; }
+  private async handleIncdEscalate(task: any): Promise<any> { return { success: true, incidentId: task.input?.incidentId, newSeverity: task.input?.severity || 'high', escalated: true }; }
+  private async handleIncdUpdateTimeline(task: any): Promise<any> { return { success: true, incidentId: task.input?.incidentId, eventType: task.input?.eventType, timelineEntryId: `tl-${Date.now()}` }; }
+  private async handleIncdResolveIncident(task: any): Promise<any> { return { success: true, incidentId: task.input?.incidentId, status: 'resolved', rootCause: task.input?.rootCause }; }
+  private async handleIncdGeneratePostmortem(task: any): Promise<any> { return { success: true, incidentId: task.input?.incidentId, postmortem: { summary: '', timeline: [], actionItems: [] } }; }
+  private async handleFlijCreateExperiment(task: any): Promise<any> { return { success: true, experimentId: `exp-${Date.now()}`, name: task.input?.name, failureType: task.input?.failureType }; }
+  private async handleFlijRunExperiment(task: any): Promise<any> { return { success: true, experimentId: task.input?.experimentId, status: 'running', startedAt: new Date().toISOString() }; }
+  private async handleFlijAbortExperiment(task: any): Promise<any> { return { success: true, experimentId: task.input?.experimentId, status: 'aborted' }; }
+  private async handleFlijAnalyzeResults(task: any): Promise<any> { return { success: true, experimentId: task.input?.experimentId, impactScore: 0, hypothesisValidated: false }; }
+  private async handleFlijGenerateReport(task: any): Promise<any> { return { success: true, experimentId: task.input?.experimentId, report: { findings: [], recommendations: [] } }; }
+  private async handleFlijScheduleGameday(task: any): Promise<any> { return { success: true, gamedayId: `gd-${Date.now()}`, experiments: [], scheduledAt: task.input?.scheduledAt }; }
+  private async handleSmrtRegisterService(task: any): Promise<any> { return { success: true, serviceId: `svc-${Date.now()}`, serviceName: task.input?.serviceName, healthStatus: 'healthy' }; }
+  private async handleSmrtConfigureRouting(task: any): Promise<any> { return { success: true, meshId: task.input?.meshId, strategy: task.input?.routingStrategy || 'round_robin' }; }
+  private async handleSmrtCreateRule(task: any): Promise<any> { return { success: true, ruleId: `rule-${Date.now()}`, ruleName: task.input?.ruleName, priority: task.input?.priority || 0 }; }
+  private async handleSmrtHealthCheck(task: any): Promise<any> { return { success: true, meshId: task.input?.meshId, services: [], allHealthy: true }; }
+  private async handleSmrtToggleCircuitBreaker(task: any): Promise<any> { return { success: true, serviceId: task.input?.serviceId, circuitBreakerEnabled: task.input?.enabled ?? true }; }
+  private async handleSmrtExportTopology(task: any): Promise<any> { return { success: true, meshId: task.input?.meshId, topology: { nodes: [], edges: [] } }; }
+  private async handleCoptAnalyzeCache(task: any): Promise<any> { return { success: true, hitRate: 0, memoryUsageMb: 0, recommendations: [] }; }
+  private async handleCoptOptimizeTtl(task: any): Promise<any> { return { success: true, optimizedKeys: 0, avgTtlChange: 0 }; }
+  private async handleCoptWarmCache(task: any): Promise<any> { return { success: true, warmedKeys: 0, totalSizeBytes: 0 }; }
+  private async handleCoptEvictStale(task: any): Promise<any> { return { success: true, evictedKeys: 0, freedMemoryMb: 0 }; }
+  private async handleCoptResizeCache(task: any): Promise<any> { return { success: true, currentMb: task.input?.currentMb || 512, recommendedMb: 1024 }; }
+  private async handleCoptGenerateReport(task: any): Promise<any> { return { success: true, report: { hitRate: 0, missRate: 0, evictions: 0, recommendations: [] } }; }
+  private async handleLgixCreateIndex(task: any): Promise<any> { return { success: true, indexId: `idx-${Date.now()}`, indexName: task.input?.indexName }; }
+  private async handleLgixIngestLogs(task: any): Promise<any> { return { success: true, indexName: task.input?.indexName, documentsIngested: 0 }; }
+  private async handleLgixSearchLogs(task: any): Promise<any> { return { success: true, queryText: task.input?.queryText, results: [], totalHits: 0, executionTimeMs: 0 }; }
+  private async handleLgixSaveQuery(task: any): Promise<any> { return { success: true, queryId: `qry-${Date.now()}`, queryText: task.input?.queryText, saved: true }; }
+  private async handleLgixConfigureRetention(task: any): Promise<any> { return { success: true, indexName: task.input?.indexName, retentionDays: task.input?.retentionDays || 30 }; }
+  private async handleLgixExportResults(task: any): Promise<any> { return { success: true, format: task.input?.format || 'json', resultCount: 0, exportPath: '' }; }
 
 }
