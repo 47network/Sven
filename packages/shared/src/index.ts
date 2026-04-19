@@ -339,3 +339,8 @@ export * from './agent-analytics-engine';
 export * from './agent-data-lakehouse';
 export * from './agent-etl-pipeline';
 export * from './agent-report-generator';
+export * from './agent-network-router';
+export * from './agent-dns-gateway';
+export * from './agent-lb-orchestrator';
+export * from './agent-cdn-proxy';
+export * from './agent-rate-controller';
