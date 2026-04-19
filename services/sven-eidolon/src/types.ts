@@ -1208,6 +1208,31 @@ export type EidolonBuildingKind =
   | 'backup_verifier_auditor'
   | 'backup_verifier_reporter'
   | 'backup_verifier_optimizer'
+  | 'log_courier'
+  | 'log_courier_monitor'
+  | 'log_courier_auditor'
+  | 'log_courier_reporter'
+  | 'log_courier_optimizer'
+  | 'metric_pusher'
+  | 'metric_pusher_monitor'
+  | 'metric_pusher_auditor'
+  | 'metric_pusher_reporter'
+  | 'metric_pusher_optimizer'
+  | 'event_linker'
+  | 'event_linker_monitor'
+  | 'event_linker_auditor'
+  | 'event_linker_reporter'
+  | 'event_linker_optimizer'
+  | 'anomaly_spotter'
+  | 'anomaly_spotter_monitor'
+  | 'anomaly_spotter_auditor'
+  | 'anomaly_spotter_reporter'
+  | 'anomaly_spotter_optimizer'
+  | 'incident_handler'
+  | 'incident_handler_monitor'
+  | 'incident_handler_auditor'
+  | 'incident_handler_reporter'
+  | 'incident_handler_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5275,6 +5300,66 @@ export type EidolonEventKind =
   | 'lco.plan_created'
   | 'lco.optimization_applied'
   | 'lco.export_emitted'
+  | 'mp.entry_created'
+  | 'mp.config_updated'
+  | 'mp.export_emitted'
+  | 'mpm.check_passed'
+  | 'mpm.alert_raised'
+  | 'mpm.export_emitted'
+  | 'mpa.entry_logged'
+  | 'mpa.violation_found'
+  | 'mpa.export_emitted'
+  | 'mpr.report_generated'
+  | 'mpr.insight_found'
+  | 'mpr.export_emitted'
+  | 'mpo.plan_created'
+  | 'mpo.optimization_applied'
+  | 'mpo.export_emitted'
+  | 'el.entry_created'
+  | 'el.config_updated'
+  | 'el.export_emitted'
+  | 'elm.check_passed'
+  | 'elm.alert_raised'
+  | 'elm.export_emitted'
+  | 'ela.entry_logged'
+  | 'ela.violation_found'
+  | 'ela.export_emitted'
+  | 'elr.report_generated'
+  | 'elr.insight_found'
+  | 'elr.export_emitted'
+  | 'elo.plan_created'
+  | 'elo.optimization_applied'
+  | 'elo.export_emitted'
+  | 'as.entry_created'
+  | 'as.config_updated'
+  | 'as.export_emitted'
+  | 'asm.check_passed'
+  | 'asm.alert_raised'
+  | 'asm.export_emitted'
+  | 'asa.entry_logged'
+  | 'asa.violation_found'
+  | 'asa.export_emitted'
+  | 'asr.report_generated'
+  | 'asr.insight_found'
+  | 'asr.export_emitted'
+  | 'aso.plan_created'
+  | 'aso.optimization_applied'
+  | 'aso.export_emitted'
+  | 'ih.entry_created'
+  | 'ih.config_updated'
+  | 'ih.export_emitted'
+  | 'ihm.check_passed'
+  | 'ihm.alert_raised'
+  | 'ihm.export_emitted'
+  | 'iha.entry_logged'
+  | 'iha.violation_found'
+  | 'iha.export_emitted'
+  | 'ihr.report_generated'
+  | 'ihr.insight_found'
+  | 'ihr.export_emitted'
+  | 'iho.plan_created'
+  | 'iho.optimization_applied'
+  | 'iho.export_emitted'
   | 'vp.entry_created'
   | 'vp.config_updated'
   | 'vp.export_emitted'
@@ -5545,6 +5630,21 @@ export type EidolonEventKind =
   | 'bvo.plan_created'
   | 'bvo.optimization_applied'
   | 'bvo.export_emitted'
+  | 'lc.entry_created'
+  | 'lc.config_updated'
+  | 'lc.export_emitted'
+  | 'lcm.check_passed'
+  | 'lcm.alert_raised'
+  | 'lcm.export_emitted'
+  | 'lca.entry_logged'
+  | 'lca.violation_found'
+  | 'lca.export_emitted'
+  | 'lcr.report_generated'
+  | 'lcr.insight_found'
+  | 'lcr.export_emitted'
+  | 'lco.plan_created'
+  | 'lco.optimization_applied'
+  | 'lco.export_emitted'
   | 'eg.rule_created'
   | 'eg.config_updated'
   | 'eg.export_emitted'
@@ -7585,6 +7685,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'backup_verifier_auditor':
     case 'backup_verifier_reporter':
     case 'backup_verifier_optimizer':
+    case 'log_courier':
+    case 'log_courier_monitor':
+    case 'log_courier_auditor':
+    case 'log_courier_reporter':
+    case 'log_courier_optimizer':
+    case 'metric_pusher':
+    case 'metric_pusher_monitor':
+    case 'metric_pusher_auditor':
+    case 'metric_pusher_reporter':
+    case 'metric_pusher_optimizer':
+    case 'event_linker':
+    case 'event_linker_monitor':
+    case 'event_linker_auditor':
+    case 'event_linker_reporter':
+    case 'event_linker_optimizer':
+    case 'anomaly_spotter':
+    case 'anomaly_spotter_monitor':
+    case 'anomaly_spotter_auditor':
+    case 'anomaly_spotter_reporter':
+    case 'anomaly_spotter_optimizer':
+    case 'incident_handler':
+    case 'incident_handler_monitor':
+    case 'incident_handler_auditor':
+    case 'incident_handler_reporter':
+    case 'incident_handler_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
