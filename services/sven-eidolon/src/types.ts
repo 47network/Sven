@@ -127,7 +127,7 @@ export type EidolonBuildingKind =
   | 'intrusion_guard'
   | 'rbac_enforcer'
   | 'siem_connector'
-  | 'forensic_analyzer' | 'workflow_engine' | 'task_scheduler' | 'cron_manager' | 'job_orchestrator' | 'batch_processor' | 'feature_flag' | 'rollback_manager' | 'blue_green_router' | 'chaos_tester' | 'deployment_gate' | 'api_documenter' | 'sdk_generator' | 'contract_tester' | 'mock_server' | 'test_harness' | 'log_router' | 'config_sync' | 'health_prober' | 'quota_enforcer' | 'topology_mapper' | 'event_replayer' | 'cache_warmer' | 'job_scheduler' | 'feature_toggle' | 'data_migrator' | 'session_recorder' | 'artifact_builder' | 'tenant_provisioner' | 'index_optimizer' | 'dependency_scanner' | 'encryption_manager' | 'certificate_rotator' | 'vulnerability_assessor' | 'compliance_reporter' | 'identity_resolver' | 'metric_aggregator' | 'alert_correlator' | 'sla_tracker' | 'log_analyzer' | 'performance_profiler' | 'data_transformer' | 'pipeline_orchestrator' | 'data_enricher' | 'etl_scheduler' | 'format_converter' | 'knowledge_indexer' | 'semantic_searcher' | 'taxonomy_builder' | 'content_curator' | 'insight_extractor' | 'workflow_automator' | 'rule_engine' | 'event_reactor' | 'schedule_coordinator' | 'process_monitor' | 'integration_connector' | 'service_mesh_manager' | 'data_sync_engine' | 'webhook_orchestrator' | 'protocol_adapter' | 'access_control_manager' | 'threat_detection_engine' | 'secret_manager' | 'encryption_engine' | 'audit_trail_manager' | 'token_issuer' | 'permission_engine' | 'role_manager' | 'credential_vault' | 'oauth_manager'
+  | 'forensic_analyzer' | 'workflow_engine' | 'task_scheduler' | 'cron_manager' | 'job_orchestrator' | 'batch_processor' | 'feature_flag' | 'rollback_manager' | 'blue_green_router' | 'chaos_tester' | 'deployment_gate' | 'api_documenter' | 'sdk_generator' | 'contract_tester' | 'mock_server' | 'test_harness' | 'log_router' | 'config_sync' | 'health_prober' | 'quota_enforcer' | 'topology_mapper' | 'event_replayer' | 'cache_warmer' | 'job_scheduler' | 'feature_toggle' | 'data_migrator' | 'session_recorder' | 'artifact_builder' | 'tenant_provisioner' | 'index_optimizer' | 'dependency_scanner' | 'encryption_manager' | 'certificate_rotator' | 'vulnerability_assessor' | 'compliance_reporter' | 'identity_resolver' | 'metric_aggregator' | 'alert_correlator' | 'sla_tracker' | 'log_analyzer' | 'performance_profiler' | 'data_transformer' | 'pipeline_orchestrator' | 'data_enricher' | 'etl_scheduler' | 'format_converter' | 'knowledge_indexer' | 'semantic_searcher' | 'taxonomy_builder' | 'content_curator' | 'insight_extractor' | 'workflow_automator' | 'rule_engine' | 'event_reactor' | 'schedule_coordinator' | 'process_monitor' | 'integration_connector' | 'service_mesh_manager' | 'data_sync_engine' | 'webhook_orchestrator' | 'protocol_adapter' | 'access_control_manager' | 'threat_detection_engine' | 'secret_manager' | 'encryption_engine' | 'audit_trail_manager' | 'token_issuer' | 'permission_engine' | 'role_manager' | 'credential_vault' | 'oauth_manager' | 'workflow_orchestrator' | 'pipeline_scheduler' | 'job_dispatcher' | 'queue_manager' | 'state_machine_engine'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -839,7 +839,7 @@ export type EidolonEventKind =
   | 'pmen.permission_created' | 'pmen.check_evaluated' | 'pmen.strategy_changed' | 'pmen.batch_evaluated'
   | 'rlmg.role_created' | 'rlmg.role_assigned' | 'rlmg.assignment_removed' | 'rlmg.permissions_resolved'
   | 'crvt.credential_stored' | 'crvt.credential_retrieved' | 'crvt.credential_rotated' | 'crvt.expiry_alert'
-  | 'oamg.client_registered' | 'oamg.code_exchanged' | 'oamg.token_introspected' | 'oamg.grant_revoked'
+  | 'oamg.client_registered' | 'oamg.code_exchanged' | 'oamg.token_introspected' | 'oamg.grant_revoked' | 'wfor.workflow_started' | 'wfor.step_completed' | 'wfor.workflow_completed' | 'wfor.workflow_failed' | 'ppsc.pipeline_scheduled' | 'ppsc.run_started' | 'ppsc.run_completed' | 'ppsc.run_failed' | 'jbds.job_submitted' | 'jbds.job_dispatched' | 'jbds.job_completed' | 'jbds.job_failed' | 'qumg.message_sent' | 'qumg.message_received' | 'qumg.message_dead_lettered' | 'qumg.queue_purged' | 'smen.event_sent' | 'smen.state_changed' | 'smen.machine_completed' | 'smen.guard_failed'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1622,6 +1622,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'role_manager':
     case 'credential_vault':
     case 'oauth_manager':
+    case 'workflow_orchestrator':
+    case 'pipeline_scheduler':
+    case 'job_dispatcher':
+    case 'queue_manager':
+    case 'state_machine_engine':
       case 'network_firewall':
       case 'threat_detector':
       return 'industrial';

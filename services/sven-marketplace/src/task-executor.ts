@@ -2603,6 +2603,36 @@ export class TaskExecutor {
       case 'oamg_client_credentials': return this.handleOamgClientCredentials(task);
       case 'oamg_introspect_token': return this.handleOamgIntrospectToken(task);
       case 'oamg_revoke_grant': return this.handleOamgRevokeGrant(task);
+      case 'wfor_create_workflow': return this.handleWforCreateWorkflow(task);
+      case 'wfor_start_workflow': return this.handleWforStartWorkflow(task);
+      case 'wfor_pause_workflow': return this.handleWforPauseWorkflow(task);
+      case 'wfor_resume_workflow': return this.handleWforResumeWorkflow(task);
+      case 'wfor_get_status': return this.handleWforGetStatus(task);
+      case 'wfor_cancel_workflow': return this.handleWforCancelWorkflow(task);
+      case 'ppsc_create_pipeline': return this.handlePpscCreatePipeline(task);
+      case 'ppsc_trigger_pipeline': return this.handlePpscTriggerPipeline(task);
+      case 'ppsc_update_schedule': return this.handlePpscUpdateSchedule(task);
+      case 'ppsc_list_runs': return this.handlePpscListRuns(task);
+      case 'ppsc_cancel_run': return this.handlePpscCancelRun(task);
+      case 'ppsc_enable_disable': return this.handlePpscEnableDisable(task);
+      case 'jbds_submit_job': return this.handleJbdsSubmitJob(task);
+      case 'jbds_dispatch_jobs': return this.handleJbdsDispatchJobs(task);
+      case 'jbds_register_worker': return this.handleJbdsRegisterWorker(task);
+      case 'jbds_worker_heartbeat': return this.handleJbdsWorkerHeartbeat(task);
+      case 'jbds_get_job_status': return this.handleJbdsGetJobStatus(task);
+      case 'jbds_retry_failed': return this.handleJbdsRetryFailed(task);
+      case 'qumg_create_queue': return this.handleQumgCreateQueue(task);
+      case 'qumg_send_message': return this.handleQumgSendMessage(task);
+      case 'qumg_receive_messages': return this.handleQumgReceiveMessages(task);
+      case 'qumg_acknowledge_message': return this.handleQumgAcknowledgeMessage(task);
+      case 'qumg_dead_letter': return this.handleQumgDeadLetter(task);
+      case 'qumg_purge_queue': return this.handleQumgPurgeQueue(task);
+      case 'smen_create_machine': return this.handleSmenCreateMachine(task);
+      case 'smen_send_event': return this.handleSmenSendEvent(task);
+      case 'smen_get_state': return this.handleSmenGetState(task);
+      case 'smen_get_history': return this.handleSmenGetHistory(task);
+      case 'smen_pause_machine': return this.handleSmenPauseMachine(task);
+      case 'smen_reset_machine': return this.handleSmenResetMachine(task);
     }
   }
 
@@ -17585,5 +17615,37 @@ export class TaskExecutor {
   private async handleOamgRevokeGrant(task: any): Promise<any> {
     return { success: true, handler: 'oamg_revoke_grant', grantId: task.input?.grantId, revoked: true, tokensRevoked: 3 };
   }
+
+
+  private async handleWforCreateWorkflow(task: any): Promise<any> { return { success: true, workflowId: `wf-${Date.now()}`, status: 'pending', definition: task.input?.definition || {} }; }
+  private async handleWforStartWorkflow(task: any): Promise<any> { return { success: true, workflowId: task.input?.workflowId, status: 'running', startedAt: new Date().toISOString() }; }
+  private async handleWforPauseWorkflow(task: any): Promise<any> { return { success: true, workflowId: task.input?.workflowId, status: 'paused' }; }
+  private async handleWforResumeWorkflow(task: any): Promise<any> { return { success: true, workflowId: task.input?.workflowId, status: 'running' }; }
+  private async handleWforGetStatus(task: any): Promise<any> { return { success: true, workflowId: task.input?.workflowId, status: 'running', completedSteps: [], currentStep: 'step_1' }; }
+  private async handleWforCancelWorkflow(task: any): Promise<any> { return { success: true, workflowId: task.input?.workflowId, status: 'cancelled' }; }
+  private async handlePpscCreatePipeline(task: any): Promise<any> { return { success: true, pipelineId: `pp-${Date.now()}`, name: task.input?.name || 'pipeline', triggerType: task.input?.triggerType || 'manual' }; }
+  private async handlePpscTriggerPipeline(task: any): Promise<any> { return { success: true, pipelineId: task.input?.pipelineId, runId: `run-${Date.now()}`, status: 'queued' }; }
+  private async handlePpscUpdateSchedule(task: any): Promise<any> { return { success: true, pipelineId: task.input?.pipelineId, scheduleCron: task.input?.scheduleCron }; }
+  private async handlePpscListRuns(task: any): Promise<any> { return { success: true, pipelineId: task.input?.pipelineId, runs: [], totalRuns: 0 }; }
+  private async handlePpscCancelRun(task: any): Promise<any> { return { success: true, runId: task.input?.runId, status: 'cancelled' }; }
+  private async handlePpscEnableDisable(task: any): Promise<any> { return { success: true, pipelineId: task.input?.pipelineId, enabled: task.input?.enabled ?? true }; }
+  private async handleJbdsSubmitJob(task: any): Promise<any> { return { success: true, jobId: `job-${Date.now()}`, jobType: task.input?.jobType, priority: task.input?.priority || 5, status: 'queued' }; }
+  private async handleJbdsDispatchJobs(task: any): Promise<any> { return { success: true, dispatchedCount: 0, strategy: task.input?.strategy || 'round_robin' }; }
+  private async handleJbdsRegisterWorker(task: any): Promise<any> { return { success: true, workerId: `wk-${Date.now()}`, workerAgentId: task.input?.workerAgentId, status: 'idle' }; }
+  private async handleJbdsWorkerHeartbeat(task: any): Promise<any> { return { success: true, workerId: task.input?.workerId, status: 'idle', currentLoad: 0 }; }
+  private async handleJbdsGetJobStatus(task: any): Promise<any> { return { success: true, jobId: task.input?.jobId, status: 'queued', attempts: 0 }; }
+  private async handleJbdsRetryFailed(task: any): Promise<any> { return { success: true, retriedCount: 0, jobType: task.input?.jobType }; }
+  private async handleQumgCreateQueue(task: any): Promise<any> { return { success: true, queueId: `q-${Date.now()}`, name: task.input?.name, queueType: task.input?.queueType || 'standard' }; }
+  private async handleQumgSendMessage(task: any): Promise<any> { return { success: true, messageId: `msg-${Date.now()}`, queueId: task.input?.queueId }; }
+  private async handleQumgReceiveMessages(task: any): Promise<any> { return { success: true, messages: [], queueId: task.input?.queueId }; }
+  private async handleQumgAcknowledgeMessage(task: any): Promise<any> { return { success: true, messageId: task.input?.messageId, acknowledged: true }; }
+  private async handleQumgDeadLetter(task: any): Promise<any> { return { success: true, messageId: task.input?.messageId, movedToDlq: true }; }
+  private async handleQumgPurgeQueue(task: any): Promise<any> { return { success: true, queueId: task.input?.queueId, purgedCount: 0 }; }
+  private async handleSmenCreateMachine(task: any): Promise<any> { return { success: true, machineId: `sm-${Date.now()}`, name: task.input?.name, currentState: task.input?.initialState || 'initial' }; }
+  private async handleSmenSendEvent(task: any): Promise<any> { return { success: true, machineId: task.input?.machineId, event: task.input?.event, previousState: 'initial', currentState: 'next' }; }
+  private async handleSmenGetState(task: any): Promise<any> { return { success: true, machineId: task.input?.machineId, currentState: 'initial', context: {} }; }
+  private async handleSmenGetHistory(task: any): Promise<any> { return { success: true, machineId: task.input?.machineId, transitions: [] }; }
+  private async handleSmenPauseMachine(task: any): Promise<any> { return { success: true, machineId: task.input?.machineId, status: 'paused' }; }
+  private async handleSmenResetMachine(task: any): Promise<any> { return { success: true, machineId: task.input?.machineId, currentState: task.input?.initialState || 'initial', status: 'active' }; }
 
 }

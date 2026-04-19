@@ -426,3 +426,8 @@ export * from './agent-permission-engine';
 export * from './agent-role-manager';
 export * from './agent-credential-vault';
 export * from './agent-oauth-manager';
+export * from './agent-workflow-orchestrator';
+export * from './agent-pipeline-scheduler';
+export * from './agent-job-dispatcher';
+export * from './agent-queue-manager';
+export * from './agent-state-machine-engine';

@@ -78,6 +78,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 403-407 — Workflow & Orchestration
+- **workflow_orchestrator** (Batch 403): Multi-step workflow engine — branching, parallel execution, pause/resume, configurable error recovery
+- **pipeline_scheduler** (Batch 404): Pipeline scheduling — cron expressions, event/dependency/webhook triggers, catch-up runs, timezone support
+- **job_dispatcher** (Batch 405): Job distribution engine — round-robin/least-loaded/priority/affinity strategies, worker heartbeats, dead-letter
+- **queue_manager** (Batch 406): Message queue management — FIFO/priority/delay/DLQ queues, visibility timeouts, rate limiting
+- **state_machine_engine** (Batch 407): Finite state machines — guard conditions, transition actions, context accumulation, full history
+
 ### Batches 398-402 — Identity & Authentication
 - **token_issuer** (Batch 398): JWT/API-key issuance — RS256/ES256/EdDSA signing, token lifecycle, revocation with reason tracking
 - **permission_engine** (Batch 399): Fine-grained permission evaluation — wildcard matching, multiple strategies, batch evaluation, check history

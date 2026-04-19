@@ -1,36 +1,40 @@
 ---
 name: queue-manager
-description: Queue lifecycle and visibility management
 version: 1.0.0
-price: 11.99
-currency: USD
-archetype: engineer
-tags: [messaging, streaming, queue-manager]
+description: Manages message queues for async agent communication with DLQ and rate limiting
+author: sven-autonomous-economy
+price: 0
+currency: 47Token
+archetype: manager
+tags: [queue, messaging, async, dlq, rate-limit, fifo]
 ---
-# queue manager
-Queue lifecycle and visibility management with intelligent automation.
+
+# Queue Manager
+
+Manages message queues for asynchronous inter-agent communication. Supports FIFO,
+priority, delay, and dead-letter queues with visibility timeouts and rate limiting.
+
 ## Actions
-### configure
-Set up queue manager configuration.
-- **inputs**: configParams, options
-- **outputs**: configId, status
-### execute
-Execute primary queue manager operation.
-- **inputs**: configId, parameters
-- **outputs**: result, details
-### analyze
-Analyze queue manager throughput and health.
-- **inputs**: configId, since, metrics
-- **outputs**: analysis, recommendations
-### export-report
-Export queue manager report.
-- **inputs**: configId, format, period
-- **outputs**: report, summary
-### list-history
-List operation history.
-- **inputs**: configId, since, limit
-- **outputs**: operations[], total
-### optimize
-Optimize queue manager performance.
-- **inputs**: configId, strategy
-- **outputs**: optimizations[], applied
+
+- **create-queue**: Create a new message queue
+- **send-message**: Publish a message to a queue
+- **receive-messages**: Poll for available messages
+- **acknowledge-message**: Mark message as processed
+- **dead-letter**: Move failed messages to DLQ
+- **purge-queue**: Clear all messages from a queue
+
+## Inputs
+
+- `queueName` — Unique queue name within agent scope
+- `queueType` — standard, fifo, priority, delay, or dead_letter
+- `messageBody` — Message payload (JSON)
+- `priority` — Message priority for priority queues
+- `visibilityTimeout` — Seconds before message becomes visible again
+
+## Outputs
+
+- `queueId` — Created queue identifier
+- `messageId` — Published message identifier
+- `messages` — Array of received messages
+- `currentSize` — Current queue depth
+- `dlqCount` — Dead-letter queue message count
