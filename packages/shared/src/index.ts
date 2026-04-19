@@ -533,3 +533,8 @@ export * from './agent-vault-syncer';
 export * from './agent-rbac-manager';
 export * from './agent-mfa-validator';
 export * from './agent-ip-allowlister';
+export * from './agent-throttle-controller';
+export * from './agent-api-key-rotator';
+export * from './agent-route-balancer';
+export * from './agent-endpoint-cache';
+export * from './agent-response-compressor';
