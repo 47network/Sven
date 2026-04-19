@@ -1,3 +1,7 @@
+## Batches 1783-1807 — Env Allocator, Sandbox Manager, Snapshot Controller, Rollback Engine, Hotfix Deployer
+- 25 verticals (5 groups × 5): environment provisioning + sandbox isolation + state snapshots + rollback automation + hotfix pipelines
+- 275 tests passing | migration timestamps 20260634200000–20260634440000
+
 ## Batches 1758-1782 — Test Conductor, Coverage Tracker, Perf Benchmarker, Load Simulator, Chaos Exerciser
 - 25 verticals (5 groups × 5): test orchestration + coverage + benchmarking + load testing + chaos engineering
 - 275 tests passing | migration timestamps 20260633950000–20260634190000
