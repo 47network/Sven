@@ -1433,6 +1433,31 @@ export type EidolonBuildingKind =
   | 'merge_resolver_auditor'
   | 'merge_resolver_reporter'
   | 'merge_resolver_optimizer'
+  | 'code_scanner'
+  | 'code_scanner_monitor'
+  | 'code_scanner_auditor'
+  | 'code_scanner_reporter'
+  | 'code_scanner_optimizer'
+  | 'lint_enforcer'
+  | 'lint_enforcer_monitor'
+  | 'lint_enforcer_auditor'
+  | 'lint_enforcer_reporter'
+  | 'lint_enforcer_optimizer'
+  | 'style_formatter'
+  | 'style_formatter_monitor'
+  | 'style_formatter_auditor'
+  | 'style_formatter_reporter'
+  | 'style_formatter_optimizer'
+  | 'doc_generator'
+  | 'doc_generator_monitor'
+  | 'doc_generator_auditor'
+  | 'doc_generator_reporter'
+  | 'doc_generator_optimizer'
+  | 'api_spec_builder'
+  | 'api_spec_builder_monitor'
+  | 'api_spec_builder_auditor'
+  | 'api_spec_builder_reporter'
+  | 'api_spec_builder_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5230,6 +5255,36 @@ export type EidolonEventKind =
   | 'sfo.plan_created'
   | 'sfo.optimization_applied'
   | 'sfo.export_emitted'
+  | 'dg.entry_created'
+  | 'dg.config_updated'
+  | 'dg.export_emitted'
+  | 'dgm.check_passed'
+  | 'dgm.alert_raised'
+  | 'dgm.export_emitted'
+  | 'dga.entry_logged'
+  | 'dga.violation_found'
+  | 'dga.export_emitted'
+  | 'dgr.report_generated'
+  | 'dgr.insight_found'
+  | 'dgr.export_emitted'
+  | 'dgo.plan_created'
+  | 'dgo.optimization_applied'
+  | 'dgo.export_emitted'
+  | 'asb.entry_created'
+  | 'asb.config_updated'
+  | 'asb.export_emitted'
+  | 'asbm.check_passed'
+  | 'asbm.alert_raised'
+  | 'asbm.export_emitted'
+  | 'asba.entry_logged'
+  | 'asba.violation_found'
+  | 'asba.export_emitted'
+  | 'asbr.report_generated'
+  | 'asbr.insight_found'
+  | 'asbr.export_emitted'
+  | 'asbo.plan_created'
+  | 'asbo.optimization_applied'
+  | 'asbo.export_emitted'
   | 'me.entry_created'
   | 'me.config_updated'
   | 'me.export_emitted'
@@ -5635,6 +5690,51 @@ export type EidolonEventKind =
   | 'mro.plan_created'
   | 'mro.optimization_applied'
   | 'mro.export_emitted'
+  | 'cs.entry_created'
+  | 'cs.config_updated'
+  | 'cs.export_emitted'
+  | 'csm.check_passed'
+  | 'csm.alert_raised'
+  | 'csm.export_emitted'
+  | 'csa.entry_logged'
+  | 'csa.violation_found'
+  | 'csa.export_emitted'
+  | 'csr.report_generated'
+  | 'csr.insight_found'
+  | 'csr.export_emitted'
+  | 'cso.plan_created'
+  | 'cso.optimization_applied'
+  | 'cso.export_emitted'
+  | 'le.entry_created'
+  | 'le.config_updated'
+  | 'le.export_emitted'
+  | 'lem.check_passed'
+  | 'lem.alert_raised'
+  | 'lem.export_emitted'
+  | 'lea.entry_logged'
+  | 'lea.violation_found'
+  | 'lea.export_emitted'
+  | 'ler.report_generated'
+  | 'ler.insight_found'
+  | 'ler.export_emitted'
+  | 'leo.plan_created'
+  | 'leo.optimization_applied'
+  | 'leo.export_emitted'
+  | 'sf.entry_created'
+  | 'sf.config_updated'
+  | 'sf.export_emitted'
+  | 'sfm.check_passed'
+  | 'sfm.alert_raised'
+  | 'sfm.export_emitted'
+  | 'sfa.entry_logged'
+  | 'sfa.violation_found'
+  | 'sfa.export_emitted'
+  | 'sfr.report_generated'
+  | 'sfr.insight_found'
+  | 'sfr.export_emitted'
+  | 'sfo.plan_created'
+  | 'sfo.optimization_applied'
+  | 'sfo.export_emitted'
   | 'ct.experiment_created'
   | 'ct.config_updated'
   | 'ct.export_emitted'
@@ -8710,6 +8810,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'merge_resolver_auditor':
     case 'merge_resolver_reporter':
     case 'merge_resolver_optimizer':
+    case 'code_scanner':
+    case 'code_scanner_monitor':
+    case 'code_scanner_auditor':
+    case 'code_scanner_reporter':
+    case 'code_scanner_optimizer':
+    case 'lint_enforcer':
+    case 'lint_enforcer_monitor':
+    case 'lint_enforcer_auditor':
+    case 'lint_enforcer_reporter':
+    case 'lint_enforcer_optimizer':
+    case 'style_formatter':
+    case 'style_formatter_monitor':
+    case 'style_formatter_auditor':
+    case 'style_formatter_reporter':
+    case 'style_formatter_optimizer':
+    case 'doc_generator':
+    case 'doc_generator_monitor':
+    case 'doc_generator_auditor':
+    case 'doc_generator_reporter':
+    case 'doc_generator_optimizer':
+    case 'api_spec_builder':
+    case 'api_spec_builder_monitor':
+    case 'api_spec_builder_auditor':
+    case 'api_spec_builder_reporter':
+    case 'api_spec_builder_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
