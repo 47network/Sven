@@ -1558,6 +1558,31 @@ export type EidolonBuildingKind =
   | 'revenue_tracker_auditor'
   | 'revenue_tracker_reporter'
   | 'revenue_tracker_optimizer'
+  | 'expense_tracker'
+  | 'expense_tracker_monitor'
+  | 'expense_tracker_auditor'
+  | 'expense_tracker_reporter'
+  | 'expense_tracker_optimizer'
+  | 'profit_calculator'
+  | 'profit_calculator_monitor'
+  | 'profit_calculator_auditor'
+  | 'profit_calculator_reporter'
+  | 'profit_calculator_optimizer'
+  | 'tax_engine'
+  | 'tax_engine_monitor'
+  | 'tax_engine_auditor'
+  | 'tax_engine_reporter'
+  | 'tax_engine_optimizer'
+  | 'ledger_manager'
+  | 'ledger_manager_monitor'
+  | 'ledger_manager_auditor'
+  | 'ledger_manager_reporter'
+  | 'ledger_manager_optimizer'
+  | 'reconciliation_agent'
+  | 'reconciliation_agent_monitor'
+  | 'reconciliation_agent_auditor'
+  | 'reconciliation_agent_reporter'
+  | 'reconciliation_agent_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5475,6 +5500,81 @@ export type EidolonEventKind =
   | 'rto.plan_created'
   | 'rto.optimization_applied'
   | 'rto.export_emitted'
+  | 'et.entry_created'
+  | 'et.config_updated'
+  | 'et.export_emitted'
+  | 'etm.check_passed'
+  | 'etm.alert_raised'
+  | 'etm.export_emitted'
+  | 'eta.entry_logged'
+  | 'eta.violation_found'
+  | 'eta.export_emitted'
+  | 'etr.report_generated'
+  | 'etr.insight_found'
+  | 'etr.export_emitted'
+  | 'eto.plan_created'
+  | 'eto.optimization_applied'
+  | 'eto.export_emitted'
+  | 'pc.entry_created'
+  | 'pc.config_updated'
+  | 'pc.export_emitted'
+  | 'pcm.check_passed'
+  | 'pcm.alert_raised'
+  | 'pcm.export_emitted'
+  | 'pca.entry_logged'
+  | 'pca.violation_found'
+  | 'pca.export_emitted'
+  | 'pcr.report_generated'
+  | 'pcr.insight_found'
+  | 'pcr.export_emitted'
+  | 'pco.plan_created'
+  | 'pco.optimization_applied'
+  | 'pco.export_emitted'
+  | 'te.entry_created'
+  | 'te.config_updated'
+  | 'te.export_emitted'
+  | 'tem.check_passed'
+  | 'tem.alert_raised'
+  | 'tem.export_emitted'
+  | 'tea.entry_logged'
+  | 'tea.violation_found'
+  | 'tea.export_emitted'
+  | 'ter.report_generated'
+  | 'ter.insight_found'
+  | 'ter.export_emitted'
+  | 'teo.plan_created'
+  | 'teo.optimization_applied'
+  | 'teo.export_emitted'
+  | 'lm.entry_created'
+  | 'lm.config_updated'
+  | 'lm.export_emitted'
+  | 'lmm.check_passed'
+  | 'lmm.alert_raised'
+  | 'lmm.export_emitted'
+  | 'lma.entry_logged'
+  | 'lma.violation_found'
+  | 'lma.export_emitted'
+  | 'lmr.report_generated'
+  | 'lmr.insight_found'
+  | 'lmr.export_emitted'
+  | 'lmo.plan_created'
+  | 'lmo.optimization_applied'
+  | 'lmo.export_emitted'
+  | 'ra.entry_created'
+  | 'ra.config_updated'
+  | 'ra.export_emitted'
+  | 'ram.check_passed'
+  | 'ram.alert_raised'
+  | 'ram.export_emitted'
+  | 'raa.entry_logged'
+  | 'raa.violation_found'
+  | 'raa.export_emitted'
+  | 'rar.report_generated'
+  | 'rar.insight_found'
+  | 'rar.export_emitted'
+  | 'rao.plan_created'
+  | 'rao.optimization_applied'
+  | 'rao.export_emitted'
   | 'bg.entry_created'
   | 'bg.config_updated'
   | 'bg.export_emitted'
@@ -9335,6 +9435,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'revenue_tracker_auditor':
     case 'revenue_tracker_reporter':
     case 'revenue_tracker_optimizer':
+    case 'expense_tracker':
+    case 'expense_tracker_monitor':
+    case 'expense_tracker_auditor':
+    case 'expense_tracker_reporter':
+    case 'expense_tracker_optimizer':
+    case 'profit_calculator':
+    case 'profit_calculator_monitor':
+    case 'profit_calculator_auditor':
+    case 'profit_calculator_reporter':
+    case 'profit_calculator_optimizer':
+    case 'tax_engine':
+    case 'tax_engine_monitor':
+    case 'tax_engine_auditor':
+    case 'tax_engine_reporter':
+    case 'tax_engine_optimizer':
+    case 'ledger_manager':
+    case 'ledger_manager_monitor':
+    case 'ledger_manager_auditor':
+    case 'ledger_manager_reporter':
+    case 'ledger_manager_optimizer':
+    case 'reconciliation_agent':
+    case 'reconciliation_agent_monitor':
+    case 'reconciliation_agent_auditor':
+    case 'reconciliation_agent_reporter':
+    case 'reconciliation_agent_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
