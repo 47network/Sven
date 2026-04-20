@@ -428,7 +428,7 @@ services:
 
   # ── Sven Internal Ingress (Dockerized nginx) ───────────────────────────
   sven-internal-nginx:
-    image: nginx@sha256:1d13701a5f9f3fb01aaa88cef2344d65b6b5bf6b7d9fa4cf0dca557a8d7702ba
+    image: nginx@sha256:7f0adca1fc6c29c8dc49a2e90037a10ba20dc266baaed0988e9fb4d0d8b85ba0
     restart: unless-stopped
     ports:
       - "8088:80"
@@ -448,7 +448,7 @@ services:
   # ── Legacy quickstart-static (disabled by default) ─────────────────────
   quickstart-static:
     profiles: [ "legacy-ingress" ]
-    image: nginx@sha256:1d13701a5f9f3fb01aaa88cef2344d65b6b5bf6b7d9fa4cf0dca557a8d7702ba
+    image: nginx@sha256:7f0adca1fc6c29c8dc49a2e90037a10ba20dc266baaed0988e9fb4d0d8b85ba0
     restart: unless-stopped
     ports:
       - "18088:80"
