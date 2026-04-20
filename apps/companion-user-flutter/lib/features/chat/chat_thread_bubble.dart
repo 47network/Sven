@@ -50,10 +50,13 @@ List<_ActionButtonSpec> _extractActionButtons(List<dynamic>? blocks) {
         ?.toString()
         .trim();
     if (label == null || label.isEmpty) return;
-    final action = _normalizeAction(btn['action']?.toString() ??
-        btn['type']?.toString() ??
-        btn['id']?.toString());
-    final approvalId = btn['approval_id']?.toString() ??
+    final action = _normalizeAction(
+      btn['action']?.toString() ??
+          btn['type']?.toString() ??
+          btn['id']?.toString(),
+    );
+    final approvalId =
+        btn['approval_id']?.toString() ??
         ((action == 'approve' || action == 'reject')
             ? btn['value']?.toString()
             : null);
@@ -64,7 +67,8 @@ List<_ActionButtonSpec> _extractActionButtons(List<dynamic>? blocks) {
         label: label,
         action: action,
         url: btn['url']?.toString(),
-        command: btn['command']?.toString() ??
+        command:
+            btn['command']?.toString() ??
             (action == 'run_command' ? value : null),
         text: btn['text']?.toString() ?? (action == 'reply' ? value : null),
         approvalId: approvalId,
@@ -83,9 +87,9 @@ List<_ActionButtonSpec> _extractActionButtons(List<dynamic>? blocks) {
       final buttons = block['buttons'] is List
           ? block['buttons'] as List
           : (block['content'] is Map &&
-                  (block['content'] as Map)['buttons'] is List)
-              ? (block['content'] as Map)['buttons'] as List
-              : const [];
+                (block['content'] as Map)['buttons'] is List)
+          ? (block['content'] as Map)['buttons'] as List
+          : const [];
       for (var i = 0; i < buttons.length; i++) {
         final btn = buttons[i];
         if (btn is Map) {
@@ -198,9 +202,9 @@ class _MessageBubble extends StatelessWidget {
               child: Text(
                 message.text,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: tokens.onSurface.withValues(alpha: 0.5),
-                      fontStyle: FontStyle.italic,
-                    ),
+                  color: tokens.onSurface.withValues(alpha: 0.5),
+                  fontStyle: FontStyle.italic,
+                ),
               ),
             ),
           ),
@@ -220,8 +224,9 @@ class _MessageBubble extends StatelessWidget {
     Widget messageContent;
     if (isUser) {
       // Strip [Image: ...] tags — images are shown as thumbnails below
-      final displayText =
-          message.text.replaceAll(RegExp(r'\[Image:[^\]]*\]\n?'), '').trim();
+      final displayText = message.text
+          .replaceAll(RegExp(r'\[Image:[^\]]*\]\n?'), '')
+          .trim();
       messageContent = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -255,7 +260,8 @@ class _MessageBubble extends StatelessWidget {
     } else {
       // Pre-process LaTeX: replace $...$ and $$...$$ with placeholder tags
       final processedText = _preprocessLatex(
-          isStreaming && showCursor ? '${message.text}\u2588' : message.text);
+        isStreaming && showCursor ? '${message.text}\u2588' : message.text,
+      );
       messageContent = MarkdownBody(
         data: processedText,
         selectable: true,
@@ -267,11 +273,7 @@ class _MessageBubble extends StatelessWidget {
           ],
         ),
         styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-          p: TextStyle(
-            color: tokens.onSurface,
-            fontSize: 15,
-            height: 1.45,
-          ),
+          p: TextStyle(color: tokens.onSurface, fontSize: 15, height: 1.45),
           strong: TextStyle(
             color: tokens.onSurface,
             fontWeight: FontWeight.bold,
@@ -290,8 +292,10 @@ class _MessageBubble extends StatelessWidget {
                 ? tokens.primary.withValues(alpha: 0.08)
                 : tokens.onSurface.withValues(alpha: 0.06),
           ),
-          codeblockPadding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          codeblockPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 10,
+          ),
           codeblockDecoration: BoxDecoration(
             color: cinematic
                 ? const Color(0xFF0D1117)
@@ -319,8 +323,10 @@ class _MessageBubble extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
           ),
           tableColumnWidth: const IntrinsicColumnWidth(),
-          tableCellsPadding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          tableCellsPadding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 6,
+          ),
           tableHeadAlign: TextAlign.left,
         ),
         shrinkWrap: true,
@@ -343,7 +349,10 @@ class _MessageBubble extends StatelessWidget {
         },
         builders: {
           'pre': _CodeBlockBuilder(
-              tokens: tokens, cinematic: cinematic, onRunCode: onRunCode),
+            tokens: tokens,
+            cinematic: cinematic,
+            onRunCode: onRunCode,
+          ),
           'imath': _InlineMathBuilder(tokens: tokens, cinematic: cinematic),
         },
       );
@@ -358,33 +367,33 @@ class _MessageBubble extends StatelessWidget {
       decoration: BoxDecoration(
         color: isUser
             ? (cinematic
-                ? tokens.primary.withValues(alpha: 0.15)
-                : tokens.primary)
+                  ? tokens.primary.withValues(alpha: 0.15)
+                  : tokens.primary)
             : (cinematic ? tokens.card : tokens.surface),
         borderRadius: bubbleRadius,
         border: isFailed
             ? Border.all(color: Theme.of(context).colorScheme.error)
             : isQueued
-                ? Border.all(color: tokens.onSurface.withValues(alpha: 0.25))
-                : cinematic
-                    ? Border.all(
-                        color: isUser
-                            ? tokens.primary.withValues(alpha: 0.28)
-                            : tokens.frame,
-                        width: 0.7,
-                      )
-                    : (!isUser
-                        ? Border.all(
-                            color: tokens.frame.withValues(alpha: 0.5),
-                            width: 0.5,
-                          )
-                        : null),
+            ? Border.all(color: tokens.onSurface.withValues(alpha: 0.25))
+            : cinematic
+            ? Border.all(
+                color: isUser
+                    ? tokens.primary.withValues(alpha: 0.28)
+                    : tokens.frame,
+                width: 0.7,
+              )
+            : (!isUser
+                  ? Border.all(
+                      color: tokens.frame.withValues(alpha: 0.5),
+                      width: 0.5,
+                    )
+                  : null),
         boxShadow: [
           BoxShadow(
             color: cinematic
                 ? (isUser
-                    ? tokens.primary.withValues(alpha: 0.08)
-                    : Colors.black.withValues(alpha: 0.12))
+                      ? tokens.primary.withValues(alpha: 0.08)
+                      : Colors.black.withValues(alpha: 0.12))
                 : Colors.black.withValues(alpha: 0.04),
             blurRadius: cinematic ? 10 : 6,
             offset: const Offset(0, 2),
@@ -400,9 +409,9 @@ class _MessageBubble extends StatelessWidget {
               child: Text(
                 message.senderName!,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: tokens.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  color: tokens.primary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           messageContent,
@@ -433,19 +442,21 @@ class _MessageBubble extends StatelessWidget {
                       ),
                     ),
                   if (isQueued)
-                    Icon(Icons.schedule,
-                        size: 14,
-                        color: tokens.onSurface.withValues(alpha: 0.5)),
+                    Icon(
+                      Icons.schedule,
+                      size: 14,
+                      color: tokens.onSurface.withValues(alpha: 0.5),
+                    ),
                   const SizedBox(width: 4),
                   Text(
                     isQueued
                         ? (message.queuePosition != null
-                            ? 'Queued · #${message.queuePosition}'
-                            : 'Queued')
+                              ? 'Queued · #${message.queuePosition}'
+                              : 'Queued')
                         : 'Sending\u2026',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: tokens.onSurface.withValues(alpha: 0.45),
-                        ),
+                      color: tokens.onSurface.withValues(alpha: 0.45),
+                    ),
                   ),
                   if (isQueued && onCancelQueued != null) ...[
                     const SizedBox(width: 8),
@@ -454,9 +465,9 @@ class _MessageBubble extends StatelessWidget {
                       child: Text(
                         'Cancel',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: tokens.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          color: tokens.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
@@ -475,19 +486,19 @@ class _MessageBubble extends StatelessWidget {
                 child: GestureDetector(
                   onTap: onRetry,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .error
-                          .withValues(alpha: 0.08),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.error.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .error
-                            .withValues(alpha: 0.28),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.error.withValues(alpha: 0.28),
                       ),
                     ),
                     child: Row(
@@ -501,10 +512,10 @@ class _MessageBubble extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           'Failed',
-                          style:
-                              Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: Theme.of(context).colorScheme.error,
-                                  ),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
                         ),
                         if (onRetry != null) ...[
                           const SizedBox(width: 6),
@@ -516,9 +527,7 @@ class _MessageBubble extends StatelessWidget {
                           const SizedBox(width: 2),
                           Text(
                             'Retry',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall
+                            style: Theme.of(context).textTheme.labelSmall
                                 ?.copyWith(
                                   color: Theme.of(context).colorScheme.error,
                                   fontWeight: FontWeight.w700,
@@ -606,10 +615,8 @@ class _MessageBubble extends StatelessWidget {
                 cinematic: cinematic,
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
-                    builder: (_) => _ArtifactPage(
-                      message: message,
-                      visualMode: visualMode,
-                    ),
+                    builder: (_) =>
+                        _ArtifactPage(message: message, visualMode: visualMode),
                   ),
                 ),
               ),
@@ -651,8 +658,12 @@ class _MessageBubble extends StatelessWidget {
       content = Align(
         alignment: Alignment.centerRight,
         child: Padding(
-          padding:
-              const EdgeInsets.only(left: 48, right: 14, top: 3, bottom: 3),
+          padding: const EdgeInsets.only(
+            left: 48,
+            right: 14,
+            top: 3,
+            bottom: 3,
+          ),
           child: bubble,
         ),
       );
@@ -695,7 +706,10 @@ class _MessageBubble extends StatelessWidget {
 
   /// Render local image thumbnails as a compact wrap grid.
   Widget _buildImageStrip(
-      List<String> paths, bool cinematic, SvenModeTokens tokens) {
+    List<String> paths,
+    bool cinematic,
+    SvenModeTokens tokens,
+  ) {
     return Wrap(
       spacing: 6,
       runSpacing: 6,
@@ -780,8 +794,10 @@ class _FileDownloadChips extends StatelessWidget {
                 mode: LaunchMode.externalApplication,
               ),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: tokens.primary.withValues(alpha: 0.55),
@@ -871,9 +887,9 @@ class _InlineActionButton extends StatelessWidget {
             child: Text(
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: textColor,
-                    fontWeight: FontWeight.w600,
-                  ),
+                color: textColor,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ),
@@ -903,8 +919,9 @@ class _ActionChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor =
-        isActive ? tokens.primary : tokens.onSurface.withValues(alpha: 0.40);
+    final iconColor = isActive
+        ? tokens.primary
+        : tokens.onSurface.withValues(alpha: 0.40);
     return Semantics(
       label: label.isNotEmpty ? label : null,
       button: true,
@@ -929,10 +946,10 @@ class _ActionChip extends StatelessWidget {
                     Text(
                       label,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: isActive
-                                ? tokens.primary
-                                : tokens.onSurface.withValues(alpha: 0.45),
-                          ),
+                        color: isActive
+                            ? tokens.primary
+                            : tokens.onSurface.withValues(alpha: 0.45),
+                      ),
                     ),
                   ],
                 ],
@@ -1031,11 +1048,7 @@ class _CodeBlockBuilder extends MarkdownElementBuilder {
 
     // Render Mermaid diagrams in a WebView instead of a code block
     if (language == 'mermaid') {
-      return MermaidBlock(
-        source: code,
-        tokens: tokens,
-        cinematic: cinematic,
-      );
+      return MermaidBlock(source: code, tokens: tokens, cinematic: cinematic);
     }
 
     return _CodeBlock(
@@ -1202,9 +1215,11 @@ class _CodeBlockState extends State<_CodeBlock>
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.copy_rounded,
-                              size: 13,
-                              color: tokens.onSurface.withValues(alpha: 0.45)),
+                          Icon(
+                            Icons.copy_rounded,
+                            size: 13,
+                            color: tokens.onSurface.withValues(alpha: 0.45),
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             'Copy',
@@ -1230,7 +1245,7 @@ class _CodeBlockState extends State<_CodeBlock>
                       'shell',
                       'sh',
                       'ruby',
-                      'rb'
+                      'rb',
                     }.contains(widget.language.toLowerCase())) ...[
                   const SizedBox(width: 4),
                   Material(
@@ -1242,12 +1257,17 @@ class _CodeBlockState extends State<_CodeBlock>
                       borderRadius: BorderRadius.circular(6),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 4),
+                          horizontal: 6,
+                          vertical: 4,
+                        ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.play_arrow_rounded,
-                                size: 13, color: tokens.primary),
+                            Icon(
+                              Icons.play_arrow_rounded,
+                              size: 13,
+                              color: tokens.primary,
+                            ),
                             const SizedBox(width: 3),
                             Text(
                               'Run',
@@ -1284,7 +1304,9 @@ class _CodeBlockState extends State<_CodeBlock>
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 10),
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
                     child: SelectableText(_collapsedCode, style: codeStyle),
                   ),
                   // Gradient fade-out overlay
@@ -1311,8 +1333,10 @@ class _CodeBlockState extends State<_CodeBlock>
               ),
               secondChild: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 child: SelectableText(widget.code, style: codeStyle),
               ),
             ),
@@ -1424,8 +1448,11 @@ class _RunResultPill extends StatelessWidget {
                 ),
               )
             else
-              Icon(Icons.check_circle_outline_rounded,
-                  size: 13, color: tokens.primary),
+              Icon(
+                Icons.check_circle_outline_rounded,
+                size: 13,
+                color: tokens.primary,
+              ),
             const SizedBox(width: 6),
             Text(
               isRunning ? 'Running…' : 'Execution request sent',
@@ -1587,10 +1614,7 @@ class _InlineMathBuilder extends MarkdownElementBuilder {
         scrollDirection: Axis.horizontal,
         child: Math.tex(
           latex,
-          textStyle: TextStyle(
-            fontSize: 15,
-            color: tokens.onSurface,
-          ),
+          textStyle: TextStyle(fontSize: 15, color: tokens.onSurface),
           mathStyle: MathStyle.display,
           onErrorFallback: (err) {
             // Fallback: show raw LaTeX in monospace
@@ -1645,7 +1669,8 @@ class _MarkdownImageState extends State<_MarkdownImage> {
 
   Future<void> _checkConnectivity() async {
     final results = await Connectivity().checkConnectivity();
-    final isMobile = results.contains(ConnectivityResult.mobile) &&
+    final isMobile =
+        results.contains(ConnectivityResult.mobile) &&
         !results.contains(ConnectivityResult.wifi) &&
         !results.contains(ConnectivityResult.ethernet);
     if (!mounted) return;
@@ -1685,8 +1710,11 @@ class _MarkdownImageState extends State<_MarkdownImage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.image_rounded,
-                    size: 20, color: tokens.onSurface.withValues(alpha: 0.35)),
+                Icon(
+                  Icons.image_rounded,
+                  size: 20,
+                  color: tokens.onSurface.withValues(alpha: 0.35),
+                ),
                 const SizedBox(width: 10),
                 Column(
                   mainAxisSize: MainAxisSize.min,
@@ -1738,7 +1766,7 @@ class _MarkdownImageState extends State<_MarkdownImage> {
               if (progress == null) return child;
               final pct = progress.expectedTotalBytes != null
                   ? progress.cumulativeBytesLoaded /
-                      progress.expectedTotalBytes!
+                        progress.expectedTotalBytes!
                   : null;
               return Container(
                 height: 160,
@@ -1780,9 +1808,11 @@ class _MarkdownImageState extends State<_MarkdownImage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.broken_image_rounded,
-                        size: 28,
-                        color: tokens.onSurface.withValues(alpha: 0.3)),
+                    Icon(
+                      Icons.broken_image_rounded,
+                      size: 28,
+                      color: tokens.onSurface.withValues(alpha: 0.3),
+                    ),
                     const SizedBox(height: 4),
                     Text(
                       alt ?? 'Image failed to load',

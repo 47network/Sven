@@ -11,7 +11,7 @@ import 'scoped_preferences.dart';
 
 class AppState extends ChangeNotifier {
   AppState({this.onPrefsChanged, PerformanceMonitor? perfMonitor})
-      : _perfMonitor = perfMonitor ?? PerformanceMonitor() {
+    : _perfMonitor = perfMonitor ?? PerformanceMonitor() {
     _perfMonitor.addListener(_onPerformanceChanged);
   }
 
@@ -575,8 +575,9 @@ class AppState extends ChangeNotifier {
       threadTags = Map.from(threadTags)..[threadId] = tag;
     }
     notifyListeners();
-    final list =
-        threadTags.entries.map((e) => '${e.key}:${e.value.name}').toList();
+    final list = threadTags.entries
+        .map((e) => '${e.key}:${e.value.name}')
+        .toList();
     await _setStringList(_kThreadTags, list);
   }
 

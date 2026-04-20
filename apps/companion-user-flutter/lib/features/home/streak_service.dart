@@ -52,8 +52,9 @@ class StreakService {
     if (lastStr != null) {
       try {
         final last = DateTime.parse(lastStr);
-        final diff =
-            today.difference(DateTime(last.year, last.month, last.day)).inDays;
+        final diff = today
+            .difference(DateTime(last.year, last.month, last.day))
+            .inDays;
         if (diff == 1) {
           // Consecutive day — increment
           _currentStreak++;

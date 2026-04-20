@@ -102,8 +102,10 @@ class _CalibrationPageState extends State<CalibrationPage>
           _gridCell('Low', '${_lowConf.length}'),
         ]),
         const SizedBox(height: 16),
-        Text('Low Confidence Responses',
-            style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          'Low Confidence Responses',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         const SizedBox(height: 8),
         if (_lowConf.isEmpty)
           const Text('No low-confidence responses found.')
@@ -116,11 +118,14 @@ class _CalibrationPageState extends State<CalibrationPage>
                 leading: CircleAvatar(
                   radius: 16,
                   backgroundColor: Colors.amber.shade100,
-                  child: Text('${r['confidence'] ?? '?'}',
-                      style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.amber.shade800)),
+                  child: Text(
+                    '${r['confidence'] ?? '?'}',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.amber.shade800,
+                    ),
+                  ),
                 ),
                 title: Text('${r['task_type'] ?? 'general'}'),
                 subtitle: Text(
@@ -156,8 +161,10 @@ class _CalibrationPageState extends State<CalibrationPage>
                 const SizedBox(width: 12),
                 Text('👎 ${f['negative'] ?? 0}'),
                 const SizedBox(width: 12),
-                Text('Total: ${f['total'] ?? 0}',
-                    style: TextStyle(color: cs.onSurfaceVariant)),
+                Text(
+                  'Total: ${f['total'] ?? 0}',
+                  style: TextStyle(color: cs.onSurfaceVariant),
+                ),
               ],
             ),
           ),
@@ -217,17 +224,22 @@ class _CalibrationPageState extends State<CalibrationPage>
     final color = status == 'verified'
         ? Colors.green
         : status == 'promoted'
-            ? Colors.blue
-            : Colors.amber.shade700;
+        ? Colors.blue
+        : Colors.amber.shade700;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(status,
-          style: TextStyle(
-              fontSize: 11, fontWeight: FontWeight.w600, color: color)),
+      child: Text(
+        status,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
+      ),
     );
   }
 
@@ -250,8 +262,9 @@ class _CalibrationPageState extends State<CalibrationPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                    '${s['date'] ?? s['snapshot_date'] ?? 'Snapshot ${i + 1}'}',
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                  '${s['date'] ?? s['snapshot_date'] ?? 'Snapshot ${i + 1}'}',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -285,9 +298,10 @@ class _CalibrationPageState extends State<CalibrationPage>
       ),
       child: Column(
         children: [
-          Text(value,
-              style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
           const SizedBox(height: 2),
           Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
         ],
@@ -299,9 +313,10 @@ class _CalibrationPageState extends State<CalibrationPage>
     return Expanded(
       child: Column(
         children: [
-          Text(value,
-              style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+          ),
           Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
         ],
       ),

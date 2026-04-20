@@ -54,8 +54,14 @@ DateTime _parseNullableDateTime(dynamic value) {
   final tzMinutes = int.parse(match.group(10)!);
   final offsetMinutes = sign * ((tzHours * 60) + tzMinutes);
 
-  return DateTime.utc(year, month, day, hour, minute, second)
-      .subtract(Duration(minutes: offsetMinutes));
+  return DateTime.utc(
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    second,
+  ).subtract(Duration(minutes: offsetMinutes));
 }
 
 // ── ChatThreadSummary ─────────────────────────────────────────────────────────

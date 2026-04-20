@@ -60,8 +60,9 @@ class QuickActionsBar extends StatelessWidget {
       if (clip.isEmpty) {
         prefill = 'Summarise: ';
       } else {
-        final truncated =
-            clip.length > 500 ? '${clip.substring(0, 500)}…' : clip;
+        final truncated = clip.length > 500
+            ? '${clip.substring(0, 500)}…'
+            : clip;
         prefill = 'Summarise this:\n\n$truncated';
       }
     } else if (prefill == '__translate_clipboard__') {
@@ -70,8 +71,9 @@ class QuickActionsBar extends StatelessWidget {
       if (clip.isEmpty) {
         prefill = 'Translate: ';
       } else {
-        final truncated =
-            clip.length > 500 ? '${clip.substring(0, 500)}…' : clip;
+        final truncated = clip.length > 500
+            ? '${clip.substring(0, 500)}…'
+            : clip;
         prefill = 'Translate this to English:\n\n$truncated';
       }
     }

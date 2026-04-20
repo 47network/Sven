@@ -56,66 +56,71 @@ class _InMemoryTokenStore extends TokenStore {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('401 without auth token does not trigger session-expired handling',
-      () async {
-    final store = _InMemoryTokenStore();
-    var sessionExpired = false;
-    final client = AuthenticatedClient(
-      client: MockClient(
-        (_) async => http.Response(
-          jsonEncode({
-            'error': {'code': 'AUTH_FAILED', 'message': 'Unauthorized'},
-          }),
-          401,
-          headers: {'content-type': 'application/json'},
+  test(
+    '401 without auth token does not trigger session-expired handling',
+    () async {
+      final store = _InMemoryTokenStore();
+      var sessionExpired = false;
+      final client = AuthenticatedClient(
+        client: MockClient(
+          (_) async => http.Response(
+            jsonEncode({
+              'error': {'code': 'AUTH_FAILED', 'message': 'Unauthorized'},
+            }),
+            401,
+            headers: {'content-type': 'application/json'},
+          ),
         ),
-      ),
-      tokenStore: store,
-      onSessionExpired: () => sessionExpired = true,
-    );
+        tokenStore: store,
+        onSessionExpired: () => sessionExpired = true,
+      );
 
-    final response =
-        await client.get(Uri.parse('https://example.test/v1/chats'));
+      final response = await client.get(
+        Uri.parse('https://example.test/v1/chats'),
+      );
 
-    expect(response.statusCode, 401);
-    expect(sessionExpired, isFalse);
-    expect(await store.readAccessToken(), isNull);
-  });
+      expect(response.statusCode, 401);
+      expect(sessionExpired, isFalse);
+      expect(await store.readAccessToken(), isNull);
+    },
+  );
 
-  test('401 with auth token clears session and raises session-expired',
-      () async {
-    final store = _InMemoryTokenStore();
-    await store.writeAccessToken('access-token');
-    await store.writeRefreshToken('refresh-token');
+  test(
+    '401 with auth token clears session and raises session-expired',
+    () async {
+      final store = _InMemoryTokenStore();
+      await store.writeAccessToken('access-token');
+      await store.writeRefreshToken('refresh-token');
 
-    var sessionExpired = false;
-    final client = AuthenticatedClient(
-      client: MockClient(
-        (_) async => http.Response(
-          jsonEncode({
-            'error': {'code': 'AUTH_FAILED', 'message': 'Expired'},
-          }),
-          401,
-          headers: {'content-type': 'application/json'},
+      var sessionExpired = false;
+      final client = AuthenticatedClient(
+        client: MockClient(
+          (_) async => http.Response(
+            jsonEncode({
+              'error': {'code': 'AUTH_FAILED', 'message': 'Expired'},
+            }),
+            401,
+            headers: {'content-type': 'application/json'},
+          ),
         ),
-      ),
-      tokenStore: store,
-      onSessionExpired: () => sessionExpired = true,
-    );
+        tokenStore: store,
+        onSessionExpired: () => sessionExpired = true,
+      );
 
-    await expectLater(
-      client.get(Uri.parse('https://example.test/v1/chats')),
-      throwsA(
-        isA<AuthException>().having(
-          (e) => e.failure,
-          'failure',
-          AuthFailure.sessionExpired,
+      await expectLater(
+        client.get(Uri.parse('https://example.test/v1/chats')),
+        throwsA(
+          isA<AuthException>().having(
+            (e) => e.failure,
+            'failure',
+            AuthFailure.sessionExpired,
+          ),
         ),
-      ),
-    );
+      );
 
-    expect(sessionExpired, isTrue);
-    expect(await store.readAccessToken(), isNull);
-    expect(await store.readRefreshToken(), isNull);
-  });
+      expect(sessionExpired, isTrue);
+      expect(await store.readAccessToken(), isNull);
+      expect(await store.readRefreshToken(), isNull);
+    },
+  );
 }

@@ -91,22 +91,23 @@ class _ChangePasswordPageState extends State<_ChangePasswordPage> {
                     margin: const EdgeInsets.only(bottom: 20),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .error
-                          .withValues(alpha: 0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .error
-                              .withValues(alpha: 0.4)),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.error.withValues(alpha: 0.4),
+                      ),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.error_outline,
-                            size: 18,
-                            color: Theme.of(context).colorScheme.error),
+                        Icon(
+                          Icons.error_outline,
+                          size: 18,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -175,11 +176,17 @@ class _ChangePasswordPageState extends State<_ChangePasswordPage> {
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
-                      : const Text('Update password',
+                      : const Text(
+                          'Update password',
                           style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w600)),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ],
             ),
@@ -222,8 +229,9 @@ class _PwField extends StatelessWidget {
         labelText: label,
         labelStyle: TextStyle(color: tokens.onSurface.withValues(alpha: 0.55)),
         filled: true,
-        fillColor:
-            cinematic ? tokens.card : tokens.onSurface.withValues(alpha: 0.04),
+        fillColor: cinematic
+            ? tokens.card
+            : tokens.onSurface.withValues(alpha: 0.04),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -317,12 +325,13 @@ class _AppLockSettingsPageState extends State<_AppLockSettingsPage> {
                 underline: const SizedBox.shrink(),
                 isDense: true,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: tokens.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  color: tokens.primary,
+                  fontWeight: FontWeight.w600,
+                ),
                 items: AutoLockTimeout.values
                     .map(
-                        (t) => DropdownMenuItem(value: t, child: Text(t.label)))
+                      (t) => DropdownMenuItem(value: t, child: Text(t.label)),
+                    )
                     .toList(),
                 onChanged: (v) {
                   if (v != null) lock.setTimeout(v);
@@ -344,11 +353,13 @@ class _AppLockSettingsPageState extends State<_AppLockSettingsPage> {
                 label: const Text('Lock now'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: tokens.primary,
-                  side:
-                      BorderSide(color: tokens.primary.withValues(alpha: 0.4)),
+                  side: BorderSide(
+                    color: tokens.primary.withValues(alpha: 0.4),
+                  ),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ),
@@ -433,10 +444,10 @@ class _UserApiKeyModeTileState extends State<_UserApiKeyModeTile> {
     final subtitle = _loading
         ? 'Loading key mode…'
         : !_allowPersonalOverride
-            ? 'Disabled by admin policy'
-            : _personalMode
-                ? 'Using your personal API key refs'
-                : 'Using organization default API key refs';
+        ? 'Disabled by admin policy'
+        : _personalMode
+        ? 'Using your personal API key refs'
+        : 'Using organization default API key refs';
 
     return Column(
       children: [
@@ -553,8 +564,9 @@ class _UserKeyRefsPageState extends State<_UserKeyRefsPage> {
         : await widget.service.setValue(key, value);
     if (!mounted) return;
     setState(() => _saving = false);
-    final snackBar =
-        SnackBar(content: Text(ok ? 'Saved $key' : 'Failed to save $key'));
+    final snackBar = SnackBar(
+      content: Text(ok ? 'Saved $key' : 'Failed to save $key'),
+    );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
@@ -608,7 +620,9 @@ class _UserKeyRefsPageState extends State<_UserKeyRefsPage> {
                               borderSide: BorderSide.none,
                             ),
                             contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 8),
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -738,28 +752,27 @@ class _ServerTileState extends State<_ServerTile> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color:
-            cinematic ? tokens.primary.withValues(alpha: 0.06) : tokens.surface,
+        color: cinematic
+            ? tokens.primary.withValues(alpha: 0.06)
+            : tokens.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: tokens.primary.withValues(alpha: 0.12),
-        ),
+        border: Border.all(color: tokens.primary.withValues(alpha: 0.12)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Connect to a Sven server',
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
             'Enter a domain or URL. Auto-discovery will find the gateway.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: tokens.onSurface.withValues(alpha: 0.5),
-                ),
+              color: tokens.onSurface.withValues(alpha: 0.5),
+            ),
           ),
           const SizedBox(height: 12),
           Row(
@@ -771,10 +784,7 @@ class _ServerTileState extends State<_ServerTile> {
                   onSubmitted: (_) => _discover(),
                   autocorrect: false,
                   keyboardType: TextInputType.url,
-                  style: TextStyle(
-                    color: tokens.onSurface,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: tokens.onSurface, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: 'sven.systems',
                     hintStyle: TextStyle(
@@ -788,7 +798,9 @@ class _ServerTileState extends State<_ServerTile> {
                     ),
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 12),
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
                     filled: true,
                     fillColor: tokens.onSurface.withValues(alpha: 0.04),
                     border: OutlineInputBorder(
@@ -843,8 +855,8 @@ class _ServerTileState extends State<_ServerTile> {
             Text(
               _error!,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
+                color: Theme.of(context).colorScheme.error,
+              ),
             ),
           ],
           const SizedBox(height: 8),
@@ -913,8 +925,9 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        destructive ? Theme.of(context).colorScheme.error : tokens.onSurface;
+    final color = destructive
+        ? Theme.of(context).colorScheme.error
+        : tokens.onSurface;
 
     return Material(
       color: cinematic
@@ -1047,8 +1060,9 @@ class _PersonalityOverrideTileState extends State<_PersonalityOverrideTile> {
   @override
   void initState() {
     super.initState();
-    _ctrl =
-        TextEditingController(text: widget.memoryService.personalityOverride);
+    _ctrl = TextEditingController(
+      text: widget.memoryService.personalityOverride,
+    );
   }
 
   @override
@@ -1079,8 +1093,11 @@ class _PersonalityOverrideTileState extends State<_PersonalityOverrideTile> {
           children: [
             Row(
               children: [
-                Icon(Icons.edit_note_rounded,
-                    size: 20, color: tk.onSurface.withValues(alpha: 0.5)),
+                Icon(
+                  Icons.edit_note_rounded,
+                  size: 20,
+                  color: tk.onSurface.withValues(alpha: 0.5),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -1132,8 +1149,10 @@ class _PersonalityOverrideTileState extends State<_PersonalityOverrideTile> {
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
                   ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 8,
+                  ),
                 ),
                 onSubmitted: (_) => _save(),
               )
@@ -1199,24 +1218,19 @@ class _LanguageTile extends StatelessWidget {
           title: 'Response language',
           subtitle: current == 'auto'
               ? detected.isEmpty
-                  ? 'Auto-detect'
-                  : 'Auto-detect (detected: $detected)'
+                    ? 'Auto-detect'
+                    : 'Auto-detect (detected: $detected)'
               : current,
           trailing: DropdownButton<String>(
             value: current,
             underline: const SizedBox.shrink(),
             isDense: true,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: tokens.primary,
-                  fontWeight: FontWeight.w600,
-                ),
+              color: tokens.primary,
+              fontWeight: FontWeight.w600,
+            ),
             items: _languages
-                .map(
-                  (l) => DropdownMenuItem(
-                    value: l,
-                    child: Text(_label(l)),
-                  ),
-                )
+                .map((l) => DropdownMenuItem(value: l, child: Text(_label(l))))
                 .toList(),
             onChanged: (v) {
               if (v != null) memoryService.setPreferredLanguage(v);
@@ -1289,14 +1303,18 @@ String _voiceDisplayName(String raw) {
 /// Show a dialog to optionally set a PIN for the saved account.
 /// Returns the PIN string if set, or null if skipped.
 Future<String?> _showSetPinDialog(
-    BuildContext context, SvenModeTokens tokens) async {
+  BuildContext context,
+  SvenModeTokens tokens,
+) async {
   final controller = TextEditingController();
   return showDialog<String?>(
     context: context,
     builder: (ctx) => AlertDialog(
       backgroundColor: tokens.surface,
-      title:
-          Text('Protect with PIN?', style: TextStyle(color: tokens.onSurface)),
+      title: Text(
+        'Protect with PIN?',
+        style: TextStyle(color: tokens.onSurface),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -1304,7 +1322,9 @@ Future<String?> _showSetPinDialog(
             'Set a 4-8 digit PIN to protect account switching. '
             'You can also use device biometrics (fingerprint/face) if App Lock is enabled.',
             style: TextStyle(
-                color: tokens.onSurface.withValues(alpha: 0.6), fontSize: 13),
+              color: tokens.onSurface.withValues(alpha: 0.6),
+              fontSize: 13,
+            ),
           ),
           const SizedBox(height: 16),
           TextField(
@@ -1316,19 +1336,25 @@ Future<String?> _showSetPinDialog(
             decoration: InputDecoration(
               labelText: 'PIN (optional)',
               hintText: '4-8 digits',
-              labelStyle:
-                  TextStyle(color: tokens.onSurface.withValues(alpha: 0.6)),
+              labelStyle: TextStyle(
+                color: tokens.onSurface.withValues(alpha: 0.6),
+              ),
             ),
             style: TextStyle(
-                color: tokens.onSurface, fontSize: 24, letterSpacing: 8),
+              color: tokens.onSurface,
+              fontSize: 24,
+              letterSpacing: 8,
+            ),
           ),
         ],
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, null),
-          child: Text('Skip',
-              style: TextStyle(color: tokens.onSurface.withValues(alpha: 0.6))),
+          child: Text(
+            'Skip',
+            style: TextStyle(color: tokens.onSurface.withValues(alpha: 0.6)),
+          ),
         ),
         FilledButton(
           onPressed: () {
@@ -1351,7 +1377,10 @@ Color? _parseHex(String hex) {
 }
 
 void _showHexColorPicker(
-    BuildContext context, AppState state, SvenModeTokens tokens) {
+  BuildContext context,
+  AppState state,
+  SvenModeTokens tokens,
+) {
   final controller = TextEditingController(text: state.customAccentHex ?? '#');
   showDialog<String>(
     context: context,

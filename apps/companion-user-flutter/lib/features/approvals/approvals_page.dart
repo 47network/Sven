@@ -115,11 +115,13 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
   }
 
   Future<void> _vote(String id, String decision) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed =
+        await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title:
-                Text('${decision == 'approve' ? 'Approve' : 'Deny'} approval'),
+            title: Text(
+              '${decision == 'approve' ? 'Approve' : 'Deny'} approval',
+            ),
             content: const Text('Confirm this decision?'),
             actions: [
               TextButton(
@@ -161,9 +163,7 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
             ),
           ),
           if (_loading)
-            const Expanded(
-              child: Center(child: CircularProgressIndicator()),
-            )
+            const Expanded(child: Center(child: CircularProgressIndicator()))
           else if (_error != null)
             Expanded(
               child: Center(
@@ -174,9 +174,7 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
               ),
             )
           else if (items.isEmpty)
-            const Expanded(
-              child: Center(child: Text('No approvals found.')),
-            )
+            const Expanded(child: Center(child: Text('No approvals found.')))
           else
             Expanded(
               child: RefreshIndicator(

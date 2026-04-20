@@ -270,8 +270,11 @@ class _SvenTitleBarState extends State<SvenTitleBar> with WindowListener {
               Expanded(
                 child: Row(
                   children: [
-                    Icon(Icons.auto_awesome_rounded,
-                        size: 15, color: cs.primary),
+                    Icon(
+                      Icons.auto_awesome_rounded,
+                      size: 15,
+                      color: cs.primary,
+                    ),
                     const SizedBox(width: 6),
                     Text(
                       'Sven',

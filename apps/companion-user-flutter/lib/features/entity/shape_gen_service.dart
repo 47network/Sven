@@ -63,7 +63,7 @@ Output ONLY the JSON object, nothing else.''';
         {
           'role': 'user',
           'content':
-              'Generate a shape for: $userDescription\n\nOutput only valid JSON.'
+              'Generate a shape for: $userDescription\n\nOutput only valid JSON.',
         },
       ],
       'temperature': 0.8,
@@ -94,7 +94,8 @@ Output ONLY the JSON object, nothing else.''';
     }
 
     final chatBody = jsonDecode(createResp.body) as Map<String, dynamic>;
-    final chatId = (chatBody['data'] as Map<String, dynamic>?)?['id'] ??
+    final chatId =
+        (chatBody['data'] as Map<String, dynamic>?)?['id'] ??
         chatBody['id'] ??
         '';
 
@@ -393,9 +394,9 @@ Output ONLY the JSON object, nothing else.''';
     final name = words.length <= 2
         ? description.trim()
         : words
-            .take(2)
-            .map((w) => w[0].toUpperCase() + w.substring(1))
-            .join(' ');
+              .take(2)
+              .map((w) => w[0].toUpperCase() + w.substring(1))
+              .join(' ');
 
     return CustomShapeSpec(
       name: name,

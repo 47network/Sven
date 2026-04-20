@@ -114,8 +114,9 @@ class _OnboardingPageState extends State<OnboardingPage>
                               child: Text(
                                 'Skip',
                                 style: TextStyle(
-                                  color:
-                                      tokens.onSurface.withValues(alpha: 0.5),
+                                  color: tokens.onSurface.withValues(
+                                    alpha: 0.5,
+                                  ),
                                   fontSize: 15,
                                 ),
                               ),
@@ -390,10 +391,7 @@ class _FeatureItem extends StatelessWidget {
 // ── Page 3: Style Picker ──
 
 class _StylePickerPage extends StatefulWidget {
-  const _StylePickerPage({
-    required this.tokens,
-    required this.onPick,
-  });
+  const _StylePickerPage({required this.tokens, required this.onPick});
 
   final SvenModeTokens tokens;
   final ValueChanged<VisualMode> onPick;
@@ -497,8 +495,9 @@ class _StyleCard extends StatelessWidget {
           color: bgColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color:
-                isSelected ? accentColor : Colors.white.withValues(alpha: 0.08),
+            color: isSelected
+                ? accentColor
+                : Colors.white.withValues(alpha: 0.08),
             width: isSelected ? 2.5 : 1,
           ),
           boxShadow: isSelected
@@ -545,10 +544,11 @@ class _StyleCard extends StatelessWidget {
             Text(
               subtitle,
               style: TextStyle(
-                color: (bgColor.computeLuminance() > 0.5
-                        ? const Color(0xFF1A1A2E)
-                        : Colors.white)
-                    .withValues(alpha: 0.5),
+                color:
+                    (bgColor.computeLuminance() > 0.5
+                            ? const Color(0xFF1A1A2E)
+                            : Colors.white)
+                        .withValues(alpha: 0.5),
                 fontSize: 12,
               ),
             ),
@@ -608,10 +608,8 @@ class _GradientButtonState extends State<_GradientButton>
       onTapCancel: () => _ctrl.reverse(),
       child: AnimatedBuilder(
         animation: _ctrl,
-        builder: (_, child) => Transform.scale(
-          scale: 1.0 - 0.05 * _ctrl.value,
-          child: child,
-        ),
+        builder: (_, child) =>
+            Transform.scale(scale: 1.0 - 0.05 * _ctrl.value, child: child),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
           decoration: BoxDecoration(
@@ -722,8 +720,10 @@ class _LetsGoPageState extends State<_LetsGoPage> {
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
@@ -754,14 +754,18 @@ class _LetsGoPageState extends State<_LetsGoPage> {
                                 ? tokens.primary
                                 : tokens.onSurface.withValues(alpha: 0.7),
                             fontSize: 14,
-                            fontWeight:
-                                selected ? FontWeight.w600 : FontWeight.normal,
+                            fontWeight: selected
+                                ? FontWeight.w600
+                                : FontWeight.normal,
                           ),
                         ),
                       ),
                       if (selected)
-                        Icon(Icons.check_circle_rounded,
-                            size: 16, color: tokens.primary),
+                        Icon(
+                          Icons.check_circle_rounded,
+                          size: 16,
+                          color: tokens.primary,
+                        ),
                     ],
                   ),
                 ),

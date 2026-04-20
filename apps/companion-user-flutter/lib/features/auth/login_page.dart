@@ -69,9 +69,10 @@ class _LoginPageState extends State<LoginPage>
       vsync: this,
       duration: const Duration(milliseconds: 500),
     )..forward();
-    _pulseAnim = Tween<double>(begin: 0.85, end: 1.0).animate(
-      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
-    );
+    _pulseAnim = Tween<double>(
+      begin: 0.85,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -169,7 +170,8 @@ class _LoginPageState extends State<LoginPage>
     } catch (e) {
       if (mounted) {
         setState(
-            () => _serverError = e is StateError ? e.message : e.toString());
+          () => _serverError = e is StateError ? e.message : e.toString(),
+        );
       }
     } finally {
       if (mounted) setState(() => _serverDiscovering = false);
@@ -248,21 +250,20 @@ class _LoginPageState extends State<LoginPage>
                       // ── Heading ──
                       Text(
                         'Welcome back',
-                        style:
-                            Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: -0.5,
-                                ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.5,
+                            ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'Sign in to continue to Sven',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.5),
-                            ),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.5),
+                        ),
                       ),
                       const SizedBox(height: 36),
 
@@ -310,10 +311,9 @@ class _LoginPageState extends State<LoginPage>
                                 ? Icons.visibility_off_outlined
                                 : Icons.visibility_outlined,
                             size: 20,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.35),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.35),
                           ),
                           onPressed: () => setState(() => _obscure = !_obscure),
                         ),
@@ -345,13 +345,14 @@ class _LoginPageState extends State<LoginPage>
                                       ]
                                     : [
                                         primary,
-                                        primary.withValues(alpha: 0.85)
+                                        primary.withValues(alpha: 0.85),
                                       ],
                               ),
                               boxShadow: [
                                 BoxShadow(
                                   color: primary.withValues(
-                                      alpha: _submitting ? 0.1 : 0.3),
+                                    alpha: _submitting ? 0.1 : 0.3,
+                                  ),
                                   blurRadius: _submitting ? 8 : 16,
                                   offset: const Offset(0, 4),
                                 ),
@@ -427,8 +428,9 @@ class _LoginPageState extends State<LoginPage>
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
-                            onPressed:
-                                _bioLoading ? null : _handleBiometricLogin,
+                            onPressed: _bioLoading
+                                ? null
+                                : _handleBiometricLogin,
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -515,12 +517,11 @@ class _SsoDivider extends StatelessWidget {
           child: Text(
             'or continue with',
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.40),
-                  letterSpacing: 0.3,
-                ),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.40),
+              letterSpacing: 0.3,
+            ),
           ),
         ),
         Expanded(child: Divider(color: lineColor, thickness: 1)),
@@ -591,12 +592,11 @@ class _SsoButton extends StatelessWidget {
                   Text(
                     label,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.80),
-                          fontWeight: FontWeight.w500,
-                        ),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.80),
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
@@ -656,21 +656,25 @@ class _StyledField extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(
-          color:
-              Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.35),
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.35),
           fontSize: 15,
         ),
         prefixIcon: Icon(
           icon,
           size: 20,
-          color:
-              Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.35),
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.35),
         ),
         suffixIcon: suffixIcon,
         filled: true,
         fillColor: fillColor,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: borderColor),
@@ -740,9 +744,9 @@ class _ErrorPill extends StatelessWidget {
               child: Text(
                 text,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  color: color,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],
@@ -781,8 +785,9 @@ class _ServerPickerSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final muted =
-        Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.45);
+    final muted = Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: 0.45);
     final serverHost = Uri.tryParse(currentServer)?.host ?? currentServer;
 
     return Column(
@@ -802,9 +807,9 @@ class _ServerPickerSection extends StatelessWidget {
                 Text(
                   serverHost,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: muted,
-                        letterSpacing: 0.2,
-                      ),
+                    color: muted,
+                    letterSpacing: 0.2,
+                  ),
                 ),
                 const SizedBox(width: 4),
                 Icon(
@@ -820,8 +825,9 @@ class _ServerPickerSection extends StatelessWidget {
         // Expanded server entry
         AnimatedCrossFade(
           duration: const Duration(milliseconds: 200),
-          crossFadeState:
-              expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+          crossFadeState: expanded
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
           firstChild: const SizedBox.shrink(),
           secondChild: _buildExpanded(context),
         ),
@@ -853,19 +859,18 @@ class _ServerPickerSection extends StatelessWidget {
               children: [
                 Text(
                   'Connect to a Sven server',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Enter a domain or server URL. Auto-discovery will find the gateway.',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.5),
-                      ),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
                 ),
                 const SizedBox(height: 14),
 
@@ -886,23 +891,23 @@ class _ServerPickerSection extends StatelessWidget {
                         decoration: InputDecoration(
                           hintText: 'sven.systems',
                           hintStyle: TextStyle(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.3),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.3),
                             fontSize: 14,
                           ),
                           prefixIcon: Icon(
                             Icons.language_rounded,
                             size: 18,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.35),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.35),
                           ),
                           isDense: true,
                           contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 12),
+                            horizontal: 12,
+                            vertical: 12,
+                          ),
                           filled: true,
                           fillColor: isDark
                               ? Colors.white.withValues(alpha: 0.04)
@@ -918,10 +923,9 @@ class _ServerPickerSection extends StatelessWidget {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withValues(alpha: 0.5),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.5),
                               width: 1.5,
                             ),
                           ),
@@ -1016,9 +1020,9 @@ class _DiscoverySuccessChip extends StatelessWidget {
             child: Text(
               'Connected to $name$version',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w500,
-                  ),
+                color: color,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],

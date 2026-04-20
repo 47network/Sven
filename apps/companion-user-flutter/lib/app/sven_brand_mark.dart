@@ -26,11 +26,7 @@ class SvenBrandMark extends StatelessWidget {
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF6FF7FF),
-                Color(0xFF00D9FF),
-                Color(0xFF008BB8),
-              ],
+              colors: [Color(0xFF6FF7FF), Color(0xFF00D9FF), Color(0xFF008BB8)],
             ),
             boxShadow: [
               BoxShadow(

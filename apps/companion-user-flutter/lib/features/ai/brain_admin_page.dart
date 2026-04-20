@@ -114,10 +114,7 @@ class _BrainAdminPageState extends State<BrainAdminPage>
         const SizedBox(height: 12),
         ...keys.map((k) => _paramTile(k, _quantumConfig[k])),
         const SizedBox(height: 16),
-        Text(
-          'Graph Status',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text('Graph Status', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         _statRow('Total Nodes', '${_graph['total_nodes'] ?? 0}'),
         _statRow('Total Edges', '${_graph['total_edges'] ?? 0}'),
@@ -134,7 +131,7 @@ class _BrainAdminPageState extends State<BrainAdminPage>
       'frustration',
       'excitement',
       'confusion',
-      'neutral'
+      'neutral',
     ];
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -154,8 +151,10 @@ class _BrainAdminPageState extends State<BrainAdminPage>
             return Chip(
               avatar: CircleAvatar(
                 backgroundColor: _emotionColor(e),
-                child: Text('$val',
-                    style: const TextStyle(fontSize: 10, color: Colors.white)),
+                child: Text(
+                  '$val',
+                  style: const TextStyle(fontSize: 10, color: Colors.white),
+                ),
               ),
               label: Text(e),
             );
@@ -168,8 +167,11 @@ class _BrainAdminPageState extends State<BrainAdminPage>
           final entry = h as Map<String, dynamic>? ?? {};
           return ListTile(
             dense: true,
-            leading: Icon(Icons.circle,
-                size: 10, color: _emotionColor('${entry['emotion'] ?? ''}')),
+            leading: Icon(
+              Icons.circle,
+              size: 10,
+              color: _emotionColor('${entry['emotion'] ?? ''}'),
+            ),
             title: Text('${entry['emotion'] ?? 'unknown'}'),
             subtitle: Text('${entry['timestamp'] ?? ''}'),
             trailing: Text('${entry['intensity'] ?? ''}'),
@@ -202,8 +204,10 @@ class _BrainAdminPageState extends State<BrainAdminPage>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text('Reasoning Records',
-            style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          'Reasoning Records',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         const SizedBox(height: 8),
         if (_reasoning.isEmpty)
           const Center(child: Text('No reasoning records yet.'))
@@ -222,14 +226,20 @@ class _BrainAdminPageState extends State<BrainAdminPage>
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
-                    Text('Choice: ${entry['choice'] ?? 'N/A'}',
-                        style: TextStyle(color: cs.primary)),
+                    Text(
+                      'Choice: ${entry['choice'] ?? 'N/A'}',
+                      style: TextStyle(color: cs.primary),
+                    ),
                     if (entry['reasoning'] != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
-                        child: Text('${entry['reasoning']}',
-                            style: TextStyle(
-                                fontSize: 12, color: cs.onSurfaceVariant)),
+                        child: Text(
+                          '${entry['reasoning']}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
                       ),
                   ],
                 ),
@@ -257,8 +267,10 @@ class _BrainAdminPageState extends State<BrainAdminPage>
           ),
           child: Row(
             children: [
-              Icon(consentGiven ? Icons.check_circle : Icons.warning,
-                  color: consentGiven ? Colors.green : Colors.amber),
+              Icon(
+                consentGiven ? Icons.check_circle : Icons.warning,
+                color: consentGiven ? Colors.green : Colors.amber,
+              ),
               const SizedBox(width: 12),
               Text(
                 consentGiven ? 'Memory consent granted' : 'Consent pending',
@@ -269,18 +281,26 @@ class _BrainAdminPageState extends State<BrainAdminPage>
         ),
         const SizedBox(height: 16),
         _consentSwitch(
-            'Allow consolidation', _consent['allow_consolidation'] == true),
-        _consentSwitch('Allow emotional tracking',
-            _consent['allow_emotional_tracking'] == true),
-        _consentSwitch('Allow reasoning capture',
-            _consent['allow_reasoning_capture'] == true),
+          'Allow consolidation',
+          _consent['allow_consolidation'] == true,
+        ),
+        _consentSwitch(
+          'Allow emotional tracking',
+          _consent['allow_emotional_tracking'] == true,
+        ),
+        _consentSwitch(
+          'Allow reasoning capture',
+          _consent['allow_reasoning_capture'] == true,
+        ),
         const SizedBox(height: 8),
         _statRow('Retention days', '${_consent['retention_days'] ?? 'N/A'}'),
         const SizedBox(height: 24),
         const Divider(),
         const SizedBox(height: 8),
-        Text('Danger Zone',
-            style: TextStyle(fontWeight: FontWeight.bold, color: cs.error)),
+        Text(
+          'Danger Zone',
+          style: TextStyle(fontWeight: FontWeight.bold, color: cs.error),
+        ),
         const SizedBox(height: 8),
         FilledButton.tonal(
           style: FilledButton.styleFrom(
@@ -292,9 +312,10 @@ class _BrainAdminPageState extends State<BrainAdminPage>
               context: context,
               builder: (ctx) => AlertDialog(
                 title: const Text('Forget All Data?'),
-                content:
-                    const Text('This will permanently erase all memory data. '
-                        'This action cannot be undone.'),
+                content: const Text(
+                  'This will permanently erase all memory data. '
+                  'This action cannot be undone.',
+                ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, false),
@@ -313,8 +334,9 @@ class _BrainAdminPageState extends State<BrainAdminPage>
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content:
-                        Text(ok ? 'All memory data erased.' : 'Erase failed.'),
+                    content: Text(
+                      ok ? 'All memory data erased.' : 'Erase failed.',
+                    ),
                   ),
                 );
               }
@@ -348,8 +370,10 @@ class _BrainAdminPageState extends State<BrainAdminPage>
         children: [
           Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
-          Text(body,
-              style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+          Text(
+            body,
+            style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+          ),
         ],
       ),
     );
@@ -359,8 +383,10 @@ class _BrainAdminPageState extends State<BrainAdminPage>
     return ListTile(
       dense: true,
       title: Text(key.replaceAll('_', ' ')),
-      trailing: Text('${value ?? 'N/A'}',
-          style: const TextStyle(fontWeight: FontWeight.w600)),
+      trailing: Text(
+        '${value ?? 'N/A'}',
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
     );
   }
 
@@ -371,9 +397,10 @@ class _BrainAdminPageState extends State<BrainAdminPage>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: const TextStyle(fontSize: 13)),
-          Text(value,
-              style:
-                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );

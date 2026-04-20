@@ -8,7 +8,7 @@ import 'approvals_models.dart';
 
 class ApprovalsService {
   ApprovalsService({AuthenticatedClient? client})
-      : _client = client ?? AuthenticatedClient();
+    : _client = client ?? AuthenticatedClient();
 
   static String get _apiBase => ApiBaseService.currentSync();
 

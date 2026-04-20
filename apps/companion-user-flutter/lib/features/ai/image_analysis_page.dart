@@ -103,7 +103,8 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              'Could not access ${source == ImageSource.camera ? 'camera' : 'gallery'}: ${e.message}'),
+            'Could not access ${source == ImageSource.camera ? 'camera' : 'gallery'}: ${e.message}',
+          ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: Colors.red,
         ),
@@ -263,8 +264,8 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
               (isReady && hasVision)
                   ? 'Using ${model?.name ?? 'Gemma 4'} for on-device vision analysis'
                   : isReady
-                      ? 'Model loaded but no vision capability'
-                      : 'No AI model loaded — load one in On-Device Inference settings',
+                  ? 'Model loaded but no vision capability'
+                  : 'No AI model loaded — load one in On-Device Inference settings',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -349,8 +350,9 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
             children: [
               Expanded(
                 child: FilledButton.icon(
-                  onPressed:
-                      canAnalyse ? () => _pickImage(ImageSource.gallery) : null,
+                  onPressed: canAnalyse
+                      ? () => _pickImage(ImageSource.gallery)
+                      : null,
                   icon: const Icon(Icons.photo_library_rounded, size: 18),
                   label: const Text('Gallery'),
                 ),
@@ -358,8 +360,9 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
               const SizedBox(width: 12),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed:
-                      canAnalyse ? () => _pickImage(ImageSource.camera) : null,
+                  onPressed: canAnalyse
+                      ? () => _pickImage(ImageSource.camera)
+                      : null,
                   icon: const Icon(Icons.camera_alt_rounded, size: 18),
                   label: const Text('Camera'),
                 ),
@@ -371,10 +374,7 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 'Load an AI model first to enable image analysis',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.orange.shade300,
-                ),
+                style: TextStyle(fontSize: 11, color: Colors.orange.shade300),
               ),
             ),
         ],
@@ -462,8 +462,11 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_awesome_rounded,
-                  color: Color(0xFFFF6B9D), size: 20),
+              const Icon(
+                Icons.auto_awesome_rounded,
+                color: Color(0xFFFF6B9D),
+                size: 20,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -512,8 +515,11 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
           const SizedBox(height: 8),
           Row(
             children: [
-              Icon(Icons.memory_rounded,
-                  size: 14, color: isDark ? Colors.white30 : Colors.black26),
+              Icon(
+                Icons.memory_rounded,
+                size: 14,
+                color: isDark ? Colors.white30 : Colors.black26,
+              ),
               const SizedBox(width: 4),
               Text(
                 'Processed on-device with ${widget.inferenceService.activeModel?.name ?? 'Gemma 4'}',
@@ -563,8 +569,11 @@ class _ImageAnalysisPageState extends State<ImageAnalysisPage> {
           padding: const EdgeInsets.only(top: 24),
           child: Column(
             children: [
-              Icon(Icons.image_not_supported_rounded,
-                  size: 48, color: isDark ? Colors.white24 : Colors.black26),
+              Icon(
+                Icons.image_not_supported_rounded,
+                size: 48,
+                color: isDark ? Colors.white24 : Colors.black26,
+              ),
               const SizedBox(height: 8),
               Text(
                 'No analysis jobs yet',

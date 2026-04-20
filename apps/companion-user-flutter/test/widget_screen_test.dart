@@ -28,9 +28,9 @@ Widget _wrapPage(Widget page) => MaterialApp(home: page);
 /// Wraps [MemoryPage] with the [ProviderScope] override it requires.
 /// Replaces the old pattern of passing memoryService as a constructor arg.
 Widget _wrapMemoryPage(MemoryService svc, VisualMode mode) => ProviderScope(
-      overrides: [memoryServiceProvider.overrideWith((ref) => svc)],
-      child: MaterialApp(home: MemoryPage(visualMode: mode)),
-    );
+  overrides: [memoryServiceProvider.overrideWith((ref) => svc)],
+  child: MaterialApp(home: MemoryPage(visualMode: mode)),
+);
 
 // ────────────────────────────────────────────────────────────────────────────
 // Tests
@@ -64,10 +64,7 @@ void main() {
       await tester.pumpWidget(_wrapMemoryPage(svc, VisualMode.classic));
       await tester.pumpAndSettle();
       // The page title / heading text should be present.
-      expect(
-        find.text('Memory & Instructions'),
-        findsAtLeastNWidgets(1),
-      );
+      expect(find.text('Memory & Instructions'), findsAtLeastNWidgets(1));
     });
 
     testWidgets('memory toggle switch is present and tappable', (tester) async {
@@ -108,8 +105,9 @@ void main() {
       // Sentence chosen to match 5+ French fingerprint words so confidence
       // gate (requires ≥2 hits) is satisfied:
       // "est" (est-ce), "que" (est-ce que), "très", "mais", "pas"
-      svc.detectLanguage(
-          ['Bonjour, est-ce que vous allez très bien? Mais pas encore.']);
+      svc.detectLanguage([
+        'Bonjour, est-ce que vous allez très bien? Mais pas encore.',
+      ]);
       expect(svc.detectedLanguage, isNotEmpty);
 
       // In auto mode, detected language should appear in the system prompt.
@@ -137,23 +135,25 @@ void main() {
       }
     });
 
-    test('setting preferred language to auto restores auto-detection',
-        () async {
-      final svc = MemoryService();
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-      await svc.setMemoryEnabled(true);
+    test(
+      'setting preferred language to auto restores auto-detection',
+      () async {
+        final svc = MemoryService();
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        await svc.setMemoryEnabled(true);
 
-      svc.detectLanguage(['Bonjour oui bien sûr très bien']);
-      final detected = svc.detectedLanguage;
-      await svc.setPreferredLanguage('German');
-      await svc.setPreferredLanguage('auto');
+        svc.detectLanguage(['Bonjour oui bien sûr très bien']);
+        final detected = svc.detectedLanguage;
+        await svc.setPreferredLanguage('German');
+        await svc.setPreferredLanguage('auto');
 
-      expect(svc.preferredLanguage, 'auto');
-      if (detected.isNotEmpty) {
-        final prompt = svc.buildSystemPrompt();
-        expect(prompt, contains(detected));
-      }
-    });
+        expect(svc.preferredLanguage, 'auto');
+        if (detected.isNotEmpty) {
+          final prompt = svc.buildSystemPrompt();
+          expect(prompt, contains(detected));
+        }
+      },
+    );
 
     test('preferred language persists across service reload', () async {
       SharedPreferences.setMockInitialValues({});
@@ -180,8 +180,9 @@ void main() {
   // 3. MemoryPage accessibility — key semantic labels
   // ─────────────────────────────────────────────────────────────────────────
   group('MemoryPage accessibility', () {
-    testWidgets('page is navigable (has at least one interactive widget)',
-        (tester) async {
+    testWidgets('page is navigable (has at least one interactive widget)', (
+      tester,
+    ) async {
       final svc = MemoryService();
       await tester.pumpWidget(_wrapMemoryPage(svc, VisualMode.classic));
       await tester.pumpAndSettle();
@@ -193,15 +194,19 @@ void main() {
       expect(buttons, findsAtLeastNWidgets(1));
     });
 
-    testWidgets('Memory page has no uncaught overflow errors in either theme',
-        (tester) async {
+    testWidgets('Memory page has no uncaught overflow errors in either theme', (
+      tester,
+    ) async {
       for (final mode in VisualMode.values) {
         SharedPreferences.setMockInitialValues({});
         final svc = MemoryService();
         await tester.pumpWidget(_wrapMemoryPage(svc, mode));
         await tester.pumpAndSettle();
-        expect(tester.takeException(), isNull,
-            reason: 'Overflow in $mode mode');
+        expect(
+          tester.takeException(),
+          isNull,
+          reason: 'Overflow in $mode mode',
+        );
       }
     });
   });

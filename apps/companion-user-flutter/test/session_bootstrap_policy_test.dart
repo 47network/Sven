@@ -7,7 +7,9 @@ void main() {
   test('stored session is only invalidated for auth failures', () {
     expect(shouldInvalidateStoredSession(AuthFailure.sessionExpired), isTrue);
     expect(
-        shouldInvalidateStoredSession(AuthFailure.invalidCredentials), isTrue);
+      shouldInvalidateStoredSession(AuthFailure.invalidCredentials),
+      isTrue,
+    );
     expect(shouldInvalidateStoredSession(AuthFailure.network), isFalse);
     expect(shouldInvalidateStoredSession(AuthFailure.server), isFalse);
     expect(shouldInvalidateStoredSession(AuthFailure.unknown), isFalse);

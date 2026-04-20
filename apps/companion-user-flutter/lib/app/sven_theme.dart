@@ -19,8 +19,9 @@ ThemeData buildSvenTheme(
       ? rawTokens.copyWithPrimary(customAccent)
       : rawTokens;
   // Apply colour-blind-safe palette when requested.
-  final cbTokens =
-      colorBlindMode ? accentedTokens.copyWithColorBlind() : accentedTokens;
+  final cbTokens = colorBlindMode
+      ? accentedTokens.copyWithColorBlind()
+      : accentedTokens;
   // Apply high-contrast amplification last so it wins over accent and CBM.
   final tokens = highContrast ? cbTokens.copyWithHighContrast() : cbTokens;
   final baseTextTheme = mode == VisualMode.cinematic
@@ -51,12 +52,14 @@ ThemeData buildSvenTheme(
 
   // Apply user-selected font family via google_fonts (or system default).
   TextTheme Function(TextTheme) applyFont;
-  TextStyle Function(
-      {TextStyle? textStyle,
-      FontWeight? fontWeight,
-      double? fontSize,
-      Color? color,
-      double? letterSpacing}) fontStyle;
+  TextStyle Function({
+    TextStyle? textStyle,
+    FontWeight? fontWeight,
+    double? fontSize,
+    Color? color,
+    double? letterSpacing,
+  })
+  fontStyle;
 
   final gfName = fontFamily.googleFontsName;
   if (gfName == null) {
@@ -177,8 +180,9 @@ ThemeData buildSvenTheme(
   final filledButtonTheme = FilledButtonThemeData(
     style: FilledButton.styleFrom(
       backgroundColor: tokens.primary,
-      foregroundColor:
-          mode == VisualMode.cinematic ? const Color(0xFF040712) : Colors.white,
+      foregroundColor: mode == VisualMode.cinematic
+          ? const Color(0xFF040712)
+          : Colors.white,
       minimumSize: const Size(0, 48),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
@@ -229,8 +233,9 @@ ThemeData buildSvenTheme(
   );
 
   final bottomSheetTheme = BottomSheetThemeData(
-    backgroundColor:
-        mode == VisualMode.cinematic ? const Color(0xFF0B1226) : Colors.white,
+    backgroundColor: mode == VisualMode.cinematic
+        ? const Color(0xFF0B1226)
+        : Colors.white,
     surfaceTintColor: Colors.transparent,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

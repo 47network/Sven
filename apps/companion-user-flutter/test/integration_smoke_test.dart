@@ -135,9 +135,8 @@ MockClient _client(
   String contentType = 'application/json',
 }) {
   return MockClient(
-    (_) async => http.Response(body, status, headers: {
-      'content-type': contentType,
-    }),
+    (_) async =>
+        http.Response(body, status, headers: {'content-type': contentType}),
   );
 }
 
@@ -153,8 +152,11 @@ MockClient _dispatchClient(Map<String, ({int status, String body})> routes) {
         );
       }
     }
-    return http.Response('{"error":"not_found"}', 404,
-        headers: {'content-type': 'application/json'});
+    return http.Response(
+      '{"error":"not_found"}',
+      404,
+      headers: {'content-type': 'application/json'},
+    );
   });
 }
 
@@ -217,10 +219,7 @@ void main() {
   group('Login — success flow', () {
     test('login returns a populated LoginResult', () async {
       final auth = _auth(_client(_validLoginResponse));
-      final result = await auth.login(
-        username: 'alice',
-        password: 's3cr3t!',
-      );
+      final result = await auth.login(username: 'alice', password: 's3cr3t!');
       expect(result.token, 'test-access-token-abc123');
       expect(result.userId, 'user-001');
       expect(result.username, 'alice');
@@ -254,11 +253,13 @@ void main() {
       final auth = _auth(_client('{"error":"unauthorized"}', status: 401));
       expect(
         () => auth.login(username: 'alice', password: 'wrong'),
-        throwsA(isA<AuthException>().having(
-          (e) => e.failure,
-          'failure',
-          AuthFailure.invalidCredentials,
-        )),
+        throwsA(
+          isA<AuthException>().having(
+            (e) => e.failure,
+            'failure',
+            AuthFailure.invalidCredentials,
+          ),
+        ),
       );
     });
 
@@ -266,11 +267,13 @@ void main() {
       final auth = _auth(_client('{"error":"forbidden"}', status: 403));
       expect(
         () => auth.login(username: 'alice', password: 'p'),
-        throwsA(isA<AuthException>().having(
-          (e) => e.failure,
-          'failure',
-          AuthFailure.accountLocked,
-        )),
+        throwsA(
+          isA<AuthException>().having(
+            (e) => e.failure,
+            'failure',
+            AuthFailure.accountLocked,
+          ),
+        ),
       );
     });
 
@@ -282,39 +285,47 @@ void main() {
       );
     });
 
-    test('server returns 200 but missing token → throws AuthException(server)',
-        () async {
-      final auth = _auth(_client(
-        jsonEncode({
-          'data': {'user_id': 'u1', 'username': 'alice'}
-        }),
-      ));
-      expect(
-        () => auth.login(username: 'alice', password: 'p'),
-        throwsA(isA<AuthException>().having(
-          (e) => e.failure,
-          'failure',
-          AuthFailure.server,
-        )),
-      );
-    });
+    test(
+      'server returns 200 but missing token → throws AuthException(server)',
+      () async {
+        final auth = _auth(
+          _client(
+            jsonEncode({
+              'data': {'user_id': 'u1', 'username': 'alice'},
+            }),
+          ),
+        );
+        expect(
+          () => auth.login(username: 'alice', password: 'p'),
+          throwsA(
+            isA<AuthException>().having(
+              (e) => e.failure,
+              'failure',
+              AuthFailure.server,
+            ),
+          ),
+        );
+      },
+    );
   });
 
   // ─── 3. Login → MemoryService integration ─────────────────────────────────
   group('Login → MemoryService integration', () {
-    test('after login, enabling memory and adding a fact shows fact in prompt',
-        () async {
-      final auth = _auth(_client(_validLoginResponse));
-      await auth.login(username: 'alice', password: 's3cr3t!');
+    test(
+      'after login, enabling memory and adding a fact shows fact in prompt',
+      () async {
+        final auth = _auth(_client(_validLoginResponse));
+        await auth.login(username: 'alice', password: 's3cr3t!');
 
-      final mem = MemoryService();
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-      await mem.setMemoryEnabled(true);
-      await mem.addFact('Prefers concise answers');
+        final mem = MemoryService();
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        await mem.setMemoryEnabled(true);
+        await mem.addFact('Prefers concise answers');
 
-      final prompt = mem.buildSystemPrompt();
-      expect(prompt, contains('Prefers concise answers'));
-    });
+        final prompt = mem.buildSystemPrompt();
+        expect(prompt, contains('Prefers concise answers'));
+      },
+    );
 
     test('logout clears token and resets memory service', () async {
       final auth = _auth(_client(_validLoginResponse));
@@ -352,81 +363,96 @@ void main() {
 
   // ─── 5. SSO + MFA contract flows ──────────────────────────────────────────
   group('SSO and MFA', () {
-    test('loginWithSso posts to /v1/auth/sso and stores returned tokens',
-        () async {
-      bool sawSsoPath = false;
-      final client = MockClient((request) async {
-        if (request.url.path.contains('/v1/auth/sso')) {
-          sawSsoPath = true;
-          final body = jsonDecode(request.body) as Map<String, dynamic>;
-          expect(body['provider'], 'google');
-          expect(body['id_token'], 'id-token-abc');
-          expect(body['access_token'], 'access-token-xyz');
-          expect(body['nonce'], 'nonce-123');
+    test(
+      'loginWithSso posts to /v1/auth/sso and stores returned tokens',
+      () async {
+        bool sawSsoPath = false;
+        final client = MockClient((request) async {
+          if (request.url.path.contains('/v1/auth/sso')) {
+            sawSsoPath = true;
+            final body = jsonDecode(request.body) as Map<String, dynamic>;
+            expect(body['provider'], 'google');
+            expect(body['id_token'], 'id-token-abc');
+            expect(body['access_token'], 'access-token-xyz');
+            expect(body['nonce'], 'nonce-123');
+            return http.Response(
+              _validSsoResponse,
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
           return http.Response(
-            _validSsoResponse,
-            200,
+            '{"error":"not_found"}',
+            404,
             headers: {'content-type': 'application/json'},
           );
-        }
-        return http.Response('{"error":"not_found"}', 404,
-            headers: {'content-type': 'application/json'});
-      });
+        });
 
-      final auth = _auth(client);
-      final result = await auth.loginWithSso(
-        const SsoCredential(
-          provider: 'google',
-          idToken: 'id-token-abc',
-          accessToken: 'access-token-xyz',
-          nonce: 'nonce-123',
-        ),
-      );
+        final auth = _auth(client);
+        final result = await auth.loginWithSso(
+          const SsoCredential(
+            provider: 'google',
+            idToken: 'id-token-abc',
+            accessToken: 'access-token-xyz',
+            nonce: 'nonce-123',
+          ),
+        );
 
-      expect(sawSsoPath, isTrue);
-      expect(result.token, 'sso-access-token-1');
-      expect(result.userId, 'sso-user-1');
-      expect(result.username, 'sso_alice');
-      expect(await auth.readToken(), 'sso-access-token-1');
-      expect(await auth.readRefreshToken(), 'sso-refresh-token-1');
-    });
+        expect(sawSsoPath, isTrue);
+        expect(result.token, 'sso-access-token-1');
+        expect(result.userId, 'sso-user-1');
+        expect(result.username, 'sso_alice');
+        expect(await auth.readToken(), 'sso-access-token-1');
+        expect(await auth.readRefreshToken(), 'sso-refresh-token-1');
+      },
+    );
 
-    test('verifyMfa falls back to /mfa/verify when /totp/verify returns 404',
-        () async {
-      bool hitTotp = false;
-      bool hitFallback = false;
-      final client = MockClient((request) async {
-        if (request.url.path.contains('/v1/auth/totp/verify')) {
-          hitTotp = true;
-          return http.Response('{"error":"not_found"}', 404,
-              headers: {'content-type': 'application/json'});
-        }
-        if (request.url.path.contains('/v1/auth/mfa/verify')) {
-          hitFallback = true;
-          final body = jsonDecode(request.body) as Map<String, dynamic>;
-          expect(body['mfa_token'], 'mfa-pre-session-1');
-          expect(body['code'], '123456');
+    test(
+      'verifyMfa falls back to /mfa/verify when /totp/verify returns 404',
+      () async {
+        bool hitTotp = false;
+        bool hitFallback = false;
+        final client = MockClient((request) async {
+          if (request.url.path.contains('/v1/auth/totp/verify')) {
+            hitTotp = true;
+            return http.Response(
+              '{"error":"not_found"}',
+              404,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          if (request.url.path.contains('/v1/auth/mfa/verify')) {
+            hitFallback = true;
+            final body = jsonDecode(request.body) as Map<String, dynamic>;
+            expect(body['mfa_token'], 'mfa-pre-session-1');
+            expect(body['code'], '123456');
+            return http.Response(
+              _validTotpVerifyResponse,
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
           return http.Response(
-            _validTotpVerifyResponse,
-            200,
+            '{"error":"not_found"}',
+            404,
             headers: {'content-type': 'application/json'},
           );
-        }
-        return http.Response('{"error":"not_found"}', 404,
-            headers: {'content-type': 'application/json'});
-      });
+        });
 
-      final auth = _auth(client);
-      final result =
-          await auth.verifyMfa(mfaToken: 'mfa-pre-session-1', code: '123456');
+        final auth = _auth(client);
+        final result = await auth.verifyMfa(
+          mfaToken: 'mfa-pre-session-1',
+          code: '123456',
+        );
 
-      expect(hitTotp, isTrue);
-      expect(hitFallback, isTrue);
-      expect(result.token, 'mfa-access-token-1');
-      expect(result.userId, 'mfa-user-1');
-      expect(await auth.readToken(), 'mfa-access-token-1');
-      expect(await auth.readRefreshToken(), 'mfa-refresh-token-1');
-    });
+        expect(hitTotp, isTrue);
+        expect(hitFallback, isTrue);
+        expect(result.token, 'mfa-access-token-1');
+        expect(result.userId, 'mfa-user-1');
+        expect(await auth.readToken(), 'mfa-access-token-1');
+        expect(await auth.readRefreshToken(), 'mfa-refresh-token-1');
+      },
+    );
   });
 
   // ─── 6. Auto-login persistence ────────────────────────────────────────────

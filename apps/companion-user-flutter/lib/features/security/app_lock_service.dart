@@ -16,20 +16,20 @@ enum AutoLockTimeout {
   never;
 
   String get label => switch (this) {
-        AutoLockTimeout.immediately => 'Immediately',
-        AutoLockTimeout.oneMinute => '1 minute',
-        AutoLockTimeout.fiveMinutes => '5 minutes',
-        AutoLockTimeout.fifteenMinutes => '15 minutes',
-        AutoLockTimeout.never => 'Never',
-      };
+    AutoLockTimeout.immediately => 'Immediately',
+    AutoLockTimeout.oneMinute => '1 minute',
+    AutoLockTimeout.fiveMinutes => '5 minutes',
+    AutoLockTimeout.fifteenMinutes => '15 minutes',
+    AutoLockTimeout.never => 'Never',
+  };
 
   Duration? get duration => switch (this) {
-        AutoLockTimeout.immediately => Duration.zero,
-        AutoLockTimeout.oneMinute => const Duration(minutes: 1),
-        AutoLockTimeout.fiveMinutes => const Duration(minutes: 5),
-        AutoLockTimeout.fifteenMinutes => const Duration(minutes: 15),
-        AutoLockTimeout.never => null,
-      };
+    AutoLockTimeout.immediately => Duration.zero,
+    AutoLockTimeout.oneMinute => const Duration(minutes: 1),
+    AutoLockTimeout.fiveMinutes => const Duration(minutes: 5),
+    AutoLockTimeout.fifteenMinutes => const Duration(minutes: 15),
+    AutoLockTimeout.never => null,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

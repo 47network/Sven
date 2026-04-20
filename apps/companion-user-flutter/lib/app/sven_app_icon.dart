@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SvenAppIcon extends StatelessWidget {
-  const SvenAppIcon({
-    super.key,
-    this.size = 40,
-    this.borderRadius,
-  });
+  const SvenAppIcon({super.key, this.size = 40, this.borderRadius});
 
   final double size;
   final double? borderRadius;

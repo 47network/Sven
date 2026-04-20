@@ -26,8 +26,8 @@ class WakeWordCaptureService {
   WakeWordCaptureService({
     required AuthenticatedClient client,
     TokenStore? tokenStore,
-  })  : _client = client,
-        _tokenStore = tokenStore ?? TokenStore();
+  }) : _client = client,
+       _tokenStore = tokenStore ?? TokenStore();
 
   static const _wakeChatKeyPrefix = 'sven.wake_word.chat_id';
 
@@ -40,16 +40,24 @@ class WakeWordCaptureService {
     String audioMime = 'audio/wav',
   }) async {
     final chatId = await _ensureWakeChatId();
-    final firstAttempt =
-        await _postWakeWord(chatId, wakePhrase, audioBase64, audioMime);
+    final firstAttempt = await _postWakeWord(
+      chatId,
+      wakePhrase,
+      audioBase64,
+      audioMime,
+    );
     if (firstAttempt.$1 != 403 && firstAttempt.$1 != 404) {
       return _parseResult(firstAttempt.$2);
     }
 
     await _clearWakeChatId();
     final freshChatId = await _ensureWakeChatId();
-    final secondAttempt =
-        await _postWakeWord(freshChatId, wakePhrase, audioBase64, audioMime);
+    final secondAttempt = await _postWakeWord(
+      freshChatId,
+      wakePhrase,
+      audioBase64,
+      audioMime,
+    );
     return _parseResult(secondAttempt.$2);
   }
 
@@ -59,8 +67,9 @@ class WakeWordCaptureService {
     String audioBase64,
     String audioMime,
   ) async {
-    final uri =
-        Uri.parse('${ApiBaseService.currentSync()}/v1/chats/$chatId/wake-word');
+    final uri = Uri.parse(
+      '${ApiBaseService.currentSync()}/v1/chats/$chatId/wake-word',
+    );
     final response = await _client.postJson(uri, <String, dynamic>{
       'wake_word': wakePhrase,
       'audio_base64': audioBase64,
@@ -80,11 +89,9 @@ class WakeWordCaptureService {
       final topScoresRaw = data?['top_scores'];
       final topScores = topScoresRaw is List
           ? topScoresRaw
-              .whereType<Map>()
-              .map((row) => row.map(
-                    (key, value) => MapEntry('$key', value),
-                  ))
-              .toList()
+                .whereType<Map>()
+                .map((row) => row.map((key, value) => MapEntry('$key', value)))
+                .toList()
           : const <Map<String, dynamic>>[];
       return WakeWordCaptureResult(
         detected: data?['detected'] == true,
@@ -113,7 +120,8 @@ class WakeWordCaptureService {
     });
     if (response.statusCode != 201) {
       throw StateError(
-          'Unable to create wake-word chat (${response.statusCode})');
+        'Unable to create wake-word chat (${response.statusCode})',
+      );
     }
     final decoded = jsonDecode(response.body) as Map<String, dynamic>;
     final data =

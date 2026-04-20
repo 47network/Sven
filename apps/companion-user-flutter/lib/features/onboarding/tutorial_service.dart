@@ -92,27 +92,31 @@ class TutorialStep {
 const tutorialSteps = <TutorialStep>[
   TutorialStep(
     title: 'Welcome to Sven! 👋',
-    body: 'I\'m your personal AI companion. Type anything below '
+    body:
+        'I\'m your personal AI companion. Type anything below '
         'to start our first conversation.',
     icon: Icons.waving_hand_rounded,
     suggestion: 'Hey Sven, what can you help me with?',
   ),
   TutorialStep(
     title: 'Voice mode 🎤',
-    body: 'Tap the microphone button to talk to me hands-free. '
+    body:
+        'Tap the microphone button to talk to me hands-free. '
         'I\'ll listen, think, and respond aloud.',
     icon: Icons.mic_rounded,
   ),
   TutorialStep(
     title: 'I remember things 🧠',
-    body: 'Tell me about yourself and I\'ll remember it across '
+    body:
+        'Tell me about yourself and I\'ll remember it across '
         'conversations. Try: "Remember that I prefer Python."',
     icon: Icons.psychology_rounded,
     suggestion: 'Remember that I prefer dark mode and concise answers.',
   ),
   TutorialStep(
     title: 'Quick tips ⚡',
-    body: 'Use /help for slash commands, long-press messages for '
+    body:
+        'Use /help for slash commands, long-press messages for '
         'actions, and swipe left on the chat list to delete.',
     icon: Icons.tips_and_updates_rounded,
   ),
@@ -151,11 +155,10 @@ class TutorialBanner extends StatelessWidget {
           margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            color:
-                cinematic ? tokens.card.withValues(alpha: 0.9) : tokens.surface,
-            border: Border.all(
-              color: tokens.primary.withValues(alpha: 0.2),
-            ),
+            color: cinematic
+                ? tokens.card.withValues(alpha: 0.9)
+                : tokens.surface,
+            border: Border.all(color: tokens.primary.withValues(alpha: 0.2)),
             boxShadow: [
               BoxShadow(
                 color: tokens.primary.withValues(alpha: cinematic ? 0.1 : 0.05),
@@ -231,15 +234,19 @@ class TutorialBanner extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(12),
                                   color: tokens.primary.withValues(alpha: 0.08),
                                   border: Border.all(
-                                    color:
-                                        tokens.primary.withValues(alpha: 0.15),
+                                    color: tokens.primary.withValues(
+                                      alpha: 0.15,
+                                    ),
                                   ),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.send_rounded,
-                                        size: 12, color: tokens.primary),
+                                    Icon(
+                                      Icons.send_rounded,
+                                      size: 12,
+                                      color: tokens.primary,
+                                    ),
                                     const SizedBox(width: 6),
                                     Flexible(
                                       child: Text(

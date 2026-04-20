@@ -76,10 +76,12 @@ class FeatureFlagService extends ChangeNotifier {
     // Fetch remote flags from ui-preferences endpoint
     if (apiBase != null && token != null) {
       try {
-        final response = await http.get(
-          Uri.parse('$apiBase/v1/me/ui-preferences'),
-          headers: {'Authorization': 'Bearer $token'},
-        ).timeout(const Duration(seconds: 5));
+        final response = await http
+            .get(
+              Uri.parse('$apiBase/v1/me/ui-preferences'),
+              headers: {'Authorization': 'Bearer $token'},
+            )
+            .timeout(const Duration(seconds: 5));
         if (response.statusCode == 200) {
           final body = jsonDecode(response.body) as Map<String, dynamic>;
           final prefs = body['data'] as Map<String, dynamic>? ?? {};
@@ -143,7 +145,9 @@ class FeatureFlagService extends ChangeNotifier {
     _devOverrides[key] = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-        'feature_flags_dev_overrides', jsonEncode(_devOverrides));
+      'feature_flags_dev_overrides',
+      jsonEncode(_devOverrides),
+    );
     notifyListeners();
   }
 
@@ -152,8 +156,8 @@ class FeatureFlagService extends ChangeNotifier {
 
   /// Returns the effective value for every flag (merged map).
   Map<String, dynamic> get effectiveFlags => {
-        ..._defaults,
-        ..._remote,
-        if (kDebugMode) ..._devOverrides,
-      };
+    ..._defaults,
+    ..._remote,
+    if (kDebugMode) ..._devOverrides,
+  };
 }

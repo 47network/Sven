@@ -21,8 +21,9 @@ class ActivityFeedService {
       if (before != null) 'before': before,
       if (unreadOnly) 'unread_only': 'true',
     };
-    final uri = Uri.parse('$_apiBase/v1/users/me/activity-feed')
-        .replace(queryParameters: params);
+    final uri = Uri.parse(
+      '$_apiBase/v1/users/me/activity-feed',
+    ).replace(queryParameters: params);
     final r = await _client.get(uri);
     if (r.statusCode != 200) {
       throw Exception('Failed to fetch activity feed (${r.statusCode})');

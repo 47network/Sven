@@ -169,8 +169,9 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
       if (!mounted) return;
       if (AndroidWakeWordService.isSupported) {
         unawaited(_androidWakeWordService.initialize());
-        _androidWakeWordSub ??=
-            _androidWakeWordService.matches.listen(_handleAndroidWakeWordMatch);
+        _androidWakeWordSub ??= _androidWakeWordService.matches.listen(
+          _handleAndroidWakeWordMatch,
+        );
         _androidWakeWordAudioSub ??= _androidWakeWordService.audioWindows
             .listen(_handleAndroidWakeWordAudioWindow);
       }
@@ -270,12 +271,17 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
           children: [
             Row(
               children: [
-                const Icon(Icons.notifications_active_rounded,
-                    size: 18, color: Colors.white70),
+                const Icon(
+                  Icons.notifications_active_rounded,
+                  size: 18,
+                  color: Colors.white70,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(label,
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text(
+                    label,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             ),
@@ -334,8 +340,9 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
 
     // Scenario 2: app was in background, user tapped notification.
     _fcmOpenedAppSub?.cancel();
-    _fcmOpenedAppSub =
-        FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
+    _fcmOpenedAppSub = FirebaseMessaging.onMessageOpenedApp.listen(
+      _handleNotificationTap,
+    );
   }
 
   Future<bool> _waitForFirebaseReady() async {
@@ -358,37 +365,38 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
   /// is foregrounded (FCM does not show a system tray notification then).
   void _initForegroundNotifications() {
     _foregroundNotifSub = PushNotificationManager
-        .instance.foregroundNotifications
+        .instance
+        .foregroundNotifications
         .listen((notif) {
-      final messenger = ScaffoldMessenger.maybeOf(_navKey.currentContext!);
-      if (messenger == null) return;
+          final messenger = ScaffoldMessenger.maybeOf(_navKey.currentContext!);
+          if (messenger == null) return;
 
-      messenger.showSnackBar(
-        SnackBar(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                notif.title,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              if (notif.body.isNotEmpty) Text(notif.body),
-            ],
-          ),
-          duration: const Duration(seconds: 6),
-          behavior: SnackBarBehavior.floating,
-          action: notif.chatId != null
-              ? SnackBarAction(
-                  label: 'Open',
-                  onPressed: () => _handleDeepLink(
-                    Uri.parse('sven://chat/${notif.chatId}'),
+          messenger.showSnackBar(
+            SnackBar(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    notif.title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                )
-              : null,
-        ),
-      );
-    });
+                  if (notif.body.isNotEmpty) Text(notif.body),
+                ],
+              ),
+              duration: const Duration(seconds: 6),
+              behavior: SnackBarBehavior.floating,
+              action: notif.chatId != null
+                  ? SnackBarAction(
+                      label: 'Open',
+                      onPressed: () => _handleDeepLink(
+                        Uri.parse('sven://chat/${notif.chatId}'),
+                      ),
+                    )
+                  : null,
+            ),
+          );
+        });
   }
 
   /// Wires device battery state into [PerformanceMonitor] so the app
@@ -406,19 +414,16 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
     }
 
     // Subscribe to ongoing state changes.
-    _batterySub = _battery.onBatteryStateChanged.listen(
-      (state) async {
-        try {
-          final level = await _battery.batteryLevel;
-          final isCharging =
-              state == BatteryState.charging || state == BatteryState.full;
-          _state.perfMonitor.updateBatteryState(level, isCharging);
-        } catch (e) {
-          debugPrint('[SvenUserApp] battery stream update failed: $e');
-        }
-      },
-      onError: (_) {},
-    );
+    _batterySub = _battery.onBatteryStateChanged.listen((state) async {
+      try {
+        final level = await _battery.batteryLevel;
+        final isCharging =
+            state == BatteryState.charging || state == BatteryState.full;
+        _state.perfMonitor.updateBatteryState(level, isCharging);
+      } catch (e) {
+        debugPrint('[SvenUserApp] battery stream update failed: $e');
+      }
+    }, onError: (_) {});
   }
 
   Future<void> _bootstrap() async {
@@ -454,11 +459,13 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
 
     final storedUserId = await _auth.readUserId();
     final storedUsername = await _auth.readUsername();
-    unawaited(_completeAuthenticatedBootstrap(
-      cachedToken: token,
-      storedUserId: storedUserId,
-      storedUsername: storedUsername,
-    ));
+    unawaited(
+      _completeAuthenticatedBootstrap(
+        cachedToken: token,
+        storedUserId: storedUserId,
+        storedUsername: storedUsername,
+      ),
+    );
   }
 
   Future<void> _refreshDeploymentConfig() async {
@@ -575,10 +582,12 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
     _state.setAuthMessage(null);
     _consumePendingLink();
     unawaited(_auth.saveCurrentAccountLocally());
-    unawaited(FeatureFlagService.instance.load(
-      apiBase: AuthService.apiBase,
-      token: result.token,
-    ));
+    unawaited(
+      FeatureFlagService.instance.load(
+        apiBase: AuthService.apiBase,
+        token: result.token,
+      ),
+    );
     await PushNotificationManager.instance.retryRegistration();
   }
 
@@ -609,10 +618,12 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
       _state.setToken(result.token);
       _state.setAuthMessage(null);
       _consumePendingLink();
-      unawaited(FeatureFlagService.instance.load(
-        apiBase: AuthService.apiBase,
-        token: result.token,
-      ));
+      unawaited(
+        FeatureFlagService.instance.load(
+          apiBase: AuthService.apiBase,
+          token: result.token,
+        ),
+      );
       await PushNotificationManager.instance.retryRegistration();
     } on SsoException catch (e) {
       throw AuthException(AuthFailure.ssoFailed, detail: e.message);
@@ -637,10 +648,12 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
       unawaited(_auth.saveCurrentAccountLocally());
 
       // Load feature flags now that we have a valid token
-      unawaited(FeatureFlagService.instance.load(
-        apiBase: AuthService.apiBase,
-        token: result.token,
-      ));
+      unawaited(
+        FeatureFlagService.instance.load(
+          apiBase: AuthService.apiBase,
+          token: result.token,
+        ),
+      );
 
       // Retry FCM token registration now that we're authenticated
       await PushNotificationManager.instance.retryRegistration();
@@ -666,10 +679,12 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
       _state.setAuthMessage(null);
       _consumePendingLink();
       unawaited(_auth.saveCurrentAccountLocally());
-      unawaited(FeatureFlagService.instance.load(
-        apiBase: AuthService.apiBase,
-        token: result.token,
-      ));
+      unawaited(
+        FeatureFlagService.instance.load(
+          apiBase: AuthService.apiBase,
+          token: result.token,
+        ),
+      );
       await PushNotificationManager.instance.retryRegistration();
     } on AuthException catch (e) {
       _state.setAuthMessage(e.userMessage);
@@ -728,7 +743,8 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
     } catch (_) {
       // Refresh failed — the next API call will trigger the 401 → retry flow.
       debugPrint(
-          '[auth] proactive token refresh failed (will retry on next API call)');
+        '[auth] proactive token refresh failed (will retry on next API call)',
+      );
     }
   }
 
@@ -847,7 +863,8 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
     if (!_state.loaded) return;
     final lifecycleState = WidgetsBinding.instance.lifecycleState;
     final usingAndroidWake = AndroidWakeWordService.isSupported;
-    final shouldArm = _state.isLoggedIn &&
+    final shouldArm =
+        _state.isLoggedIn &&
         _state.wakeWordEnabled &&
         lifecycleState != AppLifecycleState.detached &&
         (usingAndroidWake || lifecycleState != AppLifecycleState.paused) &&
@@ -1017,9 +1034,7 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(36),
                             color: const Color(0xCC0A1225),
-                            border: Border.all(
-                              color: const Color(0x22E8EEFF),
-                            ),
+                            border: Border.all(color: const Color(0x22E8EEFF)),
                             boxShadow: const [
                               BoxShadow(
                                 color: Color(0x330B1020),
@@ -1109,8 +1124,9 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
             onSsoSignIn: _loginWithSso,
             initialMessage: _state.authMessage,
             savedAccountName: _savedAccountName,
-            onBiometricLogin:
-                _savedAccountUserId != null ? _biometricLogin : null,
+            onBiometricLogin: _savedAccountUserId != null
+                ? _biometricLogin
+                : null,
             onServerChanged: (_) {
               // API base is already updated by ServerDiscoveryService;
               // AuthService reads it dynamically via ApiBaseService.currentSync().
@@ -1133,10 +1149,7 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
           builder: (_, __) => AppLockGate(
             lockService: _lockService,
             visualMode: _state.effectiveVisualMode,
-            child: AppShell(
-              onLogout: _logout,
-              onLogoutAll: _logoutAll,
-            ),
+            child: AppShell(onLogout: _logout, onLogoutAll: _logoutAll),
           ),
           routes: [
             // Deep-link: sven://approvals
@@ -1176,54 +1189,56 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
                 );
                 final tokens = SvenTokens.forMode(_state.effectiveVisualMode);
                 VoidCallback? exportFn;
-                return StatefulBuilder(builder: (ctx2, setS) {
-                  return Scaffold(
-                    backgroundColor: tokens.scaffold,
-                    appBar: AppBar(
-                      leading: IconButton(
-                        icon: const Icon(Icons.arrow_back_rounded),
-                        onPressed: () => _router.pop(),
-                      ),
-                      title: Row(
-                        children: [
-                          const SvenAppIcon(size: 28, borderRadius: 9),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              thread.title,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: tokens.onSurface,
+                return StatefulBuilder(
+                  builder: (ctx2, setS) {
+                    return Scaffold(
+                      backgroundColor: tokens.scaffold,
+                      appBar: AppBar(
+                        leading: IconButton(
+                          icon: const Icon(Icons.arrow_back_rounded),
+                          onPressed: () => _router.pop(),
+                        ),
+                        title: Row(
+                          children: [
+                            const SvenAppIcon(size: 28, borderRadius: 9),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                thread.title,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: tokens.onSurface,
+                                ),
                               ),
                             ),
+                          ],
+                        ),
+                        actions: [
+                          IconButton(
+                            tooltip: 'Export conversation',
+                            icon: const Icon(Icons.ios_share_rounded),
+                            onPressed: exportFn,
                           ),
                         ],
                       ),
-                      actions: [
-                        IconButton(
-                          tooltip: 'Export conversation',
-                          icon: const Icon(Icons.ios_share_rounded),
-                          onPressed: exportFn,
-                        ),
-                      ],
-                    ),
-                    body: ChatThreadPage(
-                      thread: thread,
-                      chatService: chatService,
-                      initialDraft: initialDraft,
-                      visualMode: _state.effectiveVisualMode,
-                      motionLevel: _state.effectiveMotionLevel,
-                      voiceService: _voiceService,
-                      responseLength: _state.responseLength,
-                      promptTemplatesService: _promptTemplatesService,
-                      memoryService: _memoryService,
-                      syncService: _syncService,
-                      onRegisterExport: (fn) => setS(() => exportFn = fn),
-                    ),
-                  );
-                });
+                      body: ChatThreadPage(
+                        thread: thread,
+                        chatService: chatService,
+                        initialDraft: initialDraft,
+                        visualMode: _state.effectiveVisualMode,
+                        motionLevel: _state.effectiveMotionLevel,
+                        voiceService: _voiceService,
+                        responseLength: _state.responseLength,
+                        promptTemplatesService: _promptTemplatesService,
+                        memoryService: _memoryService,
+                        syncService: _syncService,
+                        onRegisterExport: (fn) => setS(() => exportFn = fn),
+                      ),
+                    );
+                  },
+                );
               },
             ),
 
@@ -1262,9 +1277,8 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
             // ── User profile ──
             GoRoute(
               path: 'profile',
-              builder: (_, __) => ProfilePage(
-                profileService: ProfileService(_authClient),
-              ),
+              builder: (_, __) =>
+                  ProfilePage(profileService: ProfileService(_authClient)),
             ),
 
             // ── Notification preferences ──
@@ -1303,17 +1317,23 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
                 GoRoute(
                   path: 'image',
                   builder: (_, __) => ImageAnalysisPage(
-                      client: _authClient, inferenceService: _inferenceService),
+                    client: _authClient,
+                    inferenceService: _inferenceService,
+                  ),
                 ),
                 GoRoute(
                   path: 'scribe',
                   builder: (_, __) => AudioScribePage(
-                      client: _authClient, inferenceService: _inferenceService),
+                    client: _authClient,
+                    inferenceService: _inferenceService,
+                  ),
                 ),
                 GoRoute(
                   path: 'actions',
                   builder: (_, __) => DeviceActionsPage(
-                      client: _authClient, inferenceService: _inferenceService),
+                    client: _authClient,
+                    inferenceService: _inferenceService,
+                  ),
                 ),
                 GoRoute(
                   path: 'routing',
@@ -1383,9 +1403,7 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
   void _showSessionExpired() {
     _resetUserServices();
     unawaited(_loadSavedAccountHint());
-    _state.setAuthMessage(
-      'Your session has expired. Please sign in again.',
-    );
+    _state.setAuthMessage('Your session has expired. Please sign in again.');
     final messenger = ScaffoldMessenger.maybeOf(_navKey.currentContext!);
     messenger?.showSnackBar(
       const SnackBar(
@@ -1410,8 +1428,9 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
         tutorialServiceProvider.overrideWith((ref) => _tutorialService),
         voiceServiceProvider.overrideWithValue(_voiceService),
         authenticatedClientProvider.overrideWithValue(_authClient),
-        promptTemplatesServiceProvider
-            .overrideWithValue(_promptTemplatesService),
+        promptTemplatesServiceProvider.overrideWithValue(
+          _promptTemplatesService,
+        ),
         deviceServiceProvider.overrideWithValue(_deviceService),
         featureTooltipServiceProvider.overrideWithValue(_tooltipService),
         syncServiceProvider.overrideWith((ref) => _syncService),
@@ -1427,25 +1446,27 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
           return MaterialApp.router(
             routerConfig: _router,
             title: 'Sven',
-            theme: buildSvenTheme(_state.visualMode,
-                dynamicScheme: null,
-                highContrast: _state.highContrast,
-                colorBlindMode: _state.colorBlindMode,
-                customAccent: _state.customAccentHex != null
-                    ? _parseHexColor(_state.customAccentHex!)
-                    : _state.accentPreset != AccentPreset.sven
-                        ? Color(_state.accentPreset.argbValue)
-                        : null,
-                fontFamily: _state.fontFamily),
+            theme: buildSvenTheme(
+              _state.visualMode,
+              dynamicScheme: null,
+              highContrast: _state.highContrast,
+              colorBlindMode: _state.colorBlindMode,
+              customAccent: _state.customAccentHex != null
+                  ? _parseHexColor(_state.customAccentHex!)
+                  : _state.accentPreset != AccentPreset.sven
+                  ? Color(_state.accentPreset.argbValue)
+                  : null,
+              fontFamily: _state.fontFamily,
+            ),
             builder: (context, child) {
               // Apply user-configured text scale on top of system scale.
               final scale = _state.textScale;
               final scaled = scale == 1.0
                   ? child!
                   : MediaQuery(
-                      data: MediaQuery.of(context).copyWith(
-                        textScaler: TextScaler.linear(scale),
-                      ),
+                      data: MediaQuery.of(
+                        context,
+                      ).copyWith(textScaler: TextScaler.linear(scale)),
                       child: child!,
                     );
               // Propagate reduceTransparency so SvenGlass skips BackdropFilter.

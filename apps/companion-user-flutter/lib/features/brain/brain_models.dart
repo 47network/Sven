@@ -14,12 +14,12 @@ class BrainNode {
   });
 
   factory BrainNode.fromJson(Map<String, dynamic> json) => BrainNode(
-        id: json['id'] as String? ?? '',
-        label: json['label'] as String? ?? '',
-        type: BrainNodeType.fromString(json['type'] as String? ?? 'memory'),
-        state: BrainNodeState.fromString(json['state'] as String? ?? 'active'),
-        strength: (json['strength'] as num?)?.toDouble() ?? 0.5,
-      );
+    id: json['id'] as String? ?? '',
+    label: json['label'] as String? ?? '',
+    type: BrainNodeType.fromString(json['type'] as String? ?? 'memory'),
+    state: BrainNodeState.fromString(json['state'] as String? ?? 'active'),
+    strength: (json['strength'] as num?)?.toDouble() ?? 0.5,
+  );
 
   final String id;
   final String label;
@@ -38,12 +38,12 @@ class BrainNode {
   double vz = 0;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'label': label,
-        'type': type.name,
-        'state': state.name,
-        'strength': strength,
-      };
+    'id': id,
+    'label': label,
+    'type': type.name,
+    'state': state.name,
+    'strength': strength,
+  };
 }
 
 /// An edge connecting two brain nodes.
@@ -56,11 +56,11 @@ class BrainEdge {
   });
 
   factory BrainEdge.fromJson(Map<String, dynamic> json) => BrainEdge(
-        source: json['source'] as String? ?? '',
-        target: json['target'] as String? ?? '',
-        weight: (json['weight'] as num?)?.toDouble() ?? 1.0,
-        label: json['label'] as String?,
-      );
+    source: json['source'] as String? ?? '',
+    target: json['target'] as String? ?? '',
+    weight: (json['weight'] as num?)?.toDouble() ?? 1.0,
+    label: json['label'] as String?,
+  );
 
   final String source;
   final String target;
@@ -80,13 +80,13 @@ class BrainStats {
   });
 
   factory BrainStats.fromJson(Map<String, dynamic> json) => BrainStats(
-        totalMemories: json['total_memories'] as int? ?? 0,
-        kgEntities: json['kg_entities'] as int? ?? 0,
-        emotionalSamples: json['emotional_samples'] as int? ?? 0,
-        activeCount: json['active_count'] as int? ?? 0,
-        fadingCount: json['fading_count'] as int? ?? 0,
-        consolidatedCount: json['consolidated_count'] as int? ?? 0,
-      );
+    totalMemories: json['total_memories'] as int? ?? 0,
+    kgEntities: json['kg_entities'] as int? ?? 0,
+    emotionalSamples: json['emotional_samples'] as int? ?? 0,
+    activeCount: json['active_count'] as int? ?? 0,
+    fadingCount: json['fading_count'] as int? ?? 0,
+    consolidatedCount: json['consolidated_count'] as int? ?? 0,
+  );
 
   final int totalMemories;
   final int kgEntities;
@@ -98,11 +98,7 @@ class BrainStats {
 
 /// The complete brain graph response from the API.
 class BrainGraph {
-  BrainGraph({
-    required this.nodes,
-    required this.edges,
-    required this.stats,
-  });
+  BrainGraph({required this.nodes, required this.edges, required this.stats});
 
   factory BrainGraph.fromJson(Map<String, dynamic> json) {
     final nodesRaw = json['nodes'] as List<dynamic>? ?? [];

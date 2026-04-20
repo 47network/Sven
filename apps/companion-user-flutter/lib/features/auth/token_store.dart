@@ -25,27 +25,27 @@ class LinkedAccount {
   final bool isActive;
 
   Map<String, dynamic> toJson() => {
-        'userId': userId,
-        'username': username,
-        'displayName': displayName,
-        'avatarUrl': avatarUrl,
-        'hasPin': hasPin,
-        'isActive': isActive,
-      };
+    'userId': userId,
+    'username': username,
+    'displayName': displayName,
+    'avatarUrl': avatarUrl,
+    'hasPin': hasPin,
+    'isActive': isActive,
+  };
 
   factory LinkedAccount.fromJson(Map<String, dynamic> json) => LinkedAccount(
-        userId: json['userId'] as String,
-        username: json['username'] as String,
-        displayName: json['displayName'] as String?,
-        avatarUrl: json['avatarUrl'] as String?,
-        hasPin: json['hasPin'] as bool? ?? false,
-        isActive: json['isActive'] as bool? ?? false,
-      );
+    userId: json['userId'] as String,
+    username: json['username'] as String,
+    displayName: json['displayName'] as String?,
+    avatarUrl: json['avatarUrl'] as String?,
+    hasPin: json['hasPin'] as bool? ?? false,
+    isActive: json['isActive'] as bool? ?? false,
+  );
 }
 
 class TokenStore {
   TokenStore({FlutterSecureStorage? secureStorage})
-      : _secureStorage = secureStorage ?? const FlutterSecureStorage();
+    : _secureStorage = secureStorage ?? const FlutterSecureStorage();
 
   static const _accessKey = 'sven.auth.access_token';
   static const _refreshKey = 'sven.auth.refresh_token';
@@ -303,10 +303,14 @@ class TokenStore {
       }
     } else {
       await _secureStorage.write(
-          key: '$prefix.access_token', value: accessToken);
+        key: '$prefix.access_token',
+        value: accessToken,
+      );
       if (refreshToken != null) {
         await _secureStorage.write(
-            key: '$prefix.refresh_token', value: refreshToken);
+          key: '$prefix.refresh_token',
+          value: refreshToken,
+        );
       }
       if (username != null) {
         await _secureStorage.write(key: '$prefix.username', value: username);
@@ -317,7 +321,7 @@ class TokenStore {
 
   /// Read saved tokens for a specific account.
   Future<({String? accessToken, String? refreshToken, String? username})>
-      readAccountTokens(String userId) async {
+  readAccountTokens(String userId) async {
     final prefs = await _prefs();
     final prefix = 'sven.account.$userId';
     String? access, refresh, username;
@@ -330,12 +334,21 @@ class TokenStore {
       refresh = await _secureStorage.read(key: '$prefix.refresh_token');
       username = await _secureStorage.read(key: '$prefix.username');
       // Migrate plaintext fallbacks to SecureStorage.
-      access =
-          await _migrateAccountField(prefs, '$prefix.access_token', access);
-      refresh =
-          await _migrateAccountField(prefs, '$prefix.refresh_token', refresh);
-      username =
-          await _migrateAccountField(prefs, '$prefix.username', username);
+      access = await _migrateAccountField(
+        prefs,
+        '$prefix.access_token',
+        access,
+      );
+      refresh = await _migrateAccountField(
+        prefs,
+        '$prefix.refresh_token',
+        refresh,
+      );
+      username = await _migrateAccountField(
+        prefs,
+        '$prefix.username',
+        username,
+      );
     }
     return (accessToken: access, refreshToken: refresh, username: username);
   }

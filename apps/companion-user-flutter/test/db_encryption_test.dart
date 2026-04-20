@@ -107,16 +107,20 @@ void main() {
       expect(failureCodes.contains('legacy_decrypt_failed'), isTrue);
     });
 
-    test('decrypt with wrong key fails closed for legacy structured payload',
-        () {
-      const plain = 'secret message';
-      final stored = enc.encryptLegacyCbcForTest(plain);
+    test(
+      'decrypt with wrong key fails closed for legacy structured payload',
+      () {
+        const plain = 'secret message';
+        final stored = enc.encryptLegacyCbcForTest(plain);
 
-      final enc2 = DbEncryption.fromKeyBytes(List.generate(32, (i) => i + 100));
-      final result = enc2.decrypt(stored);
-      expect(result, '');
-      expect(failureCodes.contains('legacy_decrypt_failed'), isTrue);
-    });
+        final enc2 = DbEncryption.fromKeyBytes(
+          List.generate(32, (i) => i + 100),
+        );
+        final result = enc2.decrypt(stored);
+        expect(result, '');
+        expect(failureCodes.contains('legacy_decrypt_failed'), isTrue);
+      },
+    );
 
     test('legacy malformed payload keeps raw value for compatibility', () {
       const malformedLegacy = 'not_base64_iv:abcdef';
@@ -155,22 +159,28 @@ void main() {
 
     // ── Key independence ──────────────────────────────────────────────────
 
-    test('two different keys produce different ciphertexts for the same input',
-        () {
-      final enc2 = DbEncryption.fromKeyBytes(List.generate(32, (i) => i + 50));
-      const plain = 'test value';
-      final ct1 = enc.encrypt(plain);
-      final ct2 = enc2.encrypt(plain);
-      expect(ct1, isNot(ct2));
-    });
+    test(
+      'two different keys produce different ciphertexts for the same input',
+      () {
+        final enc2 = DbEncryption.fromKeyBytes(
+          List.generate(32, (i) => i + 50),
+        );
+        const plain = 'test value';
+        final ct1 = enc.encrypt(plain);
+        final ct2 = enc2.encrypt(plain);
+        expect(ct1, isNot(ct2));
+      },
+    );
 
-    test('decrypt with correct key always returns plaintext regardless of IV',
-        () {
-      // Encrypt 100 times; each has a different random IV — all must round-trip.
-      const plain = 'invariant plaintext';
-      for (var i = 0; i < 100; i++) {
-        expect(enc.decrypt(enc.encrypt(plain)), plain);
-      }
-    });
+    test(
+      'decrypt with correct key always returns plaintext regardless of IV',
+      () {
+        // Encrypt 100 times; each has a different random IV — all must round-trip.
+        const plain = 'invariant plaintext';
+        for (var i = 0; i < 100; i++) {
+          expect(enc.decrypt(enc.encrypt(plain)), plain);
+        }
+      },
+    );
   });
 }

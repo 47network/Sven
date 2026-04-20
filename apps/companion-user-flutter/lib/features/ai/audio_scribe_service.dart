@@ -36,14 +36,12 @@ class AudioScribeService {
     double? durationSeconds,
   }) async {
     final base = ApiBaseService.currentSync();
-    final r = await _client.postJson(
-      Uri.parse('$base/v1/admin/pipeline/scribe/start'),
-      {
-        'source': source,
-        if (language != null) 'language': language,
-        if (durationSeconds != null) 'duration_seconds': durationSeconds,
-      },
-    );
+    final r = await _client
+        .postJson(Uri.parse('$base/v1/admin/pipeline/scribe/start'), {
+          'source': source,
+          if (language != null) 'language': language,
+          if (durationSeconds != null) 'duration_seconds': durationSeconds,
+        });
     if (r.statusCode != 200 && r.statusCode != 201) return {};
     return (jsonDecode(r.body)['data'] as Map<String, dynamic>?) ?? {};
   }

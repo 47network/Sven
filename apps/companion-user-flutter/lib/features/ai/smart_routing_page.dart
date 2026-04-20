@@ -48,9 +48,7 @@ class _SmartRoutingPageState extends State<SmartRoutingPage> {
   }
 
   Future<void> _toggleLocalOnly(bool value) async {
-    final ok = await _service.updateRoutingPolicy({
-      'prefer_local': value,
-    });
+    final ok = await _service.updateRoutingPolicy({'prefer_local': value});
     if (ok && mounted) _load();
   }
 
@@ -244,13 +242,22 @@ class _SmartRoutingPageState extends State<SmartRoutingPage> {
           ),
           const SizedBox(height: 12),
           _statRow(
-              'Total requests', '${_stats['total_requests'] ?? 0}', isDark),
+            'Total requests',
+            '${_stats['total_requests'] ?? 0}',
+            isDark,
+          ),
           _statRow('Routed locally', '${_stats['local_count'] ?? 0}', isDark),
           _statRow('Routed to cloud', '${_stats['cloud_count'] ?? 0}', isDark),
-          _statRow('Avg latency (local)', '${_stats['avg_local_ms'] ?? 0}ms',
-              isDark),
-          _statRow('Avg latency (cloud)', '${_stats['avg_cloud_ms'] ?? 0}ms',
-              isDark),
+          _statRow(
+            'Avg latency (local)',
+            '${_stats['avg_local_ms'] ?? 0}ms',
+            isDark,
+          ),
+          _statRow(
+            'Avg latency (cloud)',
+            '${_stats['avg_cloud_ms'] ?? 0}ms',
+            isDark,
+          ),
         ],
       ),
     );
@@ -275,15 +282,21 @@ class _SmartRoutingPageState extends State<SmartRoutingPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label,
-              style: TextStyle(
-                  fontSize: 13,
-                  color: isDark ? Colors.white60 : Colors.black54)),
-          Text(value,
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black87)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              color: isDark ? Colors.white60 : Colors.black54,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : Colors.black87,
+            ),
+          ),
         ],
       ),
     );

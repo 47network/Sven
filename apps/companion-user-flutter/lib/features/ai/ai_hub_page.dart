@@ -431,8 +431,9 @@ class _AiHubPageState extends State<AiHubPage> {
                               vertical: 3,
                             ),
                             decoration: BoxDecoration(
-                              color:
-                                  (badgeColor ?? color).withValues(alpha: 0.2),
+                              color: (badgeColor ?? color).withValues(
+                                alpha: 0.2,
+                              ),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(

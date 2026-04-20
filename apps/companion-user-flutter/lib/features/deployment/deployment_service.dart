@@ -23,15 +23,15 @@ enum DeploymentMode {
   multiUser;
 
   String get apiValue => switch (this) {
-        DeploymentMode.personal => 'personal',
-        DeploymentMode.multiUser => 'multi_user',
-      };
+    DeploymentMode.personal => 'personal',
+    DeploymentMode.multiUser => 'multi_user',
+  };
 
   static DeploymentMode fromApi(String? value) => switch (value) {
-        'personal' => DeploymentMode.personal,
-        'multi_user' => DeploymentMode.multiUser,
-        _ => DeploymentMode.multiUser,
-      };
+    'personal' => DeploymentMode.personal,
+    'multi_user' => DeploymentMode.multiUser,
+    _ => DeploymentMode.multiUser,
+  };
 }
 
 /// Snapshot of the deployment configuration returned by the server.
@@ -71,7 +71,7 @@ class DeploymentConfig {
 /// render the correct flow even when offline.
 class DeploymentService {
   DeploymentService({http.Client? client})
-      : _client = client ?? DioHttpClient();
+    : _client = client ?? DioHttpClient();
 
   static String get _apiBase => ApiBaseService.currentSync();
 
@@ -84,8 +84,9 @@ class DeploymentService {
   Future<DeploymentConfig> fetch() async {
     try {
       final uri = Uri.parse('$_apiBase/v1/config/deployment');
-      final response =
-          await _client.get(uri).timeout(const Duration(seconds: 5));
+      final response = await _client
+          .get(uri)
+          .timeout(const Duration(seconds: 5));
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final body = jsonDecode(response.body) as Map<String, dynamic>;

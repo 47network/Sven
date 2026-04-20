@@ -183,26 +183,33 @@ class _SvenAvatarState extends State<SvenAvatar> with TickerProviderStateMixin {
           _glitchCtrl,
         ]),
         builder: (_, __) {
-          final pulse =
-              widget.motionLevel != MotionLevel.off ? _pulseCtrl.value : 0.5;
-          final ring =
-              widget.motionLevel != MotionLevel.off ? _ringCtrl.value : 0.0;
-          final think =
-              widget.motionLevel != MotionLevel.off ? _thinkCtrl.value : 0.0;
+          final pulse = widget.motionLevel != MotionLevel.off
+              ? _pulseCtrl.value
+              : 0.5;
+          final ring = widget.motionLevel != MotionLevel.off
+              ? _ringCtrl.value
+              : 0.0;
+          final think = widget.motionLevel != MotionLevel.off
+              ? _thinkCtrl.value
+              : 0.0;
           final rot = widget.motionLevel != MotionLevel.off
               ? _rotCtrl.value * 2 * math.pi
               : 0.0;
           final tilt = widget.motionLevel != MotionLevel.off
               ? (_tiltCtrl.value - 0.5) * 0.30
               : 0.0;
-          final scan =
-              widget.motionLevel != MotionLevel.off ? _scanCtrl.value : 0.35;
-          final breath =
-              widget.motionLevel != MotionLevel.off ? _breathCtrl.value : 0.5;
-          final drift =
-              widget.motionLevel != MotionLevel.off ? _driftCtrl.value : 0.0;
-          final glitch =
-              widget.motionLevel != MotionLevel.off ? _glitchCtrl.value : 0.0;
+          final scan = widget.motionLevel != MotionLevel.off
+              ? _scanCtrl.value
+              : 0.35;
+          final breath = widget.motionLevel != MotionLevel.off
+              ? _breathCtrl.value
+              : 0.5;
+          final drift = widget.motionLevel != MotionLevel.off
+              ? _driftCtrl.value
+              : 0.0;
+          final glitch = widget.motionLevel != MotionLevel.off
+              ? _glitchCtrl.value
+              : 0.0;
 
           CustomPainter painter;
           switch (widget.avatarMode) {
@@ -316,17 +323,11 @@ class _SvenAvatarState extends State<SvenAvatar> with TickerProviderStateMixin {
             child: Stack(
               children: [
                 // Background: holographic grid + data fragments + particles
-                Positioned.fill(
-                  child: CustomPaint(painter: envPainter),
-                ),
+                Positioned.fill(child: CustomPaint(painter: envPainter)),
                 // Entity avatar
-                Positioned.fill(
-                  child: CustomPaint(painter: painter),
-                ),
+                Positioned.fill(child: CustomPaint(painter: painter)),
                 // Foreground: living aura + mood corona + pulse waves
-                Positioned.fill(
-                  child: CustomPaint(painter: auraPainter),
-                ),
+                Positioned.fill(child: CustomPaint(painter: auraPainter)),
               ],
             ),
           );
@@ -341,10 +342,7 @@ class _SvenAvatarState extends State<SvenAvatar> with TickerProviderStateMixin {
       transitionBuilder: (child, animation) {
         return ScaleTransition(
           scale: animation,
-          child: FadeTransition(
-            opacity: animation,
-            child: child,
-          ),
+          child: FadeTransition(opacity: animation, child: child),
         );
       },
       child: content,
@@ -408,10 +406,7 @@ class _LottieFallback extends StatelessWidget {
           ],
         ),
         child: Center(
-          child: Text(
-            '✨',
-            style: TextStyle(fontSize: size * 0.35),
-          ),
+          child: Text('✨', style: TextStyle(fontSize: size * 0.35)),
         ),
       ),
     );
@@ -514,18 +509,22 @@ class _SvenEnvironmentPainter extends CustomPainter {
         if (fx < 0 || fx > s || fy < 0 || fy > s) continue;
         // Depth-based alpha (further = dimmer)
         final depthAlpha = (1 - baseDist / 0.50).clamp(0.0, 1.0);
-        final fragAlpha = (0.06 + 0.08 * pulse) *
+        final fragAlpha =
+            (0.06 + 0.08 * pulse) *
             depthAlpha *
             (isActive
                 ? 1.8
                 : isBusy
-                    ? 1.4
-                    : 1.0);
+                ? 1.4
+                : 1.0);
         // Tiny shapes: hex fragment = small rectangle
         final fragSize = s * (0.008 + rng.nextDouble() * 0.010);
         canvas.drawRect(
           Rect.fromCenter(
-              center: Offset(fx, fy), width: fragSize * 2.2, height: fragSize),
+            center: Offset(fx, fy),
+            width: fragSize * 2.2,
+            height: fragSize,
+          ),
           Paint()
             ..color = secondary.withValues(alpha: fragAlpha.clamp(0.0, 0.35))
             ..strokeWidth = 0.5
@@ -562,8 +561,9 @@ class _SvenEnvironmentPainter extends CustomPainter {
             Offset(mx, my),
             moteSz * 3,
             Paint()
-              ..color =
-                  secondary.withValues(alpha: (moteAlpha * 0.3).clamp(0.0, 0.2))
+              ..color = secondary.withValues(
+                alpha: (moteAlpha * 0.3).clamp(0.0, 0.2),
+              )
               ..maskFilter = MaskFilter.blur(BlurStyle.normal, moteSz * 3),
           );
         }
@@ -652,7 +652,8 @@ class _SvenAuraPainter extends CustomPainter {
         heartR,
         Paint()
           ..color = primary.withValues(
-              alpha: (0.08 + 0.06 * pulse) * (isActive ? 1.8 : 1.0))
+            alpha: (0.08 + 0.06 * pulse) * (isActive ? 1.8 : 1.0),
+          )
           ..style = PaintingStyle.stroke
           ..strokeWidth = 3.5
           ..maskFilter = MaskFilter.blur(BlurStyle.normal, 4 + pulse * 3),
@@ -663,7 +664,8 @@ class _SvenAuraPainter extends CustomPainter {
         heartR,
         Paint()
           ..color = primary.withValues(
-              alpha: (0.12 + 0.08 * pulse) * (isActive ? 1.5 : 1.0))
+            alpha: (0.12 + 0.08 * pulse) * (isActive ? 1.5 : 1.0),
+          )
           ..style = PaintingStyle.stroke
           ..strokeWidth = 0.8,
       );
@@ -674,8 +676,8 @@ class _SvenAuraPainter extends CustomPainter {
       final nArcs = isActive
           ? 4
           : isBusy
-              ? 3
-              : 2;
+          ? 3
+          : 2;
       final coronaR = r * 1.10;
       for (var i = 0; i < nArcs; i++) {
         final arcStart = ring * 2 * math.pi + i * (2 * math.pi / nArcs);
@@ -688,7 +690,8 @@ class _SvenAuraPainter extends CustomPainter {
           false,
           Paint()
             ..color = arcColor.withValues(
-                alpha: (0.10 + 0.08 * pulse) * (isActive ? 2.0 : 1.0))
+              alpha: (0.10 + 0.08 * pulse) * (isActive ? 2.0 : 1.0),
+            )
             ..style = PaintingStyle.stroke
             ..strokeWidth = 1.2
             ..strokeCap = StrokeCap.round,
@@ -703,7 +706,8 @@ class _SvenAuraPainter extends CustomPainter {
       for (var i = 0; i < waveCount; i++) {
         final phase = (ring + i / waveCount) % 1.0;
         final waveR = r * 1.08 + s * 0.16 * phase;
-        final waveAlpha = (1 - phase) *
+        final waveAlpha =
+            (1 - phase) *
             (0.06 + 0.04 * pulse) *
             (mood == SvenMood.speaking ? 2.2 : 1.0);
         canvas.drawCircle(
@@ -730,8 +734,8 @@ class _SvenAuraPainter extends CustomPainter {
         final isLit = isActive
             ? (ring * nDots).floor() % nDots == i
             : isBusy
-                ? i % 2 == 0
-                : i % 4 == 0;
+            ? i % 2 == 0
+            : i % 4 == 0;
         final dotAlpha = isLit ? (0.35 + 0.30 * pulse) : (0.04 + 0.03 * pulse);
         canvas.drawCircle(
           Offset(dx, dy),
@@ -867,25 +871,31 @@ class _AvatarPainter extends CustomPainter {
       final r = baseR + size.width * 0.28 * phase;
       final a = (1 - phase) * (cinematic ? 0.22 : 0.13) * ringAlphaMultiplier;
       canvas.drawCircle(
-          c,
-          r,
-          Paint()
-            ..color = primary.withValues(alpha: a.clamp(0.0, 1.0))
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.2);
+        c,
+        r,
+        Paint()
+          ..color = primary.withValues(alpha: a.clamp(0.0, 1.0))
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.2,
+      );
     }
 
     // ── Glow ──
     final glowAlpha = (mood == SvenMood.happy ? 0.40 : 0.20) + 0.12 * pulse;
     canvas.drawCircle(
-        c,
-        baseR + size.width * 0.18,
-        Paint()
-          ..shader = RadialGradient(colors: [
-            primary.withValues(alpha: glowAlpha),
-            primary.withValues(alpha: 0),
-          ]).createShader(
-              Rect.fromCircle(center: c, radius: baseR + size.width * 0.18)));
+      c,
+      baseR + size.width * 0.18,
+      Paint()
+        ..shader =
+            RadialGradient(
+              colors: [
+                primary.withValues(alpha: glowAlpha),
+                primary.withValues(alpha: 0),
+              ],
+            ).createShader(
+              Rect.fromCircle(center: c, radius: baseR + size.width * 0.18),
+            ),
+    );
 
     // ── Thinking arc ──
     if (mood == SvenMood.thinking) {
@@ -905,17 +915,18 @@ class _AvatarPainter extends CustomPainter {
     // ── Orb body ──
     final dynamic orbR = baseR + baseR * 0.18 * pulse;
     canvas.drawCircle(
-        c,
-        orbR as double,
-        Paint()
-          ..shader = RadialGradient(
-            colors: [
-              primary.withValues(alpha: 0.98),
-              primary.withValues(alpha: 0.65),
-              primary.withValues(alpha: 0.18),
-            ],
-            stops: const [0.0, 0.6, 1.0],
-          ).createShader(Rect.fromCircle(center: c, radius: orbR)));
+      c,
+      orbR as double,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [
+            primary.withValues(alpha: 0.98),
+            primary.withValues(alpha: 0.65),
+            primary.withValues(alpha: 0.18),
+          ],
+          stops: const [0.0, 0.6, 1.0],
+        ).createShader(Rect.fromCircle(center: c, radius: orbR)),
+    );
 
     // ── Letter S ──
     final textPainter = TextPainter(
@@ -937,15 +948,22 @@ class _AvatarPainter extends CustomPainter {
 
     // ── Highlight ──
     canvas.drawCircle(
-        c - Offset(orbR * 0.18, orbR * 0.22),
-        orbR * 0.20,
-        Paint()
-          ..shader = RadialGradient(colors: [
-            Colors.white.withValues(alpha: 0.40 + 0.15 * pulse),
-            Colors.white.withValues(alpha: 0),
-          ]).createShader(Rect.fromCircle(
-              center: c - Offset(orbR * 0.18, orbR * 0.22),
-              radius: orbR * 0.20)));
+      c - Offset(orbR * 0.18, orbR * 0.22),
+      orbR * 0.20,
+      Paint()
+        ..shader =
+            RadialGradient(
+              colors: [
+                Colors.white.withValues(alpha: 0.40 + 0.15 * pulse),
+                Colors.white.withValues(alpha: 0),
+              ],
+            ).createShader(
+              Rect.fromCircle(
+                center: c - Offset(orbR * 0.18, orbR * 0.22),
+                radius: orbR * 0.20,
+              ),
+            ),
+    );
   }
 
   @override
@@ -1038,14 +1056,17 @@ class _RobotPainter extends CustomPainter {
       final rAZ = _z3(rAx, 0, rAz, rot, tilt);
       final rAp = _p3(rAx, 0, rAz, rot, tilt, c, r);
       if (prevA != null && rAZ > -0.15) {
-        final a = ((0.08 + 0.36 * (rAZ + 1) / 2) * (0.8 + 0.2 * pulse))
-            .clamp(0.0, 1.0);
+        final a = ((0.08 + 0.36 * (rAZ + 1) / 2) * (0.8 + 0.2 * pulse)).clamp(
+          0.0,
+          1.0,
+        );
         canvas.drawLine(
-            prevA,
-            rAp,
-            Paint()
-              ..color = secondary.withValues(alpha: a)
-              ..strokeWidth = 1.4);
+          prevA,
+          rAp,
+          Paint()
+            ..color = secondary.withValues(alpha: a)
+            ..strokeWidth = 1.4,
+        );
       }
       prevA = rAZ > -0.15 ? rAp : null;
       // Ring B: 45° tilted
@@ -1057,11 +1078,12 @@ class _RobotPainter extends CustomPainter {
       if (prevB != null && rBZ > -0.15) {
         final a = ((0.05 + 0.22 * (rBZ + 1) / 2) * pulse).clamp(0.0, 1.0);
         canvas.drawLine(
-            prevB,
-            rBp,
-            Paint()
-              ..color = secondary.withValues(alpha: a)
-              ..strokeWidth = 0.8);
+          prevB,
+          rBp,
+          Paint()
+            ..color = secondary.withValues(alpha: a)
+            ..strokeWidth = 0.8,
+        );
       }
       prevB = rBZ > -0.15 ? rBp : null;
     }
@@ -1075,7 +1097,8 @@ class _RobotPainter extends CustomPainter {
         r + s * 0.22 * ph,
         Paint()
           ..color = primary.withValues(
-              alpha: ((1 - ph) * (0.20 + 0.12 * pulse)).clamp(0, 1))
+            alpha: ((1 - ph) * (0.20 + 0.12 * pulse)).clamp(0, 1),
+          )
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.0,
       );
@@ -1102,47 +1125,53 @@ class _RobotPainter extends CustomPainter {
     );
     // AO rim
     canvas.drawCircle(
-        c,
-        r,
-        Paint()
-          ..shader = RadialGradient(
-            radius: 1.0,
-            colors: [Colors.transparent, Colors.black.withValues(alpha: 0.38)],
-            stops: const [0.58, 1.0],
-          ).createShader(Rect.fromCircle(center: c, radius: r)));
+      c,
+      r,
+      Paint()
+        ..shader = RadialGradient(
+          radius: 1.0,
+          colors: [Colors.transparent, Colors.black.withValues(alpha: 0.38)],
+          stops: const [0.58, 1.0],
+        ).createShader(Rect.fromCircle(center: c, radius: r)),
+    );
     // Metallic rim glow
     canvas.drawCircle(
-        c,
-        r,
-        Paint()
-          ..color = secondary.withValues(alpha: 0.09 + 0.06 * pulse)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.8
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4));
+      c,
+      r,
+      Paint()
+        ..color = secondary.withValues(alpha: 0.09 + 0.06 * pulse)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.8
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+    );
 
     // ── Scan line sweep ──
     {
       final scanY = c.dy - r + 2 * r * scan;
       canvas.save();
-      canvas
-          .clipPath(Path()..addOval(Rect.fromCircle(center: c, radius: r - 1)));
+      canvas.clipPath(
+        Path()..addOval(Rect.fromCircle(center: c, radius: r - 1)),
+      );
       canvas.drawRect(
         Rect.fromLTWH(c.dx - r, scanY - r * 0.08, r * 2, r * 0.08),
         Paint()
-          ..shader = LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: [secondary.withValues(alpha: 0.14), Colors.transparent],
-          ).createShader(
-              Rect.fromLTWH(c.dx - r, scanY - r * 0.08, r * 2, r * 0.08)),
+          ..shader =
+              LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [secondary.withValues(alpha: 0.14), Colors.transparent],
+              ).createShader(
+                Rect.fromLTWH(c.dx - r, scanY - r * 0.08, r * 2, r * 0.08),
+              ),
       );
       canvas.drawLine(
-          Offset(c.dx - r, scanY),
-          Offset(c.dx + r, scanY),
-          Paint()
-            ..color = secondary.withValues(alpha: 0.55)
-            ..strokeWidth = 1.3
-            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.5));
+        Offset(c.dx - r, scanY),
+        Offset(c.dx + r, scanY),
+        Paint()
+          ..color = secondary.withValues(alpha: 0.55)
+          ..strokeWidth = 1.3
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.5),
+      );
       canvas.restore();
     }
 
@@ -1153,14 +1182,14 @@ class _RobotPainter extends CustomPainter {
         (-0.60, -0.14, 0.78),
         (-0.66, 0.02, 0.75),
         (-0.62, 0.18, 0.78),
-        (-0.54, 0.28, 0.80)
+        (-0.54, 0.28, 0.80),
       ],
       [
         (0.52, -0.30, 0.80),
         (0.60, -0.14, 0.78),
         (0.66, 0.02, 0.75),
         (0.62, 0.18, 0.78),
-        (0.54, 0.28, 0.80)
+        (0.54, 0.28, 0.80),
       ],
       [(-0.10, 0.55, 0.83), (0.0, 0.62, 0.78), (0.10, 0.55, 0.83)],
     ];
@@ -1175,19 +1204,21 @@ class _RobotPainter extends CustomPainter {
         final pp = _p3(pt.$1, pt.$2, pt.$3, rot, tilt, c, r);
         if (prev != null) {
           canvas.drawLine(
-              prev,
-              pp,
-              Paint()
-                ..color =
-                    secondary.withValues(alpha: (0.48 * _zs(pZ)).clamp(0, 1))
-                ..strokeWidth = 0.9);
+            prev,
+            pp,
+            Paint()
+              ..color = secondary.withValues(
+                alpha: (0.48 * _zs(pZ)).clamp(0, 1),
+              )
+              ..strokeWidth = 0.9,
+          );
         }
         canvas.drawCircle(
-            pp,
-            1.6,
-            Paint()
-              ..color =
-                  secondary.withValues(alpha: (0.55 * _zs(pZ)).clamp(0, 1)));
+          pp,
+          1.6,
+          Paint()
+            ..color = secondary.withValues(alpha: (0.55 * _zs(pZ)).clamp(0, 1)),
+        );
         prev = pp;
       }
     }
@@ -1204,8 +1235,9 @@ class _RobotPainter extends CustomPainter {
         height: r * 0.28 * vzS,
       );
       canvas.drawRRect(
-          RRect.fromRectAndRadius(visorRect, Radius.circular(5 * vzS)),
-          Paint()..color = Colors.black.withValues(alpha: 0.68));
+        RRect.fromRectAndRadius(visorRect, Radius.circular(5 * vzS)),
+        Paint()..color = Colors.black.withValues(alpha: 0.68),
+      );
       canvas.drawRRect(
         RRect.fromRectAndRadius(visorRect, Radius.circular(5 * vzS)),
         Paint()
@@ -1248,20 +1280,25 @@ class _RobotPainter extends CustomPainter {
         }
       }
       hexPath.close();
-      final hexOn = (hi == 0 && mood == SvenMood.thinking) ||
+      final hexOn =
+          (hi == 0 && mood == SvenMood.thinking) ||
           (hi == 1 && isActive) ||
           (hi == -1 && mood == SvenMood.happy);
       if (hexOn) {
-        canvas.drawPath(hexPath,
-            Paint()..color = secondary.withValues(alpha: 0.22 + 0.15 * pulse));
+        canvas.drawPath(
+          hexPath,
+          Paint()..color = secondary.withValues(alpha: 0.22 + 0.15 * pulse),
+        );
       }
       canvas.drawPath(
-          hexPath,
-          Paint()
-            ..color = secondary.withValues(
-                alpha: hexOn ? (0.70 + 0.30 * pulse) : 0.26)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.0);
+        hexPath,
+        Paint()
+          ..color = secondary.withValues(
+            alpha: hexOn ? (0.70 + 0.30 * pulse) : 0.26,
+          )
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.0,
+      );
     }
 
     // ── Eyes ──
@@ -1300,11 +1337,17 @@ class _RobotPainter extends CustomPainter {
             ..strokeCap = StrokeCap.square;
           canvas.drawLine(Offset(bx, by), Offset(bx - cx2 * bLen, by), bp);
           canvas.drawLine(
-              Offset(bx, by), Offset(bx, by - cy2 * bLen * 0.55), bp);
+            Offset(bx, by),
+            Offset(bx, by - cy2 * bLen * 0.55),
+            bp,
+          );
         }
       }
-      canvas.drawCircle(ep + Offset(-ew * 0.20, -eh * 0.22), ew * 0.14,
-          Paint()..color = Colors.white.withValues(alpha: 0.40 + 0.18 * pulse));
+      canvas.drawCircle(
+        ep + Offset(-ew * 0.20, -eh * 0.22),
+        ew * 0.14,
+        Paint()..color = Colors.white.withValues(alpha: 0.40 + 0.18 * pulse),
+      );
     }
 
     // ── Mouth — segmented LED bar ──
@@ -1312,7 +1355,8 @@ class _RobotPainter extends CustomPainter {
     if (mz > -0.08) {
       final mp = _p3(0, 0.32, 0.95, rot, tilt, c, r);
       final zs = _zs(mz);
-      final mw = switch (mood) {
+      final mw =
+          switch (mood) {
             SvenMood.happy => r * 0.62,
             SvenMood.speaking => r * 0.50 * (1 + 0.15 * pulse),
             SvenMood.thinking => r * 0.24,
@@ -1339,10 +1383,12 @@ class _RobotPainter extends CustomPainter {
             Radius.circular(1.5 * zs),
           ),
           Paint()
-            ..color =
-                secondary.withValues(alpha: on ? (0.58 + 0.35 * pulse) : 0.16)
-            ..maskFilter =
-                on ? MaskFilter.blur(BlurStyle.normal, 2 + pulse * 2) : null,
+            ..color = secondary.withValues(
+              alpha: on ? (0.58 + 0.35 * pulse) : 0.16,
+            )
+            ..maskFilter = on
+                ? MaskFilter.blur(BlurStyle.normal, 2 + pulse * 2)
+                : null,
         );
       }
     }
@@ -1353,26 +1399,29 @@ class _RobotPainter extends CustomPainter {
       final aBase = _p3(0, -1.0, 0, rot, tilt, c, r);
       final aTip = _p3(0, -1.70 - 0.12 * pulse, 0, rot, tilt, c, r);
       canvas.drawLine(
-          aBase,
-          aTip,
-          Paint()
-            ..color = secondary.withValues(alpha: 0.86 + 0.14 * pulse)
-            ..strokeWidth = 2.2
-            ..strokeCap = StrokeCap.round);
+        aBase,
+        aTip,
+        Paint()
+          ..color = secondary.withValues(alpha: 0.86 + 0.14 * pulse)
+          ..strokeWidth = 2.2
+          ..strokeCap = StrokeCap.round,
+      );
       final aMid = Offset((aBase.dx + aTip.dx) / 2, (aBase.dy + aTip.dy) / 2);
       final finLen = r * 0.12 * _zs(antZ).clamp(0.5, 1.4);
       canvas.drawLine(
-          aMid + Offset(-finLen, 0),
-          aMid + Offset(finLen, 0),
-          Paint()
-            ..color = secondary.withValues(alpha: 0.62 + 0.20 * pulse)
-            ..strokeWidth = 1.5);
+        aMid + Offset(-finLen, 0),
+        aMid + Offset(finLen, 0),
+        Paint()
+          ..color = secondary.withValues(alpha: 0.62 + 0.20 * pulse)
+          ..strokeWidth = 1.5,
+      );
       canvas.drawCircle(
-          aTip,
-          4.5 + pulse * 2.5,
-          Paint()
-            ..color = secondary
-            ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3 + pulse * 2));
+        aTip,
+        4.5 + pulse * 2.5,
+        Paint()
+          ..color = secondary
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3 + pulse * 2),
+      );
     }
 
     // ── Specular ──
@@ -1380,11 +1429,18 @@ class _RobotPainter extends CustomPainter {
       specPt,
       r * 0.09 + r * 0.06 * pulse,
       Paint()
-        ..shader = RadialGradient(colors: [
-          Colors.white.withValues(alpha: 0.52 + 0.20 * pulse),
-          Colors.white.withValues(alpha: 0),
-        ]).createShader(Rect.fromCircle(
-            center: specPt, radius: r * 0.11 + r * 0.06 * pulse)),
+        ..shader =
+            RadialGradient(
+              colors: [
+                Colors.white.withValues(alpha: 0.52 + 0.20 * pulse),
+                Colors.white.withValues(alpha: 0),
+              ],
+            ).createShader(
+              Rect.fromCircle(
+                center: specPt,
+                radius: r * 0.11 + r * 0.06 * pulse,
+              ),
+            ),
     );
   }
 
@@ -1447,7 +1503,8 @@ class _HumanPainter extends CustomPainter {
         pSz,
         Paint()
           ..color = secondary.withValues(
-              alpha: ((0.55 + 0.35 * pulse) * _zs(pZ).clamp(0, 1)).clamp(0, 1))
+            alpha: ((0.55 + 0.35 * pulse) * _zs(pZ).clamp(0, 1)).clamp(0, 1),
+          )
           ..maskFilter = MaskFilter.blur(BlurStyle.normal, 1.5 + pSz),
       );
     }
@@ -1460,7 +1517,8 @@ class _HumanPainter extends CustomPainter {
         r + s * 0.22 * ph,
         Paint()
           ..color = primary.withValues(
-              alpha: ((1 - ph) * (0.16 + 0.10 * pulse)).clamp(0, 1))
+            alpha: ((1 - ph) * (0.16 + 0.10 * pulse)).clamp(0, 1),
+          )
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.2,
       );
@@ -1486,23 +1544,25 @@ class _HumanPainter extends CustomPainter {
         ).createShader(Rect.fromCircle(center: c, radius: r)),
     );
     canvas.drawCircle(
-        c,
-        r,
-        Paint()
-          ..shader = RadialGradient(
-            radius: 1.0,
-            colors: [Colors.transparent, Colors.black.withValues(alpha: 0.26)],
-            stops: const [0.62, 1.0],
-          ).createShader(Rect.fromCircle(center: c, radius: r)));
+      c,
+      r,
+      Paint()
+        ..shader = RadialGradient(
+          radius: 1.0,
+          colors: [Colors.transparent, Colors.black.withValues(alpha: 0.26)],
+          stops: const [0.62, 1.0],
+        ).createShader(Rect.fromCircle(center: c, radius: r)),
+    );
     // Iridescent rim
     canvas.drawCircle(
-        c,
-        r,
-        Paint()
-          ..color = secondary.withValues(alpha: 0.11 + 0.07 * pulse)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.2
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4));
+      c,
+      r,
+      Paint()
+        ..color = secondary.withValues(alpha: 0.11 + 0.07 * pulse)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.2
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+    );
 
     // ── Neural lace (forehead web) ──
     final laceZ = _z3(0, -0.56, 0.83, rot, tilt);
@@ -1523,8 +1583,8 @@ class _HumanPainter extends CustomPainter {
           lp,
           Paint()
             ..color = secondary.withValues(
-                alpha:
-                    ((0.22 + 0.14 * pulse) * _zs(lZ).clamp(0, 1)).clamp(0, 1))
+              alpha: ((0.22 + 0.14 * pulse) * _zs(lZ).clamp(0, 1)).clamp(0, 1),
+            )
             ..strokeWidth = 0.7,
         );
         canvas.drawCircle(
@@ -1532,8 +1592,8 @@ class _HumanPainter extends CustomPainter {
           1.5 + pulse * 0.9,
           Paint()
             ..color = secondary.withValues(
-                alpha:
-                    ((0.36 + 0.22 * pulse) * _zs(lZ).clamp(0, 1)).clamp(0, 1)),
+              alpha: ((0.36 + 0.22 * pulse) * _zs(lZ).clamp(0, 1)).clamp(0, 1),
+            ),
         );
       }
       canvas.drawCircle(
@@ -1553,7 +1613,14 @@ class _HumanPainter extends CustomPainter {
       final hRoot = _p3(hx, -0.90, 0.36, rot, tilt, c, r);
       final hCtrl = _p3(hx * 1.45 + drift, -1.38, 0.15, rot, tilt, c, r);
       final hTip = _p3(
-          hx * 0.65 + drift * 1.6, -1.76 - 0.14 * pulse, 0.02, rot, tilt, c, r);
+        hx * 0.65 + drift * 1.6,
+        -1.76 - 0.14 * pulse,
+        0.02,
+        rot,
+        tilt,
+        c,
+        r,
+      );
       final hZ = _z3(hx, -0.90, 0.36, rot, tilt);
       if (hZ < -0.25) continue;
       final hVis = _zs(hZ).clamp(0.0, 1.0);
@@ -1585,13 +1652,19 @@ class _HumanPainter extends CustomPainter {
       // Sclera
       canvas.drawOval(
         Rect.fromCenter(
-            center: ep, width: r * 0.27 * zs, height: r * 0.20 * zs),
+          center: ep,
+          width: r * 0.27 * zs,
+          height: r * 0.20 * zs,
+        ),
         Paint()..color = Colors.white.withValues(alpha: 0.90),
       );
       // Outer spinning arc iris ring
       canvas.drawArc(
         Rect.fromCenter(
-            center: ep, width: r * 0.25 * zs, height: r * 0.19 * zs),
+          center: ep,
+          width: r * 0.25 * zs,
+          height: r * 0.19 * zs,
+        ),
         ring * 2 * math.pi * sign,
         math.pi * 1.5,
         false,
@@ -1604,7 +1677,10 @@ class _HumanPainter extends CustomPainter {
       // Mid iris ring
       canvas.drawOval(
         Rect.fromCenter(
-            center: ep, width: r * 0.19 * zs, height: r * 0.14 * zs),
+          center: ep,
+          width: r * 0.19 * zs,
+          height: r * 0.14 * zs,
+        ),
         Paint()
           ..color = secondary.withValues(alpha: 0.28)
           ..style = PaintingStyle.stroke
@@ -1613,14 +1689,23 @@ class _HumanPainter extends CustomPainter {
       // Iris fill
       final irisR = r * 0.09 * zs;
       canvas.drawCircle(
-          ep, irisR, Paint()..color = secondary.withValues(alpha: 0.92));
-      canvas.drawCircle(ep, irisR * 0.48,
-          Paint()..color = Colors.black.withValues(alpha: 0.88));
+        ep,
+        irisR,
+        Paint()..color = secondary.withValues(alpha: 0.92),
+      );
+      canvas.drawCircle(
+        ep,
+        irisR * 0.48,
+        Paint()..color = Colors.black.withValues(alpha: 0.88),
+      );
       // Blink
       if (mood == SvenMood.thinking && think > 0.80) {
         canvas.drawOval(
           Rect.fromCenter(
-              center: ep, width: r * 0.28 * zs, height: r * 0.022 * zs),
+            center: ep,
+            width: r * 0.28 * zs,
+            height: r * 0.022 * zs,
+          ),
           Paint()..color = Color.lerp(primary, Colors.black, 0.42)!,
         );
       }
@@ -1644,25 +1729,32 @@ class _HumanPainter extends CustomPainter {
         ..lineTo(ck.dx - sign * tl, ck.dy + tl * 0.38)
         ..close();
       canvas.drawPath(
-          triPath,
-          Paint()
-            ..color = secondary.withValues(
-                alpha: (0.13 + 0.10 * pulse) * ckZ.clamp(0, 1)));
+        triPath,
+        Paint()
+          ..color = secondary.withValues(
+            alpha: (0.13 + 0.10 * pulse) * ckZ.clamp(0, 1),
+          ),
+      );
       canvas.drawPath(
-          triPath,
-          Paint()
-            ..color = secondary.withValues(
-                alpha: (0.32 + 0.20 * pulse) * ckZ.clamp(0, 1))
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 0.9 * zs);
+        triPath,
+        Paint()
+          ..color = secondary.withValues(
+            alpha: (0.32 + 0.20 * pulse) * ckZ.clamp(0, 1),
+          )
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 0.9 * zs,
+      );
     }
 
     // ── Nose ──
     final noseZ = _z3(0, 0.10, 0.99, rot, tilt);
     if (noseZ > 0.0) {
       final np = _p3(0, 0.10, 0.99, rot, tilt, c, r);
-      canvas.drawCircle(np, r * 0.040 * _zs(noseZ),
-          Paint()..color = Colors.white.withValues(alpha: 0.38));
+      canvas.drawCircle(
+        np,
+        r * 0.040 * _zs(noseZ),
+        Paint()..color = Colors.white.withValues(alpha: 0.38),
+      );
     }
 
     // ── Mouth with glowing lip edge ──
@@ -1683,21 +1775,23 @@ class _HumanPainter extends CustomPainter {
         ..quadraticBezierTo(mCtrl.dx, mCtrl.dy + smileOff, mR.dx, mR.dy);
       // Glow halo
       canvas.drawPath(
-          mPath,
-          Paint()
-            ..color = secondary.withValues(alpha: 0.38 + 0.26 * pulse)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 4.0 * zs
-            ..strokeCap = StrokeCap.round
-            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3));
+        mPath,
+        Paint()
+          ..color = secondary.withValues(alpha: 0.38 + 0.26 * pulse)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 4.0 * zs
+          ..strokeCap = StrokeCap.round
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+      );
       // Crisp line
       canvas.drawPath(
-          mPath,
-          Paint()
-            ..color = Colors.white.withValues(alpha: 0.72)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.8 * zs
-            ..strokeCap = StrokeCap.round);
+        mPath,
+        Paint()
+          ..color = Colors.white.withValues(alpha: 0.72)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.8 * zs
+          ..strokeCap = StrokeCap.round,
+      );
     }
 
     // ── Holographic choker ring ──
@@ -1712,8 +1806,11 @@ class _HumanPainter extends CustomPainter {
         Rect.fromCenter(center: chC, width: cwid, height: chit),
         Paint()
           ..color = secondary.withValues(
-              alpha: ((0.30 + 0.20 * breath) * _zs(chokerZ).clamp(0, 1))
-                  .clamp(0, 1))
+            alpha: ((0.30 + 0.20 * breath) * _zs(chokerZ).clamp(0, 1)).clamp(
+              0,
+              1,
+            ),
+          )
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.6
           ..maskFilter = MaskFilter.blur(BlurStyle.normal, 2 + breath * 2),
@@ -1725,11 +1822,18 @@ class _HumanPainter extends CustomPainter {
       specPt,
       r * 0.09 + r * 0.06 * pulse,
       Paint()
-        ..shader = RadialGradient(colors: [
-          Colors.white.withValues(alpha: 0.50 + 0.18 * pulse),
-          Colors.white.withValues(alpha: 0),
-        ]).createShader(Rect.fromCircle(
-            center: specPt, radius: r * 0.11 + r * 0.06 * pulse)),
+        ..shader =
+            RadialGradient(
+              colors: [
+                Colors.white.withValues(alpha: 0.50 + 0.18 * pulse),
+                Colors.white.withValues(alpha: 0),
+              ],
+            ).createShader(
+              Rect.fromCircle(
+                center: specPt,
+                radius: r * 0.11 + r * 0.06 * pulse,
+              ),
+            ),
     );
   }
 
@@ -1778,13 +1882,15 @@ class _AnimalPainter extends CustomPainter {
     for (var i = 0; i < 3; i++) {
       final ph = (ring + i / 3.0) % 1.0;
       canvas.drawCircle(
-          c,
-          r + s * 0.22 * ph,
-          Paint()
-            ..color = primary.withValues(
-                alpha: ((1 - ph) * (0.22 + 0.12 * pulse)).clamp(0, 1))
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.2);
+        c,
+        r + s * 0.22 * ph,
+        Paint()
+          ..color = primary.withValues(
+            alpha: ((1 - ph) * (0.22 + 0.12 * pulse)).clamp(0, 1),
+          )
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.2,
+      );
     }
 
     // ── 3-D sphere body ──
@@ -1792,37 +1898,40 @@ class _AnimalPainter extends CustomPainter {
     final ax = ((specPt.dx - c.dx) / r).clamp(-1.2, 1.2);
     final ay = ((specPt.dy - c.dy) / r).clamp(-1.2, 1.2);
     canvas.drawCircle(
-        c,
-        r,
-        Paint()
-          ..shader = RadialGradient(
-            center: Alignment(ax, ay),
-            radius: 1.12,
-            colors: [
-              Colors.white.withValues(alpha: 0.50 + 0.20 * pulse),
-              primary.withValues(alpha: 0.90),
-              Color.lerp(primary, Colors.black, 0.65)!,
-            ],
-            stops: const [0.0, 0.42, 1.0],
-          ).createShader(Rect.fromCircle(center: c, radius: r)));
+      c,
+      r,
+      Paint()
+        ..shader = RadialGradient(
+          center: Alignment(ax, ay),
+          radius: 1.12,
+          colors: [
+            Colors.white.withValues(alpha: 0.50 + 0.20 * pulse),
+            primary.withValues(alpha: 0.90),
+            Color.lerp(primary, Colors.black, 0.65)!,
+          ],
+          stops: const [0.0, 0.42, 1.0],
+        ).createShader(Rect.fromCircle(center: c, radius: r)),
+    );
     canvas.drawCircle(
-        c,
-        r,
-        Paint()
-          ..shader = RadialGradient(
-            radius: 1.0,
-            colors: [Colors.transparent, Colors.black.withValues(alpha: 0.28)],
-            stops: const [0.60, 1.0],
-          ).createShader(Rect.fromCircle(center: c, radius: r)));
+      c,
+      r,
+      Paint()
+        ..shader = RadialGradient(
+          radius: 1.0,
+          colors: [Colors.transparent, Colors.black.withValues(alpha: 0.28)],
+          stops: const [0.60, 1.0],
+        ).createShader(Rect.fromCircle(center: c, radius: r)),
+    );
     // Bio rim
     canvas.drawCircle(
-        c,
-        r,
-        Paint()
-          ..color = secondary.withValues(alpha: 0.12 + 0.08 * pulse)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.6
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4));
+      c,
+      r,
+      Paint()
+        ..color = secondary.withValues(alpha: 0.12 + 0.08 * pulse)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.6
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+    );
 
     // ── Ears (3-D projected, neon edge + tip glow) ──
     final earDrop = mood == SvenMood.thinking ? 0.08 * think : 0.0;
@@ -1832,8 +1941,15 @@ class _AnimalPainter extends CustomPainter {
       final eVis = _zs(earZ).clamp(0.0, 1.0);
       final eB1 = _p3(sign * 0.10, -0.94 + earDrop, 0.32, rot, tilt, c, r);
       final eB2 = _p3(sign * 0.56, -0.88 + earDrop, 0.18, rot, tilt, c, r);
-      final eTip =
-          _p3(sign * 0.42, -1.65 + earDrop * 0.5, 0.0, rot, tilt, c, r);
+      final eTip = _p3(
+        sign * 0.42,
+        -1.65 + earDrop * 0.5,
+        0.0,
+        rot,
+        tilt,
+        c,
+        r,
+      );
       canvas.drawPath(
         Path()
           ..moveTo(eB1.dx, eB1.dy)
@@ -1845,8 +1961,15 @@ class _AnimalPainter extends CustomPainter {
       // Inner ear
       final iB1 = _p3(sign * 0.16, -0.93 + earDrop, 0.30, rot, tilt, c, r);
       final iB2 = _p3(sign * 0.48, -0.89 + earDrop, 0.16, rot, tilt, c, r);
-      final iTip =
-          _p3(sign * 0.38, -1.52 + earDrop * 0.5, 0.0, rot, tilt, c, r);
+      final iTip = _p3(
+        sign * 0.38,
+        -1.52 + earDrop * 0.5,
+        0.0,
+        rot,
+        tilt,
+        c,
+        r,
+      );
       canvas.drawPath(
         Path()
           ..moveTo(iB1.dx, iB1.dy)
@@ -1885,36 +2008,42 @@ class _AnimalPainter extends CustomPainter {
         final usA = _p3(sign * 0.12, -0.14, 0.99, rot, tilt, c, r);
         final usB = _p3(sign * 0.52, 0.24, 0.85, rot, tilt, c, r);
         canvas.drawLine(
-            usA,
-            usB,
-            Paint()
-              ..color =
-                  secondary.withValues(alpha: (stripeA * _zs(usZ)).clamp(0, 1))
-              ..strokeWidth = 2.8
-              ..strokeCap = StrokeCap.round
-              ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3 + pulse * 2));
+          usA,
+          usB,
+          Paint()
+            ..color = secondary.withValues(
+              alpha: (stripeA * _zs(usZ)).clamp(0, 1),
+            )
+            ..strokeWidth = 2.8
+            ..strokeCap = StrokeCap.round
+            ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3 + pulse * 2),
+        );
         canvas.drawLine(
-            usA,
-            usB,
-            Paint()
-              ..color =
-                  Colors.white.withValues(alpha: (0.18 * _zs(usZ)).clamp(0, 1))
-              ..strokeWidth = 0.8
-              ..strokeCap = StrokeCap.round);
+          usA,
+          usB,
+          Paint()
+            ..color = Colors.white.withValues(
+              alpha: (0.18 * _zs(usZ)).clamp(0, 1),
+            )
+            ..strokeWidth = 0.8
+            ..strokeCap = StrokeCap.round,
+        );
       }
       final lsZ = _z3(sign * 0.38, 0.32, 0.92, rot, tilt);
       if (lsZ > 0.0) {
         final lsA = _p3(sign * 0.22, 0.24, 0.97, rot, tilt, c, r);
         final lsB = _p3(sign * 0.60, 0.50, 0.80, rot, tilt, c, r);
         canvas.drawLine(
-            lsA,
-            lsB,
-            Paint()
-              ..color = secondary.withValues(
-                  alpha: (stripeA * 0.72 * _zs(lsZ)).clamp(0, 1))
-              ..strokeWidth = 2.0
-              ..strokeCap = StrokeCap.round
-              ..maskFilter = MaskFilter.blur(BlurStyle.normal, 2 + pulse));
+          lsA,
+          lsB,
+          Paint()
+            ..color = secondary.withValues(
+              alpha: (stripeA * 0.72 * _zs(lsZ)).clamp(0, 1),
+            )
+            ..strokeWidth = 2.0
+            ..strokeCap = StrokeCap.round
+            ..maskFilter = MaskFilter.blur(BlurStyle.normal, 2 + pulse),
+        );
       }
     }
 
@@ -1924,14 +2053,18 @@ class _AnimalPainter extends CustomPainter {
       final bL = _p3(-0.24, -0.10, 0.97, rot, tilt, c, r);
       final bR = _p3(0.24, -0.10, 0.97, rot, tilt, c, r);
       canvas.drawLine(
-          bL,
-          bR,
-          Paint()
-            ..color = secondary.withValues(
-                alpha: ((0.34 + 0.22 * pulse) * _zs(bridgeZ).clamp(0, 1))
-                    .clamp(0, 1))
-            ..strokeWidth = 1.8
-            ..maskFilter = MaskFilter.blur(BlurStyle.normal, 2 + pulse * 2));
+        bL,
+        bR,
+        Paint()
+          ..color = secondary.withValues(
+            alpha: ((0.34 + 0.22 * pulse) * _zs(bridgeZ).clamp(0, 1)).clamp(
+              0,
+              1,
+            ),
+          )
+          ..strokeWidth = 1.8
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 2 + pulse * 2),
+      );
     }
 
     // ── Forehead rune (circuit diamond) ──
@@ -1942,7 +2075,8 @@ class _AnimalPainter extends CustomPainter {
       final rl = r * 0.062 * zs;
       final runePaint = Paint()
         ..color = secondary.withValues(
-            alpha: ((0.48 + 0.30 * pulse) * runeZ.clamp(0, 1)).clamp(0, 1))
+          alpha: ((0.48 + 0.30 * pulse) * runeZ.clamp(0, 1)).clamp(0, 1),
+        )
         ..strokeWidth = 1.0
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.square;
@@ -1955,10 +2089,16 @@ class _AnimalPainter extends CustomPainter {
           ..close(),
         runePaint,
       );
-      canvas.drawLine(Offset(rp.dx, rp.dy - rl * 0.9),
-          Offset(rp.dx, rp.dy + rl * 0.9), runePaint);
-      canvas.drawLine(Offset(rp.dx - rl * 0.65, rp.dy),
-          Offset(rp.dx + rl * 0.65, rp.dy), runePaint);
+      canvas.drawLine(
+        Offset(rp.dx, rp.dy - rl * 0.9),
+        Offset(rp.dx, rp.dy + rl * 0.9),
+        runePaint,
+      );
+      canvas.drawLine(
+        Offset(rp.dx - rl * 0.65, rp.dy),
+        Offset(rp.dx + rl * 0.65, rp.dy),
+        runePaint,
+      );
     }
 
     // ── Eyes ──
@@ -1969,41 +2109,52 @@ class _AnimalPainter extends CustomPainter {
       final zs = _zs(ez);
       // Glow aura
       canvas.drawCircle(
-          ep,
-          r * 0.158 * zs,
-          Paint()
-            ..color = secondary.withValues(
-                alpha: (0.14 + 0.10 * pulse) * ez.clamp(0, 1))
-            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4));
+        ep,
+        r * 0.158 * zs,
+        Paint()
+          ..color = secondary.withValues(
+            alpha: (0.14 + 0.10 * pulse) * ez.clamp(0, 1),
+          )
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+      );
       // Sclera
-      canvas.drawCircle(ep, r * 0.142 * zs,
-          Paint()..color = Colors.white.withValues(alpha: 0.92));
+      canvas.drawCircle(
+        ep,
+        r * 0.142 * zs,
+        Paint()..color = Colors.white.withValues(alpha: 0.92),
+      );
       // Glowing iris
       canvas.drawCircle(
-          ep,
-          r * 0.105 * zs,
-          Paint()
-            ..color = secondary.withValues(alpha: 0.88 + 0.12 * pulse)
-            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.5));
+        ep,
+        r * 0.105 * zs,
+        Paint()
+          ..color = secondary.withValues(alpha: 0.88 + 0.12 * pulse)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.5),
+      );
       canvas.drawCircle(
-          ep,
-          r * 0.122 * zs,
-          Paint()
-            ..color = secondary.withValues(alpha: 0.55 + 0.28 * pulse)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.3 * zs);
+        ep,
+        r * 0.122 * zs,
+        Paint()
+          ..color = secondary.withValues(alpha: 0.55 + 0.28 * pulse)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.3 * zs,
+      );
       // Slit pupil
       final pupilH = r * 0.14 * zs;
-      final pupilW =
-          mood == SvenMood.thinking ? r * 0.015 * zs : r * 0.044 * zs;
+      final pupilW = mood == SvenMood.thinking
+          ? r * 0.015 * zs
+          : r * 0.044 * zs;
       canvas.drawOval(
         Rect.fromCenter(center: ep, width: pupilW, height: pupilH),
         Paint()..color = Colors.black.withValues(alpha: 0.94),
       );
       // Gaze tracking
       final gaze = math.sin(rot) * r * 0.020 * zs;
-      canvas.drawCircle(ep + Offset(gaze, 0), pupilW * 0.32,
-          Paint()..color = Colors.black.withValues(alpha: 0.90));
+      canvas.drawCircle(
+        ep + Offset(gaze, 0),
+        pupilW * 0.32,
+        Paint()..color = Colors.black.withValues(alpha: 0.90),
+      );
       canvas.drawCircle(
         ep + Offset(-r * 0.044 * zs, -r * 0.044 * zs),
         r * 0.030 * zs,
@@ -2022,13 +2173,16 @@ class _AnimalPainter extends CustomPainter {
         ..lineTo(np.dx, np.dy + r * 0.082 * zs)
         ..close();
       canvas.drawPath(
-          nPath, Paint()..color = secondary.withValues(alpha: 0.78));
+        nPath,
+        Paint()..color = secondary.withValues(alpha: 0.78),
+      );
       canvas.drawPath(
-          nPath,
-          Paint()
-            ..color = Colors.white.withValues(alpha: 0.36)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 0.8 * zs);
+        nPath,
+        Paint()
+          ..color = Colors.white.withValues(alpha: 0.36)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 0.8 * zs,
+      );
     }
 
     // ── Neon whiskers with bloomed tips ──
@@ -2041,28 +2195,29 @@ class _AnimalPainter extends CustomPainter {
         if (wZ < 0.0) continue;
         final wVis = _zs(wZ).clamp(0.0, 1.0);
         canvas.drawLine(
-            wInner,
-            wOuter,
-            Paint()
-              ..color =
-                  secondary.withValues(alpha: (0.46 + 0.22 * pulse) * wVis)
-              ..strokeWidth = 1.5
-              ..strokeCap = StrokeCap.round
-              ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.5));
+          wInner,
+          wOuter,
+          Paint()
+            ..color = secondary.withValues(alpha: (0.46 + 0.22 * pulse) * wVis)
+            ..strokeWidth = 1.5
+            ..strokeCap = StrokeCap.round
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.5),
+        );
         canvas.drawLine(
-            wInner,
-            wOuter,
-            Paint()
-              ..color = Colors.white.withValues(alpha: 0.52 * wVis)
-              ..strokeWidth = 0.6
-              ..strokeCap = StrokeCap.round);
+          wInner,
+          wOuter,
+          Paint()
+            ..color = Colors.white.withValues(alpha: 0.52 * wVis)
+            ..strokeWidth = 0.6
+            ..strokeCap = StrokeCap.round,
+        );
         canvas.drawCircle(
-            wOuter,
-            2.8 + pulse * 1.6,
-            Paint()
-              ..color =
-                  secondary.withValues(alpha: (0.58 + 0.28 * pulse) * wVis)
-              ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3 + pulse * 2));
+          wOuter,
+          2.8 + pulse * 1.6,
+          Paint()
+            ..color = secondary.withValues(alpha: (0.58 + 0.28 * pulse) * wVis)
+            ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3 + pulse * 2),
+        );
       }
     }
 
@@ -2073,7 +2228,8 @@ class _AnimalPainter extends CustomPainter {
       final mR = _p3(0.14, 0.33, 0.94, rot, tilt, c, r);
       final mCtrl = _p3(0, 0.46, 0.94, rot, tilt, c, r);
       final zs = _zs(mz);
-      final mDepth = switch (mood) {
+      final mDepth =
+          switch (mood) {
             SvenMood.happy => r * 0.058,
             SvenMood.speaking => r * 0.028 * (1 + 0.3 * pulse),
             _ => r * 0.020,
@@ -2096,11 +2252,18 @@ class _AnimalPainter extends CustomPainter {
       specPt,
       r * 0.09 + r * 0.06 * pulse,
       Paint()
-        ..shader = RadialGradient(colors: [
-          Colors.white.withValues(alpha: 0.48 + 0.18 * pulse),
-          Colors.white.withValues(alpha: 0),
-        ]).createShader(Rect.fromCircle(
-            center: specPt, radius: r * 0.10 + r * 0.06 * pulse)),
+        ..shader =
+            RadialGradient(
+              colors: [
+                Colors.white.withValues(alpha: 0.48 + 0.18 * pulse),
+                Colors.white.withValues(alpha: 0),
+              ],
+            ).createShader(
+              Rect.fromCircle(
+                center: specPt,
+                radius: r * 0.10 + r * 0.06 * pulse,
+              ),
+            ),
     );
   }
 
@@ -2202,11 +2365,18 @@ class _CustomShapePainter extends CustomPainter {
       specPt,
       r * 0.08 + r * 0.05 * pulse,
       Paint()
-        ..shader = RadialGradient(colors: [
-          Colors.white.withValues(alpha: 0.45 + 0.15 * pulse),
-          Colors.white.withValues(alpha: 0),
-        ]).createShader(Rect.fromCircle(
-            center: specPt, radius: r * 0.09 + r * 0.05 * pulse)),
+        ..shader =
+            RadialGradient(
+              colors: [
+                Colors.white.withValues(alpha: 0.45 + 0.15 * pulse),
+                Colors.white.withValues(alpha: 0),
+              ],
+            ).createShader(
+              Rect.fromCircle(
+                center: specPt,
+                radius: r * 0.09 + r * 0.05 * pulse,
+              ),
+            ),
     );
   }
 
@@ -2231,8 +2401,11 @@ class _CustomShapePainter extends CustomPainter {
             Paint()
               ..color = Color.lerp(_primary, Colors.orange, flicker)!
                   .withValues(
-                      alpha: (intensity * 0.6 * (0.5 + flicker * 0.5))
-                          .clamp(0.0, 1.0)),
+                    alpha: (intensity * 0.6 * (0.5 + flicker * 0.5)).clamp(
+                      0.0,
+                      1.0,
+                    ),
+                  ),
           );
         }
       case 'electric':
@@ -2247,7 +2420,8 @@ class _CustomShapePainter extends CustomPainter {
               (rng.nextDouble() - 0.5) * s * 0.08,
               (rng.nextDouble() - 0.5) * s * 0.08,
             );
-            prev = prev +
+            prev =
+                prev +
                 Offset(math.cos(startAngle), math.sin(startAngle)) *
                     (s * 0.05) +
                 jitter;
@@ -2257,7 +2431,8 @@ class _CustomShapePainter extends CustomPainter {
             path,
             Paint()
               ..color = _secondary.withValues(
-                  alpha: (intensity * 0.7).clamp(0.0, 1.0))
+                alpha: (intensity * 0.7).clamp(0.0, 1.0),
+              )
               ..style = PaintingStyle.stroke
               ..strokeWidth = 1.2
               ..strokeCap = StrokeCap.round,
@@ -2273,8 +2448,9 @@ class _CustomShapePainter extends CustomPainter {
             pt,
             s * 0.008,
             Paint()
-              ..color = Colors.lightBlueAccent
-                  .withValues(alpha: (intensity * 0.55).clamp(0.0, 1.0)),
+              ..color = Colors.lightBlueAccent.withValues(
+                alpha: (intensity * 0.55).clamp(0.0, 1.0),
+              ),
           );
           // Small ice-ray
           final tip =
@@ -2283,8 +2459,9 @@ class _CustomShapePainter extends CustomPainter {
             pt,
             tip,
             Paint()
-              ..color = Colors.white
-                  .withValues(alpha: (intensity * 0.3).clamp(0.0, 1.0))
+              ..color = Colors.white.withValues(
+                alpha: (intensity * 0.3).clamp(0.0, 1.0),
+              )
               ..strokeWidth = 0.8,
           );
         }
@@ -2294,18 +2471,17 @@ class _CustomShapePainter extends CustomPainter {
           c,
           auraR,
           Paint()
-            ..shader = RadialGradient(colors: [
-              Colors.black.withValues(alpha: 0),
-              Colors.black
-                  .withValues(alpha: (intensity * 0.25).clamp(0.0, 1.0)),
-              _primary.withValues(alpha: (intensity * 0.12).clamp(0.0, 1.0)),
-              Colors.transparent,
-            ], stops: const [
-              0.5,
-              0.72,
-              0.88,
-              1.0
-            ]).createShader(Rect.fromCircle(center: c, radius: auraR)),
+            ..shader = RadialGradient(
+              colors: [
+                Colors.black.withValues(alpha: 0),
+                Colors.black.withValues(
+                  alpha: (intensity * 0.25).clamp(0.0, 1.0),
+                ),
+                _primary.withValues(alpha: (intensity * 0.12).clamp(0.0, 1.0)),
+                Colors.transparent,
+              ],
+              stops: const [0.5, 0.72, 0.88, 1.0],
+            ).createShader(Rect.fromCircle(center: c, radius: auraR)),
         );
       case 'holy':
         // Radiating light beams
@@ -2319,10 +2495,10 @@ class _CustomShapePainter extends CustomPainter {
             outer,
             Paint()
               ..color = Colors.amberAccent.withValues(
-                  alpha: (intensity *
-                          0.35 *
-                          (0.6 + 0.4 * math.sin(scan * 6.28 + i)))
-                      .clamp(0.0, 1.0))
+                alpha:
+                    (intensity * 0.35 * (0.6 + 0.4 * math.sin(scan * 6.28 + i)))
+                        .clamp(0.0, 1.0),
+              )
               ..strokeWidth = 2.5
               ..strokeCap = StrokeCap.round,
           );
@@ -2332,11 +2508,14 @@ class _CustomShapePainter extends CustomPainter {
           c,
           auraR,
           Paint()
-            ..shader = RadialGradient(colors: [
-              _primary.withValues(
-                  alpha: (intensity * 0.35 + 0.1 * pulse).clamp(0.0, 1.0)),
-              _primary.withValues(alpha: 0),
-            ]).createShader(Rect.fromCircle(center: c, radius: auraR)),
+            ..shader = RadialGradient(
+              colors: [
+                _primary.withValues(
+                  alpha: (intensity * 0.35 + 0.1 * pulse).clamp(0.0, 1.0),
+                ),
+                _primary.withValues(alpha: 0),
+              ],
+            ).createShader(Rect.fromCircle(center: c, radius: auraR)),
         );
     }
   }
@@ -2344,7 +2523,13 @@ class _CustomShapePainter extends CustomPainter {
   // ─── BODY ─────────────────────────────────────────────────────────────
 
   void _drawBody(
-      Canvas canvas, Offset c, double r, double s, double yaw, double pitch) {
+    Canvas canvas,
+    Offset c,
+    double r,
+    double s,
+    double yaw,
+    double pitch,
+  ) {
     final roundFactor = spec.roundness.clamp(0.0, 1.0);
     final spikeFactor = spec.spikiness.clamp(0.0, 1.0);
     final segments = spec.bodySegments.clamp(1, 5);
@@ -2363,8 +2548,16 @@ class _CustomShapePainter extends CustomPainter {
     }
   }
 
-  void _drawSegmentedBody(Canvas canvas, Offset c, double r, double s,
-      double yaw, double pitch, int segments, double roundFactor) {
+  void _drawSegmentedBody(
+    Canvas canvas,
+    Offset c,
+    double r,
+    double s,
+    double yaw,
+    double pitch,
+    int segments,
+    double roundFactor,
+  ) {
     for (var seg = 0; seg < segments; seg++) {
       // Position each segment along body Y axis
       final ny = -0.45 + seg * (0.9 / math.max(segments - 1, 1));
@@ -2390,22 +2583,31 @@ class _CustomShapePainter extends CustomPainter {
         segCenter,
         segR * zs * bScale,
         Paint()
-          ..shader = RadialGradient(
-            center: const Alignment(-0.3, -0.35),
-            colors: [
-              litColor.withValues(alpha: (0.95 * zs).clamp(0.0, 1.0)),
-              _primary.withValues(alpha: (0.55 * zs).clamp(0.0, 1.0)),
-              _primary.withValues(alpha: (0.20 * zs).clamp(0.0, 1.0)),
-            ],
-            stops: const [0.0, 0.65, 1.0],
-          ).createShader(
-              Rect.fromCircle(center: segCenter, radius: segR * zs * bScale)),
+          ..shader =
+              RadialGradient(
+                center: const Alignment(-0.3, -0.35),
+                colors: [
+                  litColor.withValues(alpha: (0.95 * zs).clamp(0.0, 1.0)),
+                  _primary.withValues(alpha: (0.55 * zs).clamp(0.0, 1.0)),
+                  _primary.withValues(alpha: (0.20 * zs).clamp(0.0, 1.0)),
+                ],
+                stops: const [0.0, 0.65, 1.0],
+              ).createShader(
+                Rect.fromCircle(center: segCenter, radius: segR * zs * bScale),
+              ),
       );
     }
   }
 
-  void _drawSerpentineBody(Canvas canvas, Offset c, double r, double s,
-      double yaw, double pitch, int segments) {
+  void _drawSerpentineBody(
+    Canvas canvas,
+    Offset c,
+    double r,
+    double s,
+    double yaw,
+    double pitch,
+    int segments,
+  ) {
     const count = 8;
     Offset? prev;
     for (var i = 0; i < count; i++) {
@@ -2419,8 +2621,9 @@ class _CustomShapePainter extends CustomPainter {
         segPt,
         segR,
         Paint()
-          ..color =
-              _primary.withValues(alpha: (0.85 - i * 0.04).clamp(0.2, 1.0)),
+          ..color = _primary.withValues(
+            alpha: (0.85 - i * 0.04).clamp(0.2, 1.0),
+          ),
       );
       if (prev != null) {
         canvas.drawLine(
@@ -2436,14 +2639,22 @@ class _CustomShapePainter extends CustomPainter {
     }
   }
 
-  void _drawCrystalBody(Canvas canvas, Offset c, double r, double s, double yaw,
-      double pitch, double spikeFactor) {
+  void _drawCrystalBody(
+    Canvas canvas,
+    Offset c,
+    double r,
+    double s,
+    double yaw,
+    double pitch,
+    double spikeFactor,
+  ) {
     // Draw a faceted crystal with spikes
     final faceCount = 6 + (spikeFactor * 6).round();
     final path = Path();
     for (var i = 0; i < faceCount; i++) {
       final angle = i * 2 * math.pi / faceCount + yaw * 0.3;
-      final spikeR = r *
+      final spikeR =
+          r *
           (0.55 + spikeFactor * 0.35 * (i.isEven ? 1.0 : 0.5)) *
           (1.0 + 0.04 * pulse);
       final pt = c + Offset(math.cos(angle), math.sin(angle)) * spikeR;
@@ -2486,13 +2697,20 @@ class _CustomShapePainter extends CustomPainter {
   }
 
   void _drawAmorphousBody(
-      Canvas canvas, Offset c, double r, double s, double yaw, double pitch) {
+    Canvas canvas,
+    Offset c,
+    double r,
+    double s,
+    double yaw,
+    double pitch,
+  ) {
     // Blobby, shifting amoeba shape
     final path = Path();
     const pts = 24;
     for (var i = 0; i < pts; i++) {
       final angle = i * 2 * math.pi / pts;
-      final wobble = math.sin(angle * 3 + scan * 6.28) * 0.12 +
+      final wobble =
+          math.sin(angle * 3 + scan * 6.28) * 0.12 +
           math.cos(angle * 5 + breath * 6.28) * 0.08;
       final dist = r * (0.55 + wobble + 0.03 * pulse);
       final pt = c + Offset(math.cos(angle), math.sin(angle)) * dist;
@@ -2520,7 +2738,13 @@ class _CustomShapePainter extends CustomPainter {
   // ─── LIMBS ────────────────────────────────────────────────────────────
 
   void _drawLimbs(
-      Canvas canvas, Offset c, double r, double s, double yaw, double pitch) {
+    Canvas canvas,
+    Offset c,
+    double r,
+    double s,
+    double yaw,
+    double pitch,
+  ) {
     final count = spec.limbCount.clamp(0, 8);
     // Distribute limbs symmetrically
     for (var i = 0; i < count; i++) {
@@ -2532,8 +2756,15 @@ class _CustomShapePainter extends CustomPainter {
 
       final shoulder = _p3(nx * 0.5, ny, nz, yaw, pitch, c, r);
       final swing = math.sin(breath * 2 * math.pi + i * 1.2) * 0.15;
-      final tip =
-          _p3(nx + swing * 0.3, ny + 0.3 + swing, nz - 0.2, yaw, pitch, c, r);
+      final tip = _p3(
+        nx + swing * 0.3,
+        ny + 0.3 + swing,
+        nz - 0.2,
+        yaw,
+        pitch,
+        c,
+        r,
+      );
       final z = _z3(nx, ny, nz, yaw, pitch);
       if (z < -0.3) continue; // cull backfacing
 
@@ -2559,15 +2790,35 @@ class _CustomShapePainter extends CustomPainter {
   // ─── WINGS ────────────────────────────────────────────────────────────
 
   void _drawWings(
-      Canvas canvas, Offset c, double r, double s, double yaw, double pitch) {
+    Canvas canvas,
+    Offset c,
+    double r,
+    double s,
+    double yaw,
+    double pitch,
+  ) {
     final flapAngle = math.sin(breath * 2 * math.pi) * 0.35;
 
     for (final side in [-1.0, 1.0]) {
       final base = _p3(side * 0.45, -0.15, 0.1, yaw, pitch, c, r);
       final mid = _p3(
-          side * 1.1, -0.35 + flapAngle * side * 0.2, -0.1, yaw, pitch, c, r);
+        side * 1.1,
+        -0.35 + flapAngle * side * 0.2,
+        -0.1,
+        yaw,
+        pitch,
+        c,
+        r,
+      );
       final tip = _p3(
-          side * 1.4, -0.1 + flapAngle * side * 0.4, -0.3, yaw, pitch, c, r);
+        side * 1.4,
+        -0.1 + flapAngle * side * 0.4,
+        -0.3,
+        yaw,
+        pitch,
+        c,
+        r,
+      );
       final z = _z3(side * 0.8, -0.2, 0, yaw, pitch);
       if (z < -0.5) continue;
 
@@ -2602,7 +2853,13 @@ class _CustomShapePainter extends CustomPainter {
   // ─── TAIL ─────────────────────────────────────────────────────────────
 
   void _drawTail(
-      Canvas canvas, Offset c, double r, double s, double yaw, double pitch) {
+    Canvas canvas,
+    Offset c,
+    double r,
+    double s,
+    double yaw,
+    double pitch,
+  ) {
     const segs = 6;
     Offset? prev;
     for (var i = 0; i < segs; i++) {
@@ -2636,11 +2893,24 @@ class _CustomShapePainter extends CustomPainter {
   // ─── HORNS ────────────────────────────────────────────────────────────
 
   void _drawHorns(
-      Canvas canvas, Offset c, double r, double s, double yaw, double pitch) {
+    Canvas canvas,
+    Offset c,
+    double r,
+    double s,
+    double yaw,
+    double pitch,
+  ) {
     for (final side in [-1.0, 1.0]) {
       final base = _p3(side * 0.3, -0.48, 0.15, yaw, pitch, c, r);
-      final tip =
-          _p3(side * 0.55, -0.85 - 0.05 * pulse, 0.05, yaw, pitch, c, r);
+      final tip = _p3(
+        side * 0.55,
+        -0.85 - 0.05 * pulse,
+        0.05,
+        yaw,
+        pitch,
+        c,
+        r,
+      );
       final z = _z3(side * 0.3, -0.5, 0.15, yaw, pitch);
       if (z < -0.2) continue;
 
@@ -2659,12 +2929,25 @@ class _CustomShapePainter extends CustomPainter {
   // ─── ANTENNAE ─────────────────────────────────────────────────────────
 
   void _drawAntennae(
-      Canvas canvas, Offset c, double r, double s, double yaw, double pitch) {
+    Canvas canvas,
+    Offset c,
+    double r,
+    double s,
+    double yaw,
+    double pitch,
+  ) {
     for (final side in [-1.0, 1.0]) {
       final base = _p3(side * 0.2, -0.5, 0.2, yaw, pitch, c, r);
       final wobble = math.sin(scan * 6 * math.pi + side * 2) * 0.1;
-      final tip =
-          _p3(side * 0.4 + wobble, -0.9 - 0.03 * pulse, 0.1, yaw, pitch, c, r);
+      final tip = _p3(
+        side * 0.4 + wobble,
+        -0.9 - 0.03 * pulse,
+        0.1,
+        yaw,
+        pitch,
+        c,
+        r,
+      );
       final z = _z3(side * 0.2, -0.5, 0.2, yaw, pitch);
       if (z < -0.2) continue;
 
@@ -2691,7 +2974,13 @@ class _CustomShapePainter extends CustomPainter {
   // ─── EYES ─────────────────────────────────────────────────────────────
 
   void _drawEyes(
-      Canvas canvas, Offset c, double r, double s, double yaw, double pitch) {
+    Canvas canvas,
+    Offset c,
+    double r,
+    double s,
+    double yaw,
+    double pitch,
+  ) {
     final count = spec.eyeCount.clamp(1, 6);
     final isActive = mood == SvenMood.listening || mood == SvenMood.speaking;
     final blinkPhase = math.sin(scan * 2 * math.pi);
@@ -2724,35 +3013,41 @@ class _CustomShapePainter extends CustomPainter {
           // Vertical slit pupil
           canvas.drawOval(
             Rect.fromCenter(
-                center: eyePos,
-                width: eyeR * 0.6,
-                height: eyeR * 2.0 * (1.0 - blink * 0.8)),
+              center: eyePos,
+              width: eyeR * 0.6,
+              height: eyeR * 2.0 * (1.0 - blink * 0.8),
+            ),
             Paint()
-              ..color =
-                  _secondary.withValues(alpha: (0.9 * zs).clamp(0.0, 1.0)),
+              ..color = _secondary.withValues(
+                alpha: (0.9 * zs).clamp(0.0, 1.0),
+              ),
           );
           canvas.drawOval(
             Rect.fromCenter(
-                center: eyePos,
-                width: eyeR * 0.2,
-                height: eyeR * 1.4 * (1.0 - blink * 0.8)),
+              center: eyePos,
+              width: eyeR * 0.2,
+              height: eyeR * 1.4 * (1.0 - blink * 0.8),
+            ),
             Paint()
-              ..color =
-                  Colors.black.withValues(alpha: (0.8 * zs).clamp(0.0, 1.0)),
+              ..color = Colors.black.withValues(
+                alpha: (0.8 * zs).clamp(0.0, 1.0),
+              ),
           );
         case 'visor':
           // Horizontal visor bar
           canvas.drawRRect(
             RRect.fromRectAndRadius(
               Rect.fromCenter(
-                  center: eyePos,
-                  width: eyeR * 3.0,
-                  height: eyeR * 0.6 * (1.0 - blink * 0.8)),
+                center: eyePos,
+                width: eyeR * 3.0,
+                height: eyeR * 0.6 * (1.0 - blink * 0.8),
+              ),
               Radius.circular(eyeR * 0.3),
             ),
             Paint()
               ..color = _secondary.withValues(
-                  alpha: (isActive ? 0.95 : 0.7) * zs.clamp(0.0, 1.0)),
+                alpha: (isActive ? 0.95 : 0.7) * zs.clamp(0.0, 1.0),
+              ),
           );
           break; // one visor for all eyes
         case 'compound':
@@ -2764,8 +3059,9 @@ class _CustomShapePainter extends CustomPainter {
               fp,
               eyeR * 0.3,
               Paint()
-                ..color =
-                    _secondary.withValues(alpha: (0.6 * zs).clamp(0.0, 1.0)),
+                ..color = _secondary.withValues(
+                  alpha: (0.6 * zs).clamp(0.0, 1.0),
+                ),
             );
           }
         case 'diamond':
@@ -2778,8 +3074,9 @@ class _CustomShapePainter extends CustomPainter {
           canvas.drawPath(
             path,
             Paint()
-              ..color =
-                  _secondary.withValues(alpha: (0.85 * zs).clamp(0.0, 1.0)),
+              ..color = _secondary.withValues(
+                alpha: (0.85 * zs).clamp(0.0, 1.0),
+              ),
           );
         default: // 'round'
           // White sclera
@@ -2787,16 +3084,18 @@ class _CustomShapePainter extends CustomPainter {
             eyePos,
             eyeR * (1.0 - blink * 0.5),
             Paint()
-              ..color =
-                  Colors.white.withValues(alpha: (0.9 * zs).clamp(0.0, 1.0)),
+              ..color = Colors.white.withValues(
+                alpha: (0.9 * zs).clamp(0.0, 1.0),
+              ),
           );
           // Colored iris
           canvas.drawCircle(
             eyePos,
             eyeR * 0.6 * (1.0 - blink * 0.5),
             Paint()
-              ..color =
-                  _secondary.withValues(alpha: (0.9 * zs).clamp(0.0, 1.0)),
+              ..color = _secondary.withValues(
+                alpha: (0.9 * zs).clamp(0.0, 1.0),
+              ),
           );
           // Pupil
           final pupilShift = isActive
@@ -2806,8 +3105,9 @@ class _CustomShapePainter extends CustomPainter {
             eyePos + pupilShift,
             eyeR * 0.28 * (1.0 - blink * 0.5),
             Paint()
-              ..color =
-                  Colors.black.withValues(alpha: (0.85 * zs).clamp(0.0, 1.0)),
+              ..color = Colors.black.withValues(
+                alpha: (0.85 * zs).clamp(0.0, 1.0),
+              ),
           );
       }
     }
@@ -2816,7 +3116,13 @@ class _CustomShapePainter extends CustomPainter {
   // ─── PATTERNS ─────────────────────────────────────────────────────────
 
   void _drawPattern(
-      Canvas canvas, Offset c, double r, double s, double yaw, double pitch) {
+    Canvas canvas,
+    Offset c,
+    double r,
+    double s,
+    double yaw,
+    double pitch,
+  ) {
     switch (spec.patternType) {
       case 'stripes':
         for (var i = -3; i <= 3; i++) {
@@ -2863,20 +3169,25 @@ class _CustomShapePainter extends CustomPainter {
           final z = _z3(startX, startY, nz, yaw, pitch);
           if (z < 0) continue;
           canvas.drawLine(
-              a,
-              b,
-              Paint()
-                ..color = _secondary.withValues(alpha: 0.25)
-                ..strokeWidth = 0.8);
+            a,
+            b,
+            Paint()
+              ..color = _secondary.withValues(alpha: 0.25)
+              ..strokeWidth = 0.8,
+          );
           canvas.drawLine(
-              b,
-              mid,
-              Paint()
-                ..color = _secondary.withValues(alpha: 0.25)
-                ..strokeWidth = 0.8);
+            b,
+            mid,
+            Paint()
+              ..color = _secondary.withValues(alpha: 0.25)
+              ..strokeWidth = 0.8,
+          );
           // Node dot
           canvas.drawCircle(
-              b, s * 0.005, Paint()..color = _secondary.withValues(alpha: 0.4));
+            b,
+            s * 0.005,
+            Paint()..color = _secondary.withValues(alpha: 0.4),
+          );
         }
       case 'hexgrid':
         for (var row = -2; row <= 2; row++) {
@@ -2911,15 +3222,21 @@ class _CustomShapePainter extends CustomPainter {
     }
     path.close();
     canvas.drawPath(
-        path,
-        Paint()
-          ..color = color
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 0.7);
+      path,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.7,
+    );
   }
 
   void _drawFractalCircle(
-      Canvas canvas, Offset c, double r, int depth, Color color) {
+    Canvas canvas,
+    Offset c,
+    double r,
+    int depth,
+    Color color,
+  ) {
     if (depth <= 0 || r < 2) return;
     canvas.drawCircle(
       c,

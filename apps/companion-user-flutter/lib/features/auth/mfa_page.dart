@@ -23,11 +23,7 @@ const _textInputChannel = SystemChannels.textInput;
 // ─────────────────────────────────────────────────────────────────────────────
 
 class MfaPage extends StatefulWidget {
-  const MfaPage({
-    super.key,
-    required this.onVerify,
-    required this.onCancel,
-  });
+  const MfaPage({super.key, required this.onVerify, required this.onCancel});
 
   /// Called when the user submits the OTP or backup code.
   ///
@@ -185,8 +181,9 @@ class _MfaPageState extends State<MfaPage>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color:
-                                primary.withValues(alpha: isDark ? 0.40 : 0.18),
+                            color: primary.withValues(
+                              alpha: isDark ? 0.40 : 0.18,
+                            ),
                             blurRadius: isDark ? 32 : 18,
                           ),
                         ],
@@ -213,23 +210,22 @@ class _MfaPageState extends State<MfaPage>
                     // ── Heading ──────────────────────────────────────────
                     Text(
                       'Two-factor authentication',
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: -0.5,
-                              ),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.5,
+                          ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 10),
                     Text(
                       'Enter the 6-digit code from your\nauthenticator app, or a recovery code.',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.50),
-                            height: 1.45,
-                          ),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.50),
+                        height: 1.45,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 36),
@@ -265,7 +261,9 @@ class _MfaPageState extends State<MfaPage>
                               onSubmitted: (_) => _submit(),
                               autofillHints: const [AutofillHints.oneTimeCode],
                               style: const TextStyle(
-                                  color: Colors.transparent, fontSize: 1),
+                                color: Colors.transparent,
+                                fontSize: 1,
+                              ),
                               decoration: const InputDecoration(
                                 border: InputBorder.none,
                                 counterText: '',
@@ -321,7 +319,8 @@ class _MfaPageState extends State<MfaPage>
                             boxShadow: [
                               BoxShadow(
                                 color: primary.withValues(
-                                    alpha: _submitting ? 0.10 : 0.28),
+                                  alpha: _submitting ? 0.10 : 0.28,
+                                ),
                                 blurRadius: _submitting ? 6 : 14,
                                 offset: const Offset(0, 4),
                               ),
@@ -369,11 +368,10 @@ class _MfaPageState extends State<MfaPage>
                       child: Text(
                         'Back to sign in',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.50),
-                            ),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.50),
+                        ),
                       ),
                     ),
                   ],
@@ -410,15 +408,15 @@ class _OtpBox extends StatelessWidget {
     final borderColor = isCurrent
         ? primary
         : filled
-            ? primary.withValues(alpha: 0.55)
-            : (isDark
-                ? Colors.white.withValues(alpha: 0.14)
-                : Colors.black.withValues(alpha: 0.12));
+        ? primary.withValues(alpha: 0.55)
+        : (isDark
+              ? Colors.white.withValues(alpha: 0.14)
+              : Colors.black.withValues(alpha: 0.12));
     final fillColor = filled
         ? primary.withValues(alpha: isDark ? 0.12 : 0.07)
         : (isDark
-            ? Colors.white.withValues(alpha: 0.03)
-            : Colors.white.withValues(alpha: 0.65));
+              ? Colors.white.withValues(alpha: 0.03)
+              : Colors.white.withValues(alpha: 0.65));
 
     return Container(
       width: 44,
@@ -427,10 +425,7 @@ class _OtpBox extends StatelessWidget {
       decoration: BoxDecoration(
         color: fillColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: borderColor,
-          width: isCurrent ? 2 : 1.5,
-        ),
+        border: Border.all(color: borderColor, width: isCurrent ? 2 : 1.5),
         boxShadow: isCurrent
             ? [
                 BoxShadow(
@@ -453,8 +448,8 @@ class _OtpBox extends StatelessWidget {
               ),
             )
           : isCurrent
-              ? _Cursor(color: primary)
-              : const SizedBox.shrink(),
+          ? _Cursor(color: primary)
+          : const SizedBox.shrink(),
     );
   }
 }
@@ -541,9 +536,9 @@ class _MfaErrorPill extends StatelessWidget {
               child: Text(
                 text,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  color: color,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],

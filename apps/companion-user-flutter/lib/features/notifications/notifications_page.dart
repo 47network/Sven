@@ -22,7 +22,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
     try {
       await PushNotificationManager.instance.unregister();
       setState(
-          () => _feedback = 'Push notifications disabled for this device.');
+        () => _feedback = 'Push notifications disabled for this device.',
+      );
     } catch (e) {
       setState(() => _feedback = 'Error: ${e.toString()}');
     } finally {
@@ -57,10 +58,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     size: 36,
                     color: isEnabled
                         ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.4),
+                        : Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.4),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -71,10 +71,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           isEnabled
                               ? 'Notifications active'
                               : 'Notifications inactive',
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -116,8 +114,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -129,12 +128,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Icon(Icons.copy,
-                          size: 16,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.5)),
+                      Icon(
+                        Icons.copy,
+                        size: 16,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
+                      ),
                     ],
                   ),
                 ),
@@ -158,7 +158,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       )
                     : const Icon(Icons.notifications_off_outlined),
                 label: Text(
-                    _unregistering ? 'Disabling...' : 'Disable notifications'),
+                  _unregistering ? 'Disabling...' : 'Disable notifications',
+                ),
               ),
             ),
 

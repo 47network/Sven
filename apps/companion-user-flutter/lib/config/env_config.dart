@@ -93,8 +93,8 @@ abstract final class EnvConfig {
 
   /// Human-readable label used in dev/staging banners.
   static String get flavorBadge => switch (flavor) {
-        'dev' => 'DEV',
-        'staging' => 'STAGING',
-        _ => '',
-      };
+    'dev' => 'DEV',
+    'staging' => 'STAGING',
+    _ => '',
+  };
 }

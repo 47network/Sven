@@ -158,8 +158,10 @@ class _SearchPageState extends State<SearchPage> {
           prefixIcon: Icon(Icons.search, color: tok.primary),
           suffixIcon: _controller.text.isNotEmpty
               ? IconButton(
-                  icon: Icon(Icons.clear,
-                      color: tok.onSurface.withValues(alpha: 0.4)),
+                  icon: Icon(
+                    Icons.clear,
+                    color: tok.onSurface.withValues(alpha: 0.4),
+                  ),
                   onPressed: () {
                     _controller.clear();
                     _onChanged('');
@@ -180,15 +182,18 @@ class _SearchPageState extends State<SearchPage> {
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: tok.primary, width: 2),
           ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
         ),
       ),
     );
   }
 
   Widget _buildFilterToggle(SvenModeTokens tok) {
-    final hasActiveFilters = _searchMode != 'unified' ||
+    final hasActiveFilters =
+        _searchMode != 'unified' ||
         _contentType != null ||
         _afterDate != null ||
         _beforeDate != null;
@@ -216,8 +221,9 @@ class _SearchPageState extends State<SearchPage> {
                     color: hasActiveFilters
                         ? tok.primary
                         : tok.onSurface.withValues(alpha: 0.5),
-                    fontWeight:
-                        hasActiveFilters ? FontWeight.w600 : FontWeight.normal,
+                    fontWeight: hasActiveFilters
+                        ? FontWeight.w600
+                        : FontWeight.normal,
                   ),
                 ),
               ],
@@ -261,40 +267,84 @@ class _SearchPageState extends State<SearchPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Search mode',
-              style: TextStyle(
-                  fontSize: 12, color: tok.onSurface.withValues(alpha: 0.6))),
+          Text(
+            'Search mode',
+            style: TextStyle(
+              fontSize: 12,
+              color: tok.onSurface.withValues(alpha: 0.6),
+            ),
+          ),
           const SizedBox(height: 6),
           _buildChipRow(tok, [
-            _filterChip(tok, 'Unified', _searchMode == 'unified',
-                () => _setMode('unified')),
-            _filterChip(tok, 'Full-text', _searchMode == 'messages',
-                () => _setMode('messages')),
-            _filterChip(tok, 'Semantic', _searchMode == 'semantic',
-                () => _setMode('semantic')),
+            _filterChip(
+              tok,
+              'Unified',
+              _searchMode == 'unified',
+              () => _setMode('unified'),
+            ),
+            _filterChip(
+              tok,
+              'Full-text',
+              _searchMode == 'messages',
+              () => _setMode('messages'),
+            ),
+            _filterChip(
+              tok,
+              'Semantic',
+              _searchMode == 'semantic',
+              () => _setMode('semantic'),
+            ),
           ]),
           if (_searchMode == 'messages') ...[
             const SizedBox(height: 12),
-            Text('Content type',
-                style: TextStyle(
-                    fontSize: 12, color: tok.onSurface.withValues(alpha: 0.6))),
+            Text(
+              'Content type',
+              style: TextStyle(
+                fontSize: 12,
+                color: tok.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
             const SizedBox(height: 6),
             _buildChipRow(tok, [
-              _filterChip(tok, 'All', _contentType == null,
-                  () => _setContentType(null)),
-              _filterChip(tok, 'Text', _contentType == 'text',
-                  () => _setContentType('text')),
-              _filterChip(tok, 'Files', _contentType == 'file',
-                  () => _setContentType('file')),
-              _filterChip(tok, 'Images', _contentType == 'image',
-                  () => _setContentType('image')),
-              _filterChip(tok, 'Audio', _contentType == 'audio',
-                  () => _setContentType('audio')),
+              _filterChip(
+                tok,
+                'All',
+                _contentType == null,
+                () => _setContentType(null),
+              ),
+              _filterChip(
+                tok,
+                'Text',
+                _contentType == 'text',
+                () => _setContentType('text'),
+              ),
+              _filterChip(
+                tok,
+                'Files',
+                _contentType == 'file',
+                () => _setContentType('file'),
+              ),
+              _filterChip(
+                tok,
+                'Images',
+                _contentType == 'image',
+                () => _setContentType('image'),
+              ),
+              _filterChip(
+                tok,
+                'Audio',
+                _contentType == 'audio',
+                () => _setContentType('audio'),
+              ),
             ]),
             const SizedBox(height: 12),
-            Text('Date range',
-                style: TextStyle(
-                    fontSize: 12, color: tok.onSurface.withValues(alpha: 0.6))),
+            Text(
+              'Date range',
+              style: TextStyle(
+                fontSize: 12,
+                color: tok.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
             const SizedBox(height: 6),
             Row(
               children: [
@@ -324,7 +374,11 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _filterChip(
-      SvenModeTokens tok, String label, bool selected, VoidCallback onTap) {
+    SvenModeTokens tok,
+    String label,
+    bool selected,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -340,8 +394,9 @@ class _SearchPageState extends State<SearchPage> {
           label,
           style: TextStyle(
             fontSize: 12,
-            color:
-                selected ? tok.primary : tok.onSurface.withValues(alpha: 0.7),
+            color: selected
+                ? tok.primary
+                : tok.onSurface.withValues(alpha: 0.7),
             fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
           ),
         ),
@@ -349,8 +404,12 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget _datePicker(SvenModeTokens tok, String label, DateTime? value,
-      ValueChanged<DateTime?> onChanged) {
+  Widget _datePicker(
+    SvenModeTokens tok,
+    String label,
+    DateTime? value,
+    ValueChanged<DateTime?> onChanged,
+  ) {
     return GestureDetector(
       onTap: () async {
         final picked = await showDatePicker(
@@ -370,8 +429,11 @@ class _SearchPageState extends State<SearchPage> {
         ),
         child: Row(
           children: [
-            Icon(Icons.calendar_today,
-                size: 14, color: tok.onSurface.withValues(alpha: 0.5)),
+            Icon(
+              Icons.calendar_today,
+              size: 14,
+              color: tok.onSurface.withValues(alpha: 0.5),
+            ),
             const SizedBox(width: 6),
             Expanded(
               child: Text(
@@ -389,8 +451,11 @@ class _SearchPageState extends State<SearchPage> {
             if (value != null)
               GestureDetector(
                 onTap: () => onChanged(null),
-                child: Icon(Icons.close,
-                    size: 14, color: tok.onSurface.withValues(alpha: 0.4)),
+                child: Icon(
+                  Icons.close,
+                  size: 14,
+                  color: tok.onSurface.withValues(alpha: 0.4),
+                ),
               ),
           ],
         ),
@@ -422,13 +487,18 @@ class _SearchPageState extends State<SearchPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.search,
-                size: 64, color: tok.onSurface.withValues(alpha: 0.15)),
+            Icon(
+              Icons.search,
+              size: 64,
+              color: tok.onSurface.withValues(alpha: 0.15),
+            ),
             const SizedBox(height: 12),
             Text(
               'Search your conversations',
               style: TextStyle(
-                  color: tok.onSurface.withValues(alpha: 0.4), fontSize: 16),
+                color: tok.onSurface.withValues(alpha: 0.4),
+                fontSize: 16,
+              ),
             ),
           ],
         ),
@@ -445,13 +515,18 @@ class _SearchPageState extends State<SearchPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.search_off,
-                size: 64, color: tok.onSurface.withValues(alpha: 0.15)),
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: tok.onSurface.withValues(alpha: 0.15),
+            ),
             const SizedBox(height: 12),
             Text(
               'No results for "$_lastQuery"',
               style: TextStyle(
-                  color: tok.onSurface.withValues(alpha: 0.4), fontSize: 16),
+                color: tok.onSurface.withValues(alpha: 0.4),
+                fontSize: 16,
+              ),
             ),
           ],
         ),
@@ -505,11 +580,7 @@ class _SearchPageState extends State<SearchPage> {
         leading: CircleAvatar(
           radius: 18,
           backgroundColor: tok.primary.withValues(alpha: 0.15),
-          child: Icon(
-            Icons.chat_bubble_outline,
-            size: 18,
-            color: tok.primary,
-          ),
+          child: Icon(Icons.chat_bubble_outline, size: 18, color: tok.primary),
         ),
         title: Text(
           m.senderName ?? m.chatId,
@@ -523,7 +594,9 @@ class _SearchPageState extends State<SearchPage> {
         subtitle: Text(
           m.headline ?? m.text ?? '',
           style: TextStyle(
-              fontSize: 12, color: tok.onSurface.withValues(alpha: 0.6)),
+            fontSize: 12,
+            color: tok.onSurface.withValues(alpha: 0.6),
+          ),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
@@ -531,7 +604,9 @@ class _SearchPageState extends State<SearchPage> {
             ? Text(
                 _formatDate(m.sentAt!),
                 style: TextStyle(
-                    fontSize: 10, color: tok.onSurface.withValues(alpha: 0.35)),
+                  fontSize: 10,
+                  color: tok.onSurface.withValues(alpha: 0.35),
+                ),
               )
             : null,
         onTap: () => widget.onOpenChat?.call(m.chatId, m.messageId),
@@ -557,13 +632,18 @@ class _SearchPageState extends State<SearchPage> {
         title: Text(
           f.fileName,
           style: TextStyle(
-              fontSize: 13, fontWeight: FontWeight.w600, color: tok.onSurface),
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: tok.onSurface,
+          ),
           overflow: TextOverflow.ellipsis,
         ),
         subtitle: Text(
           f.mimeType ?? 'Unknown type',
           style: TextStyle(
-              fontSize: 11, color: tok.onSurface.withValues(alpha: 0.5)),
+            fontSize: 11,
+            color: tok.onSurface.withValues(alpha: 0.5),
+          ),
         ),
       ),
     );
@@ -590,12 +670,19 @@ class _SearchPageState extends State<SearchPage> {
         title: Text(
           c.displayName,
           style: TextStyle(
-              fontSize: 13, fontWeight: FontWeight.w600, color: tok.onSurface),
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: tok.onSurface,
+          ),
         ),
         subtitle: c.email != null
-            ? Text(c.email!,
+            ? Text(
+                c.email!,
                 style: TextStyle(
-                    fontSize: 11, color: tok.onSurface.withValues(alpha: 0.5)))
+                  fontSize: 11,
+                  color: tok.onSurface.withValues(alpha: 0.5),
+                ),
+              )
             : null,
       ),
     );

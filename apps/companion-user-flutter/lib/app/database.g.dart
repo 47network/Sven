@@ -128,20 +128,19 @@ class DbChatThread extends DataClass implements Insertable<DbChatThread> {
     bool? isPinned,
     bool? isArchived,
     Value<String?> tag = const Value.absent(),
-  }) =>
-      DbChatThread(
-        id: id ?? this.id,
-        title: title ?? this.title,
-        lastMessage: lastMessage ?? this.lastMessage,
-        updatedAt: updatedAt ?? this.updatedAt,
-        unreadCount: unreadCount ?? this.unreadCount,
-        type: type ?? this.type,
-        channel: channel.present ? channel.value : this.channel,
-        messageCount: messageCount ?? this.messageCount,
-        isPinned: isPinned ?? this.isPinned,
-        isArchived: isArchived ?? this.isArchived,
-        tag: tag.present ? tag.value : this.tag,
-      );
+  }) => DbChatThread(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    lastMessage: lastMessage ?? this.lastMessage,
+    updatedAt: updatedAt ?? this.updatedAt,
+    unreadCount: unreadCount ?? this.unreadCount,
+    type: type ?? this.type,
+    channel: channel.present ? channel.value : this.channel,
+    messageCount: messageCount ?? this.messageCount,
+    isPinned: isPinned ?? this.isPinned,
+    isArchived: isArchived ?? this.isArchived,
+    tag: tag.present ? tag.value : this.tag,
+  );
 
   @override
   String toString() {
@@ -162,8 +161,19 @@ class DbChatThread extends DataClass implements Insertable<DbChatThread> {
   }
 
   @override
-  int get hashCode => Object.hash(id, title, lastMessage, updatedAt,
-      unreadCount, type, channel, messageCount, isPinned, isArchived, tag);
+  int get hashCode => Object.hash(
+    id,
+    title,
+    lastMessage,
+    updatedAt,
+    unreadCount,
+    type,
+    channel,
+    messageCount,
+    isPinned,
+    isArchived,
+    tag,
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -228,9 +238,9 @@ class DbChatThreadsCompanion extends UpdateCompanion<DbChatThread> {
     this.isArchived = const Value.absent(),
     this.tag = const Value.absent(),
     this.rowid = const Value.absent(),
-  })  : id = Value(id),
-        title = Value(title),
-        updatedAt = Value(updatedAt);
+  }) : id = Value(id),
+       title = Value(title),
+       updatedAt = Value(updatedAt);
 
   static Insertable<DbChatThread> custom({
     Expression<String>? id,
@@ -440,18 +450,17 @@ class DbChatMessage extends DataClass implements Insertable<DbChatMessage> {
     Value<String?> senderName = const Value.absent(),
     String? contentType,
     bool? isEdited,
-  }) =>
-      DbChatMessage(
-        id: id ?? this.id,
-        chatId: chatId ?? this.chatId,
-        role: role ?? this.role,
-        content: content ?? this.content,
-        timestamp: timestamp ?? this.timestamp,
-        status: status ?? this.status,
-        senderName: senderName.present ? senderName.value : this.senderName,
-        contentType: contentType ?? this.contentType,
-        isEdited: isEdited ?? this.isEdited,
-      );
+  }) => DbChatMessage(
+    id: id ?? this.id,
+    chatId: chatId ?? this.chatId,
+    role: role ?? this.role,
+    content: content ?? this.content,
+    timestamp: timestamp ?? this.timestamp,
+    status: status ?? this.status,
+    senderName: senderName.present ? senderName.value : this.senderName,
+    contentType: contentType ?? this.contentType,
+    isEdited: isEdited ?? this.isEdited,
+  );
 
   @override
   String toString() {
@@ -470,8 +479,17 @@ class DbChatMessage extends DataClass implements Insertable<DbChatMessage> {
   }
 
   @override
-  int get hashCode => Object.hash(id, chatId, role, content, timestamp, status,
-      senderName, contentType, isEdited);
+  int get hashCode => Object.hash(
+    id,
+    chatId,
+    role,
+    content,
+    timestamp,
+    status,
+    senderName,
+    contentType,
+    isEdited,
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -527,11 +545,11 @@ class DbChatMessagesCompanion extends UpdateCompanion<DbChatMessage> {
     this.contentType = const Value.absent(),
     this.isEdited = const Value.absent(),
     this.rowid = const Value.absent(),
-  })  : id = Value(id),
-        chatId = Value(chatId),
-        role = Value(role),
-        content = Value(content),
-        timestamp = Value(timestamp);
+  }) : id = Value(id),
+       chatId = Value(chatId),
+       role = Value(role),
+       content = Value(content),
+       timestamp = Value(timestamp);
 
   static Insertable<DbChatMessage> custom({
     Expression<String>? id,
@@ -652,8 +670,9 @@ class $DbChatThreadsTable extends DbChatThreads
     requiredDuringInsert: true,
   );
 
-  static const VerificationMeta _lastMessageMeta =
-      VerificationMeta('lastMessage');
+  static const VerificationMeta _lastMessageMeta = VerificationMeta(
+    'lastMessage',
+  );
   @override
   late final GeneratedColumn<String> lastMessage = GeneratedColumn<String>(
     'last_message',
@@ -674,8 +693,9 @@ class $DbChatThreadsTable extends DbChatThreads
     requiredDuringInsert: true,
   );
 
-  static const VerificationMeta _unreadCountMeta =
-      VerificationMeta('unreadCount');
+  static const VerificationMeta _unreadCountMeta = VerificationMeta(
+    'unreadCount',
+  );
   @override
   late final GeneratedColumn<int> unreadCount = GeneratedColumn<int>(
     'unread_count',
@@ -707,8 +727,9 @@ class $DbChatThreadsTable extends DbChatThreads
     requiredDuringInsert: false,
   );
 
-  static const VerificationMeta _messageCountMeta =
-      VerificationMeta('messageCount');
+  static const VerificationMeta _messageCountMeta = VerificationMeta(
+    'messageCount',
+  );
   @override
   late final GeneratedColumn<int> messageCount = GeneratedColumn<int>(
     'message_count',
@@ -727,13 +748,15 @@ class $DbChatThreadsTable extends DbChatThreads
     false,
     type: DriftSqlType.bool,
     requiredDuringInsert: false,
-    defaultConstraints:
-        GeneratedColumn.constraintIsAlways('CHECK ("is_pinned" IN (0, 1))'),
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_pinned" IN (0, 1))',
+    ),
     defaultValue: const Constant(false),
   );
 
-  static const VerificationMeta _isArchivedMeta =
-      VerificationMeta('isArchived');
+  static const VerificationMeta _isArchivedMeta = VerificationMeta(
+    'isArchived',
+  );
   @override
   late final GeneratedColumn<bool> isArchived = GeneratedColumn<bool>(
     'is_archived',
@@ -741,8 +764,9 @@ class $DbChatThreadsTable extends DbChatThreads
     false,
     type: DriftSqlType.bool,
     requiredDuringInsert: false,
-    defaultConstraints:
-        GeneratedColumn.constraintIsAlways('CHECK ("is_archived" IN (0, 1))'),
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_archived" IN (0, 1))',
+    ),
     defaultValue: const Constant(false),
   );
 
@@ -758,18 +782,18 @@ class $DbChatThreadsTable extends DbChatThreads
 
   @override
   List<GeneratedColumn> get $columns => [
-        id,
-        title,
-        lastMessage,
-        updatedAt,
-        unreadCount,
-        type,
-        channel,
-        messageCount,
-        isPinned,
-        isArchived,
-        tag,
-      ];
+    id,
+    title,
+    lastMessage,
+    updatedAt,
+    unreadCount,
+    type,
+    channel,
+    messageCount,
+    isPinned,
+    isArchived,
+    tag,
+  ];
 
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -793,55 +817,76 @@ class $DbChatThreadsTable extends DbChatThreads
     }
     if (data.containsKey('title')) {
       context.handle(
-          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
     } else if (isInserting) {
       context.missing(_titleMeta);
     }
     if (data.containsKey('last_message')) {
       context.handle(
+        _lastMessageMeta,
+        lastMessage.isAcceptableOrUnknown(
+          data['last_message']!,
           _lastMessageMeta,
-          lastMessage.isAcceptableOrUnknown(
-              data['last_message']!, _lastMessageMeta));
+        ),
+      );
     }
     if (data.containsKey('updated_at')) {
-      context.handle(_updatedAtMeta,
-          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
     if (data.containsKey('unread_count')) {
       context.handle(
+        _unreadCountMeta,
+        unreadCount.isAcceptableOrUnknown(
+          data['unread_count']!,
           _unreadCountMeta,
-          unreadCount.isAcceptableOrUnknown(
-              data['unread_count']!, _unreadCountMeta));
+        ),
+      );
     }
     if (data.containsKey('type')) {
       context.handle(
-          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
     }
     if (data.containsKey('channel')) {
-      context.handle(_channelMeta,
-          channel.isAcceptableOrUnknown(data['channel']!, _channelMeta));
+      context.handle(
+        _channelMeta,
+        channel.isAcceptableOrUnknown(data['channel']!, _channelMeta),
+      );
     }
     if (data.containsKey('message_count')) {
       context.handle(
+        _messageCountMeta,
+        messageCount.isAcceptableOrUnknown(
+          data['message_count']!,
           _messageCountMeta,
-          messageCount.isAcceptableOrUnknown(
-              data['message_count']!, _messageCountMeta));
+        ),
+      );
     }
     if (data.containsKey('is_pinned')) {
-      context.handle(_isPinnedMeta,
-          isPinned.isAcceptableOrUnknown(data['is_pinned']!, _isPinnedMeta));
+      context.handle(
+        _isPinnedMeta,
+        isPinned.isAcceptableOrUnknown(data['is_pinned']!, _isPinnedMeta),
+      );
     }
     if (data.containsKey('is_archived')) {
       context.handle(
-          _isArchivedMeta,
-          isArchived.isAcceptableOrUnknown(
-              data['is_archived']!, _isArchivedMeta));
+        _isArchivedMeta,
+        isArchived.isAcceptableOrUnknown(data['is_archived']!, _isArchivedMeta),
+      );
     }
     if (data.containsKey('tag')) {
       context.handle(
-          _tagMeta, tag.isAcceptableOrUnknown(data['tag']!, _tagMeta));
+        _tagMeta,
+        tag.isAcceptableOrUnknown(data['tag']!, _tagMeta),
+      );
     }
     return context;
   }
@@ -853,28 +898,50 @@ class $DbChatThreadsTable extends DbChatThreads
   DbChatThread map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return DbChatThread(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      title: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
-      lastMessage: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}last_message'])!,
-      updatedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
-      unreadCount: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}unread_count'])!,
-      type: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
-      channel: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}channel']),
-      messageCount: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}message_count'])!,
-      isPinned: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_pinned'])!,
-      isArchived: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_archived'])!,
-      tag: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}tag']),
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      lastMessage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_message'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      unreadCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}unread_count'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      channel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}channel'],
+      ),
+      messageCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}message_count'],
+      )!,
+      isPinned: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_pinned'],
+      )!,
+      isArchived: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_archived'],
+      )!,
+      tag: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tag'],
+      ),
     );
   }
 
@@ -954,8 +1021,9 @@ class $DbChatMessagesTable extends DbChatMessages
     defaultValue: const Constant('sent'),
   );
 
-  static const VerificationMeta _senderNameMeta =
-      VerificationMeta('senderName');
+  static const VerificationMeta _senderNameMeta = VerificationMeta(
+    'senderName',
+  );
   @override
   late final GeneratedColumn<String> senderName = GeneratedColumn<String>(
     'sender_name',
@@ -965,8 +1033,9 @@ class $DbChatMessagesTable extends DbChatMessages
     requiredDuringInsert: false,
   );
 
-  static const VerificationMeta _contentTypeMeta =
-      VerificationMeta('contentType');
+  static const VerificationMeta _contentTypeMeta = VerificationMeta(
+    'contentType',
+  );
   @override
   late final GeneratedColumn<String> contentType = GeneratedColumn<String>(
     'content_type',
@@ -985,23 +1054,24 @@ class $DbChatMessagesTable extends DbChatMessages
     false,
     type: DriftSqlType.bool,
     requiredDuringInsert: false,
-    defaultConstraints:
-        GeneratedColumn.constraintIsAlways('CHECK ("is_edited" IN (0, 1))'),
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_edited" IN (0, 1))',
+    ),
     defaultValue: const Constant(false),
   );
 
   @override
   List<GeneratedColumn> get $columns => [
-        id,
-        chatId,
-        role,
-        content,
-        timestamp,
-        status,
-        senderName,
-        contentType,
-        isEdited,
-      ];
+    id,
+    chatId,
+    role,
+    content,
+    timestamp,
+    status,
+    senderName,
+    contentType,
+    isEdited,
+  ];
 
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1024,48 +1094,63 @@ class $DbChatMessagesTable extends DbChatMessages
       context.missing(_idMeta);
     }
     if (data.containsKey('chat_id')) {
-      context.handle(_chatIdMeta,
-          chatId.isAcceptableOrUnknown(data['chat_id']!, _chatIdMeta));
+      context.handle(
+        _chatIdMeta,
+        chatId.isAcceptableOrUnknown(data['chat_id']!, _chatIdMeta),
+      );
     } else if (isInserting) {
       context.missing(_chatIdMeta);
     }
     if (data.containsKey('role')) {
       context.handle(
-          _roleMeta, role.isAcceptableOrUnknown(data['role']!, _roleMeta));
+        _roleMeta,
+        role.isAcceptableOrUnknown(data['role']!, _roleMeta),
+      );
     } else if (isInserting) {
       context.missing(_roleMeta);
     }
     if (data.containsKey('content')) {
-      context.handle(_contentMeta,
-          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
     } else if (isInserting) {
       context.missing(_contentMeta);
     }
     if (data.containsKey('timestamp')) {
-      context.handle(_timestampMeta,
-          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+      context.handle(
+        _timestampMeta,
+        timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta),
+      );
     } else if (isInserting) {
       context.missing(_timestampMeta);
     }
     if (data.containsKey('status')) {
-      context.handle(_statusMeta,
-          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
     }
     if (data.containsKey('sender_name')) {
       context.handle(
-          _senderNameMeta,
-          senderName.isAcceptableOrUnknown(
-              data['sender_name']!, _senderNameMeta));
+        _senderNameMeta,
+        senderName.isAcceptableOrUnknown(data['sender_name']!, _senderNameMeta),
+      );
     }
     if (data.containsKey('content_type')) {
       context.handle(
+        _contentTypeMeta,
+        contentType.isAcceptableOrUnknown(
+          data['content_type']!,
           _contentTypeMeta,
-          contentType.isAcceptableOrUnknown(
-              data['content_type']!, _contentTypeMeta));
+        ),
+      );
     }
     if (data.containsKey('is_edited')) {
-      context.handle(_isEditedMeta,
-          isEdited.isAcceptableOrUnknown(data['is_edited']!, _isEditedMeta));
+      context.handle(
+        _isEditedMeta,
+        isEdited.isAcceptableOrUnknown(data['is_edited']!, _isEditedMeta),
+      );
     }
     return context;
   }
@@ -1077,24 +1162,42 @@ class $DbChatMessagesTable extends DbChatMessages
   DbChatMessage map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return DbChatMessage(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      chatId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}chat_id'])!,
-      role: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}role'])!,
-      content: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}content'])!,
-      timestamp: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}timestamp'])!,
-      status: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
-      senderName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}sender_name']),
-      contentType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}content_type'])!,
-      isEdited: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_edited'])!,
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      chatId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}chat_id'],
+      )!,
+      role: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}role'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+      timestamp: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}timestamp'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      senderName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sender_name'],
+      ),
+      contentType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content_type'],
+      )!,
+      isEdited: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_edited'],
+      )!,
     );
   }
 
@@ -1174,14 +1277,13 @@ class DbOutboxMessage extends DataClass implements Insertable<DbOutboxMessage> {
     String? body,
     int? queuedAt,
     int? attemptCount,
-  }) =>
-      DbOutboxMessage(
-        id: id ?? this.id,
-        chatId: chatId ?? this.chatId,
-        body: body ?? this.body,
-        queuedAt: queuedAt ?? this.queuedAt,
-        attemptCount: attemptCount ?? this.attemptCount,
-      );
+  }) => DbOutboxMessage(
+    id: id ?? this.id,
+    chatId: chatId ?? this.chatId,
+    body: body ?? this.body,
+    queuedAt: queuedAt ?? this.queuedAt,
+    attemptCount: attemptCount ?? this.attemptCount,
+  );
 
   @override
   String toString() {
@@ -1233,10 +1335,10 @@ class DbOutboxMessagesCompanion extends UpdateCompanion<DbOutboxMessage> {
     required int queuedAt,
     this.attemptCount = const Value.absent(),
     this.rowid = const Value.absent(),
-  })  : id = Value(id),
-        chatId = Value(chatId),
-        body = Value(body),
-        queuedAt = Value(queuedAt);
+  }) : id = Value(id),
+       chatId = Value(chatId),
+       body = Value(body),
+       queuedAt = Value(queuedAt);
 
   static Insertable<DbOutboxMessage> custom({
     Expression<String>? id,
@@ -1351,8 +1453,9 @@ class $DbOutboxMessagesTable extends DbOutboxMessages
     requiredDuringInsert: true,
   );
 
-  static const VerificationMeta _attemptCountMeta =
-      VerificationMeta('attemptCount');
+  static const VerificationMeta _attemptCountMeta = VerificationMeta(
+    'attemptCount',
+  );
   @override
   late final GeneratedColumn<int> attemptCount = GeneratedColumn<int>(
     'attempt_count',
@@ -1364,8 +1467,13 @@ class $DbOutboxMessagesTable extends DbOutboxMessages
   );
 
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, chatId, body, queuedAt, attemptCount];
+  List<GeneratedColumn> get $columns => [
+    id,
+    chatId,
+    body,
+    queuedAt,
+    attemptCount,
+  ];
 
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1388,28 +1496,37 @@ class $DbOutboxMessagesTable extends DbOutboxMessages
       context.missing(_idMeta);
     }
     if (data.containsKey('chat_id')) {
-      context.handle(_chatIdMeta,
-          chatId.isAcceptableOrUnknown(data['chat_id']!, _chatIdMeta));
+      context.handle(
+        _chatIdMeta,
+        chatId.isAcceptableOrUnknown(data['chat_id']!, _chatIdMeta),
+      );
     } else if (isInserting) {
       context.missing(_chatIdMeta);
     }
     if (data.containsKey('body')) {
       context.handle(
-          _bodyMeta, body.isAcceptableOrUnknown(data['body']!, _bodyMeta));
+        _bodyMeta,
+        body.isAcceptableOrUnknown(data['body']!, _bodyMeta),
+      );
     } else if (isInserting) {
       context.missing(_bodyMeta);
     }
     if (data.containsKey('queued_at')) {
-      context.handle(_queuedAtMeta,
-          queuedAt.isAcceptableOrUnknown(data['queued_at']!, _queuedAtMeta));
+      context.handle(
+        _queuedAtMeta,
+        queuedAt.isAcceptableOrUnknown(data['queued_at']!, _queuedAtMeta),
+      );
     } else if (isInserting) {
       context.missing(_queuedAtMeta);
     }
     if (data.containsKey('attempt_count')) {
       context.handle(
+        _attemptCountMeta,
+        attemptCount.isAcceptableOrUnknown(
+          data['attempt_count']!,
           _attemptCountMeta,
-          attemptCount.isAcceptableOrUnknown(
-              data['attempt_count']!, _attemptCountMeta));
+        ),
+      );
     }
     return context;
   }
@@ -1421,16 +1538,26 @@ class $DbOutboxMessagesTable extends DbOutboxMessages
   DbOutboxMessage map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return DbOutboxMessage(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      chatId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}chat_id'])!,
-      body: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}body'])!,
-      queuedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}queued_at'])!,
-      attemptCount: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}attempt_count'])!,
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      chatId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}chat_id'],
+      )!,
+      body: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}body'],
+      )!,
+      queuedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}queued_at'],
+      )!,
+      attemptCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}attempt_count'],
+      )!,
     );
   }
 
@@ -1447,14 +1574,18 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 
   late final $DbChatThreadsTable dbChatThreads = $DbChatThreadsTable(this);
   late final $DbChatMessagesTable dbChatMessages = $DbChatMessagesTable(this);
-  late final $DbOutboxMessagesTable dbOutboxMessages =
-      $DbOutboxMessagesTable(this);
+  late final $DbOutboxMessagesTable dbOutboxMessages = $DbOutboxMessagesTable(
+    this,
+  );
 
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
 
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [dbChatThreads, dbChatMessages, dbOutboxMessages];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    dbChatThreads,
+    dbChatMessages,
+    dbOutboxMessages,
+  ];
 }

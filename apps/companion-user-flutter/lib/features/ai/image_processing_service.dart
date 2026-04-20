@@ -10,7 +10,7 @@ import '../../app/api_base_service.dart';
 /// handwriting, chart, diagram, other.
 class ImageProcessingService {
   ImageProcessingService({required AuthenticatedClient client})
-      : _client = client;
+    : _client = client;
 
   final AuthenticatedClient _client;
 
@@ -29,14 +29,12 @@ class ImageProcessingService {
     String? context,
   }) async {
     final base = ApiBaseService.currentSync();
-    final r = await _client.postJson(
-      Uri.parse('$base/v1/admin/pipeline/image/submit'),
-      {
-        'image_ref': imageRef,
-        'category': category,
-        if (context != null) 'context': context,
-      },
-    );
+    final r = await _client
+        .postJson(Uri.parse('$base/v1/admin/pipeline/image/submit'), {
+          'image_ref': imageRef,
+          'category': category,
+          if (context != null) 'context': context,
+        });
     if (r.statusCode != 200 && r.statusCode != 201) return {};
     return (jsonDecode(r.body)['data'] as Map<String, dynamic>?) ?? {};
   }

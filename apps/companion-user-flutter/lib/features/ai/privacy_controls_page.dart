@@ -64,9 +64,7 @@ class _PrivacyControlsPageState extends State<PrivacyControlsPage> {
   }
 
   Future<void> _toggleTelemetry(bool value) async {
-    final ok = await _service.updatePrivacyPolicy({
-      'telemetry_enabled': value,
-    });
+    final ok = await _service.updatePrivacyPolicy({'telemetry_enabled': value});
     if (ok && mounted) _load();
   }
 
@@ -253,14 +251,26 @@ class _PrivacyControlsPageState extends State<PrivacyControlsPage> {
             ),
           ),
           const SizedBox(height: 12),
-          _statRow('Total requests audited',
-              '${_auditStats['total_audited'] ?? 0}', isDark),
-          _statRow('Blocked outbound',
-              '${_auditStats['blocked_outbound'] ?? 0}', isDark),
-          _statRow('Local-processed', '${_auditStats['local_processed'] ?? 0}',
-              isDark),
           _statRow(
-              'Policy violations', '${_auditStats['violations'] ?? 0}', isDark),
+            'Total requests audited',
+            '${_auditStats['total_audited'] ?? 0}',
+            isDark,
+          ),
+          _statRow(
+            'Blocked outbound',
+            '${_auditStats['blocked_outbound'] ?? 0}',
+            isDark,
+          ),
+          _statRow(
+            'Local-processed',
+            '${_auditStats['local_processed'] ?? 0}',
+            isDark,
+          ),
+          _statRow(
+            'Policy violations',
+            '${_auditStats['violations'] ?? 0}',
+            isDark,
+          ),
         ],
       ),
     );
@@ -301,13 +311,18 @@ class _PrivacyControlsPageState extends State<PrivacyControlsPage> {
               ),
             )
           else
-            ...(_blockedDomains.take(30).map(
+            ...(_blockedDomains
+                .take(30)
+                .map(
                   (d) => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 3),
                     child: Row(
                       children: [
-                        Icon(Icons.block_rounded,
-                            size: 14, color: Colors.red.withValues(alpha: 0.6)),
+                        Icon(
+                          Icons.block_rounded,
+                          size: 14,
+                          color: Colors.red.withValues(alpha: 0.6),
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -347,15 +362,21 @@ class _PrivacyControlsPageState extends State<PrivacyControlsPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label,
-              style: TextStyle(
-                  fontSize: 13,
-                  color: isDark ? Colors.white60 : Colors.black54)),
-          Text(value,
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black87)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              color: isDark ? Colors.white60 : Colors.black54,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : Colors.black87,
+            ),
+          ),
         ],
       ),
     );

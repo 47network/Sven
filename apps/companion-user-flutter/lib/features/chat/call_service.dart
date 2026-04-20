@@ -15,13 +15,15 @@ class CallService {
   // ── Call Management ────────────────────────────────────────
 
   /// Initiate a new call in a chat.
-  Future<CallStartResult?> startCall(String chatId,
-      {String type = 'voice'}) async {
+  Future<CallStartResult?> startCall(
+    String chatId, {
+    String type = 'voice',
+  }) async {
     final base = ApiBaseService.currentSync();
-    final response = await _client.postJson(
-      Uri.parse('$base/v1/calls'),
-      {'chat_id': chatId, 'call_type': type},
-    );
+    final response = await _client.postJson(Uri.parse('$base/v1/calls'), {
+      'chat_id': chatId,
+      'call_type': type,
+    });
     if (response.statusCode == 201) {
       final data = jsonDecode(response.body)['data'] as Map<String, dynamic>;
       return CallStartResult.fromJson(data);
@@ -31,7 +33,9 @@ class CallService {
       final data = jsonDecode(response.body)['data'] as Map<String, dynamic>?;
       if (data != null) {
         return CallStartResult(
-            callId: data['call_id'] as String, iceServers: []);
+          callId: data['call_id'] as String,
+          iceServers: [],
+        );
       }
     }
     return null;
@@ -146,24 +150,25 @@ class IceServer {
   final String? credential;
 
   factory IceServer.fromJson(Map<String, dynamic> json) => IceServer(
-        urls: (json['urls'] as List?)?.cast<String>() ?? [],
-        username: json['username'] as String?,
-        credential: json['credential'] as String?,
-      );
+    urls: (json['urls'] as List?)?.cast<String>() ?? [],
+    username: json['username'] as String?,
+    credential: json['credential'] as String?,
+  );
 
   Map<String, dynamic> toJson() => {
-        'urls': urls,
-        if (username != null) 'username': username,
-        if (credential != null) 'credential': credential,
-      };
+    'urls': urls,
+    if (username != null) 'username': username,
+    if (credential != null) 'credential': credential,
+  };
 }
 
 class CallStartResult {
-  const CallStartResult(
-      {required this.callId,
-      required this.iceServers,
-      this.callType,
-      this.status});
+  const CallStartResult({
+    required this.callId,
+    required this.iceServers,
+    this.callType,
+    this.status,
+  });
   final String callId;
   final List<IceServer> iceServers;
   final String? callType;
@@ -174,7 +179,8 @@ class CallStartResult {
         callId: json['call_id'] as String? ?? '',
         callType: json['call_type'] as String?,
         status: json['status'] as String?,
-        iceServers: (json['ice_servers'] as List?)
+        iceServers:
+            (json['ice_servers'] as List?)
                 ?.map((s) => IceServer.fromJson(s as Map<String, dynamic>))
                 .toList() ??
             [],
@@ -182,34 +188,37 @@ class CallStartResult {
 }
 
 class CallJoinResult {
-  const CallJoinResult(
-      {required this.callId,
-      required this.participants,
-      required this.iceServers});
+  const CallJoinResult({
+    required this.callId,
+    required this.participants,
+    required this.iceServers,
+  });
   final String callId;
   final List<CallParticipant> participants;
   final List<IceServer> iceServers;
 
   factory CallJoinResult.fromJson(Map<String, dynamic> json) => CallJoinResult(
-        callId: json['call_id'] as String? ?? '',
-        participants: (json['participants'] as List?)
-                ?.map(
-                    (p) => CallParticipant.fromJson(p as Map<String, dynamic>))
-                .toList() ??
-            [],
-        iceServers: (json['ice_servers'] as List?)
-                ?.map((s) => IceServer.fromJson(s as Map<String, dynamic>))
-                .toList() ??
-            [],
-      );
+    callId: json['call_id'] as String? ?? '',
+    participants:
+        (json['participants'] as List?)
+            ?.map((p) => CallParticipant.fromJson(p as Map<String, dynamic>))
+            .toList() ??
+        [],
+    iceServers:
+        (json['ice_servers'] as List?)
+            ?.map((s) => IceServer.fromJson(s as Map<String, dynamic>))
+            .toList() ??
+        [],
+  );
 }
 
 class CallParticipant {
-  const CallParticipant(
-      {required this.userId,
-      required this.status,
-      this.displayName,
-      this.mediaState});
+  const CallParticipant({
+    required this.userId,
+    required this.status,
+    this.displayName,
+    this.mediaState,
+  });
   final String userId;
   final String status;
   final String? displayName;
@@ -225,20 +234,21 @@ class CallParticipant {
 }
 
 class ActiveCall {
-  const ActiveCall(
-      {required this.id,
-      required this.callType,
-      required this.status,
-      this.participantCount = 0});
+  const ActiveCall({
+    required this.id,
+    required this.callType,
+    required this.status,
+    this.participantCount = 0,
+  });
   final String id;
   final String callType;
   final String status;
   final int participantCount;
 
   factory ActiveCall.fromJson(Map<String, dynamic> json) => ActiveCall(
-        id: json['id'] as String? ?? '',
-        callType: json['call_type'] as String? ?? '',
-        status: json['status'] as String? ?? '',
-        participantCount: json['participant_count'] as int? ?? 0,
-      );
+    id: json['id'] as String? ?? '',
+    callType: json['call_type'] as String? ?? '',
+    status: json['status'] as String? ?? '',
+    participantCount: json['participant_count'] as int? ?? 0,
+  );
 }

@@ -142,14 +142,15 @@ class _AiModulesPageState extends State<AiModulesPage>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.extension_off_rounded,
-                size: 48, color: isDark ? Colors.white24 : Colors.black26),
+            Icon(
+              Icons.extension_off_rounded,
+              size: 48,
+              color: isDark ? Colors.white24 : Colors.black26,
+            ),
             const SizedBox(height: 8),
             Text(
               'No modules available',
-              style: TextStyle(
-                color: isDark ? Colors.white38 : Colors.black38,
-              ),
+              style: TextStyle(color: isDark ? Colors.white38 : Colors.black38),
             ),
           ],
         ),
@@ -184,7 +185,8 @@ class _AiModulesPageState extends State<AiModulesPage>
           borderRadius: BorderRadius.circular(14),
           border: installed
               ? Border.all(
-                  color: const Color(0xFFAB47BC).withValues(alpha: 0.4))
+                  color: const Color(0xFFAB47BC).withValues(alpha: 0.4),
+                )
               : null,
         ),
         child: Row(
@@ -223,7 +225,9 @@ class _AiModulesPageState extends State<AiModulesPage>
                       if (installed)
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.green.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(6),

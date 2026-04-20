@@ -83,8 +83,10 @@ class AbTestOverridePage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 16),
             children: [
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 4,
+                ),
                 child: Text(
                   service.isBound
                       ? 'User: ${service.userId}'
@@ -126,8 +128,9 @@ class _ExperimentRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final assigned =
-        service.isBound ? (service.assignments[experiment.id] ?? '—') : '—';
+    final assigned = service.isBound
+        ? (service.assignments[experiment.id] ?? '—')
+        : '—';
     final overridden = service.overrides[experiment.id];
     final effectiveVariant = overridden ?? assigned;
 
@@ -162,8 +165,10 @@ class _ExperimentRow extends StatelessWidget {
                 ),
                 if (overridden != null)
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.amber.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(6),
@@ -292,8 +297,10 @@ class _VariantDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalWeight =
-        experiment.variants.values.fold(0.0, (sum, w) => sum + w);
+    final totalWeight = experiment.variants.values.fold(
+      0.0,
+      (sum, w) => sum + w,
+    );
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),

@@ -10,8 +10,10 @@ void main() {
       'created_at': '2026-03-25T19:45:10.547Z',
     });
 
-    expect(message.timestamp.toUtc().toIso8601String(),
-        '2026-03-25T19:45:10.547Z');
+    expect(
+      message.timestamp.toUtc().toIso8601String(),
+      '2026-03-25T19:45:10.547Z',
+    );
   });
 
   test('ChatMessage parses JavaScript-style created_at timestamps', () {
@@ -24,8 +26,10 @@ void main() {
       'status': 'queued',
     });
 
-    expect(message.timestamp.toUtc().toIso8601String(),
-        '2026-03-25T20:35:06.000Z');
+    expect(
+      message.timestamp.toUtc().toIso8601String(),
+      '2026-03-25T20:35:06.000Z',
+    );
     expect(message.status, ChatMessageStatus.queued);
   });
 }

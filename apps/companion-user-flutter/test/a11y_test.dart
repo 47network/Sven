@@ -87,14 +87,20 @@ void main() {
       test('forMode($mode) — onSurface is fully opaque', () {
         final t = SvenTokens.forMode(mode);
         // onSurface should always be fully opaque (alpha == 255) for readable body text.
-        expect(t.onSurface.alpha, equals(255),
-            reason: 'onSurface colour must be opaque in $mode mode');
+        expect(
+          t.onSurface.alpha,
+          equals(255),
+          reason: 'onSurface colour must be opaque in $mode mode',
+        );
       });
 
       test('forMode($mode) — primary is fully opaque', () {
         final t = SvenTokens.forMode(mode);
-        expect(t.primary.alpha, equals(255),
-            reason: 'primary colour must be opaque in $mode mode');
+        expect(
+          t.primary.alpha,
+          equals(255),
+          reason: 'primary colour must be opaque in $mode mode',
+        );
       });
 
       test('forMode($mode) — scaffold colour is defined', () {
@@ -127,7 +133,9 @@ void main() {
       final node = tester.getSemantics(find.bySemanticsLabel(label));
       expect(node.label, equals(label));
       expect(
-          node.getSemanticsData().hasFlag(SemanticsFlag.isLiveRegion), isTrue);
+        node.getSemanticsData().hasFlag(SemanticsFlag.isLiveRegion),
+        isTrue,
+      );
       handle.dispose();
     });
   });
@@ -141,10 +149,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ElevatedButton(
-              onPressed: () {},
-              child: const Text(btnLabel),
-            ),
+            body: ElevatedButton(onPressed: () {}, child: const Text(btnLabel)),
           ),
         ),
       );
@@ -186,8 +191,9 @@ void main() {
   // 5. Semantics — ExcludeSemantics prunes decorative nodes
   // ─────────────────────────────────────────────────────────────────────────
   group('Semantics — ExcludeSemantics', () {
-    testWidgets('decorative icon inside ExcludeSemantics is not announced',
-        (tester) async {
+    testWidgets('decorative icon inside ExcludeSemantics is not announced', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(

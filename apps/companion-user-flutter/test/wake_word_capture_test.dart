@@ -117,11 +117,9 @@ void main() {
       final dynamic topScoresRaw = 'not a list';
       final topScores = topScoresRaw is List
           ? topScoresRaw
-              .whereType<Map>()
-              .map((row) => row.map(
-                    (key, value) => MapEntry('$key', value),
-                  ))
-              .toList()
+                .whereType<Map>()
+                .map((row) => row.map((key, value) => MapEntry('$key', value)))
+                .toList()
           : const <Map<String, dynamic>>[];
 
       expect(topScores, isEmpty);
@@ -134,11 +132,9 @@ void main() {
       ];
       final topScores = topScoresRaw is List
           ? topScoresRaw
-              .whereType<Map>()
-              .map((row) => row.map(
-                    (key, value) => MapEntry('$key', value),
-                  ))
-              .toList()
+                .whereType<Map>()
+                .map((row) => row.map((key, value) => MapEntry('$key', value)))
+                .toList()
           : const <Map<String, dynamic>>[];
 
       expect(topScores.length, 2);

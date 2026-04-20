@@ -48,10 +48,7 @@ class DeviceActionService {
     final base = ApiBaseService.currentSync();
     final r = await _client.postJson(
       Uri.parse('$base/v1/admin/pipeline/actions/$actionId/execute'),
-      {
-        'device_id': deviceId,
-        if (params != null) 'params': params,
-      },
+      {'device_id': deviceId, if (params != null) 'params': params},
     );
     if (r.statusCode != 200 && r.statusCode != 201) return {};
     return (jsonDecode(r.body)['data'] as Map<String, dynamic>?) ?? {};

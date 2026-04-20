@@ -245,16 +245,26 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                   color: tokens.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(Icons.text_snippet_rounded,
-                    color: tokens.primary, size: 22),
+                child: Icon(
+                  Icons.text_snippet_rounded,
+                  color: tokens.primary,
+                  size: 22,
+                ),
               ),
-              title: Text('Share as Text',
-                  style: TextStyle(
-                      color: tokens.onSurface, fontWeight: FontWeight.w500)),
-              subtitle: Text('Export conversation as Markdown',
-                  style: TextStyle(
-                      color: tokens.onSurface.withValues(alpha: 0.5),
-                      fontSize: 12)),
+              title: Text(
+                'Share as Text',
+                style: TextStyle(
+                  color: tokens.onSurface,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              subtitle: Text(
+                'Export conversation as Markdown',
+                style: TextStyle(
+                  color: tokens.onSurface.withValues(alpha: 0.5),
+                  fontSize: 12,
+                ),
+              ),
               onTap: () {
                 Navigator.pop(ctx);
                 _shareAsText();
@@ -268,16 +278,26 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                   color: tokens.secondary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child:
-                    Icon(Icons.link_rounded, color: tokens.secondary, size: 22),
+                child: Icon(
+                  Icons.link_rounded,
+                  color: tokens.secondary,
+                  size: 22,
+                ),
               ),
-              title: Text('Share as Link',
-                  style: TextStyle(
-                      color: tokens.onSurface, fontWeight: FontWeight.w500)),
-              subtitle: Text('Create a public read-only link',
-                  style: TextStyle(
-                      color: tokens.onSurface.withValues(alpha: 0.5),
-                      fontSize: 12)),
+              title: Text(
+                'Share as Link',
+                style: TextStyle(
+                  color: tokens.onSurface,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              subtitle: Text(
+                'Create a public read-only link',
+                style: TextStyle(
+                  color: tokens.onSurface.withValues(alpha: 0.5),
+                  fontSize: 12,
+                ),
+              ),
               onTap: () {
                 Navigator.pop(ctx);
                 _shareAsLink();
@@ -359,22 +379,17 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     _startSse();
     _scrollController.addListener(_onScroll);
     // Preload adjacent conversations so switching is instant.
-    unawaited(
-      widget.chatService.preloadAdjacentThreads(widget.thread.id),
-    );
+    unawaited(widget.chatService.preloadAdjacentThreads(widget.thread.id));
     // Pre-fill composer from quick action / initial draft
     if (widget.initialDraft != null && widget.initialDraft!.isNotEmpty) {
       _editPrefill = widget.initialDraft;
     }
     // Blinking cursor for streaming
-    _typingCursorTimer = Timer.periodic(
-      const Duration(milliseconds: 530),
-      (_) {
-        if (_isStreaming && mounted) {
-          setState(() => _showCursor = !_showCursor);
-        }
-      },
-    );
+    _typingCursorTimer = Timer.periodic(const Duration(milliseconds: 530), (_) {
+      if (_isStreaming && mounted) {
+        setState(() => _showCursor = !_showCursor);
+      }
+    });
   }
 
   @override
@@ -394,9 +409,7 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
       _loadPinnedIds();
       _startSse();
       // Preload new neighbours after thread switch.
-      unawaited(
-        widget.chatService.preloadAdjacentThreads(widget.thread.id),
-      );
+      unawaited(widget.chatService.preloadAdjacentThreads(widget.thread.id));
     }
   }
 
@@ -460,8 +473,10 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     if (ms == null || widget.incognito) return;
     if (_messages.length < 2) return; // too short to be useful
 
-    final messageTexts =
-        _messages.where((m) => m.text.isNotEmpty).map((m) => m.text).toList();
+    final messageTexts = _messages
+        .where((m) => m.text.isNotEmpty)
+        .map((m) => m.text)
+        .toList();
     final summary = ms.extractSummaryFromMessages(messageTexts);
     final keywords = ms.extractTopicKeywords(messageTexts);
     ms.detectLanguage(messageTexts);
@@ -696,9 +711,7 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     if (widget.incognito) return; // No SSE in incognito mode
     final effectiveId = _resolvedChatId ?? widget.thread.id;
     if (effectiveId.startsWith('new-')) return; // No SSE for unsaved threads
-    final sseService = ChatSseService(
-      client: widget.chatService.authClient,
-    );
+    final sseService = ChatSseService(client: widget.chatService.authClient);
     _sseService = sseService;
     _sseSub = sseService.events.listen(
       (event) {
@@ -783,14 +796,16 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
       }
       setState(() {
         _isSending = false;
-        _messages.add(ChatMessage(
-          id: msgId,
-          role: 'assistant',
-          text: '',
-          timestamp: DateTime.now(),
-          status: ChatMessageStatus.streaming,
-          senderName: 'Sven',
-        ));
+        _messages.add(
+          ChatMessage(
+            id: msgId,
+            role: 'assistant',
+            text: '',
+            timestamp: DateTime.now(),
+            status: ChatMessageStatus.streaming,
+            senderName: 'Sven',
+          ),
+        );
       });
     }
 
@@ -798,8 +813,9 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     // Update token speed (once enough data is in for a reliable estimate)
     if (token.isNotEmpty) {
       _streamingTokenCount++;
-      final elapsedMs =
-          DateTime.now().difference(_streamingStartedAt!).inMilliseconds;
+      final elapsedMs = DateTime.now()
+          .difference(_streamingStartedAt!)
+          .inMilliseconds;
       if (elapsedMs > 800 && _streamingTokenCount > 2) {
         _streamTokensPerSec = _streamingTokenCount / (elapsedMs / 1000.0);
       }
@@ -902,8 +918,9 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
       );
       if (!mounted) return;
       final existingIds = _messages.map((m) => m.id).toSet();
-      final newMessages =
-          page.messages.where((m) => !existingIds.contains(m.id)).toList();
+      final newMessages = page.messages
+          .where((m) => !existingIds.contains(m.id))
+          .toList();
       if (newMessages.isNotEmpty) {
         setState(() {
           _messages.addAll(newMessages);
@@ -949,7 +966,9 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
   Future<void> _savePinnedIds() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
-        'pinned_${widget.thread.id}', _pinnedIds.toList());
+      'pinned_${widget.thread.id}',
+      _pinnedIds.toList(),
+    );
   }
 
   void _togglePin(ChatMessage msg) {
@@ -1004,13 +1023,15 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
       setState(() {
         _hasFailed = false;
         _isSending = true;
-        _messages.add(ChatMessage(
-          id: userMsgId,
-          role: 'user',
-          text: text,
-          timestamp: DateTime.now(),
-          status: ChatMessageStatus.sent,
-        ));
+        _messages.add(
+          ChatMessage(
+            id: userMsgId,
+            role: 'user',
+            text: text,
+            timestamp: DateTime.now(),
+            status: ChatMessageStatus.sent,
+          ),
+        );
       });
       _scrollToBottom(force: true);
       try {
@@ -1020,13 +1041,15 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
           _streamingMessageId = aiMsgId;
           _streamingBuffer.clear();
           _isStreaming = true;
-          _messages.add(ChatMessage(
-            id: aiMsgId,
-            role: 'assistant',
-            text: '',
-            timestamp: DateTime.now(),
-            status: ChatMessageStatus.sending,
-          ));
+          _messages.add(
+            ChatMessage(
+              id: aiMsgId,
+              role: 'assistant',
+              text: '',
+              timestamp: DateTime.now(),
+              status: ChatMessageStatus.sending,
+            ),
+          );
         });
         _scrollToBottom();
 
@@ -1038,8 +1061,9 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
           setState(() {
             final idx = _messages.indexWhere((m) => m.id == aiMsgId);
             if (idx >= 0) {
-              _messages[idx] =
-                  _messages[idx].copyWith(text: _streamingBuffer.toString());
+              _messages[idx] = _messages[idx].copyWith(
+                text: _streamingBuffer.toString(),
+              );
             }
           });
           _scrollToBottom();
@@ -1074,13 +1098,15 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
       widget.syncService?.enqueue(widget.thread.id, text);
       final queuedId = 'queued-${DateTime.now().millisecondsSinceEpoch}';
       setState(() {
-        _messages.add(ChatMessage(
-          id: queuedId,
-          role: 'user',
-          text: text,
-          timestamp: DateTime.now(),
-          status: ChatMessageStatus.queued,
-        ));
+        _messages.add(
+          ChatMessage(
+            id: queuedId,
+            role: 'user',
+            text: text,
+            timestamp: DateTime.now(),
+            status: ChatMessageStatus.queued,
+          ),
+        );
       });
       _scrollToBottom(force: true);
       return;
@@ -1244,9 +1270,9 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
       );
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Action failed')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Action failed')));
     }
   }
 
@@ -1270,7 +1296,7 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
       'New conversation',
       'New Chat',
       'Untitled',
-      ''
+      '',
     };
     final currentTitle = (_localTitle ?? widget.thread.title).trim();
     if (!genericTitles.contains(currentTitle)) return;
@@ -1281,8 +1307,10 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
         .replaceAll(RegExp(r'\[File:[^\]]*\][\s\S]*'), '') // strip file blocks
         .trim();
     if (clean.isEmpty) return;
-    final words =
-        clean.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+    final words = clean
+        .split(RegExp(r'\s+'))
+        .where((w) => w.isNotEmpty)
+        .toList();
     var title = words.take(6).join(' ');
     if (words.length > 6) title = '$title\u2026';
     if (title.length > 50) title = '${title.substring(0, 47)}\u2026';
@@ -1328,8 +1356,9 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollController.hasClients) return;
       final maxExt = _scrollController.position.maxScrollExtent;
-      final fraction =
-          _messages.length <= 1 ? 0.0 : messageIdx / (_messages.length - 1);
+      final fraction = _messages.length <= 1
+          ? 0.0
+          : messageIdx / (_messages.length - 1);
       _scrollController.animateTo(
         maxExt * fraction,
         duration: const Duration(milliseconds: 350),
@@ -1341,19 +1370,26 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
   // ── Auto-memory extraction from user messages ────────────────────────────
 
   static final _memoryPatterns = <RegExp>[
-    RegExp(r'(?:^|[.!?\n])\s*(My name is [^.!?\n]{2,40})',
-        caseSensitive: false),
-    RegExp(r"(?:^|[.!?\n])\s*(I(?:'m| am) [^.!?\n]{5,60})",
-        caseSensitive: false),
     RegExp(
-        r'(?:^|[.!?\n])\s*(I (?:work|worked) (?:at|for|as|on) [^.!?\n]{5,60})',
-        caseSensitive: false),
+      r'(?:^|[.!?\n])\s*(My name is [^.!?\n]{2,40})',
+      caseSensitive: false,
+    ),
     RegExp(
-        r'(?:^|[.!?\n])\s*(I (?:prefer|like|love|hate|dislike|enjoy|use) [^.!?\n]{5,60})',
-        caseSensitive: false),
+      r"(?:^|[.!?\n])\s*(I(?:'m| am) [^.!?\n]{5,60})",
+      caseSensitive: false,
+    ),
     RegExp(
-        r"(?:^|[.!?\n])\s*(I(?:'m| am) (?:working|building|creating|developing) [^.!?\n]{5,60})",
-        caseSensitive: false),
+      r'(?:^|[.!?\n])\s*(I (?:work|worked) (?:at|for|as|on) [^.!?\n]{5,60})',
+      caseSensitive: false,
+    ),
+    RegExp(
+      r'(?:^|[.!?\n])\s*(I (?:prefer|like|love|hate|dislike|enjoy|use) [^.!?\n]{5,60})',
+      caseSensitive: false,
+    ),
+    RegExp(
+      r"(?:^|[.!?\n])\s*(I(?:'m| am) (?:working|building|creating|developing) [^.!?\n]{5,60})",
+      caseSensitive: false,
+    ),
   ];
 
   void _tryExtractMemory(String userText) {
@@ -1376,8 +1412,9 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     final lower = matched.toLowerCase();
     final prefixLen = lower.length < 32 ? lower.length : 32;
     final prefix = lower.substring(0, prefixLen);
-    final exists = widget.memoryService!.facts
-        .any((f) => f.content.toLowerCase().startsWith(prefix));
+    final exists = widget.memoryService!.facts.any(
+      (f) => f.content.toLowerCase().startsWith(prefix),
+    );
     if (exists) return;
     final snippet = matched.length > 45
         ? '\u201c${matched.substring(0, 42)}…\u201d'
@@ -1409,7 +1446,8 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
   void _updateSmartReplies() {
     final assistantMsgs = _messages
         .where(
-            (m) => m.role == 'assistant' && m.status == ChatMessageStatus.sent)
+          (m) => m.role == 'assistant' && m.status == ChatMessageStatus.sent,
+        )
         .toList();
     if (assistantMsgs.isEmpty) return;
     final lastText = assistantMsgs.last.text;
@@ -1424,8 +1462,10 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     if (lower.contains('```') ||
         lower.contains('function ') ||
         lower.contains('class ')) {
-      suggestions
-          .addAll(['Explain this step by step', 'What are the edge cases?']);
+      suggestions.addAll([
+        'Explain this step by step',
+        'What are the edge cases?',
+      ]);
     }
     // List / enumeration context
     if (RegExp(r'\n[-*\u2022]\s').hasMatch(text) ||
@@ -1610,9 +1650,13 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
 
   // ── iOS-native message context menu ────────────────────────────────────
   void _showMessageMenuCupertino(
-      BuildContext context, ChatMessage msg, SvenModeTokens tokens) {
-    final preview =
-        msg.text.length > 80 ? '${msg.text.substring(0, 80)}\u2026' : msg.text;
+    BuildContext context,
+    ChatMessage msg,
+    SvenModeTokens tokens,
+  ) {
+    final preview = msg.text.length > 80
+        ? '${msg.text.substring(0, 80)}\u2026'
+        : msg.text;
     showCupertinoModalPopup<void>(
       context: context,
       builder: (_) => CupertinoActionSheet(
@@ -1734,11 +1778,12 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                     ),
                   ),
                 ),
-                Text('React',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  'React',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                ),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1761,7 +1806,8 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                           border: active
                               ? Border.all(
                                   color: tokens.primary.withValues(alpha: 0.5),
-                                  width: 1.5)
+                                  width: 1.5,
+                                )
                               : null,
                         ),
                         child: Center(
@@ -1794,26 +1840,26 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     unawaited(
       widget.chatService
           .setMessageFeedback(
-        widget.thread.id,
-        messageId,
-        feedback: _encodeMessageFeedback(next),
-      )
+            widget.thread.id,
+            messageId,
+            feedback: _encodeMessageFeedback(next),
+          )
           .catchError((_) {
-        if (!mounted) return;
-        setState(() {
-          if (previous == null) {
-            _feedback.remove(messageId);
-          } else {
-            _feedback[messageId] = previous;
-          }
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to save feedback'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }),
+            if (!mounted) return;
+            setState(() {
+              if (previous == null) {
+                _feedback.remove(messageId);
+              } else {
+                _feedback[messageId] = previous;
+              }
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Failed to save feedback'),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }),
     );
   }
 
@@ -1901,11 +1947,16 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline,
-                size: 40, color: Theme.of(context).colorScheme.error),
+            Icon(
+              Icons.error_outline,
+              size: 40,
+              color: Theme.of(context).colorScheme.error,
+            ),
             const SizedBox(height: 12),
-            Text('Failed to load messages',
-                style: Theme.of(context).textTheme.titleSmall),
+            Text(
+              'Failed to load messages',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
             const SizedBox(height: 8),
             FilledButton(onPressed: _loadMessages, child: const Text('Retry')),
           ],
@@ -1941,8 +1992,9 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                 final qc = _messages
                     .where((m) => m.status == ChatMessageStatus.queued)
                     .length;
-                final qs =
-                    qc > 0 ? ' · $qc message${qc == 1 ? '' : 's'} queued' : '';
+                final qs = qc > 0
+                    ? ' · $qc message${qc == 1 ? '' : 's'} queued'
+                    : '';
                 if (_reconnecting) {
                   return 'Waiting for network$qs. Messages will resume when online.';
                 }
@@ -1970,8 +2022,9 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
           // ── Pinned messages bar ──
           if (_pinnedIds.isNotEmpty) ...[
             _PinnedMessagesBar(
-              pinnedMessages:
-                  _messages.where((m) => _pinnedIds.contains(m.id)).toList(),
+              pinnedMessages: _messages
+                  .where((m) => _pinnedIds.contains(m.id))
+                  .toList(),
               expanded: _pinnedBarExpanded,
               onToggleExpand: () =>
                   setState(() => _pinnedBarExpanded = !_pinnedBarExpanded),
@@ -1988,218 +2041,256 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
               children: [
                 _messages.isEmpty
                     ? _buildWelcome(context)
-                    : Builder(builder: (context) {
-                        // Compute search match indices once per build so the
-                        // itemBuilder can highlight the focused result cheaply.
-                        final searchMatches = _computeSearchMatches();
-                        final focusedMatchIdx = searchMatches.isNotEmpty
-                            ? searchMatches[
-                                _searchCursor % searchMatches.length]
-                            : -1;
-                        return _SvenRefreshIndicator(
-                          visualMode: widget.visualMode,
-                          onRefresh: () async {
-                            setState(() {
-                              _messages.clear();
-                              _loading = true;
-                              _loadError = null;
-                            });
-                            await _loadMessages();
-                          },
-                          child: ListView.builder(
-                            controller: _scrollController,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 12, horizontal: 0),
-                            // Virtualization: don't keep off-screen stateful widgets
-                            // alive and limit the repaint cache to ~600px beyond viewport.
-                            addAutomaticKeepAlives: false,
-                            cacheExtent: 600,
-                            itemCount: _messages.length +
-                                (_isSending && !_isStreaming ? 1 : 0),
-                            itemBuilder: (context, index) {
-                              // Show thinking indicator while waiting for streaming
-                              if (index == _messages.length) {
-                                return _ThinkingIndicator(
-                                  visualMode: widget.visualMode,
-                                );
-                              }
-                              final message = _messages[index];
-                              final actionButtons =
-                                  _extractActionButtons(message.blocks);
-                              // Filter by search query
-                              final matchesSearch = _searchQuery.isEmpty ||
-                                  message.text
-                                      .toLowerCase()
-                                      .contains(_searchQuery.toLowerCase());
-                              if (!matchesSearch) {
-                                return const SizedBox.shrink();
-                              }
-                              final isFocusedMatch = focusedMatchIdx == index;
-                              // ── Date separator between messages on different days ──
-                              final showDateSep = index == 0 ||
-                                  !_isSameDay(_messages[index - 1].timestamp,
-                                      message.timestamp);
-                              final focusBorder = isFocusedMatch
-                                  ? Border(
-                                      left: BorderSide(
-                                        color: SvenTokens.forMode(
-                                                widget.visualMode)
-                                            .primary,
-                                        width: 3,
-                                      ),
-                                    )
-                                  : null;
-                              return Container(
-                                decoration: focusBorder != null
-                                    ? BoxDecoration(
-                                        border: focusBorder,
-                                        color: SvenTokens.forMode(
-                                                widget.visualMode)
-                                            .primary
-                                            .withValues(alpha: 0.04),
-                                      )
-                                    : null,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (showDateSep)
-                                      _DateSeparator(
-                                        date: message.timestamp,
-                                        visualMode: widget.visualMode,
-                                      ),
-                                    _AnimatedMessageEntry(
-                                      key: ValueKey(message.id),
-                                      child: RepaintBoundary(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              message.role == 'user'
-                                                  ? CrossAxisAlignment.end
-                                                  : CrossAxisAlignment.start,
-                                          children: [
-                                            _MessageBubble(
-                                              message: message,
-                                              localImages:
-                                                  _messageImages[message.id] ??
-                                                      const [],
-                                              visualMode: widget.visualMode,
-                                              isStreaming: message.status ==
-                                                  ChatMessageStatus.streaming,
-                                              showCursor: _showCursor &&
-                                                  message.status ==
-                                                      ChatMessageStatus
-                                                          .streaming,
-                                              onCopy: () =>
-                                                  _copyMessage(message),
-                                              onRegenerate: message.role ==
-                                                          'assistant' &&
-                                                      message.status ==
-                                                          ChatMessageStatus.sent
-                                                  ? () => _regenerateMessage(
-                                                      message)
-                                                  : null,
-                                              feedback: _feedback[message.id],
-                                              onThumbsUp: message.role ==
-                                                          'assistant' &&
-                                                      message.status ==
-                                                          ChatMessageStatus.sent
-                                                  ? () => _toggleFeedback(
-                                                      message.id,
-                                                      MessageFeedback.up)
-                                                  : null,
-                                              onThumbsDown: message.role ==
-                                                          'assistant' &&
-                                                      message.status ==
-                                                          ChatMessageStatus.sent
-                                                  ? () => _toggleFeedback(
-                                                      message.id,
-                                                      MessageFeedback.down)
-                                                  : null,
-                                              onReadAloud: message.role ==
-                                                          'assistant' &&
-                                                      message.status ==
-                                                          ChatMessageStatus
-                                                              .sent &&
-                                                      widget.voiceService !=
-                                                          null
-                                                  ? () =>
-                                                      _toggleReadAloud(message)
-                                                  : null,
-                                              isReadingAloud: widget
-                                                      .voiceService
-                                                      ?.speakingMessageId ==
-                                                  message.id,
-                                              actionButtons: actionButtons,
-                                              isActionDisabled: (id) =>
-                                                  _isActionDisabledFor(
-                                                      message.id, id),
-                                              onActionTap: (button) =>
-                                                  _handleActionButton(
-                                                      message, button),
-                                              onLongPress: message.status !=
-                                                          ChatMessageStatus
-                                                              .sending &&
-                                                      message.status !=
-                                                          ChatMessageStatus
-                                                              .streaming
-                                                  ? () => _showMessageMenu(
-                                                      context, message)
-                                                  : null,
-                                              onRunCode:
-                                                  message.role == 'assistant'
-                                                      ? (code, lang) {
-                                                          final prompt =
-                                                              'Run this $lang code and show the output:\n```$lang\n$code\n```';
-                                                          _handleSend(prompt);
-                                                        }
-                                                      : null,
-                                              onRetry: message.status ==
-                                                          ChatMessageStatus
-                                                              .failed &&
-                                                      message.role == 'user'
-                                                  ? _handleRetry
-                                                  : null,
-                                              onCancelQueued: message.status ==
-                                                      ChatMessageStatus.queued
-                                                  ? () => _handleCancelQueued(
-                                                      message)
-                                                  : null,
-                                            ),
-                                            // ── Token speed badge (shown while streaming) ──
-                                            if (message.status ==
-                                                    ChatMessageStatus
-                                                        .streaming &&
-                                                _streamTokensPerSec > 0)
-                                              _StreamingSpeedPill(
-                                                tokensPerSec:
-                                                    _streamTokensPerSec,
-                                                visualMode: widget.visualMode,
-                                              ),
-                                            // ── Reaction pills ──
-                                            if (_reactions[message.id]
-                                                    ?.isNotEmpty ==
-                                                true)
-                                              _ReactionBar(
-                                                reactions:
-                                                    _reactions[message.id]!,
-                                                onTap: (emoji) =>
-                                                    _toggleReaction(
-                                                        message.id, emoji),
-                                                isUser: message.role == 'user',
-                                                tokens: SvenTokens.forMode(
-                                                    widget.visualMode),
-                                              ),
-                                          ],
-                                        ),
-                                      ), // RepaintBoundary
-                                    ), // _AnimatedMessageEntry
-                                  ],
-                                ), // Column
-                              ); // Container
+                    : Builder(
+                        builder: (context) {
+                          // Compute search match indices once per build so the
+                          // itemBuilder can highlight the focused result cheaply.
+                          final searchMatches = _computeSearchMatches();
+                          final focusedMatchIdx = searchMatches.isNotEmpty
+                              ? searchMatches[_searchCursor %
+                                    searchMatches.length]
+                              : -1;
+                          return _SvenRefreshIndicator(
+                            visualMode: widget.visualMode,
+                            onRefresh: () async {
+                              setState(() {
+                                _messages.clear();
+                                _loading = true;
+                                _loadError = null;
+                              });
+                              await _loadMessages();
                             },
-                          ),
-                        ); // _SvenRefreshIndicator
-                      }), // Builder
+                            child: ListView.builder(
+                              controller: _scrollController,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 0,
+                              ),
+                              // Virtualization: don't keep off-screen stateful widgets
+                              // alive and limit the repaint cache to ~600px beyond viewport.
+                              addAutomaticKeepAlives: false,
+                              cacheExtent: 600,
+                              itemCount:
+                                  _messages.length +
+                                  (_isSending && !_isStreaming ? 1 : 0),
+                              itemBuilder: (context, index) {
+                                // Show thinking indicator while waiting for streaming
+                                if (index == _messages.length) {
+                                  return _ThinkingIndicator(
+                                    visualMode: widget.visualMode,
+                                  );
+                                }
+                                final message = _messages[index];
+                                final actionButtons = _extractActionButtons(
+                                  message.blocks,
+                                );
+                                // Filter by search query
+                                final matchesSearch =
+                                    _searchQuery.isEmpty ||
+                                    message.text.toLowerCase().contains(
+                                      _searchQuery.toLowerCase(),
+                                    );
+                                if (!matchesSearch) {
+                                  return const SizedBox.shrink();
+                                }
+                                final isFocusedMatch = focusedMatchIdx == index;
+                                // ── Date separator between messages on different days ──
+                                final showDateSep =
+                                    index == 0 ||
+                                    !_isSameDay(
+                                      _messages[index - 1].timestamp,
+                                      message.timestamp,
+                                    );
+                                final focusBorder = isFocusedMatch
+                                    ? Border(
+                                        left: BorderSide(
+                                          color: SvenTokens.forMode(
+                                            widget.visualMode,
+                                          ).primary,
+                                          width: 3,
+                                        ),
+                                      )
+                                    : null;
+                                return Container(
+                                  decoration: focusBorder != null
+                                      ? BoxDecoration(
+                                          border: focusBorder,
+                                          color: SvenTokens.forMode(
+                                            widget.visualMode,
+                                          ).primary.withValues(alpha: 0.04),
+                                        )
+                                      : null,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (showDateSep)
+                                        _DateSeparator(
+                                          date: message.timestamp,
+                                          visualMode: widget.visualMode,
+                                        ),
+                                      _AnimatedMessageEntry(
+                                        key: ValueKey(message.id),
+                                        child: RepaintBoundary(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                message.role == 'user'
+                                                ? CrossAxisAlignment.end
+                                                : CrossAxisAlignment.start,
+                                            children: [
+                                              _MessageBubble(
+                                                message: message,
+                                                localImages:
+                                                    _messageImages[message
+                                                        .id] ??
+                                                    const [],
+                                                visualMode: widget.visualMode,
+                                                isStreaming:
+                                                    message.status ==
+                                                    ChatMessageStatus.streaming,
+                                                showCursor:
+                                                    _showCursor &&
+                                                    message.status ==
+                                                        ChatMessageStatus
+                                                            .streaming,
+                                                onCopy: () =>
+                                                    _copyMessage(message),
+                                                onRegenerate:
+                                                    message.role ==
+                                                            'assistant' &&
+                                                        message.status ==
+                                                            ChatMessageStatus
+                                                                .sent
+                                                    ? () => _regenerateMessage(
+                                                        message,
+                                                      )
+                                                    : null,
+                                                feedback: _feedback[message.id],
+                                                onThumbsUp:
+                                                    message.role ==
+                                                            'assistant' &&
+                                                        message.status ==
+                                                            ChatMessageStatus
+                                                                .sent
+                                                    ? () => _toggleFeedback(
+                                                        message.id,
+                                                        MessageFeedback.up,
+                                                      )
+                                                    : null,
+                                                onThumbsDown:
+                                                    message.role ==
+                                                            'assistant' &&
+                                                        message.status ==
+                                                            ChatMessageStatus
+                                                                .sent
+                                                    ? () => _toggleFeedback(
+                                                        message.id,
+                                                        MessageFeedback.down,
+                                                      )
+                                                    : null,
+                                                onReadAloud:
+                                                    message.role ==
+                                                            'assistant' &&
+                                                        message.status ==
+                                                            ChatMessageStatus
+                                                                .sent &&
+                                                        widget.voiceService !=
+                                                            null
+                                                    ? () => _toggleReadAloud(
+                                                        message,
+                                                      )
+                                                    : null,
+                                                isReadingAloud:
+                                                    widget
+                                                        .voiceService
+                                                        ?.speakingMessageId ==
+                                                    message.id,
+                                                actionButtons: actionButtons,
+                                                isActionDisabled: (id) =>
+                                                    _isActionDisabledFor(
+                                                      message.id,
+                                                      id,
+                                                    ),
+                                                onActionTap: (button) =>
+                                                    _handleActionButton(
+                                                      message,
+                                                      button,
+                                                    ),
+                                                onLongPress:
+                                                    message.status !=
+                                                            ChatMessageStatus
+                                                                .sending &&
+                                                        message.status !=
+                                                            ChatMessageStatus
+                                                                .streaming
+                                                    ? () => _showMessageMenu(
+                                                        context,
+                                                        message,
+                                                      )
+                                                    : null,
+                                                onRunCode:
+                                                    message.role == 'assistant'
+                                                    ? (code, lang) {
+                                                        final prompt =
+                                                            'Run this $lang code and show the output:\n```$lang\n$code\n```';
+                                                        _handleSend(prompt);
+                                                      }
+                                                    : null,
+                                                onRetry:
+                                                    message.status ==
+                                                            ChatMessageStatus
+                                                                .failed &&
+                                                        message.role == 'user'
+                                                    ? _handleRetry
+                                                    : null,
+                                                onCancelQueued:
+                                                    message.status ==
+                                                        ChatMessageStatus.queued
+                                                    ? () => _handleCancelQueued(
+                                                        message,
+                                                      )
+                                                    : null,
+                                              ),
+                                              // ── Token speed badge (shown while streaming) ──
+                                              if (message.status ==
+                                                      ChatMessageStatus
+                                                          .streaming &&
+                                                  _streamTokensPerSec > 0)
+                                                _StreamingSpeedPill(
+                                                  tokensPerSec:
+                                                      _streamTokensPerSec,
+                                                  visualMode: widget.visualMode,
+                                                ),
+                                              // ── Reaction pills ──
+                                              if (_reactions[message.id]
+                                                      ?.isNotEmpty ==
+                                                  true)
+                                                _ReactionBar(
+                                                  reactions:
+                                                      _reactions[message.id]!,
+                                                  onTap: (emoji) =>
+                                                      _toggleReaction(
+                                                        message.id,
+                                                        emoji,
+                                                      ),
+                                                  isUser:
+                                                      message.role == 'user',
+                                                  tokens: SvenTokens.forMode(
+                                                    widget.visualMode,
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ), // RepaintBoundary
+                                      ), // _AnimatedMessageEntry
+                                    ],
+                                  ), // Column
+                                ); // Container
+                              },
+                            ),
+                          ); // _SvenRefreshIndicator
+                        },
+                      ), // Builder
                 // ── Scroll-to-bottom FAB ──
                 if (_showScrollFab)
                   Positioned(
@@ -2245,7 +2336,9 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                     ),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
@@ -2361,8 +2454,8 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                       final cursorDisplay = hasMatches
                           ? '${_searchCursor + 1}/${matches.length}'
                           : _searchQuery.isEmpty
-                              ? ''
-                              : '0/0';
+                          ? ''
+                          : '0/0';
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -2373,17 +2466,22 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                                   controller: _searchController,
                                   autofocus: true,
                                   style: TextStyle(
-                                    color: SvenTokens.forMode(widget.visualMode)
-                                        .onSurface,
+                                    color: SvenTokens.forMode(
+                                      widget.visualMode,
+                                    ).onSurface,
                                     fontSize: 15,
                                   ),
                                   decoration: InputDecoration(
                                     hintText: 'Search messages…',
-                                    prefixIcon: const Icon(Icons.search_rounded,
-                                        size: 20),
+                                    prefixIcon: const Icon(
+                                      Icons.search_rounded,
+                                      size: 20,
+                                    ),
                                     isDense: true,
                                     contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 10),
+                                      horizontal: 12,
+                                      vertical: 10,
+                                    ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
                                       borderSide: BorderSide.none,
@@ -2402,24 +2500,26 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                                   cursorDisplay,
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: SvenTokens.forMode(widget.visualMode)
-                                        .onSurface
-                                        .withValues(alpha: 0.5),
+                                    color: SvenTokens.forMode(
+                                      widget.visualMode,
+                                    ).onSurface.withValues(alpha: 0.5),
                                   ),
                                 ),
                               ],
                               IconButton(
                                 tooltip: 'Previous match',
                                 icon: const Icon(
-                                    Icons.keyboard_arrow_up_rounded,
-                                    size: 20),
+                                  Icons.keyboard_arrow_up_rounded,
+                                  size: 20,
+                                ),
                                 onPressed: hasMatches ? _searchPrev : null,
                               ),
                               IconButton(
                                 tooltip: 'Next match',
                                 icon: const Icon(
-                                    Icons.keyboard_arrow_down_rounded,
-                                    size: 20),
+                                  Icons.keyboard_arrow_down_rounded,
+                                  size: 20,
+                                ),
                                 onPressed: hasMatches ? _searchNext : null,
                               ),
                               IconButton(
@@ -2532,13 +2632,14 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                         ? [tokens.primary, tokens.secondary]
                         : [
                             tokens.primary,
-                            tokens.primary.withValues(alpha: 0.7)
+                            tokens.primary.withValues(alpha: 0.7),
                           ],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: tokens.primary
-                          .withValues(alpha: cinematic ? 0.30 : 0.15),
+                      color: tokens.primary.withValues(
+                        alpha: cinematic ? 0.30 : 0.15,
+                      ),
                       blurRadius: cinematic ? 24 : 16,
                     ),
                   ],
@@ -2552,17 +2653,17 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                 'How can I help you today?',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: tokens.onSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  color: tokens.onSurface,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 12),
               Text(
                 'Ask anything, or try one of these:',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: tokens.onSurface.withValues(alpha: 0.5),
-                    ),
+                  color: tokens.onSurface.withValues(alpha: 0.5),
+                ),
               ),
               const SizedBox(height: 24),
               Wrap(
@@ -2570,14 +2671,34 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                 runSpacing: 10,
                 alignment: WrapAlignment.center,
                 children: [
-                  _suggestionChip(context, '\u{1F4A1}',
-                      'Explain something complex', tokens, cinematic),
-                  _suggestionChip(context, '\u{270D}\u{FE0F}', 'Help me write',
-                      tokens, cinematic),
-                  _suggestionChip(context, '\u{1F50D}', 'Analyse a document',
-                      tokens, cinematic),
                   _suggestionChip(
-                      context, '\u{1F4BB}', 'Debug my code', tokens, cinematic),
+                    context,
+                    '\u{1F4A1}',
+                    'Explain something complex',
+                    tokens,
+                    cinematic,
+                  ),
+                  _suggestionChip(
+                    context,
+                    '\u{270D}\u{FE0F}',
+                    'Help me write',
+                    tokens,
+                    cinematic,
+                  ),
+                  _suggestionChip(
+                    context,
+                    '\u{1F50D}',
+                    'Analyse a document',
+                    tokens,
+                    cinematic,
+                  ),
+                  _suggestionChip(
+                    context,
+                    '\u{1F4BB}',
+                    'Debug my code',
+                    tokens,
+                    cinematic,
+                  ),
                 ],
               ),
             ],
@@ -2618,9 +2739,9 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
               const SizedBox(width: 8),
               Text(
                 label,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: tokens.onSurface,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: tokens.onSurface),
               ),
             ],
           ),

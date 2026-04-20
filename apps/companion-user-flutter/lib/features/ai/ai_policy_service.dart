@@ -100,9 +100,7 @@ class AiPolicyService {
   Future<List<Map<String, dynamic>>> listModules({String? platform}) async {
     final base = ApiBaseService.currentSync();
     final qs = platform != null ? '?platform=$platform' : '';
-    final r = await _client.get(
-      Uri.parse('$base/v1/admin/gemma4/modules$qs'),
-    );
+    final r = await _client.get(Uri.parse('$base/v1/admin/gemma4/modules$qs'));
     if (r.statusCode != 200) return [];
     final data = jsonDecode(r.body)['data'];
     if (data is List) return data.cast<Map<String, dynamic>>();
@@ -118,14 +116,12 @@ class AiPolicyService {
     bool? hasGpu,
   }) async {
     final base = ApiBaseService.currentSync();
-    final r = await _client.postJson(
-      Uri.parse('$base/v1/admin/gemma4/modules/recommend'),
-      {
-        if (ramMb != null) 'ram_mb': ramMb,
-        if (storageMb != null) 'storage_mb': storageMb,
-        if (hasGpu != null) 'has_gpu': hasGpu,
-      },
-    );
+    final r = await _client
+        .postJson(Uri.parse('$base/v1/admin/gemma4/modules/recommend'), {
+          if (ramMb != null) 'ram_mb': ramMb,
+          if (storageMb != null) 'storage_mb': storageMb,
+          if (hasGpu != null) 'has_gpu': hasGpu,
+        });
     if (r.statusCode != 200) return [];
     final data = jsonDecode(r.body)['data'];
     if (data is List) return data.cast<Map<String, dynamic>>();

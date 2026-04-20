@@ -141,8 +141,12 @@ class CustomShapeSpec {
 
   /// Derived: secondary Color
   int get secondaryArgb {
-    final c =
-        HSLColor.fromAHSL(1.0, secondaryHue.clamp(0.0, 360.0), 0.70, 0.60);
+    final c = HSLColor.fromAHSL(
+      1.0,
+      secondaryHue.clamp(0.0, 360.0),
+      0.70,
+      0.60,
+    );
     final rgb = c.toColor();
     // ignore: deprecated_member_use
     return rgb.value;
@@ -157,47 +161,51 @@ class CustomShapeSpec {
 
   /// Serialize to JSON for persistence.
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'description': description,
-        'body_type': bodyType,
-        'body_segments': bodySegments,
-        'limb_count': limbCount,
-        'has_wings': hasWings,
-        'has_tail': hasTail,
-        'has_horns': hasHorns,
-        'has_antennae': hasAntennae,
-        'eye_count': eyeCount,
-        'eye_shape': eyeShape,
-        'extra_features': extraFeatures,
-        'primary_hue': primaryHue,
-        'secondary_hue': secondaryHue,
-        'glow_intensity': glowIntensity,
-        'symmetry': symmetry,
-        'spikiness': spikiness,
-        'roundness': roundness,
-        'pattern_type': patternType,
-        'aura_style': auraStyle,
-        'icon': icon,
-        'traits': traits,
-      };
+    'name': name,
+    'description': description,
+    'body_type': bodyType,
+    'body_segments': bodySegments,
+    'limb_count': limbCount,
+    'has_wings': hasWings,
+    'has_tail': hasTail,
+    'has_horns': hasHorns,
+    'has_antennae': hasAntennae,
+    'eye_count': eyeCount,
+    'eye_shape': eyeShape,
+    'extra_features': extraFeatures,
+    'primary_hue': primaryHue,
+    'secondary_hue': secondaryHue,
+    'glow_intensity': glowIntensity,
+    'symmetry': symmetry,
+    'spikiness': spikiness,
+    'roundness': roundness,
+    'pattern_type': patternType,
+    'aura_style': auraStyle,
+    'icon': icon,
+    'traits': traits,
+  };
 
   /// Deserialize from JSON.
   factory CustomShapeSpec.fromJson(Map<String, dynamic> j) {
     final rawBodyType = ((j['body_type'] as String?) ?? 'sphere').trim();
-    final bodyType =
-        allowedBodyTypes.contains(rawBodyType) ? rawBodyType : 'sphere';
+    final bodyType = allowedBodyTypes.contains(rawBodyType)
+        ? rawBodyType
+        : 'sphere';
 
     final rawEyeShape = ((j['eye_shape'] as String?) ?? 'round').trim();
-    final eyeShape =
-        allowedEyeShapes.contains(rawEyeShape) ? rawEyeShape : 'round';
+    final eyeShape = allowedEyeShapes.contains(rawEyeShape)
+        ? rawEyeShape
+        : 'round';
 
     final rawPatternType = ((j['pattern_type'] as String?) ?? 'none').trim();
-    final patternType =
-        allowedPatternTypes.contains(rawPatternType) ? rawPatternType : 'none';
+    final patternType = allowedPatternTypes.contains(rawPatternType)
+        ? rawPatternType
+        : 'none';
 
     final rawAuraStyle = ((j['aura_style'] as String?) ?? 'glow').trim();
-    final auraStyle =
-        allowedAuraStyles.contains(rawAuraStyle) ? rawAuraStyle : 'glow';
+    final auraStyle = allowedAuraStyles.contains(rawAuraStyle)
+        ? rawAuraStyle
+        : 'glow';
 
     final features = ((j['extra_features'] as List<dynamic>?) ?? const [])
         .map((e) => e.toString().trim())
@@ -216,8 +224,8 @@ class CustomShapeSpec {
           : ((j['name'] as String?) ?? 'Entity').trim(),
       description:
           ((j['description'] as String?) ?? 'A custom form').trim().isEmpty
-              ? 'A custom form'
-              : ((j['description'] as String?) ?? 'A custom form').trim(),
+          ? 'A custom form'
+          : ((j['description'] as String?) ?? 'A custom form').trim(),
       bodyType: bodyType,
       bodySegments: ((j['body_segments'] as num?)?.toInt() ?? 1).clamp(1, 8),
       limbCount: ((j['limb_count'] as num?)?.toInt() ?? 0).clamp(0, 8),
@@ -228,20 +236,27 @@ class CustomShapeSpec {
       eyeCount: ((j['eye_count'] as num?)?.toInt() ?? 2).clamp(0, 6),
       eyeShape: eyeShape,
       extraFeatures: features,
-      primaryHue:
-          (((j['primary_hue'] as num?)?.toDouble() ?? 200).clamp(0, 360))
-              .toDouble(),
-      secondaryHue:
-          (((j['secondary_hue'] as num?)?.toDouble() ?? 280).clamp(0, 360))
-              .toDouble(),
-      glowIntensity:
-          (((j['glow_intensity'] as num?)?.toDouble() ?? 0.5).clamp(0.0, 1.0))
-              .toDouble(),
+      primaryHue: (((j['primary_hue'] as num?)?.toDouble() ?? 200).clamp(
+        0,
+        360,
+      )).toDouble(),
+      secondaryHue: (((j['secondary_hue'] as num?)?.toDouble() ?? 280).clamp(
+        0,
+        360,
+      )).toDouble(),
+      glowIntensity: (((j['glow_intensity'] as num?)?.toDouble() ?? 0.5).clamp(
+        0.0,
+        1.0,
+      )).toDouble(),
       symmetry: ((j['symmetry'] as num?)?.toInt() ?? 1).clamp(1, 6),
-      spikiness: (((j['spikiness'] as num?)?.toDouble() ?? 0.3).clamp(0.0, 1.0))
-          .toDouble(),
-      roundness: (((j['roundness'] as num?)?.toDouble() ?? 0.6).clamp(0.0, 1.0))
-          .toDouble(),
+      spikiness: (((j['spikiness'] as num?)?.toDouble() ?? 0.3).clamp(
+        0.0,
+        1.0,
+      )).toDouble(),
+      roundness: (((j['roundness'] as num?)?.toDouble() ?? 0.6).clamp(
+        0.0,
+        1.0,
+      )).toDouble(),
       patternType: patternType,
       auraStyle: auraStyle,
       icon: ((j['icon'] as String?) ?? '🔮').trim().isEmpty
@@ -288,31 +303,30 @@ class CustomShapeSpec {
     String? auraStyle,
     String? icon,
     List<String>? traits,
-  }) =>
-      CustomShapeSpec(
-        name: name ?? this.name,
-        description: description ?? this.description,
-        bodyType: bodyType ?? this.bodyType,
-        bodySegments: bodySegments ?? this.bodySegments,
-        limbCount: limbCount ?? this.limbCount,
-        hasWings: hasWings ?? this.hasWings,
-        hasTail: hasTail ?? this.hasTail,
-        hasHorns: hasHorns ?? this.hasHorns,
-        hasAntennae: hasAntennae ?? this.hasAntennae,
-        eyeCount: eyeCount ?? this.eyeCount,
-        eyeShape: eyeShape ?? this.eyeShape,
-        extraFeatures: extraFeatures ?? this.extraFeatures,
-        primaryHue: primaryHue ?? this.primaryHue,
-        secondaryHue: secondaryHue ?? this.secondaryHue,
-        glowIntensity: glowIntensity ?? this.glowIntensity,
-        symmetry: symmetry ?? this.symmetry,
-        spikiness: spikiness ?? this.spikiness,
-        roundness: roundness ?? this.roundness,
-        patternType: patternType ?? this.patternType,
-        auraStyle: auraStyle ?? this.auraStyle,
-        icon: icon ?? this.icon,
-        traits: traits ?? this.traits,
-      );
+  }) => CustomShapeSpec(
+    name: name ?? this.name,
+    description: description ?? this.description,
+    bodyType: bodyType ?? this.bodyType,
+    bodySegments: bodySegments ?? this.bodySegments,
+    limbCount: limbCount ?? this.limbCount,
+    hasWings: hasWings ?? this.hasWings,
+    hasTail: hasTail ?? this.hasTail,
+    hasHorns: hasHorns ?? this.hasHorns,
+    hasAntennae: hasAntennae ?? this.hasAntennae,
+    eyeCount: eyeCount ?? this.eyeCount,
+    eyeShape: eyeShape ?? this.eyeShape,
+    extraFeatures: extraFeatures ?? this.extraFeatures,
+    primaryHue: primaryHue ?? this.primaryHue,
+    secondaryHue: secondaryHue ?? this.secondaryHue,
+    glowIntensity: glowIntensity ?? this.glowIntensity,
+    symmetry: symmetry ?? this.symmetry,
+    spikiness: spikiness ?? this.spikiness,
+    roundness: roundness ?? this.roundness,
+    patternType: patternType ?? this.patternType,
+    auraStyle: auraStyle ?? this.auraStyle,
+    icon: icon ?? this.icon,
+    traits: traits ?? this.traits,
+  );
 
   /// Default fallback shape.
   static const defaultSpec = CustomShapeSpec(

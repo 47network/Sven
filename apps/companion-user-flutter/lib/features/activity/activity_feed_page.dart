@@ -35,7 +35,7 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
       final data = await widget.service.getEvents(before: before);
       final events =
           (data['events'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ??
-              [];
+          [];
       setState(() {
         if (before == null) _events.clear();
         _events.addAll(events);
@@ -92,135 +92,145 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
       backgroundColor: tokens.scaffold,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: Text('Activity',
-            style: TextStyle(
-                color: tokens.onSurface, fontWeight: FontWeight.w600)),
+        title: Text(
+          'Activity',
+          style: TextStyle(
+            color: tokens.onSurface,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         iconTheme: IconThemeData(color: tokens.onSurface),
         actions: [
           if (_unreadCount > 0)
             TextButton(
               onPressed: _markAllRead,
-              child: Text('Mark all read',
-                  style: TextStyle(color: tokens.primary, fontSize: 13)),
+              child: Text(
+                'Mark all read',
+                style: TextStyle(color: tokens.primary, fontSize: 13),
+              ),
             ),
         ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _events.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.inbox_outlined,
-                          size: 48,
-                          color: tokens.onSurface.withValues(alpha: 0.3)),
-                      const SizedBox(height: 12),
-                      Text('No activity yet',
-                          style: TextStyle(
-                            color: tokens.onSurface.withValues(alpha: 0.5),
-                          )),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.inbox_outlined,
+                    size: 48,
+                    color: tokens.onSurface.withValues(alpha: 0.3),
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: () => _load(),
-                  child: ListView.builder(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    itemCount: _events.length + (_hasMore ? 1 : 0),
-                    itemBuilder: (context, i) {
-                      if (i == _events.length) {
-                        // Load more trigger
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: Center(
-                            child: TextButton(
-                              onPressed: () {
-                                final last =
-                                    _events.last['created_at'] as String?;
-                                _load(before: last);
-                              },
-                              child: Text('Load more',
-                                  style: TextStyle(color: tokens.primary)),
-                            ),
-                          ),
-                        );
-                      }
-
-                      final event = _events[i];
-                      final type = event['event_type'] as String? ?? '';
-                      final title = event['title'] as String? ?? '';
-                      final body = event['body'] as String?;
-                      final read = event['read'] as bool? ?? false;
-                      final createdAt = event['created_at'] as String? ?? '';
-
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        decoration: BoxDecoration(
-                          color: read
-                              ? (cinematic
-                                  ? Colors.white.withValues(alpha: 0.03)
-                                  : Colors.white)
-                              : tokens.primary.withValues(alpha: 0.06),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: read
-                                ? tokens.frame.withValues(alpha: 0.2)
-                                : tokens.primary.withValues(alpha: 0.25),
-                          ),
-                        ),
-                        child: ListTile(
-                          leading: Icon(
-                            _iconFor(type),
-                            color: read
-                                ? tokens.onSurface.withValues(alpha: 0.4)
-                                : tokens.primary,
-                            size: 22,
-                          ),
-                          title: Text(
-                            title,
-                            style: TextStyle(
-                              color: tokens.onSurface,
-                              fontWeight:
-                                  read ? FontWeight.w400 : FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
-                          subtitle: body != null
-                              ? Text(
-                                  body,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: tokens.onSurface
-                                        .withValues(alpha: 0.55),
-                                    fontSize: 12,
-                                  ),
-                                )
-                              : null,
-                          trailing: Text(
-                            _formatTime(createdAt),
-                            style: TextStyle(
-                              color: tokens.onSurface.withValues(alpha: 0.4),
-                              fontSize: 11,
-                            ),
-                          ),
-                          onTap: () {
-                            if (!read) {
-                              widget.service
-                                  .markRead(ids: [event['id'] as String]);
-                              setState(() {
-                                event['read'] = true;
-                                _unreadCount = (_unreadCount - 1).clamp(0, 999);
-                              });
-                            }
-                          },
-                        ),
-                      );
-                    },
+                  const SizedBox(height: 12),
+                  Text(
+                    'No activity yet',
+                    style: TextStyle(
+                      color: tokens.onSurface.withValues(alpha: 0.5),
+                    ),
                   ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: () => _load(),
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
                 ),
+                itemCount: _events.length + (_hasMore ? 1 : 0),
+                itemBuilder: (context, i) {
+                  if (i == _events.length) {
+                    // Load more trigger
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Center(
+                        child: TextButton(
+                          onPressed: () {
+                            final last = _events.last['created_at'] as String?;
+                            _load(before: last);
+                          },
+                          child: Text(
+                            'Load more',
+                            style: TextStyle(color: tokens.primary),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  final event = _events[i];
+                  final type = event['event_type'] as String? ?? '';
+                  final title = event['title'] as String? ?? '';
+                  final body = event['body'] as String?;
+                  final read = event['read'] as bool? ?? false;
+                  final createdAt = event['created_at'] as String? ?? '';
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    decoration: BoxDecoration(
+                      color: read
+                          ? (cinematic
+                                ? Colors.white.withValues(alpha: 0.03)
+                                : Colors.white)
+                          : tokens.primary.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: read
+                            ? tokens.frame.withValues(alpha: 0.2)
+                            : tokens.primary.withValues(alpha: 0.25),
+                      ),
+                    ),
+                    child: ListTile(
+                      leading: Icon(
+                        _iconFor(type),
+                        color: read
+                            ? tokens.onSurface.withValues(alpha: 0.4)
+                            : tokens.primary,
+                        size: 22,
+                      ),
+                      title: Text(
+                        title,
+                        style: TextStyle(
+                          color: tokens.onSurface,
+                          fontWeight: read ? FontWeight.w400 : FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                      subtitle: body != null
+                          ? Text(
+                              body,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: tokens.onSurface.withValues(alpha: 0.55),
+                                fontSize: 12,
+                              ),
+                            )
+                          : null,
+                      trailing: Text(
+                        _formatTime(createdAt),
+                        style: TextStyle(
+                          color: tokens.onSurface.withValues(alpha: 0.4),
+                          fontSize: 11,
+                        ),
+                      ),
+                      onTap: () {
+                        if (!read) {
+                          widget.service.markRead(ids: [event['id'] as String]);
+                          setState(() {
+                            event['read'] = true;
+                            _unreadCount = (_unreadCount - 1).clamp(0, 999);
+                          });
+                        }
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
     );
   }
 

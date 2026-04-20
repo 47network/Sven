@@ -42,10 +42,8 @@ class _PressableState extends State<_Pressable>
       onTapCancel: () => _ctrl.reverse(),
       child: AnimatedBuilder(
         animation: _ctrl,
-        builder: (_, child) => Transform.scale(
-          scale: _scaleAnim.evaluate(_ctrl),
-          child: child,
-        ),
+        builder: (_, child) =>
+            Transform.scale(scale: _scaleAnim.evaluate(_ctrl), child: child),
         child: widget.child,
       ),
     );
@@ -111,7 +109,9 @@ class _MultiImagePreviewStrip extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       child: Text(
                         'Clear all',
                         style: TextStyle(
@@ -141,20 +141,22 @@ class _MultiImagePreviewStrip extends StatelessWidget {
                 onTap: kIsWeb
                     ? null
                     : () => Navigator.of(ctx).push<void>(
-                          PageRouteBuilder<void>(
-                            opaque: false,
-                            pageBuilder: (_, __, ___) => _FullScreenImageViewer(
-                              imagePath: images[i].path,
-                              heroTag: 'composer_img_$i',
-                            ),
-                            transitionsBuilder: (_, anim, __, child) =>
-                                FadeTransition(
-                              opacity: CurvedAnimation(
-                                  parent: anim, curve: Curves.easeOut),
-                              child: child,
-                            ),
+                        PageRouteBuilder<void>(
+                          opaque: false,
+                          pageBuilder: (_, __, ___) => _FullScreenImageViewer(
+                            imagePath: images[i].path,
+                            heroTag: 'composer_img_$i',
                           ),
+                          transitionsBuilder: (_, anim, __, child) =>
+                              FadeTransition(
+                                opacity: CurvedAnimation(
+                                  parent: anim,
+                                  curve: Curves.easeOut,
+                                ),
+                                child: child,
+                              ),
                         ),
+                      ),
               ),
             ),
           ),
@@ -198,16 +200,22 @@ class _ImageThumb extends StatelessWidget {
                 child: kIsWeb
                     ? Container(
                         color: tokens.primary.withValues(alpha: 0.1),
-                        child: Icon(Icons.image_rounded,
-                            color: tokens.primary, size: 28),
+                        child: Icon(
+                          Icons.image_rounded,
+                          color: tokens.primary,
+                          size: 28,
+                        ),
                       )
                     : Image.file(
                         File(imagePath),
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Container(
                           color: tokens.primary.withValues(alpha: 0.1),
-                          child: Icon(Icons.image_rounded,
-                              color: tokens.primary, size: 28),
+                          child: Icon(
+                            Icons.image_rounded,
+                            color: tokens.primary,
+                            size: 28,
+                          ),
                         ),
                       ),
               ),
@@ -228,8 +236,11 @@ class _ImageThumb extends StatelessWidget {
                     color: tokens.onSurface.withValues(alpha: 0.1),
                   ),
                 ),
-                child: Icon(Icons.close_rounded,
-                    size: 12, color: tokens.onSurface.withValues(alpha: 0.5)),
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 12,
+                  color: tokens.onSurface.withValues(alpha: 0.5),
+                ),
               ),
             ),
           ),
@@ -265,9 +276,7 @@ class _QuoteStrip extends StatelessWidget {
       decoration: BoxDecoration(
         color: tokens.primary.withValues(alpha: cinematic ? 0.08 : 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border(
-          left: BorderSide(color: tokens.primary, width: 3),
-        ),
+        border: Border(left: BorderSide(color: tokens.primary, width: 3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -354,9 +363,7 @@ class _SlashCommandOverlay extends StatelessWidget {
                   ? const Color(0xFF0D1829)
                   : Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: tokens.primary.withValues(alpha: 0.25),
-              ),
+              border: Border.all(color: tokens.primary.withValues(alpha: 0.25)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: cinematic ? 0.5 : 0.15),
@@ -369,13 +376,17 @@ class _SlashCommandOverlay extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
                   child: Row(
                     children: [
-                      Icon(Icons.terminal_rounded,
-                          size: 13,
-                          color: tokens.primary.withValues(alpha: 0.7)),
+                      Icon(
+                        Icons.terminal_rounded,
+                        size: 13,
+                        color: tokens.primary.withValues(alpha: 0.7),
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         'Slash commands',
@@ -396,12 +407,16 @@ class _SlashCommandOverlay extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       child: Row(
                         children: [
-                          Icon(cmd.icon,
-                              size: 18,
-                              color: tokens.primary.withValues(alpha: 0.8)),
+                          Icon(
+                            cmd.icon,
+                            size: 18,
+                            color: tokens.primary.withValues(alpha: 0.8),
+                          ),
                           const SizedBox(width: 12),
                           Text(
                             '/${cmd.command}',
@@ -489,9 +504,7 @@ class _AtMentionOverlay extends StatelessWidget {
                   ? const Color(0xFF0D1829)
                   : Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: tokens.primary.withValues(alpha: 0.25),
-              ),
+              border: Border.all(color: tokens.primary.withValues(alpha: 0.25)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: cinematic ? 0.5 : 0.15),
@@ -504,13 +517,17 @@ class _AtMentionOverlay extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
                   child: Row(
                     children: [
-                      Icon(Icons.alternate_email_rounded,
-                          size: 13,
-                          color: tokens.primary.withValues(alpha: 0.7)),
+                      Icon(
+                        Icons.alternate_email_rounded,
+                        size: 13,
+                        color: tokens.primary.withValues(alpha: 0.7),
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         'Mention a mode',
@@ -531,12 +548,16 @@ class _AtMentionOverlay extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       child: Row(
                         children: [
-                          Icon(m.icon,
-                              size: 18,
-                              color: tokens.primary.withValues(alpha: 0.8)),
+                          Icon(
+                            m.icon,
+                            size: 18,
+                            color: tokens.primary.withValues(alpha: 0.8),
+                          ),
                           const SizedBox(width: 12),
                           Text(
                             '@${m.trigger}',
@@ -639,8 +660,7 @@ class _FilePreviewStrip extends StatelessWidget {
       'ps1' ||
       'yaml' ||
       'yml' ||
-      'toml' =>
-        Icons.data_object_rounded,
+      'toml' => Icons.data_object_rounded,
       _ => Icons.insert_drive_file_rounded,
     };
   }
@@ -660,8 +680,11 @@ class _FilePreviewStrip extends StatelessWidget {
                   : tokens.onSurface.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(_fileIcon,
-                color: tokens.primary.withValues(alpha: 0.8), size: 24),
+            child: Icon(
+              _fileIcon,
+              color: tokens.primary.withValues(alpha: 0.8),
+              size: 24,
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -705,9 +728,11 @@ class _FilePreviewStrip extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.check_circle_rounded,
-                          size: 11,
-                          color: tokens.primary.withValues(alpha: 0.8)),
+                      Icon(
+                        Icons.check_circle_rounded,
+                        size: 11,
+                        color: tokens.primary.withValues(alpha: 0.8),
+                      ),
                       const SizedBox(width: 3),
                       Text(
                         'Content attached · ${contentCharCount! > 999 ? '${(contentCharCount! / 1000).toStringAsFixed(1)}k' : contentCharCount} chars',
@@ -731,8 +756,11 @@ class _FilePreviewStrip extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               child: Padding(
                 padding: const EdgeInsets.all(6),
-                child: Icon(Icons.close_rounded,
-                    size: 18, color: tokens.onSurface.withValues(alpha: 0.4)),
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 18,
+                  color: tokens.onSurface.withValues(alpha: 0.4),
+                ),
               ),
             ),
           ),
@@ -824,10 +852,7 @@ class _SvenProgressBar extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                         gradient: LinearGradient(
                           colors: cinematic
-                              ? [
-                                  tokens.primary,
-                                  tokens.secondary,
-                                ]
+                              ? [tokens.primary, tokens.secondary]
                               : [
                                   tokens.primary.withValues(alpha: 0.7),
                                   tokens.primary,
@@ -946,11 +971,12 @@ class _FullScreenImageViewer extends StatelessWidget {
               button: true,
               child: IconButton.filled(
                 onPressed: () => Navigator.of(context).pop(),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.black54,
+                style: IconButton.styleFrom(backgroundColor: Colors.black54),
+                icon: const Icon(
+                  Icons.close_rounded,
+                  color: Colors.white,
+                  size: 22,
                 ),
-                icon: const Icon(Icons.close_rounded,
-                    color: Colors.white, size: 22),
               ),
             ),
           ),

@@ -78,7 +78,7 @@ class InAppNotification {
 /// a single summary notification on Android.
 class PushNotificationManager {
   PushNotificationManager._({NotificationsService? service})
-      : _service = service ?? NotificationsService();
+    : _service = service ?? NotificationsService();
 
   static final PushNotificationManager _instance = PushNotificationManager._();
   static PushNotificationManager get instance => _instance;
@@ -191,7 +191,8 @@ class PushNotificationManager {
 
       _initialized = true;
       debugPrint(
-          '✅ PushNotificationManager: initialized (permission deferred)');
+        '✅ PushNotificationManager: initialized (permission deferred)',
+      );
     } catch (e) {
       debugPrint('⚠️  PushNotificationManager: initialization failed: $e');
       _initialized = true;
@@ -256,18 +257,17 @@ class PushNotificationManager {
   /// those platforms for channel creation.
   Future<void> _createAndroidChannels() async {
     const initSettings = InitializationSettings(
-      android: AndroidInitializationSettings(
-        '@mipmap/ic_launcher',
-      ),
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
     );
     await _localNotifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationResponse,
     );
 
-    final androidPlugin =
-        _localNotifications.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = _localNotifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (androidPlugin == null) return;
 
     await androidPlugin.createNotificationChannel(
@@ -425,26 +425,31 @@ class PushNotificationManager {
     final title = message.notification?.title ?? 'Sven';
     final body = message.notification?.body ?? '';
     final chatId = message.data['chat_id'] as String?;
-    final channel = (message.data['channel'] as String?) ??
+    final channel =
+        (message.data['channel'] as String?) ??
         SvenNotificationChannels.messages;
 
     if (!_inAppController.isClosed) {
-      _inAppController.add(InAppNotification(
-        title: title,
-        body: body,
-        chatId: chatId,
-        channel: channel,
-      ));
+      _inAppController.add(
+        InAppNotification(
+          title: title,
+          body: body,
+          chatId: chatId,
+          channel: channel,
+        ),
+      );
     }
 
     // Track for notification summary when app is backgrounded
     if (_isInBackground) {
-      _missedWhileAway.add(InAppNotification(
-        title: title,
-        body: body,
-        chatId: chatId,
-        channel: channel,
-      ));
+      _missedWhileAway.add(
+        InAppNotification(
+          title: title,
+          body: body,
+          chatId: chatId,
+          channel: channel,
+        ),
+      );
     }
 
     // Also show a local notification so it appears in the notification shade
@@ -477,21 +482,25 @@ class PushNotificationManager {
         final channel = notif.channel;
 
         if (!_inAppController.isClosed) {
-          _inAppController.add(InAppNotification(
-            title: notif.title,
-            body: notif.body,
-            chatId: chatId,
-            channel: channel,
-          ));
+          _inAppController.add(
+            InAppNotification(
+              title: notif.title,
+              body: notif.body,
+              chatId: chatId,
+              channel: channel,
+            ),
+          );
         }
 
         if (_isInBackground) {
-          _missedWhileAway.add(InAppNotification(
-            title: notif.title,
-            body: notif.body,
-            chatId: chatId,
-            channel: channel,
-          ));
+          _missedWhileAway.add(
+            InAppNotification(
+              title: notif.title,
+              body: notif.body,
+              chatId: chatId,
+              channel: channel,
+            ),
+          );
         }
 
         if (!kIsWeb) {
@@ -558,16 +567,16 @@ class PushNotificationManager {
     // ── Build inline reply action for message notifications ──────────
     final List<AndroidNotificationAction> actions = [];
     if (channel == SvenNotificationChannels.messages && chatId.isNotEmpty) {
-      actions.add(const AndroidNotificationAction(
-        _replyActionId,
-        'Reply',
-        showsUserInterface: false,
-        inputs: <AndroidNotificationActionInput>[
-          AndroidNotificationActionInput(
-            label: 'Type a reply…',
-          ),
-        ],
-      ));
+      actions.add(
+        const AndroidNotificationAction(
+          _replyActionId,
+          'Reply',
+          showsUserInterface: false,
+          inputs: <AndroidNotificationActionInput>[
+            AndroidNotificationActionInput(label: 'Type a reply…'),
+          ],
+        ),
+      );
     }
 
     // ── Rich notification styling ────────────────────────────────────
@@ -581,8 +590,8 @@ class PushNotificationManager {
       summaryText: channel == SvenNotificationChannels.approvals
           ? 'Approvals'
           : channel == SvenNotificationChannels.reminders
-              ? 'Reminders'
-              : 'Messages',
+          ? 'Reminders'
+          : 'Messages',
       htmlFormatSummaryText: false,
     );
 
@@ -597,8 +606,8 @@ class PushNotificationManager {
           channel == SvenNotificationChannels.approvals
               ? SvenNotificationChannels.approvalsName
               : channel == SvenNotificationChannels.reminders
-                  ? SvenNotificationChannels.remindersName
-                  : SvenNotificationChannels.messagesName,
+              ? SvenNotificationChannels.remindersName
+              : SvenNotificationChannels.messagesName,
           importance: _effectiveSoundProfile == 'subtle'
               ? Importance.defaultImportance
               : Importance.high,
@@ -622,8 +631,8 @@ class PushNotificationManager {
       final channelName = channel == SvenNotificationChannels.approvals
           ? SvenNotificationChannels.approvalsName
           : channel == SvenNotificationChannels.reminders
-              ? SvenNotificationChannels.remindersName
-              : SvenNotificationChannels.messagesName;
+          ? SvenNotificationChannels.remindersName
+          : SvenNotificationChannels.messagesName;
 
       await _localNotifications.show(
         summaryId,

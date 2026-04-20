@@ -25,11 +25,8 @@ class DeploymentSetupPage extends StatefulWidget {
 
   /// Called after setup succeeds. Passes username + password so the app
   /// can immediately log the user in.
-  final void Function(
-    DeploymentMode mode,
-    String username,
-    String password,
-  ) onSetupComplete;
+  final void Function(DeploymentMode mode, String username, String password)
+  onSetupComplete;
 
   @override
   State<DeploymentSetupPage> createState() => _DeploymentSetupPageState();
@@ -363,7 +360,8 @@ class _DeploymentSetupPageState extends State<DeploymentSetupPage>
                   child: Text(
                     'Back',
                     style: TextStyle(
-                        color: tokens.onSurface.withValues(alpha: 0.6)),
+                      color: tokens.onSurface.withValues(alpha: 0.6),
+                    ),
                   ),
                 ),
                 const Spacer(),
@@ -497,9 +495,11 @@ class _ModeCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon,
-                size: 36,
-                color: selected ? accent : onSurface.withValues(alpha: 0.5)),
+            Icon(
+              icon,
+              size: 36,
+              color: selected ? accent : onSurface.withValues(alpha: 0.5),
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(

@@ -14,8 +14,8 @@ class _FakeApprovalsService extends ApprovalsService {
   _FakeApprovalsService() : super(client: _buildClient());
 
   static AuthenticatedClient _buildClient() => AuthenticatedClient(
-        client: MockClient((_) async => http.Response('{}', 200)),
-      );
+    client: MockClient((_) async => http.Response('{}', 200)),
+  );
 
   List<ApprovalItem> pending = <ApprovalItem>[];
   List<ApprovalItem> all = <ApprovalItem>[];
@@ -38,55 +38,56 @@ class _FakeApprovalsService extends ApprovalsService {
 
 void main() {
   testWidgets(
-      'fallback polling re-fetches approvals after backend state changes',
-      (tester) async {
-    final service = _FakeApprovalsService();
-    final approval = ApprovalItem(
-      id: 'approval-1',
-      status: 'pending',
-      type: 'mobile.audit.approval',
-      title: 'mobile.audit.approval',
-      createdAt: DateTime.parse('2026-03-26T00:13:16.478Z'),
-    );
-
-    service.pending = <ApprovalItem>[approval];
-    service.all = <ApprovalItem>[approval];
-
-    final client = AuthenticatedClient(
-      client: MockClient((_) async => http.Response('{}', 200)),
-    );
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: ApprovalsPage(
-          client: client,
-          service: service,
-          enableSse: false,
-          enableFallbackPolling: true,
-          pollInterval: const Duration(milliseconds: 100),
-        ),
-      ),
-    );
-
-    await tester.pump();
-    expect(find.text('mobile.audit.approval'), findsOneWidget);
-    expect(find.text('No approvals found.'), findsNothing);
-    final initialListCalls = service.listCalls;
-
-    service.pending = <ApprovalItem>[];
-    service.all = <ApprovalItem>[
-      ApprovalItem(
+    'fallback polling re-fetches approvals after backend state changes',
+    (tester) async {
+      final service = _FakeApprovalsService();
+      final approval = ApprovalItem(
         id: 'approval-1',
-        status: 'approved',
+        status: 'pending',
         type: 'mobile.audit.approval',
         title: 'mobile.audit.approval',
         createdAt: DateTime.parse('2026-03-26T00:13:16.478Z'),
-      ),
-    ];
+      );
 
-    await tester.pump(const Duration(milliseconds: 350));
-    await tester.pump();
+      service.pending = <ApprovalItem>[approval];
+      service.all = <ApprovalItem>[approval];
 
-    expect(service.listCalls, greaterThan(initialListCalls));
-  });
+      final client = AuthenticatedClient(
+        client: MockClient((_) async => http.Response('{}', 200)),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ApprovalsPage(
+            client: client,
+            service: service,
+            enableSse: false,
+            enableFallbackPolling: true,
+            pollInterval: const Duration(milliseconds: 100),
+          ),
+        ),
+      );
+
+      await tester.pump();
+      expect(find.text('mobile.audit.approval'), findsOneWidget);
+      expect(find.text('No approvals found.'), findsNothing);
+      final initialListCalls = service.listCalls;
+
+      service.pending = <ApprovalItem>[];
+      service.all = <ApprovalItem>[
+        ApprovalItem(
+          id: 'approval-1',
+          status: 'approved',
+          type: 'mobile.audit.approval',
+          title: 'mobile.audit.approval',
+          createdAt: DateTime.parse('2026-03-26T00:13:16.478Z'),
+        ),
+      ];
+
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pump();
+
+      expect(service.listCalls, greaterThan(initialListCalls));
+    },
+  );
 }

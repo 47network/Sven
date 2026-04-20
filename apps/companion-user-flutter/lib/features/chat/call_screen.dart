@@ -222,11 +222,7 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
               color: tok.primary.withValues(alpha: 0.15),
               border: Border.all(color: tok.primary, width: 3),
               boxShadow: [
-                BoxShadow(
-                  color: tok.glow,
-                  blurRadius: 30,
-                  spreadRadius: 8,
-                ),
+                BoxShadow(color: tok.glow, blurRadius: 30, spreadRadius: 8),
               ],
             ),
             child: Icon(
@@ -321,8 +317,9 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
             _controlButton(
               icon: _micMuted ? Icons.mic_off : Icons.mic,
               label: _micMuted ? 'Unmute' : 'Mute',
-              color:
-                  _micMuted ? tok.error : tok.onSurface.withValues(alpha: 0.7),
+              color: _micMuted
+                  ? tok.error
+                  : tok.onSurface.withValues(alpha: 0.7),
               onTap: _toggleMic,
               tok: tok,
               small: true,

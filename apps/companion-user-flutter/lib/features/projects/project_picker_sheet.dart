@@ -91,8 +91,11 @@ class _ProjectsSheetState extends State<ProjectsSheet> {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Row(
                       children: [
-                        Icon(Icons.folder_special_rounded,
-                            color: tokens.primary, size: 22),
+                        Icon(
+                          Icons.folder_special_rounded,
+                          color: tokens.primary,
+                          size: 22,
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Column(
@@ -113,8 +116,9 @@ class _ProjectsSheetState extends State<ProjectsSheet> {
                                 Text(
                                   widget.conversationTitle!,
                                   style: TextStyle(
-                                    color:
-                                        tokens.onSurface.withValues(alpha: 0.5),
+                                    color: tokens.onSurface.withValues(
+                                      alpha: 0.5,
+                                    ),
                                     fontSize: 12,
                                   ),
                                   maxLines: 1,
@@ -126,10 +130,15 @@ class _ProjectsSheetState extends State<ProjectsSheet> {
                         if (!_showNew)
                           TextButton.icon(
                             onPressed: () => setState(() => _showNew = true),
-                            icon: Icon(Icons.add,
-                                size: 16, color: tokens.primary),
-                            label: Text('New',
-                                style: TextStyle(color: tokens.primary)),
+                            icon: Icon(
+                              Icons.add,
+                              size: 16,
+                              color: tokens.primary,
+                            ),
+                            label: Text(
+                              'New',
+                              style: TextStyle(color: tokens.primary),
+                            ),
                           ),
                       ],
                     ),
@@ -142,8 +151,10 @@ class _ProjectsSheetState extends State<ProjectsSheet> {
                       tokens: tokens,
                       onCancel: () => setState(() => _showNew = false),
                       onCreate: (name, emoji) async {
-                        await widget.service
-                            .createProject(name: name, emoji: emoji);
+                        await widget.service.createProject(
+                          name: name,
+                          emoji: emoji,
+                        );
                         setState(() => _showNew = false);
                       },
                     ),
@@ -159,9 +170,11 @@ class _ProjectsSheetState extends State<ProjectsSheet> {
                                 const SizedBox(height: 8),
                             itemBuilder: (context, i) {
                               final proj = projects[i];
-                              final assigned = widget.conversationId != null &&
-                                  proj.conversationIds
-                                      .contains(widget.conversationId);
+                              final assigned =
+                                  widget.conversationId != null &&
+                                  proj.conversationIds.contains(
+                                    widget.conversationId,
+                                  );
                               return _ProjectTile(
                                 project: proj,
                                 tokens: tokens,
@@ -172,17 +185,23 @@ class _ProjectsSheetState extends State<ProjectsSheet> {
                                         HapticFeedback.lightImpact();
                                         if (assigned) {
                                           await widget.service
-                                              .removeConversation(proj.id,
-                                                  widget.conversationId!);
+                                              .removeConversation(
+                                                proj.id,
+                                                widget.conversationId!,
+                                              );
                                         } else {
                                           await widget.service.addConversation(
-                                              proj.id, widget.conversationId!);
+                                            proj.id,
+                                            widget.conversationId!,
+                                          );
                                         }
                                       }
                                     : () => _openDetail(context, proj),
                                 onDelete: () async {
-                                  final ok =
-                                      await _confirmDelete(context, proj.name);
+                                  final ok = await _confirmDelete(
+                                    context,
+                                    proj.name,
+                                  );
                                   if (ok) {
                                     await widget.service.deleteProject(proj.id);
                                   }
@@ -218,15 +237,18 @@ class _ProjectsSheetState extends State<ProjectsSheet> {
       context: ctx,
       builder: (_) => AlertDialog(
         title: const Text('Delete project?'),
-        content:
-            Text('"$name" will be removed. Conversations are not deleted.'),
+        content: Text(
+          '"$name" will be removed. Conversations are not deleted.',
+        ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete', style: TextStyle(color: Colors.red))),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
         ],
       ),
     );
@@ -276,8 +298,10 @@ class _ProjectTile extends StatelessWidget {
                   color: tokens.primary.withValues(alpha: 0.08),
                 ),
                 child: Center(
-                  child:
-                      Text(project.emoji, style: const TextStyle(fontSize: 20)),
+                  child: Text(
+                    project.emoji,
+                    style: const TextStyle(fontSize: 20),
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -323,20 +347,28 @@ class _ProjectTile extends StatelessWidget {
                     ),
                   ),
                   child: isAssigned
-                      ? const Icon(Icons.check_rounded,
-                          size: 13, color: Colors.white)
+                      ? const Icon(
+                          Icons.check_rounded,
+                          size: 13,
+                          color: Colors.white,
+                        )
                       : const SizedBox.shrink(),
                 )
               else ...[
                 IconButton(
-                  icon: Icon(Icons.delete_outline_rounded,
-                      size: 18,
-                      color: tokens.onSurface.withValues(alpha: 0.35)),
+                  icon: Icon(
+                    Icons.delete_outline_rounded,
+                    size: 18,
+                    color: tokens.onSurface.withValues(alpha: 0.35),
+                  ),
                   tooltip: 'Delete project',
                   onPressed: onDelete,
                 ),
-                Icon(Icons.chevron_right_rounded,
-                    color: tokens.onSurface.withValues(alpha: 0.25), size: 20),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: tokens.onSurface.withValues(alpha: 0.25),
+                  size: 20,
+                ),
               ],
             ],
           ),
@@ -390,11 +422,14 @@ class _CreateProjectFormState extends State<_CreateProjectForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('New project',
-              style: TextStyle(
-                  color: tokens.onSurface,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14)),
+          Text(
+            'New project',
+            style: TextStyle(
+              color: tokens.onSurface,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+          ),
           const SizedBox(height: 12),
           // Emoji picker
           SizedBox(
@@ -421,7 +456,8 @@ class _CreateProjectFormState extends State<_CreateProjectForm> {
                           : null,
                     ),
                     child: Center(
-                        child: Text(e, style: const TextStyle(fontSize: 18))),
+                      child: Text(e, style: const TextStyle(fontSize: 18)),
+                    ),
                   ),
                 );
               },
@@ -434,16 +470,19 @@ class _CreateProjectFormState extends State<_CreateProjectForm> {
             style: TextStyle(color: tokens.onSurface),
             decoration: InputDecoration(
               hintText: 'Project name…',
-              hintStyle:
-                  TextStyle(color: tokens.onSurface.withValues(alpha: 0.35)),
+              hintStyle: TextStyle(
+                color: tokens.onSurface.withValues(alpha: 0.35),
+              ),
               filled: true,
               fillColor: tokens.surface,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide.none,
               ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 10,
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -452,9 +491,12 @@ class _CreateProjectFormState extends State<_CreateProjectForm> {
             children: [
               TextButton(
                 onPressed: widget.onCancel,
-                child: Text('Cancel',
-                    style: TextStyle(
-                        color: tokens.onSurface.withValues(alpha: 0.5))),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: tokens.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
               ),
               const SizedBox(width: 8),
               FilledButton(
@@ -468,7 +510,8 @@ class _CreateProjectFormState extends State<_CreateProjectForm> {
                     ? const SizedBox(
                         width: 14,
                         height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2))
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
                     : const Text('Create'),
               ),
             ],
@@ -553,11 +596,14 @@ class _ProjectDetailSheetState extends State<_ProjectDetailSheet> {
                   Text(p.emoji, style: const TextStyle(fontSize: 28)),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(p.name,
-                        style: TextStyle(
-                            color: tokens.onSurface,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700)),
+                    child: Text(
+                      p.name,
+                      style: TextStyle(
+                        color: tokens.onSurface,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                   TextButton(
                     onPressed: () => setState(() => _editing = !_editing),
@@ -574,22 +620,27 @@ class _ProjectDetailSheetState extends State<_ProjectDetailSheet> {
                 '${p.conversationIds.length == 1 ? '' : 's'} · '
                 'Created ${_formatDate(p.createdAt)}',
                 style: TextStyle(
-                    color: tokens.onSurface.withValues(alpha: 0.4),
-                    fontSize: 13),
+                  color: tokens.onSurface.withValues(alpha: 0.4),
+                  fontSize: 13,
+                ),
               ),
               const SizedBox(height: 16),
-              Text('Context notes',
-                  style: TextStyle(
-                      color: tokens.onSurface,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14)),
+              Text(
+                'Context notes',
+                style: TextStyle(
+                  color: tokens.onSurface,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
               const SizedBox(height: 6),
               Text(
                 'Notes added here are injected into Sven\'s context for '
                 'conversations in this project.',
                 style: TextStyle(
-                    color: tokens.onSurface.withValues(alpha: 0.45),
-                    fontSize: 12),
+                  color: tokens.onSurface.withValues(alpha: 0.45),
+                  fontSize: 12,
+                ),
               ),
               const SizedBox(height: 10),
               if (_editing)
@@ -598,11 +649,13 @@ class _ProjectDetailSheetState extends State<_ProjectDetailSheet> {
                   maxLines: 5,
                   style: TextStyle(color: tokens.onSurface, fontSize: 14),
                   decoration: InputDecoration(
-                    hintText: 'e.g. This is a Python backend project '
+                    hintText:
+                        'e.g. This is a Python backend project '
                         'using FastAPI and PostgreSQL…',
                     hintStyle: TextStyle(
-                        color: tokens.onSurface.withValues(alpha: 0.3),
-                        fontSize: 13),
+                      color: tokens.onSurface.withValues(alpha: 0.3),
+                      fontSize: 13,
+                    ),
                     filled: true,
                     fillColor: tokens.surface,
                     border: OutlineInputBorder(
@@ -626,11 +679,12 @@ class _ProjectDetailSheetState extends State<_ProjectDetailSheet> {
                         ? 'No context notes yet. Tap "Edit notes" to add.'
                         : p.contextNotes,
                     style: TextStyle(
-                        color: p.contextNotes.isEmpty
-                            ? tokens.onSurface.withValues(alpha: 0.3)
-                            : tokens.onSurface,
-                        fontSize: 13,
-                        height: 1.4),
+                      color: p.contextNotes.isEmpty
+                          ? tokens.onSurface.withValues(alpha: 0.3)
+                          : tokens.onSurface,
+                      fontSize: 13,
+                      height: 1.4,
+                    ),
                   ),
                 ),
               if (_editing) ...[
@@ -657,7 +711,8 @@ class _ProjectDetailSheetState extends State<_ProjectDetailSheet> {
                         ? const SizedBox(
                             width: 14,
                             height: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2))
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : const Text('Save'),
                   ),
                 ),
@@ -683,7 +738,7 @@ class _ProjectDetailSheetState extends State<_ProjectDetailSheet> {
       'Sep',
       'Oct',
       'Nov',
-      'Dec'
+      'Dec',
     ];
     return '${months[dt.month]} ${dt.day}, ${dt.year}';
   }
@@ -704,21 +759,27 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.folder_open_rounded,
-              size: 48, color: tokens.onSurface.withValues(alpha: 0.15)),
+          Icon(
+            Icons.folder_open_rounded,
+            size: 48,
+            color: tokens.onSurface.withValues(alpha: 0.15),
+          ),
           const SizedBox(height: 12),
           Text(
             'No projects yet',
             style: TextStyle(
-                color: tokens.onSurface.withValues(alpha: 0.45),
-                fontSize: 15,
-                fontWeight: FontWeight.w600),
+              color: tokens.onSurface.withValues(alpha: 0.45),
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
             'Tap "New" to create a project space',
             style: TextStyle(
-                color: tokens.onSurface.withValues(alpha: 0.3), fontSize: 13),
+              color: tokens.onSurface.withValues(alpha: 0.3),
+              fontSize: 13,
+            ),
           ),
         ],
       ),

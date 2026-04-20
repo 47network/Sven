@@ -48,12 +48,15 @@ class PrivacyPage extends StatelessWidget {
       'exported_at': DateTime.now().toIso8601String(),
       'app_version': '0.1.0',
       'user_name': ms?.userName ?? '',
-      'facts': ms?.facts
-              .map((f) => {
-                    'content': f.content,
-                    'category': f.category.name,
-                    'created_at': f.createdAt.toIso8601String(),
-                  })
+      'facts':
+          ms?.facts
+              .map(
+                (f) => {
+                  'content': f.content,
+                  'category': f.category.name,
+                  'created_at': f.createdAt.toIso8601String(),
+                },
+              )
               .toList() ??
           [],
       'custom_instructions': {
@@ -62,13 +65,16 @@ class PrivacyPage extends StatelessWidget {
       },
       'personality_override': ms?.personalityOverride ?? '',
       'detected_language': ms?.detectedLanguage ?? '',
-      'conversation_summaries': ms?.conversationSummaries
-              .map((s) => {
-                    'title': s.title,
-                    'summary': s.summary,
-                    'updated_at': s.updatedAt.toIso8601String(),
-                    'topic_keywords': s.topicKeywords,
-                  })
+      'conversation_summaries':
+          ms?.conversationSummaries
+              .map(
+                (s) => {
+                  'title': s.title,
+                  'summary': s.summary,
+                  'updated_at': s.updatedAt.toIso8601String(),
+                  'topic_keywords': s.topicKeywords,
+                },
+              )
               .toList() ??
           [],
       'preferences': {
@@ -149,8 +155,10 @@ class PrivacyPage extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         backgroundColor: cinematic ? tokens.card : tokens.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Delete account?',
-            style: TextStyle(color: Theme.of(ctx).colorScheme.error)),
+        title: Text(
+          'Delete account?',
+          style: TextStyle(color: Theme.of(ctx).colorScheme.error),
+        ),
         content: Text(
           'This permanently deletes your account and all associated data '
           'from our servers. This action cannot be undone.',
@@ -159,16 +167,20 @@ class PrivacyPage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Cancel',
-                style:
-                    TextStyle(color: tokens.onSurface.withValues(alpha: 0.6))),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: tokens.onSurface.withValues(alpha: 0.6)),
+            ),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(ctx).colorScheme.error),
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+            ),
             onPressed: () => Navigator.pop(ctx, true),
-            child:
-                const Text('Continue', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Continue',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -181,8 +193,10 @@ class PrivacyPage extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         backgroundColor: cinematic ? tokens.card : tokens.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Are you absolutely sure?',
-            style: TextStyle(color: Theme.of(ctx).colorScheme.error)),
+        title: Text(
+          'Are you absolutely sure?',
+          style: TextStyle(color: Theme.of(ctx).colorScheme.error),
+        ),
         content: Text(
           'Your account, messages, memory, and all server-side data will be '
           'permanently erased. There is no recovery option.',
@@ -191,16 +205,20 @@ class PrivacyPage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Cancel',
-                style:
-                    TextStyle(color: tokens.onSurface.withValues(alpha: 0.6))),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: tokens.onSurface.withValues(alpha: 0.6)),
+            ),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(ctx).colorScheme.error),
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+            ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete my account',
-                style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Delete my account',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -379,8 +397,9 @@ class _PrivacyTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        isDestructive ? Theme.of(context).colorScheme.error : tokens.onSurface;
+    final color = isDestructive
+        ? Theme.of(context).colorScheme.error
+        : tokens.onSurface;
 
     return Material(
       color: cinematic

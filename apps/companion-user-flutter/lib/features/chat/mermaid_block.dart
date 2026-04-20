@@ -53,7 +53,8 @@ class _MermaidBlockState extends State<MermaidBlock> {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(
-          widget.cinematic ? const Color(0xFF0D1117) : Colors.white)
+        widget.cinematic ? const Color(0xFF0D1117) : Colors.white,
+      )
       ..addJavaScriptChannel(
         'FlutterBridge',
         onMessageReceived: (message) {
@@ -136,8 +137,11 @@ class _MermaidBlockState extends State<MermaidBlock> {
             ),
             child: Row(
               children: [
-                Icon(Icons.account_tree_rounded,
-                    size: 14, color: tokens.primary.withValues(alpha: 0.7)),
+                Icon(
+                  Icons.account_tree_rounded,
+                  size: 14,
+                  color: tokens.primary.withValues(alpha: 0.7),
+                ),
                 const SizedBox(width: 6),
                 Text(
                   'Mermaid Diagram',
@@ -162,9 +166,11 @@ class _MermaidBlockState extends State<MermaidBlock> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.copy_rounded,
-                              size: 13,
-                              color: tokens.onSurface.withValues(alpha: 0.45)),
+                          Icon(
+                            Icons.copy_rounded,
+                            size: 13,
+                            color: tokens.onSurface.withValues(alpha: 0.45),
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             'Copy',
@@ -209,7 +215,8 @@ class _MermaidBlockState extends State<MermaidBlock> {
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                                 valueColor: AlwaysStoppedAnimation(
-                                    tokens.primary.withValues(alpha: 0.5)),
+                                  tokens.primary.withValues(alpha: 0.5),
+                                ),
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -288,9 +295,11 @@ class _MermaidBlockState extends State<MermaidBlock> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.copy_rounded,
-                              size: 13,
-                              color: tokens.onSurface.withValues(alpha: 0.45)),
+                          Icon(
+                            Icons.copy_rounded,
+                            size: 13,
+                            color: tokens.onSurface.withValues(alpha: 0.45),
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             'Copy',

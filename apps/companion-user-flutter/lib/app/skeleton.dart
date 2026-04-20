@@ -71,8 +71,10 @@ class _ShimmerHostState extends State<_ShimmerHost>
     final ms = widget.motionLevel == MotionLevel.reduced
         ? (baseMs * 1.5).round()
         : baseMs;
-    _ctrl =
-        AnimationController(vsync: this, duration: Duration(milliseconds: ms));
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: ms),
+    );
     if (widget.motionLevel != MotionLevel.off) _ctrl.repeat();
   }
 
@@ -84,15 +86,15 @@ class _ShimmerHostState extends State<_ShimmerHost>
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-        animation: _ctrl,
-        builder: (_, child) => _ShimmerProvider(
-          t: _ctrl.value,
-          visualMode: widget.visualMode,
-          motionLevel: widget.motionLevel,
-          child: child!,
-        ),
-        child: widget.child,
-      );
+    animation: _ctrl,
+    builder: (_, child) => _ShimmerProvider(
+      t: _ctrl.value,
+      visualMode: widget.visualMode,
+      motionLevel: widget.motionLevel,
+      child: child!,
+    ),
+    child: widget.child,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -159,23 +161,23 @@ class _GlowCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-        decoration: BoxDecoration(
-          color: tokens.card,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: tokens.primary.withValues(alpha: 0.12),
-            width: 0.8,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: tokens.primary.withValues(alpha: 0.07),
-              blurRadius: 16,
-            ),
-          ],
+    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+    decoration: BoxDecoration(
+      color: tokens.card,
+      borderRadius: BorderRadius.circular(14),
+      border: Border.all(
+        color: tokens.primary.withValues(alpha: 0.12),
+        width: 0.8,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: tokens.primary.withValues(alpha: 0.07),
+          blurRadius: 16,
         ),
-        child: child,
-      );
+      ],
+    ),
+    child: child,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -234,16 +236,16 @@ class _TypingDotsState extends State<_TypingDots>
   }
 
   Widget _dot(double opacity) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 3),
-        child: Container(
-          width: 7,
-          height: 7,
-          decoration: BoxDecoration(
-            color: widget.color.withValues(alpha: opacity),
-            shape: BoxShape.circle,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 3),
+    child: Container(
+      width: 7,
+      height: 7,
+      decoration: BoxDecoration(
+        color: widget.color.withValues(alpha: opacity),
+        shape: BoxShape.circle,
+      ),
+    ),
+  );
 }
 
 // ===========================================================================
@@ -306,7 +308,10 @@ class ChatListSkeleton extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const _Bone(
-                              width: double.infinity, height: 14, radius: 5),
+                            width: double.infinity,
+                            height: 14,
+                            radius: 5,
+                          ),
                           const SizedBox(height: 8),
                           _Bone(width: subWidth, height: 11, radius: 4),
                         ],
@@ -391,8 +396,10 @@ class ChatThreadSkeleton extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Container(
                   margin: const EdgeInsets.only(left: 16),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: cinematic
                         ? tokens.card
@@ -405,7 +412,8 @@ class ChatThreadSkeleton extends StatelessWidget {
                     ),
                     border: cinematic
                         ? Border.all(
-                            color: tokens.primary.withValues(alpha: 0.14))
+                            color: tokens.primary.withValues(alpha: 0.14),
+                          )
                         : null,
                     boxShadow: cinematic
                         ? [

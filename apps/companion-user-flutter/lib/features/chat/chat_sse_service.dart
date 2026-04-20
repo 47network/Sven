@@ -10,7 +10,7 @@ import 'chat_models.dart';
 /// Parsed SSE event from the gateway /v1/stream endpoint.
 class SseEvent {
   final String
-      type; // 'message' | 'approval' | 'agent.paused' | 'agent.resumed' | 'heartbeat'
+  type; // 'message' | 'approval' | 'agent.paused' | 'agent.resumed' | 'heartbeat'
   final Map<String, dynamic>? data;
 
   const SseEvent({required this.type, this.data});

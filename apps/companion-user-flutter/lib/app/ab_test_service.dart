@@ -29,11 +29,8 @@ import 'ab_experiments.dart';
 /// Callback invoked when a user is first exposed to an experiment variant.
 ///
 /// Use this to fire analytics events (Firebase, Sentry, etc.).
-typedef AbExposureCallback = void Function(
-  String experimentId,
-  String variant,
-  String userId,
-);
+typedef AbExposureCallback =
+    void Function(String experimentId, String variant, String userId);
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -143,7 +140,8 @@ class AbTestService extends ChangeNotifier {
     final exp = _experiment(experimentId);
     if (exp == null) return 'control';
 
-    final variant = _overrides[experimentId] ??
+    final variant =
+        _overrides[experimentId] ??
         _assignments[experimentId] ??
         exp.variants.keys.first;
 

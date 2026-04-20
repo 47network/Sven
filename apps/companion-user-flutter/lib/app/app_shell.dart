@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -102,9 +102,7 @@ class _AppShellState extends ConsumerState<AppShell> {
         child: Scaffold(
           backgroundColor: tokens.scaffold,
           body: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: tokens.backgroundGradient,
-            ),
+            decoration: BoxDecoration(gradient: tokens.backgroundGradient),
             child: SafeArea(
               child: Column(
                 children: [
@@ -151,10 +149,8 @@ class _AppShellState extends ConsumerState<AppShell> {
                           customShapeSpec: state.customShapeSpec,
                           onCustomShapeChanged: state.setCustomShapeSpec,
                           deviceService: deviceService,
-                          onQuickAction: (prefill) => _openNewChatWithDraft(
-                            context,
-                            prefill,
-                          ),
+                          onQuickAction: (prefill) =>
+                              _openNewChatWithDraft(context, prefill),
                           syncService: ref.read(syncServiceProvider),
                         ),
                       ),
@@ -588,8 +584,9 @@ class _NewChatPageState extends State<_NewChatPage> {
           initialDraft: widget.initialDraft,
           tutorialService: widget.incognito ? null : widget.tutorialService,
           syncService: widget.incognito ? null : widget.syncService,
-          onRegisterExport:
-              widget.incognito ? null : (fn) => setState(() => _exportFn = fn),
+          onRegisterExport: widget.incognito
+              ? null
+              : (fn) => setState(() => _exportFn = fn),
         ),
       ),
     );
@@ -623,8 +620,8 @@ class _PerformanceFallbackBanner extends StatelessWidget {
               child: Text(
                 '$reason — switched to classic mode',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onTertiaryContainer,
-                    ),
+                  color: Theme.of(context).colorScheme.onTertiaryContainer,
+                ),
               ),
             ),
           ],

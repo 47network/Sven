@@ -8,7 +8,7 @@ import '../../app/api_base_service.dart';
 /// corrections pipeline, behavioral patterns, and self-improvement.
 class CommunityAgentsService {
   CommunityAgentsService({required AuthenticatedClient client})
-      : _client = client;
+    : _client = client;
 
   final AuthenticatedClient _client;
 
@@ -45,11 +45,14 @@ class CommunityAgentsService {
   }
 
   Future<bool> reviewModeration(
-      String decisionId, Map<String, dynamic> body) async {
+    String decisionId,
+    Map<String, dynamic> body,
+  ) async {
     final base = ApiBaseService.currentSync();
     final r = await _client.postJson(
       Uri.parse(
-          '$base/v1/admin/community-agents/moderation/$decisionId/review'),
+        '$base/v1/admin/community-agents/moderation/$decisionId/review',
+      ),
       body,
     );
     return r.statusCode == 200;
@@ -121,7 +124,8 @@ class CommunityAgentsService {
     final base = ApiBaseService.currentSync();
     final r = await _client.postJson(
       Uri.parse(
-          '$base/v1/admin/community-agents/corrections/$correctionId/verify'),
+        '$base/v1/admin/community-agents/corrections/$correctionId/verify',
+      ),
       {},
     );
     return r.statusCode == 200;
@@ -131,7 +135,8 @@ class CommunityAgentsService {
     final base = ApiBaseService.currentSync();
     final r = await _client.postJson(
       Uri.parse(
-          '$base/v1/admin/community-agents/corrections/$correctionId/promote'),
+        '$base/v1/admin/community-agents/corrections/$correctionId/promote',
+      ),
       {},
     );
     return r.statusCode == 200;

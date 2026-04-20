@@ -107,10 +107,7 @@ class _SvenEntityPageState extends State<SvenEntityPage>
           const SizedBox(height: 16),
 
           // ── Status bar ──
-          _EntityStatusBar(
-            selected: _selected,
-            tokens: tokens,
-          ),
+          _EntityStatusBar(selected: _selected, tokens: tokens),
           const SizedBox(height: 20),
 
           // ── Quick actions ──
@@ -128,13 +125,15 @@ class _SvenEntityPageState extends State<SvenEntityPage>
           // ── Available forms ──
           _SectionHeader('Available Forms', tokens: tokens),
           const SizedBox(height: 10),
-          ...AvatarMode.values.map((mode) => _EntityFormCard(
-                mode: mode,
-                isSelected: _selected == mode,
-                tokens: tokens,
-                cinematic: cinematic,
-                onTap: () => _pick(mode),
-              )),
+          ...AvatarMode.values.map(
+            (mode) => _EntityFormCard(
+              mode: mode,
+              isSelected: _selected == mode,
+              tokens: tokens,
+              cinematic: cinematic,
+              onTap: () => _pick(mode),
+            ),
+          ),
         ],
       ),
     );
@@ -187,14 +186,16 @@ class _EntityInfoCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color:
-                        accent.withValues(alpha: 0.2 + 0.2 * pulseAnim.value),
+                    color: accent.withValues(
+                      alpha: 0.2 + 0.2 * pulseAnim.value,
+                    ),
                     width: 2,
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: accent.withValues(
-                          alpha: 0.08 + 0.1 * pulseAnim.value),
+                        alpha: 0.08 + 0.1 * pulseAnim.value,
+                      ),
                       blurRadius: 24,
                       spreadRadius: 4,
                     ),
@@ -224,8 +225,9 @@ class _EntityInfoCard extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.green.withValues(alpha: 0.4),
-                          blurRadius: 4),
+                        color: Colors.green.withValues(alpha: 0.4),
+                        blurRadius: 4,
+                      ),
                     ],
                   ),
                 ),
@@ -279,14 +281,17 @@ class _EntityInfoCard extends StatelessWidget {
                 alignment: WrapAlignment.center,
                 children: mode.traits.map((trait) {
                   return Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(6),
                       color: tokens.primary.withValues(alpha: 0.08),
                       border: Border.all(
-                          color: tokens.primary.withValues(alpha: 0.15),
-                          width: 0.5),
+                        color: tokens.primary.withValues(alpha: 0.15),
+                        width: 0.5,
+                      ),
                     ),
                     child: Text(
                       trait,
@@ -311,18 +316,22 @@ class _EntityInfoCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
         children: [
-          Text(key,
-              style: TextStyle(
-                fontSize: 13,
-                color: t.onSurface.withValues(alpha: 0.5),
-              )),
+          Text(
+            key,
+            style: TextStyle(
+              fontSize: 13,
+              color: t.onSurface.withValues(alpha: 0.5),
+            ),
+          ),
           const Spacer(),
-          Text(value,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: t.onSurface,
-              )),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: t.onSurface,
+            ),
+          ),
         ],
       ),
     );
@@ -346,7 +355,9 @@ class _EntityStatusBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         color: tokens.card.withValues(alpha: 0.6),
         border: Border.all(
-            color: tokens.primary.withValues(alpha: 0.15), width: 0.5),
+          color: tokens.primary.withValues(alpha: 0.15),
+          width: 0.5,
+        ),
       ),
       child: Row(
         children: [
@@ -367,7 +378,9 @@ class _EntityStatusBar extends StatelessWidget {
           Text(
             'v1.0',
             style: TextStyle(
-                color: tokens.onSurface.withValues(alpha: 0.4), fontSize: 12),
+              color: tokens.onSurface.withValues(alpha: 0.4),
+              fontSize: 12,
+            ),
           ),
         ],
       ),
@@ -376,8 +389,11 @@ class _EntityStatusBar extends StatelessWidget {
 }
 
 class _StatusDot extends StatelessWidget {
-  const _StatusDot(
-      {required this.label, required this.color, required this.tokens});
+  const _StatusDot({
+    required this.label,
+    required this.color,
+    required this.tokens,
+  });
   final String label;
   final Color color;
   final SvenModeTokens tokens;
@@ -399,11 +415,14 @@ class _StatusDot extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 5),
-        Text(label,
-            style: TextStyle(
-                color: tokens.onSurface.withValues(alpha: 0.7),
-                fontSize: 12,
-                fontWeight: FontWeight.w500)),
+        Text(
+          label,
+          style: TextStyle(
+            color: tokens.onSurface.withValues(alpha: 0.7),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
   }
@@ -558,11 +577,15 @@ class _EntityFormCard extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: statusColor.withValues(alpha: 0.12),
                     border: Border.all(
-                        color: statusColor.withValues(alpha: 0.3), width: 1),
+                      color: statusColor.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
                   ),
                   child: Center(
-                    child:
-                        Text(mode.icon, style: const TextStyle(fontSize: 20)),
+                    child: Text(
+                      mode.icon,
+                      style: const TextStyle(fontSize: 20),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -619,28 +642,36 @@ class _EntityFormCard extends StatelessWidget {
                           runSpacing: 4,
                           children: mode.traits
                               .take(5)
-                              .map((trait) => Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(6),
-                                      color: tokens.primary
-                                          .withValues(alpha: 0.08),
-                                      border: Border.all(
-                                          color: tokens.primary
-                                              .withValues(alpha: 0.15),
-                                          width: 0.4),
+                              .map(
+                                (trait) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(6),
+                                    color: tokens.primary.withValues(
+                                      alpha: 0.08,
                                     ),
-                                    child: Text(
-                                      trait,
-                                      style: TextStyle(
-                                        color: tokens.onSurface
-                                            .withValues(alpha: 0.6),
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w500,
+                                    border: Border.all(
+                                      color: tokens.primary.withValues(
+                                        alpha: 0.15,
                                       ),
+                                      width: 0.4,
                                     ),
-                                  ))
+                                  ),
+                                  child: Text(
+                                    trait,
+                                    style: TextStyle(
+                                      color: tokens.onSurface.withValues(
+                                        alpha: 0.6,
+                                      ),
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              )
                               .toList(),
                         ),
                       ],
@@ -650,11 +681,16 @@ class _EntityFormCard extends StatelessWidget {
 
                 // ── Check or chevron ──
                 isSelected
-                    ? const Icon(Icons.check_circle_rounded,
-                        color: Colors.green, size: 20)
-                    : Icon(Icons.chevron_right_rounded,
+                    ? const Icon(
+                        Icons.check_circle_rounded,
+                        color: Colors.green,
+                        size: 20,
+                      )
+                    : Icon(
+                        Icons.chevron_right_rounded,
                         color: tokens.onSurface.withValues(alpha: 0.25),
-                        size: 20),
+                        size: 20,
+                      ),
               ],
             ),
           ),

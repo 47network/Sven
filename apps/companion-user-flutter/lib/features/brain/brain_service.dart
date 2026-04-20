@@ -64,8 +64,9 @@ class BrainService extends ChangeNotifier {
 
     try {
       final base = ApiBaseService.currentSync();
-      final response =
-          await _client.get(Uri.parse('$base/v1/admin/brain/graph'));
+      final response = await _client.get(
+        Uri.parse('$base/v1/admin/brain/graph'),
+      );
       if (response.statusCode != 200) {
         _error = 'Failed to load brain graph (${response.statusCode})';
         _loading = false;

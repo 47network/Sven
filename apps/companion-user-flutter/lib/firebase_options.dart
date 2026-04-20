@@ -171,37 +171,38 @@ class DefaultFirebaseOptions {
   }
 
   static FirebaseOptions get _prodIos => const FirebaseOptions(
-        apiKey: _iosProdApiKey,
-        appId: _iosProdAppId,
-        messagingSenderId: _messagingSenderId,
-        projectId: _projectId,
-        storageBucket: _storageBucket,
-        iosBundleId: _iosProdBundleId,
-      );
+    apiKey: _iosProdApiKey,
+    appId: _iosProdAppId,
+    messagingSenderId: _messagingSenderId,
+    projectId: _projectId,
+    storageBucket: _storageBucket,
+    iosBundleId: _iosProdBundleId,
+  );
 
   static FirebaseOptions get _devIos => const FirebaseOptions(
-        apiKey: _iosDevApiKey,
-        appId: _iosDevAppId,
-        messagingSenderId: _messagingSenderId,
-        projectId: _projectId,
-        storageBucket: _storageBucket,
-        iosBundleId: _iosDevBundleId,
-      );
+    apiKey: _iosDevApiKey,
+    appId: _iosDevAppId,
+    messagingSenderId: _messagingSenderId,
+    projectId: _projectId,
+    storageBucket: _storageBucket,
+    iosBundleId: _iosDevBundleId,
+  );
 
   static FirebaseOptions get _stagingIos => const FirebaseOptions(
-        apiKey: _iosStagingApiKey,
-        appId: _iosStagingAppId,
-        messagingSenderId: _messagingSenderId,
-        projectId: _projectId,
-        storageBucket: _storageBucket,
-        iosBundleId: _iosStagingBundleId,
-      );
+    apiKey: _iosStagingApiKey,
+    appId: _iosStagingAppId,
+    messagingSenderId: _messagingSenderId,
+    projectId: _projectId,
+    storageBucket: _storageBucket,
+    iosBundleId: _iosStagingBundleId,
+  );
 
   static FirebaseOptions get _webOptions {
     // Safe fallback for local debug web; release requires a real web app id.
     final apiKey = _webApiKey.isNotEmpty ? _webApiKey : _androidProdApiKey;
-    final appId =
-        _webAppId.isNotEmpty ? _webAppId : '1:379390504662:web:000000000000000';
+    final appId = _webAppId.isNotEmpty
+        ? _webAppId
+        : '1:379390504662:web:000000000000000';
 
     if (kReleaseMode && _looksPlaceholderAppId(appId)) {
       throw UnsupportedError(
