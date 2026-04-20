@@ -14,7 +14,9 @@ class BrainAdminService {
 
   Future<Map<String, dynamic>> getGraph() async {
     final base = ApiBaseService.currentSync();
-    final r = await _client.get(Uri.parse('$base/v1/admin/brain/graph'));
+    final r = await _client.get(
+      Uri.parse('$base/v1/admin/brain/graph'),
+    );
     if (r.statusCode != 200) return {};
     return (jsonDecode(r.body)['data'] as Map<String, dynamic>?) ?? {};
   }
@@ -73,7 +75,9 @@ class BrainAdminService {
 
   Future<List<dynamic>> getReasoning() async {
     final base = ApiBaseService.currentSync();
-    final r = await _client.get(Uri.parse('$base/v1/admin/brain/reasoning'));
+    final r = await _client.get(
+      Uri.parse('$base/v1/admin/brain/reasoning'),
+    );
     if (r.statusCode != 200) return [];
     return (jsonDecode(r.body)['data'] as List<dynamic>?) ?? [];
   }

@@ -12,8 +12,7 @@ _$ChatMessageImpl _$$ChatMessageImplFromJson(Map<String, dynamic> json) =>
       role: json['role'] as String,
       text: json['text'] as String,
       timestamp: _parseNullableDateTime(json['created_at']),
-      status:
-          $enumDecodeNullable(_$ChatMessageStatusEnumMap, json['status']) ??
+      status: $enumDecodeNullable(_$ChatMessageStatusEnumMap, json['status']) ??
           ChatMessageStatus.sent,
       senderName: json['sender_name'] as String?,
       contentType: json['content_type'] as String? ?? 'text',

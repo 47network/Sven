@@ -22,7 +22,10 @@ Widget? buildCouncilAccordion(
     if (block is Map && (block['type']?.toString() == 'council')) {
       final content = block['content'];
       if (content is Map<String, dynamic>) {
-        return CouncilAccordion(content: content, visualMode: visualMode);
+        return CouncilAccordion(
+          content: content,
+          visualMode: visualMode,
+        );
       }
     }
   }
@@ -86,7 +89,9 @@ class _CouncilAccordionState extends State<CouncilAccordion> {
             ? tokens.primary.withValues(alpha: 0.06)
             : tokens.primary.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: tokens.primary.withValues(alpha: 0.15)),
+        border: Border.all(
+          color: tokens.primary.withValues(alpha: 0.15),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,10 +123,8 @@ class _CouncilAccordionState extends State<CouncilAccordion> {
                   )
                 else
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: status == 'completed'
                           ? Colors.green.withValues(alpha: 0.1)
@@ -178,20 +181,18 @@ class _CouncilAccordionState extends State<CouncilAccordion> {
                   setState(() => _opinionsExpanded = !_opinionsExpanded),
             ),
             if (_opinionsExpanded)
-              ...opinions.map(
-                (op) => _OpinionTile(
-                  opinion: op,
-                  scores: scores,
-                  expanded: _expandedModel == (op['model'] as String? ?? ''),
-                  tokens: tokens,
-                  onTap: () {
-                    final model = op['model'] as String? ?? '';
-                    setState(() {
-                      _expandedModel = _expandedModel == model ? null : model;
-                    });
-                  },
-                ),
-              ),
+              ...opinions.map((op) => _OpinionTile(
+                    opinion: op,
+                    scores: scores,
+                    expanded: _expandedModel == (op['model'] as String? ?? ''),
+                    tokens: tokens,
+                    onTap: () {
+                      final model = op['model'] as String? ?? '';
+                      setState(() {
+                        _expandedModel = _expandedModel == model ? null : model;
+                      });
+                    },
+                  )),
           ],
 
           // ── Peer reviews accordion ──
@@ -204,9 +205,10 @@ class _CouncilAccordionState extends State<CouncilAccordion> {
               onTap: () => setState(() => _reviewsExpanded = !_reviewsExpanded),
             ),
             if (_reviewsExpanded)
-              ...peerReviews.map(
-                (pr) => _ReviewTile(review: pr, tokens: tokens),
-              ),
+              ...peerReviews.map((pr) => _ReviewTile(
+                    review: pr,
+                    tokens: tokens,
+                  )),
           ],
 
           // ── Footer: cost + strategy ──
@@ -266,11 +268,8 @@ class _AccordionHeader extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
-            Icon(
-              icon,
-              size: 14,
-              color: tokens.onSurface.withValues(alpha: 0.6),
-            ),
+            Icon(icon,
+                size: 14, color: tokens.onSurface.withValues(alpha: 0.6)),
             const SizedBox(width: 6),
             Text(
               title,
@@ -404,7 +403,10 @@ class _OpinionTile extends StatelessWidget {
 // ── Peer review tile ──
 
 class _ReviewTile extends StatelessWidget {
-  const _ReviewTile({required this.review, required this.tokens});
+  const _ReviewTile({
+    required this.review,
+    required this.tokens,
+  });
 
   final Map<String, dynamic> review;
   final SvenModeTokens tokens;

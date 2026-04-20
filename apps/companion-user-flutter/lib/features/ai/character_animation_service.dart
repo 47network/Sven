@@ -174,7 +174,10 @@ class _CharacterAnimationWidgetState extends State<CharacterAnimationWidget>
       vsync: this,
       duration: CharacterSpriteSheet.forState(widget.state).transitionIn,
     );
-    _fadeIn = CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
+    _fadeIn = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
+    );
     _fadeController.value = 1.0;
   }
 

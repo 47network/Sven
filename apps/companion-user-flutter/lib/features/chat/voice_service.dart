@@ -16,7 +16,11 @@ enum SttState {
   processing, // converting speech to text
 }
 
-enum TtsState { idle, speaking, paused }
+enum TtsState {
+  idle,
+  speaking,
+  paused,
+}
 
 class WakeWordMatch {
   const WakeWordMatch({
@@ -142,10 +146,8 @@ class VoiceService extends ChangeNotifier {
 
     // Apply persisted voice selection if set
     if (_selectedVoiceName != null && _selectedVoiceLocale != null) {
-      await _tts.setVoice({
-        'name': _selectedVoiceName!,
-        'locale': _selectedVoiceLocale!,
-      });
+      await _tts.setVoice(
+          {'name': _selectedVoiceName!, 'locale': _selectedVoiceLocale!});
     }
 
     _tts.setStartHandler(() {
@@ -249,9 +251,8 @@ class VoiceService extends ChangeNotifier {
         _transcript = result.recognizedWords;
         _confidence = result.hasConfidenceRating ? result.confidence : 1.0;
         if (_sttState != SttState.processing) {
-          _sttState = result.finalResult
-              ? SttState.processing
-              : SttState.listening;
+          _sttState =
+              result.finalResult ? SttState.processing : SttState.listening;
         }
         notifyListeners();
         onResult(_transcript, result.finalResult);
@@ -435,8 +436,7 @@ class VoiceService extends ChangeNotifier {
     final normalizedPhrase = normalizeWakePhrase(wakePhrase);
     if (normalizedPhrase.isEmpty) return;
 
-    final isSameConfiguration =
-        _wakeWordMonitoring &&
+    final isSameConfiguration = _wakeWordMonitoring &&
         !_wakeWordTriggering &&
         _wakeWordPhrase == normalizedPhrase &&
         _wakeWordLocaleId == localeId;

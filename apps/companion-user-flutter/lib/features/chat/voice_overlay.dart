@@ -348,11 +348,9 @@ class _VoiceOverlayState extends State<VoiceOverlay>
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.white.withValues(alpha: 0.08),
                     ),
-                    icon: Icon(
-                      Icons.close,
-                      size: 24,
-                      color: cinematic ? tokens.onSurface : Colors.white70,
-                    ),
+                    icon: Icon(Icons.close,
+                        size: 24,
+                        color: cinematic ? tokens.onSurface : Colors.white70),
                   ),
                 ),
                 Column(
@@ -362,8 +360,8 @@ class _VoiceOverlayState extends State<VoiceOverlay>
                       onTap: isSpeaking
                           ? _interruptTts
                           : isListening
-                          ? _stopAndConfirm
-                          : (isUnavailable ? null : _startListening),
+                              ? _stopAndConfirm
+                              : (isUnavailable ? null : _startListening),
                       child: AnimatedBuilder(
                         animation: Listenable.merge([_pulseCtrl, _ringCtrl]),
                         builder: (_, __) => CustomPaint(
@@ -431,15 +429,12 @@ class _VoiceOverlayState extends State<VoiceOverlay>
                           constraints: const BoxConstraints(maxHeight: 120),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
+                                horizontal: 16, vertical: 10),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.04),
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
-                                color: accent.withValues(alpha: 0.1),
-                              ),
+                                  color: accent.withValues(alpha: 0.1)),
                             ),
                             child: ListView.separated(
                               controller: _transcriptScroll,
@@ -467,9 +462,8 @@ class _VoiceOverlayState extends State<VoiceOverlay>
                                       child: Text(
                                         turn.text,
                                         style: TextStyle(
-                                          color: Colors.white.withValues(
-                                            alpha: 0.65,
-                                          ),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.65),
                                           fontSize: 13,
                                           height: 1.3,
                                         ),
@@ -493,30 +487,24 @@ class _VoiceOverlayState extends State<VoiceOverlay>
                             ? Container(
                                 key: const ValueKey('transcript'),
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 12,
-                                ),
+                                    horizontal: 20, vertical: 12),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withValues(alpha: 0.06),
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
-                                    color: accent.withValues(alpha: 0.2),
-                                  ),
+                                      color: accent.withValues(alpha: 0.2)),
                                 ),
                                 child: Text(
                                   transcript,
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 17,
-                                    height: 1.4,
-                                  ),
+                                      color: Colors.white,
+                                      fontSize: 17,
+                                      height: 1.4),
                                 ),
                               )
                             : const SizedBox(
-                                key: ValueKey('empty'),
-                                height: 48,
-                              ),
+                                key: ValueKey('empty'), height: 48),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -528,9 +516,8 @@ class _VoiceOverlayState extends State<VoiceOverlay>
                             ? accent
                             : Colors.white.withValues(alpha: 0.5),
                         fontSize: 15,
-                        fontWeight: isListening
-                            ? FontWeight.w500
-                            : FontWeight.normal,
+                        fontWeight:
+                            isListening ? FontWeight.w500 : FontWeight.normal,
                         letterSpacing: cinematic ? 0.8 : 0.2,
                       ),
                     ),
@@ -589,24 +576,19 @@ class _VoiceOverlayState extends State<VoiceOverlay>
                           onTap: _switchToText,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 8,
-                            ),
+                                horizontal: 18, vertical: 8),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
                               color: Colors.white.withValues(alpha: 0.06),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.12),
-                              ),
+                                  color: Colors.white.withValues(alpha: 0.12)),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
-                                  Icons.keyboard_rounded,
-                                  size: 16,
-                                  color: Colors.white.withValues(alpha: 0.5),
-                                ),
+                                Icon(Icons.keyboard_rounded,
+                                    size: 16,
+                                    color: Colors.white.withValues(alpha: 0.5)),
                                 const SizedBox(width: 6),
                                 Text(
                                   'Switch to text',
@@ -681,14 +663,12 @@ class _OverlayButton extends StatelessWidget {
               child: Icon(icon, size: iconSize, color: color),
             ),
             const SizedBox(height: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: color.withValues(alpha: 0.7),
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            Text(label,
+                style: TextStyle(
+                  color: color.withValues(alpha: 0.7),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                )),
           ],
         ),
       ),
@@ -724,8 +704,8 @@ class _OrbPainter extends CustomPainter {
     final baseR = isListening
         ? 55.0 + 20.0 * pulse + 15.0 * levelBoost
         : isSpeaking
-        ? 60.0 + 18.0 * pulse
-        : 55.0 + 15.0 * pulse;
+            ? 60.0 + 18.0 * pulse
+            : 55.0 + 15.0 * pulse;
 
     // Use a warmer color when TTS is speaking
     final orbColor = isSpeaking
@@ -736,37 +716,32 @@ class _OrbPainter extends CustomPainter {
     for (var i = 0; i < ringCount; i++) {
       final phase = (ring + i / ringCount) % 1.0;
       final r = baseR + (isSpeaking ? 90 : 70) * phase;
-      final a =
-          (1 - phase) *
+      final a = (1 - phase) *
           (cinematic
               ? (isListening ? 0.38 : (isSpeaking ? 0.30 : 0.22))
               : 0.15);
       canvas.drawCircle(
-        c,
-        r,
-        Paint()
-          ..color = orbColor.withValues(alpha: a)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = cinematic ? 1.8 : 1.2,
-      );
+          c,
+          r,
+          Paint()
+            ..color = orbColor.withValues(alpha: a)
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = cinematic ? 1.8 : 1.2);
     }
 
     final glowAlpha = isSpeaking
         ? 0.30 + 0.20 * pulse
         : isListening
-        ? 0.35 + 0.15 * pulse
-        : 0.20 + 0.10 * pulse;
+            ? 0.35 + 0.15 * pulse
+            : 0.20 + 0.10 * pulse;
     canvas.drawCircle(
-      c,
-      baseR + 35,
-      Paint()
-        ..shader = RadialGradient(
-          colors: [
+        c,
+        baseR + 35,
+        Paint()
+          ..shader = RadialGradient(colors: [
             orbColor.withValues(alpha: glowAlpha),
             orbColor.withValues(alpha: 0),
-          ],
-        ).createShader(Rect.fromCircle(center: c, radius: baseR + 35)),
-    );
+          ]).createShader(Rect.fromCircle(center: c, radius: baseR + 35)));
 
     if (isProcessing) {
       canvas.drawArc(
@@ -783,31 +758,27 @@ class _OrbPainter extends CustomPainter {
     }
 
     canvas.drawCircle(
-      c,
-      baseR,
-      Paint()
-        ..shader = RadialGradient(
-          colors: [
-            orbColor.withValues(alpha: 0.98),
-            orbColor.withValues(alpha: 0.6),
-            orbColor.withValues(alpha: 0.18),
-          ],
-          stops: const [0.0, 0.6, 1.0],
-        ).createShader(Rect.fromCircle(center: c, radius: baseR)),
-    );
+        c,
+        baseR,
+        Paint()
+          ..shader = RadialGradient(
+            colors: [
+              orbColor.withValues(alpha: 0.98),
+              orbColor.withValues(alpha: 0.6),
+              orbColor.withValues(alpha: 0.18),
+            ],
+            stops: const [0.0, 0.6, 1.0],
+          ).createShader(Rect.fromCircle(center: c, radius: baseR)));
 
     // Center highlight — show mic icon hint for speaking state
     canvas.drawCircle(
-      c,
-      baseR * 0.32,
-      Paint()
-        ..shader = RadialGradient(
-          colors: [
+        c,
+        baseR * 0.32,
+        Paint()
+          ..shader = RadialGradient(colors: [
             Colors.white.withValues(alpha: 0.60 + 0.20 * pulse),
             Colors.white.withValues(alpha: 0),
-          ],
-        ).createShader(Rect.fromCircle(center: c, radius: baseR * 0.32)),
-    );
+          ]).createShader(Rect.fromCircle(center: c, radius: baseR * 0.32)));
   }
 
   @override
@@ -917,7 +888,7 @@ class _NoiseLevelPill extends StatelessWidget {
                     color: color.withValues(alpha: 0.35),
                     blurRadius: 10,
                     spreadRadius: 0,
-                  ),
+                  )
                 ]
               : null,
         ),

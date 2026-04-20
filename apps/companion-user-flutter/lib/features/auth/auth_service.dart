@@ -38,8 +38,8 @@ class LoginResult {
 
 class AuthService {
   AuthService({http.Client? client, TokenStore? store})
-    : _client = client ?? http.Client(),
-      _store = store ?? TokenStore();
+      : _client = client ?? http.Client(),
+        _store = store ?? TokenStore();
   static String get _apiBase => ApiBaseService.currentSync();
 
   /// Exposes the compiled-in API base URL for services that need it
@@ -141,10 +141,10 @@ class AuthService {
     final timer = Stopwatch()..start();
     final uri = Uri.parse('$_apiBase/v1/auth/login');
     try {
-      final response = await _postJson(uri, {
-        'username': username,
-        'password': password,
-      });
+      final response = await _postJson(
+        uri,
+        {'username': username, 'password': password},
+      );
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
         final failure = _mapStatus(response.statusCode).failure;
@@ -168,8 +168,7 @@ class AuthService {
       final tokenSource = data ?? body;
 
       // Support both legacy MFA and current gateway TOTP challenge responses.
-      final requiresMfa =
-          tokenSource['requires_totp'] == true ||
+      final requiresMfa = tokenSource['requires_totp'] == true ||
           tokenSource['mfa_required'] == true;
       if (requiresMfa) {
         final mfaToken =
@@ -192,11 +191,10 @@ class AuthService {
         );
       }
 
-      final token =
-          (tokenSource['accessToken'] ??
-                  tokenSource['access_token'] ??
-                  tokenSource['token'])
-              ?.toString();
+      final token = (tokenSource['accessToken'] ??
+              tokenSource['access_token'] ??
+              tokenSource['token'])
+          ?.toString();
       final refreshToken =
           (tokenSource['refreshToken'] ?? tokenSource['refresh_token'])
               ?.toString();
@@ -205,8 +203,8 @@ class AuthService {
       }
 
       // Extract user identity from response
-      final userId = (tokenSource['user_id'] ?? tokenSource['userId'])
-          ?.toString();
+      final userId =
+          (tokenSource['user_id'] ?? tokenSource['userId'])?.toString();
       final respUsername = (tokenSource['username'])?.toString();
       if (userId == null || userId.isEmpty) {
         throw AuthException(AuthFailure.server);
@@ -258,7 +256,10 @@ class AuthService {
     }
     final uri = Uri.parse('$_apiBase/v1/auth/refresh');
     try {
-      final response = await _postJson(uri, {'refreshToken': refreshToken});
+      final response = await _postJson(
+        uri,
+        {'refreshToken': refreshToken},
+      );
 
       if (response.statusCode == 401) {
         _emitEvent(
@@ -291,11 +292,10 @@ class AuthService {
       final data = body['data'] as Map<String, dynamic>?;
       final tokenSource = data ?? body;
 
-      final token =
-          (tokenSource['accessToken'] ??
-                  tokenSource['access_token'] ??
-                  tokenSource['token'])
-              ?.toString();
+      final token = (tokenSource['accessToken'] ??
+              tokenSource['access_token'] ??
+              tokenSource['token'])
+          ?.toString();
       final nextRefresh =
           (tokenSource['refreshToken'] ?? tokenSource['refresh_token'])
               ?.toString();
@@ -418,13 +418,10 @@ class AuthService {
         return null; // success
       }
       final body = jsonDecode(response.body) as Map<String, dynamic>?;
-      final message =
-          (body?['error'] as Map?)?['message'] as String? ??
+      final message = (body?['error'] as Map?)?['message'] as String? ??
           'Password change failed (${response.statusCode})';
-      Telemetry.logEvent('auth.change_password', {
-        'success': false,
-        'status_code': response.statusCode,
-      });
+      Telemetry.logEvent('auth.change_password',
+          {'success': false, 'status_code': response.statusCode});
       return message;
     } catch (e) {
       return 'Network error — please try again';
@@ -472,11 +469,10 @@ class AuthService {
       final data = respBody['data'] as Map<String, dynamic>?;
       final tokenSource = data ?? respBody;
 
-      final token =
-          (tokenSource['accessToken'] ??
-                  tokenSource['access_token'] ??
-                  tokenSource['token'])
-              ?.toString();
+      final token = (tokenSource['accessToken'] ??
+              tokenSource['access_token'] ??
+              tokenSource['token'])
+          ?.toString();
       final refreshToken =
           (tokenSource['refreshToken'] ?? tokenSource['refresh_token'])
               ?.toString();
@@ -484,8 +480,8 @@ class AuthService {
         throw AuthException(AuthFailure.server);
       }
 
-      final userId = (tokenSource['user_id'] ?? tokenSource['userId'])
-          ?.toString();
+      final userId =
+          (tokenSource['user_id'] ?? tokenSource['userId'])?.toString();
       final username = tokenSource['username']?.toString();
       if (userId == null || userId.isEmpty) {
         throw AuthException(AuthFailure.server);
@@ -574,8 +570,8 @@ class AuthService {
       final data = body['data'] as Map<String, dynamic>? ?? body;
       var token = (data['accessToken'] ?? data['access_token'] ?? data['token'])
           ?.toString();
-      final refreshToken = (data['refreshToken'] ?? data['refresh_token'])
-          ?.toString();
+      final refreshToken =
+          (data['refreshToken'] ?? data['refresh_token'])?.toString();
       final userId = (data['user_id'] ?? data['userId'])?.toString();
       final username = data['username']?.toString();
 
@@ -583,8 +579,8 @@ class AuthService {
       // the active session id and can be used as both access + refresh token.
       final effectiveRefreshToken =
           (refreshToken != null && refreshToken.isNotEmpty)
-          ? refreshToken
-          : mfaToken;
+              ? refreshToken
+              : mfaToken;
       if ((token == null || token.isEmpty) &&
           userId != null &&
           userId.isNotEmpty) {
@@ -842,7 +838,10 @@ class AuthService {
     final uri = Uri.parse('$_apiBase/v1/auth/accounts/link');
     final response = await _postJson(
       uri,
-      {if (label != null) 'label': label, if (pin != null) 'pin': pin},
+      {
+        if (label != null) 'label': label,
+        if (pin != null) 'pin': pin,
+      },
       token: token,
       extraHeaders: {'X-Device-Id': deviceId},
     );
@@ -919,10 +918,8 @@ class AuthService {
       final storedHash = await _store.readAccountPin(targetUserId);
       if (storedHash == null ||
           !_store.verifyPin(pin, targetUserId, storedHash)) {
-        throw AuthException(
-          AuthFailure.invalidCredentials,
-          detail: 'Invalid PIN',
-        );
+        throw AuthException(AuthFailure.invalidCredentials,
+            detail: 'Invalid PIN');
       }
     }
 
@@ -932,7 +929,10 @@ class AuthService {
     final uri = Uri.parse('$_apiBase/v1/auth/accounts/switch');
     final response = await _postJson(
       uri,
-      {'target_user_id': targetUserId, if (pin != null) 'pin': pin},
+      {
+        'target_user_id': targetUserId,
+        if (pin != null) 'pin': pin,
+      },
       token: currentToken,
       extraHeaders: {'X-Device-Id': deviceId},
     );
@@ -1000,10 +1000,8 @@ class AuthService {
       );
     }
 
-    throw AuthException(
-      AuthFailure.sessionExpired,
-      detail: 'Please sign in to this account again',
-    );
+    throw AuthException(AuthFailure.sessionExpired,
+        detail: 'Please sign in to this account again');
   }
 
   /// Unlink an account from this device.
@@ -1013,10 +1011,10 @@ class AuthService {
     if (token != null) {
       try {
         final uri = Uri.parse('$_apiBase/v1/auth/accounts/$userId');
-        await _client.delete(
-          uri,
-          headers: {'Authorization': 'Bearer $token', 'X-Device-Id': deviceId},
-        );
+        await _client.delete(uri, headers: {
+          'Authorization': 'Bearer $token',
+          'X-Device-Id': deviceId,
+        });
       } catch (_) {
         // Best-effort server unlink
       }

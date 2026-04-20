@@ -17,36 +17,34 @@ class UserFact {
   final FactCategory category;
   final bool isStarred;
 
-  UserFact copyWith({
-    String? content,
-    FactCategory? category,
-    bool? isStarred,
-  }) => UserFact(
-    id: id,
-    content: content ?? this.content,
-    createdAt: createdAt,
-    category: category ?? this.category,
-    isStarred: isStarred ?? this.isStarred,
-  );
+  UserFact copyWith(
+          {String? content, FactCategory? category, bool? isStarred}) =>
+      UserFact(
+        id: id,
+        content: content ?? this.content,
+        createdAt: createdAt,
+        category: category ?? this.category,
+        isStarred: isStarred ?? this.isStarred,
+      );
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'content': content,
-    'createdAt': createdAt.toIso8601String(),
-    'category': category.name,
-    'isStarred': isStarred,
-  };
+        'id': id,
+        'content': content,
+        'createdAt': createdAt.toIso8601String(),
+        'category': category.name,
+        'isStarred': isStarred,
+      };
 
   factory UserFact.fromJson(Map<String, dynamic> json) => UserFact(
-    id: json['id'] as String,
-    content: json['content'] as String,
-    createdAt: DateTime.parse(json['createdAt'] as String),
-    category: FactCategory.values.firstWhere(
-      (c) => c.name == json['category'],
-      orElse: () => FactCategory.general,
-    ),
-    isStarred: (json['isStarred'] as bool?) ?? false,
-  );
+        id: json['id'] as String,
+        content: json['content'] as String,
+        createdAt: DateTime.parse(json['createdAt'] as String),
+        category: FactCategory.values.firstWhere(
+          (c) => c.name == json['category'],
+          orElse: () => FactCategory.general,
+        ),
+        isStarred: (json['isStarred'] as bool?) ?? false,
+      );
 }
 
 enum FactCategory {
@@ -70,7 +68,10 @@ enum FactCategory {
 }
 
 class CustomInstructions {
-  const CustomInstructions({this.userContext = '', this.responseStyle = ''});
+  const CustomInstructions({
+    this.userContext = '',
+    this.responseStyle = '',
+  });
 
   /// Who the user is / what they do — added to system prompt context.
   final String userContext;
@@ -123,12 +124,12 @@ class ConversationSummary {
   final List<String> topicKeywords;
 
   Map<String, dynamic> toJson() => {
-    'chatId': chatId,
-    'title': title,
-    'summary': summary,
-    'updatedAt': updatedAt.toIso8601String(),
-    'topicKeywords': topicKeywords,
-  };
+        'chatId': chatId,
+        'title': title,
+        'summary': summary,
+        'updatedAt': updatedAt.toIso8601String(),
+        'topicKeywords': topicKeywords,
+      };
 
   factory ConversationSummary.fromJson(Map<String, dynamic> json) =>
       ConversationSummary(
@@ -136,8 +137,7 @@ class ConversationSummary {
         title: json['title'] as String? ?? '',
         summary: json['summary'] as String,
         updatedAt: DateTime.parse(json['updatedAt'] as String),
-        topicKeywords:
-            (json['topicKeywords'] as List<dynamic>?)
+        topicKeywords: (json['topicKeywords'] as List<dynamic>?)
                 ?.map((e) => e as String)
                 .toList() ??
             [],

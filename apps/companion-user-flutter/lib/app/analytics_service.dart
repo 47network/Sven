@@ -42,11 +42,14 @@ class SvenAnalytics {
   Future<void> logFirstMessage() => _log('first_message');
 
   /// Fired every time a message is sent.
-  Future<void> logMessageSent({required String mode, bool incognito = false}) =>
-      _log(
-        'message_sent',
-        params: {'conversation_mode': mode, 'incognito': incognito ? '1' : '0'},
-      );
+  Future<void> logMessageSent({
+    required String mode,
+    bool incognito = false,
+  }) =>
+      _log('message_sent', params: {
+        'conversation_mode': mode,
+        'incognito': incognito ? '1' : '0',
+      });
 
   /// Fired when an AI response finishes streaming.
   Future<void> logResponseReceived({required int latencyMs}) =>
@@ -78,7 +81,10 @@ class SvenAnalytics {
     }
   }
 
-  Future<void> _log(String name, {Map<String, Object>? params}) async {
+  Future<void> _log(
+    String name, {
+    Map<String, Object>? params,
+  }) async {
     if (!_enabled) return;
     try {
       await _fa.logEvent(name: name, parameters: params);

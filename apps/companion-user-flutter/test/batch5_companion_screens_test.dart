@@ -16,9 +16,9 @@ class FakeDeviceService extends DeviceService {
   FakeDeviceService({
     required List<Device> devices,
     required Map<String, DeviceDetail> details,
-  }) : _devicesState = List<Device>.from(devices),
-       _detailsState = Map<String, DeviceDetail>.from(details),
-       super(client: AuthenticatedClient(client: http.Client()));
+  })  : _devicesState = List<Device>.from(devices),
+        _detailsState = Map<String, DeviceDetail>.from(details),
+        super(client: AuthenticatedClient(client: http.Client()));
 
   final List<Device> _devicesState;
   final Map<String, DeviceDetail> _detailsState;
@@ -57,9 +57,8 @@ class FakeDeviceService extends DeviceService {
       capabilities: capabilities,
       config: const <String, dynamic>{},
       pairingCode: 'ABC123',
-      pairingExpires: DateTime.now()
-          .add(const Duration(minutes: 15))
-          .toIso8601String(),
+      pairingExpires:
+          DateTime.now().add(const Duration(minutes: 15)).toIso8601String(),
       createdAt: DateTime.now(),
     );
     _devicesState.insert(0, device);
@@ -151,7 +150,10 @@ class FakeDeploymentService extends DeploymentService {
     submittedUsername = username;
     submittedPassword = password;
     submittedDisplayName = displayName;
-    return <String, dynamic>{'mode': mode.apiValue, 'username': username};
+    return <String, dynamic>{
+      'mode': mode.apiValue,
+      'username': username,
+    };
   }
 }
 
@@ -189,9 +191,8 @@ void main() {
   });
 
   group('Batch 5 companion screens', () {
-    testWidgets('device manager shows registered devices and pairing dialog', (
-      tester,
-    ) async {
+    testWidgets('device manager shows registered devices and pairing dialog',
+        (tester) async {
       final pairingDevice = sampleDevice(
         id: 'pairing-1',
         name: 'Kitchen Mirror',
@@ -221,12 +222,8 @@ void main() {
       );
 
       await tester.pumpWidget(
-        wrapPage(
-          DeviceManagerPage(
-            deviceService: service,
-            visualMode: VisualMode.cinematic,
-          ),
-        ),
+        wrapPage(DeviceManagerPage(
+            deviceService: service, visualMode: VisualMode.cinematic)),
       );
       await tester.pumpAndSettle();
 
@@ -243,9 +240,8 @@ void main() {
       expect(find.text('Expires in 15 minutes'), findsOneWidget);
     });
 
-    testWidgets('device control quick ping issues command and shows feedback', (
-      tester,
-    ) async {
+    testWidgets('device control quick ping issues command and shows feedback',
+        (tester) async {
       final device = sampleDevice(
         id: 'online-2',
         name: 'Hallway Mirror',
@@ -279,13 +275,11 @@ void main() {
       );
 
       await tester.pumpWidget(
-        wrapPage(
-          DeviceControlPage(
-            deviceService: service,
-            device: device,
-            visualMode: VisualMode.cinematic,
-          ),
-        ),
+        wrapPage(DeviceControlPage(
+          deviceService: service,
+          device: device,
+          visualMode: VisualMode.cinematic,
+        )),
       );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
@@ -307,60 +301,57 @@ void main() {
     });
 
     testWidgets(
-      'device control open url normalizes host-only input and queues command',
-      (tester) async {
-        final device = sampleDevice(
-          id: 'online-open-url',
-          name: 'Desk Screen Live',
-          status: DeviceStatus.online,
-          capabilities: const <String>['display', 'desktop_control'],
-        );
-        final service = FakeDeviceService(
-          devices: <Device>[device],
-          details: <String, DeviceDetail>{
-            device.id: DeviceDetail(
-              device: device,
-              recentEvents: const <DeviceEvent>[],
-              recentCommands: const <DeviceCommand>[],
-            ),
-          },
-        );
-
-        await tester.pumpWidget(
-          wrapPage(
-            DeviceControlPage(
-              deviceService: service,
-              device: device,
-              visualMode: VisualMode.cinematic,
-            ),
+        'device control open url normalizes host-only input and queues command',
+        (tester) async {
+      final device = sampleDevice(
+        id: 'online-open-url',
+        name: 'Desk Screen Live',
+        status: DeviceStatus.online,
+        capabilities: const <String>['display', 'desktop_control'],
+      );
+      final service = FakeDeviceService(
+        devices: <Device>[device],
+        details: <String, DeviceDetail>{
+          device.id: DeviceDetail(
+            device: device,
+            recentEvents: const <DeviceEvent>[],
+            recentCommands: const <DeviceCommand>[],
           ),
-        );
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 100));
+        },
+      );
 
-        final openUrlAction = find.ancestor(
-          of: find.byIcon(Icons.open_in_browser_rounded),
-          matching: find.byType(InkWell),
-        );
-        await tester.tap(openUrlAction.first);
-        await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        wrapPage(DeviceControlPage(
+          deviceService: service,
+          device: device,
+          visualMode: VisualMode.cinematic,
+        )),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
 
-        await tester.enterText(find.byType(TextField).last, 'sven.systems');
-        await tester.tap(find.widgetWithText(FilledButton, 'Open'));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 150));
+      final openUrlAction = find.ancestor(
+        of: find.byIcon(Icons.open_in_browser_rounded),
+        matching: find.byType(InkWell),
+      );
+      await tester.tap(openUrlAction.first);
+      await tester.pumpAndSettle();
 
-        expect(service.sentCommands, contains('open_url'));
-        expect(service.sentPayloads.last['payload'], <String, dynamic>{
-          'url': 'https://sven.systems',
-        });
-        expect(find.text('Command sent: open_url'), findsOneWidget);
-      },
-    );
+      await tester.enterText(find.byType(TextField).last, 'sven.systems');
+      await tester.tap(find.widgetWithText(FilledButton, 'Open'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 150));
 
-    testWidgets('device control display sends plain text as text content', (
-      tester,
-    ) async {
+      expect(service.sentCommands, contains('open_url'));
+      expect(
+        service.sentPayloads.last['payload'],
+        <String, dynamic>{'url': 'https://sven.systems'},
+      );
+      expect(find.text('Command sent: open_url'), findsOneWidget);
+    });
+
+    testWidgets('device control display sends plain text as text content',
+        (tester) async {
       final device = sampleDevice(
         id: 'online-display',
         name: 'Desk Screen Live',
@@ -379,13 +370,11 @@ void main() {
       );
 
       await tester.pumpWidget(
-        wrapPage(
-          DeviceControlPage(
-            deviceService: service,
-            device: device,
-            visualMode: VisualMode.cinematic,
-          ),
-        ),
+        wrapPage(DeviceControlPage(
+          deviceService: service,
+          device: device,
+          visualMode: VisualMode.cinematic,
+        )),
       );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
@@ -403,130 +392,118 @@ void main() {
       await tester.pump(const Duration(milliseconds: 150));
 
       expect(service.sentCommands, contains('display'));
-      expect(service.sentPayloads.last['payload'], <String, dynamic>{
-        'type': 'text',
-        'content': 'release status',
-      });
+      expect(
+        service.sentPayloads.last['payload'],
+        <String, dynamic>{'type': 'text', 'content': 'release status'},
+      );
       expect(find.text('Command sent: display'), findsOneWidget);
     });
 
-    testWidgets(
-      'device control type text trims input before queueing command',
-      (tester) async {
-        final device = sampleDevice(
-          id: 'online-type',
-          name: 'Desk Screen Live',
-          status: DeviceStatus.online,
-          capabilities: const <String>['display', 'desktop_control'],
-        );
-        final service = FakeDeviceService(
-          devices: <Device>[device],
-          details: <String, DeviceDetail>{
-            device.id: DeviceDetail(
-              device: device,
-              recentEvents: const <DeviceEvent>[],
-              recentCommands: const <DeviceCommand>[],
-            ),
-          },
-        );
-
-        await tester.pumpWidget(
-          wrapPage(
-            DeviceControlPage(
-              deviceService: service,
-              device: device,
-              visualMode: VisualMode.cinematic,
-            ),
+    testWidgets('device control type text trims input before queueing command',
+        (tester) async {
+      final device = sampleDevice(
+        id: 'online-type',
+        name: 'Desk Screen Live',
+        status: DeviceStatus.online,
+        capabilities: const <String>['display', 'desktop_control'],
+      );
+      final service = FakeDeviceService(
+        devices: <Device>[device],
+        details: <String, DeviceDetail>{
+          device.id: DeviceDetail(
+            device: device,
+            recentEvents: const <DeviceEvent>[],
+            recentCommands: const <DeviceCommand>[],
           ),
-        );
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 100));
+        },
+      );
 
-        final typeTextAction = find.ancestor(
-          of: find.byIcon(Icons.keyboard_rounded),
-          matching: find.byType(InkWell),
-        );
-        await tester.tap(typeTextAction.first);
-        await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        wrapPage(DeviceControlPage(
+          deviceService: service,
+          device: device,
+          visualMode: VisualMode.cinematic,
+        )),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
 
-        await tester.enterText(find.byType(TextField).last, '  hello desk  ');
-        await tester.tap(find.widgetWithText(FilledButton, 'Send'));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 150));
+      final typeTextAction = find.ancestor(
+        of: find.byIcon(Icons.keyboard_rounded),
+        matching: find.byType(InkWell),
+      );
+      await tester.tap(typeTextAction.first);
+      await tester.pumpAndSettle();
 
-        expect(service.sentCommands, contains('type_text'));
-        expect(service.sentPayloads.last['payload'], <String, dynamic>{
-          'text': 'hello desk',
-        });
-        expect(find.text('Command sent: type_text'), findsOneWidget);
-      },
-    );
+      await tester.enterText(find.byType(TextField).last, '  hello desk  ');
+      await tester.tap(find.widgetWithText(FilledButton, 'Send'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 150));
 
-    testWidgets(
-      'deployment setup completes and returns submitted credentials',
-      (tester) async {
-        final service = FakeDeploymentService();
-        DeploymentMode? completedMode;
-        String? completedUsername;
-        String? completedPassword;
+      expect(service.sentCommands, contains('type_text'));
+      expect(
+        service.sentPayloads.last['payload'],
+        <String, dynamic>{'text': 'hello desk'},
+      );
+      expect(find.text('Command sent: type_text'), findsOneWidget);
+    });
 
-        await tester.pumpWidget(
-          wrapPage(
-            DeploymentSetupPage(
-              deploymentService: service,
-              onSetupComplete: (mode, username, password) {
-                completedMode = mode;
-                completedUsername = username;
-                completedPassword = password;
-              },
-            ),
+    testWidgets('deployment setup completes and returns submitted credentials',
+        (tester) async {
+      final service = FakeDeploymentService();
+      DeploymentMode? completedMode;
+      String? completedUsername;
+      String? completedPassword;
+
+      await tester.pumpWidget(
+        wrapPage(
+          DeploymentSetupPage(
+            deploymentService: service,
+            onSetupComplete: (mode, username, password) {
+              completedMode = mode;
+              completedUsername = username;
+              completedPassword = password;
+            },
           ),
-        );
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 200));
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
 
-        expect(find.text('Welcome to Sven'), findsOneWidget);
-        expect(find.text('Household / Team'), findsOneWidget);
+      expect(find.text('Welcome to Sven'), findsOneWidget);
+      expect(find.text('Household / Team'), findsOneWidget);
 
-        await tester.tap(find.text('Continue'));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 500));
+      await tester.tap(find.text('Continue'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
-        await tester.enterText(
-          find.widgetWithText(TextField, 'Display name (optional)'),
-          'Stan',
-        );
-        await tester.enterText(
-          find.widgetWithText(TextField, 'Username'),
-          'stan',
-        );
-        await tester.enterText(
-          find.widgetWithText(TextField, 'Password'),
-          'StrongTemp#2026',
-        );
-        await tester.tap(find.text('Create'));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 500));
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Display name (optional)'), 'Stan');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Username'), 'stan');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Password'), 'StrongTemp#2026');
+      await tester.tap(find.text('Create'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
-        expect(find.text("You're all set!"), findsOneWidget);
-        expect(service.submittedMode, DeploymentMode.personal);
-        expect(service.submittedUsername, 'stan');
-        expect(service.submittedPassword, 'StrongTemp#2026');
-        expect(service.submittedDisplayName, 'Stan');
+      expect(find.text("You're all set!"), findsOneWidget);
+      expect(service.submittedMode, DeploymentMode.personal);
+      expect(service.submittedUsername, 'stan');
+      expect(service.submittedPassword, 'StrongTemp#2026');
+      expect(service.submittedDisplayName, 'Stan');
 
-        await tester.tap(find.text('Get Started'));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 200));
+      await tester.tap(find.text('Get Started'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
 
-        expect(completedMode, DeploymentMode.personal);
-        expect(completedUsername, 'stan');
-        expect(completedPassword, 'StrongTemp#2026');
-      },
-    );
+      expect(completedMode, DeploymentMode.personal);
+      expect(completedUsername, 'stan');
+      expect(completedPassword, 'StrongTemp#2026');
+    });
 
-    testWidgets('mirror mode renders gateway channel and motion state', (
-      tester,
-    ) async {
+    testWidgets('mirror mode renders gateway channel and motion state',
+        (tester) async {
       await tester.pumpWidget(
         wrapPage(
           const MirrorModeScreen(

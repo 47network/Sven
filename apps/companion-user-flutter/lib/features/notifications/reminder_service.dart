@@ -27,7 +27,10 @@ class ReminderService {
         requestSoundPermission: false,
       );
       await _plugin.initialize(
-        const InitializationSettings(android: androidInit, iOS: iosInit),
+        const InitializationSettings(
+          android: androidInit,
+          iOS: iosInit,
+        ),
       );
       _initialized = true;
     } catch (e) {

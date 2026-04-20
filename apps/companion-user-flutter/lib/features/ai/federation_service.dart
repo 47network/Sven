@@ -44,7 +44,9 @@ class FederationService {
 
   Future<List<dynamic>> getPeers() async {
     final base = ApiBaseService.currentSync();
-    final r = await _client.get(Uri.parse('$base/v1/admin/federation/peers'));
+    final r = await _client.get(
+      Uri.parse('$base/v1/admin/federation/peers'),
+    );
     if (r.statusCode != 200) return [];
     return (jsonDecode(r.body)['data'] as List<dynamic>?) ?? [];
   }
@@ -102,7 +104,9 @@ class FederationService {
 
   Future<Map<String, dynamic>> getConsent() async {
     final base = ApiBaseService.currentSync();
-    final r = await _client.get(Uri.parse('$base/v1/admin/federation/consent'));
+    final r = await _client.get(
+      Uri.parse('$base/v1/admin/federation/consent'),
+    );
     if (r.statusCode != 200) return {};
     return (jsonDecode(r.body)['data'] as Map<String, dynamic>?) ?? {};
   }

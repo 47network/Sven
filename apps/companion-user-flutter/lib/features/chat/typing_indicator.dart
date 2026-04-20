@@ -91,7 +91,10 @@ class _BouncingDots extends StatelessWidget {
           builder: (context, child) {
             final phase = (controller.value + i * 0.2) % 1.0;
             final y = -4.0 * (phase < 0.5 ? phase : 1.0 - phase);
-            return Transform.translate(offset: Offset(0, y), child: child);
+            return Transform.translate(
+              offset: Offset(0, y),
+              child: child,
+            );
           },
           child: Container(
             width: 6,

@@ -74,19 +74,16 @@ class _InMemoryTokenStore extends TokenStore {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-http.Response _json(int statusCode, Map<String, dynamic> body) => http.Response(
-  jsonEncode(body),
-  statusCode,
-  headers: {'content-type': 'application/json'},
-);
+http.Response _json(int statusCode, Map<String, dynamic> body) =>
+    http.Response(jsonEncode(body), statusCode,
+        headers: {'content-type': 'application/json'});
 
 void main() {
   late _InMemoryTokenStore store;
 
   setUp(() async {
-    SharedPreferences.setMockInitialValues({
-      'sven.api_base': 'https://test.api',
-    });
+    SharedPreferences.setMockInitialValues(
+        {'sven.api_base': 'https://test.api'});
     await ApiBaseService.load();
     store = _InMemoryTokenStore();
   });
@@ -100,16 +97,14 @@ void main() {
 
   group('login', () {
     test('happy path stores tokens and returns LoginResult', () async {
-      final client = MockClient(
-        (_) async => _json(200, {
-          'data': {
-            'accessToken': 'tok',
-            'refresh_token': 'ref',
-            'user_id': 'u1',
-            'username': 'alice',
-          },
-        }),
-      );
+      final client = MockClient((_) async => _json(200, {
+            'data': {
+              'accessToken': 'tok',
+              'refresh_token': 'ref',
+              'user_id': 'u1',
+              'username': 'alice',
+            }
+          }));
       final svc = buildService(client);
 
       final result = await svc.login(username: 'alice', password: 'secret');
@@ -124,11 +119,12 @@ void main() {
     });
 
     test('MFA required returns partial result with mfaToken', () async {
-      final client = MockClient(
-        (_) async => _json(200, {
-          'data': {'requires_totp': true, 'pre_session_id': 'mfa-token-1'},
-        }),
-      );
+      final client = MockClient((_) async => _json(200, {
+            'data': {
+              'requires_totp': true,
+              'pre_session_id': 'mfa-token-1',
+            }
+          }));
       final svc = buildService(client);
 
       final result = await svc.login(username: 'bob', password: 'pass');
@@ -145,13 +141,8 @@ void main() {
 
       expect(
         () => svc.login(username: 'x', password: 'y'),
-        throwsA(
-          isA<AuthException>().having(
-            (e) => e.failure,
-            'failure',
-            AuthFailure.invalidCredentials,
-          ),
-        ),
+        throwsA(isA<AuthException>().having(
+            (e) => e.failure, 'failure', AuthFailure.invalidCredentials)),
       );
     });
 
@@ -161,31 +152,20 @@ void main() {
 
       expect(
         () => svc.login(username: 'x', password: 'y'),
-        throwsA(
-          isA<AuthException>().having(
-            (e) => e.failure,
-            'failure',
-            AuthFailure.accountLocked,
-          ),
-        ),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.accountLocked)),
       );
     });
 
     test('429 throws rateLimited', () async {
-      final client = MockClient(
-        (_) async => _json(429, {'error': 'slow down'}),
-      );
+      final client =
+          MockClient((_) async => _json(429, {'error': 'slow down'}));
       final svc = buildService(client);
 
       expect(
         () => svc.login(username: 'x', password: 'y'),
-        throwsA(
-          isA<AuthException>().having(
-            (e) => e.failure,
-            'failure',
-            AuthFailure.rateLimited,
-          ),
-        ),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.rateLimited)),
       );
     });
 
@@ -195,13 +175,8 @@ void main() {
 
       expect(
         () => svc.login(username: 'x', password: 'y'),
-        throwsA(
-          isA<AuthException>().having(
-            (e) => e.failure,
-            'failure',
-            AuthFailure.server,
-          ),
-        ),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.server)),
       );
     });
 
@@ -209,46 +184,35 @@ void main() {
       final client = MockClient((_) async => http.Response('not json', 200));
       final svc = buildService(client);
 
-      expect(() => svc.login(username: 'x', password: 'y'), throwsA(anything));
+      expect(
+        () => svc.login(username: 'x', password: 'y'),
+        throwsA(anything),
+      );
     });
 
     test('missing token in 200 response throws server error', () async {
-      final client = MockClient(
-        (_) async => _json(200, {
-          'data': {'user_id': 'u1'},
-        }),
-      );
+      final client = MockClient((_) async => _json(200, {
+            'data': {'user_id': 'u1'}
+          }));
       final svc = buildService(client);
 
       expect(
         () => svc.login(username: 'x', password: 'y'),
-        throwsA(
-          isA<AuthException>().having(
-            (e) => e.failure,
-            'failure',
-            AuthFailure.server,
-          ),
-        ),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.server)),
       );
     });
 
     test('missing user_id in 200 response throws server error', () async {
-      final client = MockClient(
-        (_) async => _json(200, {
-          'data': {'accessToken': 'tok'},
-        }),
-      );
+      final client = MockClient((_) async => _json(200, {
+            'data': {'accessToken': 'tok'}
+          }));
       final svc = buildService(client);
 
       expect(
         () => svc.login(username: 'x', password: 'y'),
-        throwsA(
-          isA<AuthException>().having(
-            (e) => e.failure,
-            'failure',
-            AuthFailure.server,
-          ),
-        ),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.server)),
       );
     });
   });
@@ -260,11 +224,12 @@ void main() {
   group('refresh', () {
     test('success returns new access token and updates store', () async {
       await store.writeRefreshToken('old-ref');
-      final client = MockClient(
-        (_) async => _json(200, {
-          'data': {'accessToken': 'new-tok', 'refresh_token': 'new-ref'},
-        }),
-      );
+      final client = MockClient((_) async => _json(200, {
+            'data': {
+              'accessToken': 'new-tok',
+              'refresh_token': 'new-ref',
+            }
+          }));
       final svc = buildService(client);
 
       final token = await svc.refresh();
@@ -281,13 +246,8 @@ void main() {
 
       expect(
         () => svc.refresh(),
-        throwsA(
-          isA<AuthException>().having(
-            (e) => e.failure,
-            'failure',
-            AuthFailure.sessionExpired,
-          ),
-        ),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.sessionExpired)),
       );
     });
 
@@ -297,13 +257,8 @@ void main() {
 
       expect(
         () => svc.refresh(),
-        throwsA(
-          isA<AuthException>().having(
-            (e) => e.failure,
-            'failure',
-            AuthFailure.sessionExpired,
-          ),
-        ),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.sessionExpired)),
       );
     });
 
@@ -313,7 +268,7 @@ void main() {
       final client = MockClient((_) async {
         callCount++;
         return _json(200, {
-          'data': {'accessToken': 'dedup-tok', 'refresh_token': 'dedup-ref'},
+          'data': {'accessToken': 'dedup-tok', 'refresh_token': 'dedup-ref'}
         });
       });
       final svc = buildService(client);
@@ -384,10 +339,8 @@ void main() {
       final client = MockClient((_) async => _json(200, {}));
       final svc = buildService(client);
 
-      final result = await svc.changePassword(
-        currentPassword: 'old',
-        newPassword: 'new',
-      );
+      final result =
+          await svc.changePassword(currentPassword: 'old', newPassword: 'new');
 
       expect(result, isNull);
     });
@@ -397,10 +350,8 @@ void main() {
       final client = MockClient((_) async => http.Response('', 204));
       final svc = buildService(client);
 
-      final result = await svc.changePassword(
-        currentPassword: 'old',
-        newPassword: 'new',
-      );
+      final result =
+          await svc.changePassword(currentPassword: 'old', newPassword: 'new');
 
       expect(result, isNull);
     });
@@ -409,27 +360,21 @@ void main() {
       final client = MockClient((_) async => _json(200, {}));
       final svc = buildService(client);
 
-      final result = await svc.changePassword(
-        currentPassword: 'old',
-        newPassword: 'new',
-      );
+      final result =
+          await svc.changePassword(currentPassword: 'old', newPassword: 'new');
 
       expect(result, 'Not authenticated');
     });
 
     test('returns server error message on failure', () async {
       await store.writeAccessToken('tok');
-      final client = MockClient(
-        (_) async => _json(400, {
-          'error': {'message': 'Password too weak'},
-        }),
-      );
+      final client = MockClient((_) async => _json(400, {
+            'error': {'message': 'Password too weak'}
+          }));
       final svc = buildService(client);
 
-      final result = await svc.changePassword(
-        currentPassword: 'old',
-        newPassword: 'weak',
-      );
+      final result =
+          await svc.changePassword(currentPassword: 'old', newPassword: 'weak');
 
       expect(result, 'Password too weak');
     });
@@ -439,10 +384,8 @@ void main() {
       final client = MockClient((_) async => _json(422, {}));
       final svc = buildService(client);
 
-      final result = await svc.changePassword(
-        currentPassword: 'old',
-        newPassword: 'new',
-      );
+      final result =
+          await svc.changePassword(currentPassword: 'old', newPassword: 'new');
 
       expect(result, contains('422'));
     });
@@ -462,7 +405,7 @@ void main() {
             'refresh_token': 'mfa-ref',
             'user_id': 'u1',
             'username': 'alice',
-          },
+          }
         });
       });
       final svc = buildService(client);
@@ -488,7 +431,7 @@ void main() {
             'refresh_token': 'fallback-ref',
             'user_id': 'u2',
             'username': 'bob',
-          },
+          }
         });
       });
       final svc = buildService(client);
@@ -505,13 +448,8 @@ void main() {
 
       expect(
         () => svc.verifyMfa(mfaToken: 'pre', code: '000000'),
-        throwsA(
-          isA<AuthException>().having(
-            (e) => e.failure,
-            'failure',
-            AuthFailure.mfaInvalidCode,
-          ),
-        ),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.mfaInvalidCode)),
       );
     });
 
@@ -521,37 +459,29 @@ void main() {
 
       expect(
         () => svc.verifyMfa(mfaToken: 'pre', code: '000000'),
-        throwsA(
-          isA<AuthException>().having(
-            (e) => e.failure,
-            'failure',
-            AuthFailure.mfaInvalidCode,
-          ),
-        ),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.mfaInvalidCode)),
       );
     });
 
-    test(
-      'uses mfaToken as fallback when tokens missing from response',
-      () async {
-        final client = MockClient(
-          (_) async => _json(200, {
-            'data': {'user_id': 'u3', 'username': 'charlie'},
-          }),
-        );
-        final svc = buildService(client);
+    test('uses mfaToken as fallback when tokens missing from response',
+        () async {
+      final client = MockClient((_) async => _json(200, {
+            'data': {
+              'user_id': 'u3',
+              'username': 'charlie',
+            }
+          }));
+      final svc = buildService(client);
 
-        final result = await svc.verifyMfa(
-          mfaToken: 'pre-sess-id',
-          code: '111111',
-        );
+      final result =
+          await svc.verifyMfa(mfaToken: 'pre-sess-id', code: '111111');
 
-        expect(result.token, 'pre-sess-id');
-        expect(result.userId, 'u3');
-        expect(await store.readAccessToken(), 'pre-sess-id');
-        expect(await store.readRefreshToken(), 'pre-sess-id');
-      },
-    );
+      expect(result.token, 'pre-sess-id');
+      expect(result.userId, 'u3');
+      expect(await store.readAccessToken(), 'pre-sess-id');
+      expect(await store.readRefreshToken(), 'pre-sess-id');
+    });
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -577,7 +507,7 @@ void main() {
             'refresh_token': 'sso-ref',
             'user_id': 'sso-u1',
             'username': 'googleuser',
-          },
+          }
         });
       });
       final svc = buildService(client);
@@ -592,20 +522,14 @@ void main() {
     });
 
     test('401 throws invalidCredentials', () async {
-      final client = MockClient(
-        (_) async => _json(401, {'error': 'bad token'}),
-      );
+      final client =
+          MockClient((_) async => _json(401, {'error': 'bad token'}));
       final svc = buildService(client);
 
       expect(
         () => svc.loginWithSso(credential),
-        throwsA(
-          isA<AuthException>().having(
-            (e) => e.failure,
-            'failure',
-            AuthFailure.invalidCredentials,
-          ),
-        ),
+        throwsA(isA<AuthException>().having(
+            (e) => e.failure, 'failure', AuthFailure.invalidCredentials)),
       );
     });
 
@@ -615,33 +539,21 @@ void main() {
 
       expect(
         () => svc.loginWithSso(credential),
-        throwsA(
-          isA<AuthException>().having(
-            (e) => e.failure,
-            'failure',
-            AuthFailure.server,
-          ),
-        ),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.server)),
       );
     });
 
     test('missing token in response throws server error', () async {
-      final client = MockClient(
-        (_) async => _json(200, {
-          'data': {'user_id': 'u1'},
-        }),
-      );
+      final client = MockClient((_) async => _json(200, {
+            'data': {'user_id': 'u1'}
+          }));
       final svc = buildService(client);
 
       expect(
         () => svc.loginWithSso(credential),
-        throwsA(
-          isA<AuthException>().having(
-            (e) => e.failure,
-            'failure',
-            AuthFailure.server,
-          ),
-        ),
+        throwsA(isA<AuthException>()
+            .having((e) => e.failure, 'failure', AuthFailure.server)),
       );
     });
 
@@ -661,7 +573,7 @@ void main() {
             'refresh_token': 'apple-ref',
             'user_id': 'apple-u1',
             'username': 'appleuser',
-          },
+          }
         });
       });
       final svc = buildService(client);

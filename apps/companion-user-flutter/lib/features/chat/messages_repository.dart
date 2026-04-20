@@ -32,17 +32,17 @@ class MessagesRepository {
     DbEncryption? encryption,
     Future<DbEncryption?>? encryptionFuture,
     bool requireEncryption = true,
-  }) : assert(
-         encryption == null || encryptionFuture == null,
-         'Provide either encryption or encryptionFuture, not both.',
-       ),
-       _db = db,
-       _encFuture = encryptionFuture ?? Future<DbEncryption?>.value(encryption),
-       _requireEncryption = requireEncryption {
+  })  : assert(
+          encryption == null || encryptionFuture == null,
+          'Provide either encryption or encryptionFuture, not both.',
+        ),
+        _db = db,
+        _encFuture =
+            encryptionFuture ?? Future<DbEncryption?>.value(encryption),
+        _requireEncryption = requireEncryption {
     if (!_requireEncryption && kReleaseMode) {
       throw StateError(
-        'Plaintext repository mode is not allowed in release builds',
-      );
+          'Plaintext repository mode is not allowed in release builds');
     }
   }
 
@@ -114,7 +114,10 @@ class MessagesRepository {
   }
 
   /// Persist a list of [ChatMessage] objects for [chatId] (upsert).
-  Future<void> cacheMessages(String chatId, List<ChatMessage> messages) async {
+  Future<void> cacheMessages(
+    String chatId,
+    List<ChatMessage> messages,
+  ) async {
     final enc = await _resolveEnc();
     await _db.upsertMessages(
       messages
@@ -192,7 +195,10 @@ class MessagesRepository {
 
   // ── Conversions ── DB row → domain model ─────────────────────────────────
 
-  ChatThreadSummary _threadFromRow(DbChatThread row, DbEncryption? enc) =>
+  ChatThreadSummary _threadFromRow(
+    DbChatThread row,
+    DbEncryption? enc,
+  ) =>
       ChatThreadSummary(
         id: row.id,
         title: _d(row.title, enc),
@@ -207,7 +213,10 @@ class MessagesRepository {
         tag: row.tag,
       );
 
-  ChatMessage _messageFromRow(DbChatMessage row, DbEncryption? enc) =>
+  ChatMessage _messageFromRow(
+    DbChatMessage row,
+    DbEncryption? enc,
+  ) =>
       ChatMessage(
         id: row.id,
         role: row.role,
@@ -226,37 +235,38 @@ class MessagesRepository {
   DbChatThreadsCompanion _threadToCompanion(
     ChatThreadSummary t,
     DbEncryption? enc,
-  ) => DbChatThreadsCompanion.insert(
-    id: t.id,
-    title: _e(t.title, enc),
-    lastMessage: Value(_e(t.lastMessage, enc)),
-    updatedAt: t.updatedAt.millisecondsSinceEpoch,
-    unreadCount: Value(t.unreadCount),
-    type: Value(t.type),
-    channel: t.channel != null ? Value(t.channel!) : const Value.absent(),
-    messageCount: Value(t.messageCount),
-    isPinned: Value(t.isPinned),
-    isArchived: Value(t.isArchived),
-    tag: t.tag != null ? Value(t.tag!) : const Value.absent(),
-  );
+  ) =>
+      DbChatThreadsCompanion.insert(
+        id: t.id,
+        title: _e(t.title, enc),
+        lastMessage: Value(_e(t.lastMessage, enc)),
+        updatedAt: t.updatedAt.millisecondsSinceEpoch,
+        unreadCount: Value(t.unreadCount),
+        type: Value(t.type),
+        channel: t.channel != null ? Value(t.channel!) : const Value.absent(),
+        messageCount: Value(t.messageCount),
+        isPinned: Value(t.isPinned),
+        isArchived: Value(t.isArchived),
+        tag: t.tag != null ? Value(t.tag!) : const Value.absent(),
+      );
 
   DbChatMessagesCompanion _messageToCompanion(
     String chatId,
     ChatMessage m,
     DbEncryption? enc,
-  ) => DbChatMessagesCompanion.insert(
-    id: m.id,
-    chatId: m.chatId ?? chatId,
-    role: m.role,
-    content: _e(m.text, enc),
-    timestamp: m.timestamp.millisecondsSinceEpoch,
-    status: Value(m.status.name),
-    senderName: m.senderName != null
-        ? Value(m.senderName!)
-        : const Value.absent(),
-    contentType: Value(m.contentType),
-    isEdited: Value(m.isEdited),
-  );
+  ) =>
+      DbChatMessagesCompanion.insert(
+        id: m.id,
+        chatId: m.chatId ?? chatId,
+        role: m.role,
+        content: _e(m.text, enc),
+        timestamp: m.timestamp.millisecondsSinceEpoch,
+        status: Value(m.status.name),
+        senderName:
+            m.senderName != null ? Value(m.senderName!) : const Value.absent(),
+        contentType: Value(m.contentType),
+        isEdited: Value(m.isEdited),
+      );
 
   // ── Status enum ↔ String ──────────────────────────────────────────────────
 

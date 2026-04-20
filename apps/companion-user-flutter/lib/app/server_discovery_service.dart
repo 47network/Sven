@@ -42,10 +42,7 @@ abstract final class ServerDiscoveryService {
     final trimmed = input.trim();
     if (trimmed.isEmpty) {
       throw ArgumentError.value(
-        input,
-        'input',
-        'Server address cannot be empty',
-      );
+          input, 'input', 'Server address cannot be empty');
     }
 
     // Normalize to a base URL.
@@ -114,8 +111,7 @@ abstract final class ServerDiscoveryService {
         instanceName: svenClient['instance_name'] as String?,
         version: svenClient['version'] as String?,
         registrationEnabled: svenClient['registration_enabled'] as bool?,
-        ssoProviders:
-            (svenClient['sso_providers'] as List<dynamic>?)
+        ssoProviders: (svenClient['sso_providers'] as List<dynamic>?)
                 ?.map((e) => e.toString())
                 .toList() ??
             const [],

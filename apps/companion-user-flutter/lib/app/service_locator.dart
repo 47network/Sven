@@ -83,7 +83,9 @@ Future<void> setupServiceLocator() async {
   // generated on first launch and stored in the platform keystore.
   // MessagesRepository is the domain-facing cache layer built on top.
   if (!sl.isRegistered<Future<DbEncryption>>()) {
-    sl.registerLazySingleton<Future<DbEncryption>>(() => DbEncryption.init());
+    sl.registerLazySingleton<Future<DbEncryption>>(
+      () => DbEncryption.init(),
+    );
   }
   if (!sl.isRegistered<AppDatabase>()) {
     sl.registerLazySingleton<AppDatabase>(() => AppDatabase());
@@ -153,7 +155,9 @@ Future<void> setupServiceLocator() async {
   // AbTestService drives deterministic variant assignment and QA overrides.
   // Bind it to the signed-in userId after auth (see SvenUserApp._onAuth).
   if (!sl.isRegistered<AbTestService>()) {
-    sl.registerLazySingleton<AbTestService>(() => AbTestService.instance);
+    sl.registerLazySingleton<AbTestService>(
+      () => AbTestService.instance,
+    );
   }
 
   // ── 6. Memory service ─────────────────────────────────────────────────────

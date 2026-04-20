@@ -55,22 +55,20 @@ void main() {
       expect(svc.timeout, AutoLockTimeout.oneMinute);
     });
 
-    test(
-      'onBackground + onForeground with zero duration locks immediately',
-      () async {
-        final svc = AppLockService();
-        await Future<void>.delayed(const Duration(milliseconds: 50));
-        await svc.setLockEnabled(true);
-        await svc.setTimeout(AutoLockTimeout.immediately);
+    test('onBackground + onForeground with zero duration locks immediately',
+        () async {
+      final svc = AppLockService();
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      await svc.setLockEnabled(true);
+      await svc.setTimeout(AutoLockTimeout.immediately);
 
-        svc.onBackground();
-        // Simulate instant resume (0 ms elapsed — Duration.zero means always lock)
-        await Future<void>.delayed(const Duration(milliseconds: 1));
-        svc.onForeground();
+      svc.onBackground();
+      // Simulate instant resume (0 ms elapsed — Duration.zero means always lock)
+      await Future<void>.delayed(const Duration(milliseconds: 1));
+      svc.onForeground();
 
-        expect(svc.isLocked, isTrue);
-      },
-    );
+      expect(svc.isLocked, isTrue);
+    });
 
     test('onForeground does not lock when within timeout window', () async {
       final svc = AppLockService();

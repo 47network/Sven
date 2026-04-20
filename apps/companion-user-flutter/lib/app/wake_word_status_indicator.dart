@@ -117,7 +117,12 @@ class _WakeWordStatusIndicatorState extends State<WakeWordStatusIndicator>
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Opacity(
               opacity: opacity,
-              child: Icon(icon, color: color, size: 18, semanticLabel: tooltip),
+              child: Icon(
+                icon,
+                color: color,
+                size: 18,
+                semanticLabel: tooltip,
+              ),
             ),
           ),
         );

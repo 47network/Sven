@@ -75,20 +75,17 @@ class _BrainPageState extends State<BrainPage> with TickerProviderStateMixin {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? const Color(0xFF0a0e1a)
-          : const Color(0xFFF0F2F8),
+      backgroundColor:
+          isDark ? const Color(0xFF0a0e1a) : const Color(0xFFF0F2F8),
       appBar: AppBar(
         title: const Text('Brain Map'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(
-              _autoRotate
-                  ? Icons.pause_circle_outline
-                  : Icons.play_circle_outline,
-            ),
+            icon: Icon(_autoRotate
+                ? Icons.pause_circle_outline
+                : Icons.play_circle_outline),
             onPressed: () => setState(() => _autoRotate = !_autoRotate),
             tooltip: _autoRotate ? 'Pause rotation' : 'Resume rotation',
           ),
@@ -159,11 +156,8 @@ class _BrainPageState extends State<BrainPage> with TickerProviderStateMixin {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.warning_amber,
-                color: Colors.orange.shade400,
-                size: 48,
-              ),
+              Icon(Icons.warning_amber,
+                  color: Colors.orange.shade400, size: 48),
               const SizedBox(height: 12),
               Text(
                 _service.error!,
@@ -206,9 +200,8 @@ class _BrainPageState extends State<BrainPage> with TickerProviderStateMixin {
                 _rotationX += details.focalPointDelta.dy * 0.005;
                 _rotationX = _rotationX.clamp(-pi / 2.5, pi / 2.5);
               } else if (details.scale != 1.0) {
-                _service.setZoom(
-                  _service.zoom * details.scale.clamp(0.95, 1.05),
-                );
+                _service
+                    .setZoom(_service.zoom * details.scale.clamp(0.95, 1.05));
               }
             });
           },
@@ -308,7 +301,9 @@ class _BrainPageState extends State<BrainPage> with TickerProviderStateMixin {
             ? Colors.white.withValues(alpha: 0.05)
             : Colors.black.withValues(alpha: 0.03),
         border: Border(
-          top: BorderSide(color: isDark ? Colors.white12 : Colors.black12),
+          top: BorderSide(
+            color: isDark ? Colors.white12 : Colors.black12,
+          ),
         ),
       ),
       child: Row(
@@ -351,9 +346,9 @@ class _BrainPageState extends State<BrainPage> with TickerProviderStateMixin {
 
   Widget _buildDetailSheet(bool isDark) {
     final node = _service.filteredNodes.cast<BrainNode?>().firstWhere(
-      (n) => n?.id == _service.selectedNodeId,
-      orElse: () => null,
-    );
+          (n) => n?.id == _service.selectedNodeId,
+          orElse: () => null,
+        );
     if (node == null) return const SizedBox.shrink();
 
     return Container(
@@ -469,26 +464,21 @@ class _Brain3DPainter extends CustomPainter {
     // Project all nodes into screen space.
     final projected = <String, _Projected3D>{};
     for (final n in nodes) {
-      projected[n.id] = _transform(
-        n.x,
-        n.y,
-        n.z,
-        cosY,
-        sinY,
-        cosX,
-        sinX,
-        cx,
-        cy,
-      );
+      projected[n.id] =
+          _transform(n.x, n.y, n.z, cosY, sinY, cosX, sinX, cx, cy);
     }
 
     // ── Ambient glow background ──────────────────────────────────────
     if (isDark) {
       final bgGlow = Paint()
-        ..shader = ui.Gradient.radial(Offset(cx, cy), size.shortestSide * 0.6, [
-          const Color(0xFF1a1a3e).withValues(alpha: 0.5),
-          const Color(0xFF0a0e1a).withValues(alpha: 0.0),
-        ]);
+        ..shader = ui.Gradient.radial(
+          Offset(cx, cy),
+          size.shortestSide * 0.6,
+          [
+            const Color(0xFF1a1a3e).withValues(alpha: 0.5),
+            const Color(0xFF0a0e1a).withValues(alpha: 0.0),
+          ],
+        );
       canvas.drawRect(Offset.zero & size, bgGlow);
     }
 
@@ -501,9 +491,8 @@ class _Brain3DPainter extends CustomPainter {
       final depthAlpha = _depthAlpha(avgDepth) * 0.4;
 
       final edgePaint = Paint()
-        ..color = (isDark ? Colors.white : Colors.blueGrey).withValues(
-          alpha: depthAlpha,
-        )
+        ..color = (isDark ? Colors.white : Colors.blueGrey)
+            .withValues(alpha: depthAlpha)
         ..strokeWidth = (0.5 + edge.weight * 0.8) * _depthScale(avgDepth)
         ..style = PaintingStyle.stroke;
       canvas.drawLine(pa.offset, pb.offset, edgePaint);
@@ -532,25 +521,33 @@ class _Brain3DPainter extends CustomPainter {
       final radius = isSelected
           ? baseRadius + 3 + pulseValue * 2
           : node.state == BrainNodeState.resonating
-          ? baseRadius + pulseValue * 2
-          : baseRadius;
+              ? baseRadius + pulseValue * 2
+              : baseRadius;
 
       // ── Outer glow ─────────────────────────────────────────────
       if (isDark) {
         final glowR = radius * (isSelected ? 4.0 : 2.5);
         final glowA = (isSelected ? 0.4 : 0.15) * alpha;
         final glowPaint = Paint()
-          ..shader = ui.Gradient.radial(p.offset, glowR, [
-            color.withValues(alpha: glowA),
-            color.withValues(alpha: 0.0),
-          ]);
+          ..shader = ui.Gradient.radial(
+            p.offset,
+            glowR,
+            [
+              color.withValues(alpha: glowA),
+              color.withValues(alpha: 0.0),
+            ],
+          );
         canvas.drawCircle(p.offset, glowR, glowPaint);
       } else if (isSelected || node.state == BrainNodeState.resonating) {
         final glowPaint = Paint()
-          ..shader = ui.Gradient.radial(p.offset, radius * 2.5, [
-            color.withValues(alpha: 0.3 * alpha),
-            color.withValues(alpha: 0.0),
-          ]);
+          ..shader = ui.Gradient.radial(
+            p.offset,
+            radius * 2.5,
+            [
+              color.withValues(alpha: 0.3 * alpha),
+              color.withValues(alpha: 0.0),
+            ],
+          );
         canvas.drawCircle(p.offset, radius * 2.5, glowPaint);
       }
 
@@ -608,7 +605,10 @@ class _Brain3DPainter extends CustomPainter {
         textPainter.layout(maxWidth: 140);
         textPainter.paint(
           canvas,
-          Offset(p.offset.dx - textPainter.width / 2, p.offset.dy + radius + 6),
+          Offset(
+            p.offset.dx - textPainter.width / 2,
+            p.offset.dy + radius + 6,
+          ),
         );
       }
     }

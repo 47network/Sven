@@ -116,11 +116,9 @@ class _ChatListPanelState extends State<ChatListPanel> {
     }
     if (_searchQuery.isNotEmpty) {
       list = list
-          .where(
-            (t) =>
-                t.title.toLowerCase().contains(_searchQuery) ||
-                t.lastMessage.toLowerCase().contains(_searchQuery),
-          )
+          .where((t) =>
+              t.title.toLowerCase().contains(_searchQuery) ||
+              t.lastMessage.toLowerCase().contains(_searchQuery))
           .toList();
     }
     // Sort: pinned first, then by updatedAt descending
@@ -156,13 +154,10 @@ class _ChatListPanelState extends State<ChatListPanel> {
         final cinematic = widget.visualMode == VisualMode.cinematic;
         return AlertDialog(
           backgroundColor: cinematic ? tokens.card : tokens.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(
-            'Delete chat?',
-            style: TextStyle(color: tokens.onSurface),
-          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title:
+              Text('Delete chat?', style: TextStyle(color: tokens.onSurface)),
           content: Text(
             'This will permanently delete "${thread.title}".',
             style: TextStyle(color: tokens.onSurface.withValues(alpha: 0.7)),
@@ -170,22 +165,17 @@ class _ChatListPanelState extends State<ChatListPanel> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text(
-                'Cancel',
-                style: TextStyle(
-                  color: tokens.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
+              child: Text('Cancel',
+                  style: TextStyle(
+                      color: tokens.onSurface.withValues(alpha: 0.6))),
             ),
             FilledButton(
               style: FilledButton.styleFrom(
                 backgroundColor: Theme.of(ctx).colorScheme.error,
               ),
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text(
-                'Delete',
-                style: TextStyle(color: Colors.white),
-              ),
+              child:
+                  const Text('Delete', style: TextStyle(color: Colors.white)),
             ),
           ],
         );
@@ -226,14 +216,12 @@ class _ChatListPanelState extends State<ChatListPanel> {
           style: TextStyle(color: tokens.onSurface),
           decoration: InputDecoration(
             hintText: 'Chat name',
-            hintStyle: TextStyle(
-              color: tokens.onSurface.withValues(alpha: 0.4),
-            ),
+            hintStyle:
+                TextStyle(color: tokens.onSurface.withValues(alpha: 0.4)),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: cinematic ? tokens.frame : tokens.frame,
-              ),
+              borderSide:
+                  BorderSide(color: cinematic ? tokens.frame : tokens.frame),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -245,10 +233,9 @@ class _ChatListPanelState extends State<ChatListPanel> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: tokens.onSurface.withValues(alpha: 0.6)),
-            ),
+            child: Text('Cancel',
+                style:
+                    TextStyle(color: tokens.onSurface.withValues(alpha: 0.6))),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, controller.text.trim()),
@@ -280,10 +267,8 @@ class _ChatListPanelState extends State<ChatListPanel> {
 
   Future<void> _bulkDelete(List<ChatThreadSummary> filtered) async {
     final ids = _selectedIds.toList();
-    final titles = filtered
-        .where((t) => ids.contains(t.id))
-        .map((t) => t.title)
-        .toList();
+    final titles =
+        filtered.where((t) => ids.contains(t.id)).map((t) => t.title).toList();
     final tokens = SvenTokens.forMode(widget.visualMode);
     final cinematic = widget.visualMode == VisualMode.cinematic;
     final confirmed = await showDialog<bool>(
@@ -291,10 +276,8 @@ class _ChatListPanelState extends State<ChatListPanel> {
       builder: (ctx) => AlertDialog(
         backgroundColor: cinematic ? tokens.card : tokens.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          'Delete ${ids.length} chat${ids.length > 1 ? 's' : ''}?',
-          style: TextStyle(color: tokens.onSurface),
-        ),
+        title: Text('Delete ${ids.length} chat${ids.length > 1 ? 's' : ''}?',
+            style: TextStyle(color: tokens.onSurface)),
         content: Text(
           'This will permanently delete ${ids.length > 1 ? 'these ${ids.length} conversations' : '"${titles.first}"'}.',
           style: TextStyle(color: tokens.onSurface.withValues(alpha: 0.7)),
@@ -302,15 +285,13 @@ class _ChatListPanelState extends State<ChatListPanel> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: tokens.onSurface.withValues(alpha: 0.6)),
-            ),
+            child: Text('Cancel',
+                style:
+                    TextStyle(color: tokens.onSurface.withValues(alpha: 0.6))),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(ctx).colorScheme.error,
-            ),
+                backgroundColor: Theme.of(ctx).colorScheme.error),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Delete', style: TextStyle(color: Colors.white)),
           ),
@@ -332,9 +313,8 @@ class _ChatListPanelState extends State<ChatListPanel> {
 
   void _bulkArchive(List<ChatThreadSummary> filtered) {
     if (widget.onToggleArchive == null) return;
-    final toArchive = _selectedIds
-        .where((id) => !widget.archivedIds.contains(id))
-        .toList();
+    final toArchive =
+        _selectedIds.where((id) => !widget.archivedIds.contains(id)).toList();
     for (final id in toArchive) {
       widget.onToggleArchive!(id);
     }
@@ -395,26 +375,20 @@ class _ChatListPanelState extends State<ChatListPanel> {
                     color: tokens.onSurface.withValues(alpha: 0.35),
                     fontSize: 14,
                   ),
-                  prefixIcon: Icon(
-                    Icons.search_rounded,
-                    size: 20,
-                    color: tokens.onSurface.withValues(alpha: 0.35),
-                  ),
+                  prefixIcon: Icon(Icons.search_rounded,
+                      size: 20,
+                      color: tokens.onSurface.withValues(alpha: 0.35)),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? GestureDetector(
                           onTap: () => _searchController.clear(),
-                          child: Icon(
-                            Icons.close_rounded,
-                            size: 18,
-                            color: tokens.onSurface.withValues(alpha: 0.4),
-                          ),
+                          child: Icon(Icons.close_rounded,
+                              size: 18,
+                              color: tokens.onSurface.withValues(alpha: 0.4)),
                         )
                       : null,
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 ),
               ),
             ),
@@ -563,18 +537,16 @@ class _ChatListPanelState extends State<ChatListPanel> {
                             ? Icons.cloud_upload_outlined
                             : Icons.cloud_done_outlined,
                         size: 11,
-                        color: tokens.onSurface.withValues(
-                          alpha: isPending ? 0.45 : 0.28,
-                        ),
+                        color: tokens.onSurface
+                            .withValues(alpha: isPending ? 0.45 : 0.28),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         label,
                         style: TextStyle(
                           fontSize: 11,
-                          color: tokens.onSurface.withValues(
-                            alpha: isPending ? 0.50 : 0.32,
-                          ),
+                          color: tokens.onSurface
+                              .withValues(alpha: isPending ? 0.50 : 0.32),
                           letterSpacing: 0.1,
                         ),
                       ),
@@ -666,15 +638,13 @@ class _ChatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasUnread = thread.unreadCount > 0;
-    final initial = thread.title.isNotEmpty
-        ? thread.title[0].toUpperCase()
-        : 'S';
+    final initial =
+        thread.title.isNotEmpty ? thread.title[0].toUpperCase() : 'S';
 
     return Dismissible(
       key: ValueKey(thread.id),
-      direction: isSelecting
-          ? DismissDirection.none
-          : DismissDirection.endToStart,
+      direction:
+          isSelecting ? DismissDirection.none : DismissDirection.endToStart,
       confirmDismiss: (_) async {
         onDelete();
         return false; // We handle deletion ourselves via dialog
@@ -683,14 +653,11 @@ class _ChatTile extends StatelessWidget {
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
         color: Theme.of(context).colorScheme.error.withValues(alpha: 0.15),
-        child: Icon(
-          Icons.delete_outline_rounded,
-          color: Theme.of(context).colorScheme.error,
-        ),
+        child: Icon(Icons.delete_outline_rounded,
+            color: Theme.of(context).colorScheme.error),
       ),
       child: Semantics(
-        label:
-            '${thread.title}. ${thread.lastMessage}'
+        label: '${thread.title}. ${thread.lastMessage}'
             '${hasUnread ? ". ${thread.unreadCount} unread message${thread.unreadCount == 1 ? "" : "s"}" : ""}'
             '${isSelected ? ". Selected" : ""}',
         button: true,
@@ -698,14 +665,13 @@ class _ChatTile extends StatelessWidget {
         child: Material(
           color: isSelected
               ? (cinematic
-                    ? tokens.primary.withValues(alpha: 0.08)
-                    : tokens.primary.withValues(alpha: 0.06))
+                  ? tokens.primary.withValues(alpha: 0.08)
+                  : tokens.primary.withValues(alpha: 0.06))
               : Colors.transparent,
           child: InkWell(
             onTap: isSelecting ? onToggleSelect : onTap,
-            onLongPress: isSelecting
-                ? onToggleSelect
-                : () => _showContextMenu(context),
+            onLongPress:
+                isSelecting ? onToggleSelect : () => _showContextMenu(context),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: cinematic && isSelected
@@ -819,14 +785,16 @@ class _ChatTile extends StatelessWidget {
                                 flightShuttleBuilder:
                                     (_, anim, dir, from, to) =>
                                         DefaultTextStyle(
-                                          style: DefaultTextStyle.of(to).style,
-                                          child: to.widget,
-                                        ),
+                                  style: DefaultTextStyle.of(to).style,
+                                  child: to.widget,
+                                ),
                                 child: Text(
                                   thread.title,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.titleSmall
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall
                                       ?.copyWith(
                                         fontWeight: hasUnread
                                             ? FontWeight.w600
@@ -839,13 +807,14 @@ class _ChatTile extends StatelessWidget {
                             const SizedBox(width: 8),
                             Text(
                               _timeAgo(thread.updatedAt),
-                              style: Theme.of(context).textTheme.labelSmall
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall
                                   ?.copyWith(
                                     color: hasUnread
                                         ? tokens.primary
-                                        : tokens.onSurface.withValues(
-                                            alpha: 0.40,
-                                          ),
+                                        : tokens.onSurface
+                                            .withValues(alpha: 0.40),
                                   ),
                             ),
                           ],
@@ -858,11 +827,12 @@ class _ChatTile extends StatelessWidget {
                                 thread.lastMessage,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.bodySmall
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
                                     ?.copyWith(
                                       color: tokens.onSurface.withValues(
-                                        alpha: hasUnread ? 0.7 : 0.45,
-                                      ),
+                                          alpha: hasUnread ? 0.7 : 0.45),
                                     ),
                               ),
                             ),
@@ -929,9 +899,9 @@ class _ChatTile extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
                 thread.title,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(color: tokens.onSurface),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: tokens.onSurface,
+                    ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -940,14 +910,10 @@ class _ChatTile extends StatelessWidget {
             // Select option to enter bulk-select mode
             if (onEnterSelect != null)
               ListTile(
-                leading: Icon(
-                  Icons.check_box_outlined,
-                  color: tokens.onSurface.withValues(alpha: 0.65),
-                ),
-                title: Text(
-                  'Select',
-                  style: TextStyle(color: tokens.onSurface),
-                ),
+                leading: Icon(Icons.check_box_outlined,
+                    color: tokens.onSurface.withValues(alpha: 0.65)),
+                title:
+                    Text('Select', style: TextStyle(color: tokens.onSurface)),
                 onTap: () {
                   Navigator.pop(ctx);
                   onEnterSelect!();
@@ -956,15 +922,12 @@ class _ChatTile extends StatelessWidget {
             if (onTogglePin != null)
               ListTile(
                 leading: Icon(
-                  thread.isPinned
-                      ? Icons.push_pin_outlined
-                      : Icons.push_pin_rounded,
-                  color: tokens.onSurface.withValues(alpha: 0.65),
-                ),
-                title: Text(
-                  thread.isPinned ? 'Unpin' : 'Pin to top',
-                  style: TextStyle(color: tokens.onSurface),
-                ),
+                    thread.isPinned
+                        ? Icons.push_pin_outlined
+                        : Icons.push_pin_rounded,
+                    color: tokens.onSurface.withValues(alpha: 0.65)),
+                title: Text(thread.isPinned ? 'Unpin' : 'Pin to top',
+                    style: TextStyle(color: tokens.onSurface)),
                 onTap: () {
                   Navigator.pop(ctx);
                   onTogglePin!();
@@ -978,10 +941,8 @@ class _ChatTile extends StatelessWidget {
                       : Icons.archive_outlined,
                   color: tokens.onSurface.withValues(alpha: 0.65),
                 ),
-                title: Text(
-                  isArchived ? 'Unarchive' : 'Archive',
-                  style: TextStyle(color: tokens.onSurface),
-                ),
+                title: Text(isArchived ? 'Unarchive' : 'Archive',
+                    style: TextStyle(color: tokens.onSurface)),
                 onTap: () {
                   Navigator.pop(ctx);
                   onToggleArchive!();
@@ -989,10 +950,8 @@ class _ChatTile extends StatelessWidget {
               ),
             if (onSetTag != null)
               ListTile(
-                leading: Icon(
-                  Icons.label_outline_rounded,
-                  color: tokens.onSurface.withValues(alpha: 0.65),
-                ),
+                leading: Icon(Icons.label_outline_rounded,
+                    color: tokens.onSurface.withValues(alpha: 0.65)),
                 title: Text('Tag', style: TextStyle(color: tokens.onSurface)),
                 trailing: tag != null
                     ? Container(
@@ -1010,10 +969,8 @@ class _ChatTile extends StatelessWidget {
                 },
               ),
             ListTile(
-              leading: Icon(
-                Icons.edit_outlined,
-                color: tokens.onSurface.withValues(alpha: 0.65),
-              ),
+              leading: Icon(Icons.edit_outlined,
+                  color: tokens.onSurface.withValues(alpha: 0.65)),
               title: Text('Rename', style: TextStyle(color: tokens.onSurface)),
               onTap: () {
                 Navigator.pop(ctx);
@@ -1021,14 +978,10 @@ class _ChatTile extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: Icon(
-                Icons.delete_outline_rounded,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              title: Text(
-                'Delete',
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
+              leading: Icon(Icons.delete_outline_rounded,
+                  color: Theme.of(context).colorScheme.error),
+              title: Text('Delete',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error)),
               onTap: () {
                 Navigator.pop(ctx);
                 onDelete();
@@ -1065,22 +1018,18 @@ class _ChatTile extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 'Tag conversation',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(color: tokens.onSurface),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: tokens.onSurface,
+                    ),
               ),
             ),
             const SizedBox(height: 8),
             if (tag != null)
               ListTile(
-                leading: Icon(
-                  Icons.label_off_outlined,
-                  color: tokens.onSurface.withValues(alpha: 0.55),
-                ),
-                title: Text(
-                  'Remove tag',
-                  style: TextStyle(color: tokens.onSurface),
-                ),
+                leading: Icon(Icons.label_off_outlined,
+                    color: tokens.onSurface.withValues(alpha: 0.55)),
+                title: Text('Remove tag',
+                    style: TextStyle(color: tokens.onSurface)),
                 onTap: () {
                   Navigator.pop(ctx);
                   onSetTag?.call(null);
@@ -1159,11 +1108,8 @@ class _SelectionActionBar extends StatelessWidget {
           IconButton(
             tooltip: 'Cancel selection',
             onPressed: onCancel,
-            icon: Icon(
-              Icons.close_rounded,
-              size: 22,
-              color: tokens.onSurface.withValues(alpha: 0.7),
-            ),
+            icon: Icon(Icons.close_rounded,
+                size: 22, color: tokens.onSurface.withValues(alpha: 0.7)),
           ),
           // Selected count badge
           Expanded(
@@ -1182,11 +1128,8 @@ class _SelectionActionBar extends StatelessWidget {
               message: 'Archive selected',
               child: IconButton(
                 onPressed: onArchive,
-                icon: Icon(
-                  Icons.archive_outlined,
-                  size: 22,
-                  color: tokens.onSurface.withValues(alpha: 0.65),
-                ),
+                icon: Icon(Icons.archive_outlined,
+                    size: 22, color: tokens.onSurface.withValues(alpha: 0.65)),
               ),
             ),
           // Tag
@@ -1194,14 +1137,10 @@ class _SelectionActionBar extends StatelessWidget {
             Tooltip(
               message: 'Tag selected',
               child: IconButton(
-                onPressed: onTag != null
-                    ? () => _showBulkTagPicker(context)
-                    : null,
-                icon: Icon(
-                  Icons.label_outline_rounded,
-                  size: 22,
-                  color: tokens.onSurface.withValues(alpha: 0.65),
-                ),
+                onPressed:
+                    onTag != null ? () => _showBulkTagPicker(context) : null,
+                icon: Icon(Icons.label_outline_rounded,
+                    size: 22, color: tokens.onSurface.withValues(alpha: 0.65)),
               ),
             ),
           // Delete
@@ -1209,11 +1148,8 @@ class _SelectionActionBar extends StatelessWidget {
             message: 'Delete selected',
             child: IconButton(
               onPressed: onDelete,
-              icon: Icon(
-                Icons.delete_outline_rounded,
-                size: 22,
-                color: Theme.of(context).colorScheme.error,
-              ),
+              icon: Icon(Icons.delete_outline_rounded,
+                  size: 22, color: Theme.of(context).colorScheme.error),
             ),
           ),
         ],
@@ -1245,21 +1181,17 @@ class _SelectionActionBar extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 'Tag $count conversation${count > 1 ? 's' : ''}',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(color: tokens.onSurface),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: tokens.onSurface,
+                    ),
               ),
             ),
             const SizedBox(height: 8),
             ListTile(
-              leading: Icon(
-                Icons.label_off_outlined,
-                color: tokens.onSurface.withValues(alpha: 0.55),
-              ),
-              title: Text(
-                'Remove tag',
-                style: TextStyle(color: tokens.onSurface),
-              ),
+              leading: Icon(Icons.label_off_outlined,
+                  color: tokens.onSurface.withValues(alpha: 0.55)),
+              title:
+                  Text('Remove tag', style: TextStyle(color: tokens.onSurface)),
               onTap: () {
                 Navigator.pop(ctx);
                 onTag?.call(null);
@@ -1322,8 +1254,8 @@ class _FilterChip extends StatelessWidget {
           color: selected
               ? activeColor.withValues(alpha: 0.15)
               : (cinematic
-                    ? tokens.surface.withValues(alpha: 0.3)
-                    : tokens.onSurface.withValues(alpha: 0.05)),
+                  ? tokens.surface.withValues(alpha: 0.3)
+                  : tokens.onSurface.withValues(alpha: 0.05)),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: selected
@@ -1336,22 +1268,18 @@ class _FilterChip extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(
-                icon,
-                size: 13,
-                color: selected
-                    ? activeColor
-                    : tokens.onSurface.withValues(alpha: 0.5),
-              ),
+              Icon(icon,
+                  size: 13,
+                  color: selected
+                      ? activeColor
+                      : tokens.onSurface.withValues(alpha: 0.5)),
               const SizedBox(width: 4),
             ] else if (color != null) ...[
               Container(
                 width: 8,
                 height: 8,
-                decoration: BoxDecoration(
-                  color: activeColor,
-                  shape: BoxShape.circle,
-                ),
+                decoration:
+                    BoxDecoration(color: activeColor, shape: BoxShape.circle),
               ),
               const SizedBox(width: 5),
             ],

@@ -134,29 +134,25 @@ class _ChatComposerState extends State<ChatComposer>
   // @-mention overlay
   final List<_AtMention> _atMentions = [
     const _AtMention(
-      trigger: 'web',
-      label: 'Web search',
-      icon: Icons.language_rounded,
-      prefix: '[web search mode] ',
-    ),
+        trigger: 'web',
+        label: 'Web search',
+        icon: Icons.language_rounded,
+        prefix: '[web search mode] '),
     const _AtMention(
-      trigger: 'code',
-      label: 'Code mode',
-      icon: Icons.code_rounded,
-      prefix: '[code mode] ',
-    ),
+        trigger: 'code',
+        label: 'Code mode',
+        icon: Icons.code_rounded,
+        prefix: '[code mode] '),
     const _AtMention(
-      trigger: 'math',
-      label: 'Math mode',
-      icon: Icons.calculate_outlined,
-      prefix: '[math mode] ',
-    ),
+        trigger: 'math',
+        label: 'Math mode',
+        icon: Icons.calculate_outlined,
+        prefix: '[math mode] '),
     const _AtMention(
-      trigger: 'translate',
-      label: 'Translation mode',
-      icon: Icons.translate_rounded,
-      prefix: '[translation mode] ',
-    ),
+        trigger: 'translate',
+        label: 'Translation mode',
+        icon: Icons.translate_rounded,
+        prefix: '[translation mode] '),
   ];
   List<_AtMention> _atMatches = [];
   bool _showAt = false;
@@ -266,15 +262,12 @@ class _ChatComposerState extends State<ChatComposer>
     } else if (!widget.isSending && old.isSending) {
       // Finished sending — snap to 1.0 then hide
       _progressCtrl
-          .animateTo(
-            1.0,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeIn,
-          )
+          .animateTo(1.0,
+              duration: const Duration(milliseconds: 200), curve: Curves.easeIn)
           .then((_) {
-            if (mounted) setState(() => _showProgress = false);
-            _progressCtrl.reset();
-          });
+        if (mounted) setState(() => _showProgress = false);
+        _progressCtrl.reset();
+      });
     }
 
     final newPrefill = widget.editPrefillText;
@@ -294,9 +287,8 @@ class _ChatComposerState extends State<ChatComposer>
   void _updateSlashCommands(String text) {
     if (text.startsWith('/')) {
       final query = text.substring(1).toLowerCase();
-      final matches = kSlashCommands
-          .where((c) => c.command.startsWith(query))
-          .toList();
+      final matches =
+          kSlashCommands.where((c) => c.command.startsWith(query)).toList();
       if (matches.isNotEmpty) {
         _slashMatches = matches;
         _showSlashOverlay();
@@ -312,14 +304,13 @@ class _ChatComposerState extends State<ChatComposer>
       return;
     }
     _slashOverlay = OverlayEntry(
-      builder: (_) => _SlashCommandOverlay(
-        layerLink: _layerLink,
-        commands: _slashMatches,
-        tokens: SvenTokens.forMode(widget.visualMode),
-        cinematic: widget.visualMode == VisualMode.cinematic,
-        onSelected: _handleSlashCommand,
-      ),
-    );
+        builder: (_) => _SlashCommandOverlay(
+              layerLink: _layerLink,
+              commands: _slashMatches,
+              tokens: SvenTokens.forMode(widget.visualMode),
+              cinematic: widget.visualMode == VisualMode.cinematic,
+              onSelected: _handleSlashCommand,
+            ));
     Overlay.of(context).insert(_slashOverlay!);
     setState(() => _showSlash = true);
   }
@@ -337,9 +328,8 @@ class _ChatComposerState extends State<ChatComposer>
     if (atIdx >= 0) {
       final query = text.substring(atIdx + 1).toLowerCase();
       if (!query.contains(' ')) {
-        final matches = _atMentions
-            .where((m) => m.trigger.startsWith(query))
-            .toList();
+        final matches =
+            _atMentions.where((m) => m.trigger.startsWith(query)).toList();
         if (matches.isNotEmpty) {
           _atMatches = matches;
           _showAtOverlay();
@@ -383,9 +373,8 @@ class _ChatComposerState extends State<ChatComposer>
     if (atIdx >= 0) {
       _controller.value = TextEditingValue(
         text: text.substring(0, atIdx) + mention.prefix,
-        selection: TextSelection.collapsed(
-          offset: atIdx + mention.prefix.length,
-        ),
+        selection:
+            TextSelection.collapsed(offset: atIdx + mention.prefix.length),
       );
     }
   }
@@ -514,9 +503,8 @@ class _ChatComposerState extends State<ChatComposer>
       helpText: 'Set reminder date',
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: Theme.of(
-            ctx,
-          ).colorScheme.copyWith(primary: tokens.primary),
+          colorScheme:
+              Theme.of(ctx).colorScheme.copyWith(primary: tokens.primary),
         ),
         child: child!,
       ),
@@ -530,9 +518,8 @@ class _ChatComposerState extends State<ChatComposer>
       helpText: 'Set reminder time',
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: Theme.of(
-            ctx,
-          ).colorScheme.copyWith(primary: tokens.primary),
+          colorScheme:
+              Theme.of(ctx).colorScheme.copyWith(primary: tokens.primary),
         ),
         child: child!,
       ),
@@ -690,10 +677,8 @@ class _ChatComposerState extends State<ChatComposer>
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 4,
-                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                   child: Row(
                     children: [
                       Text(
@@ -886,26 +871,16 @@ class _ChatComposerState extends State<ChatComposer>
                   color: tokens.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(
-                  Icons.photo_library_outlined,
-                  color: tokens.primary,
-                  size: 22,
-                ),
+                child: Icon(Icons.photo_library_outlined,
+                    color: tokens.primary, size: 22),
               ),
-              title: Text(
-                'Photo Library',
-                style: TextStyle(
-                  color: tokens.onSurface,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              subtitle: Text(
-                'Choose from your gallery',
-                style: TextStyle(
-                  color: tokens.onSurface.withValues(alpha: 0.5),
-                  fontSize: 12,
-                ),
-              ),
+              title: Text('Photo Library',
+                  style: TextStyle(
+                      color: tokens.onSurface, fontWeight: FontWeight.w500)),
+              subtitle: Text('Choose from your gallery',
+                  style: TextStyle(
+                      color: tokens.onSurface.withValues(alpha: 0.5),
+                      fontSize: 12)),
               onTap: () {
                 Navigator.pop(ctx);
                 _pickImage(ImageSource.gallery);
@@ -919,26 +894,16 @@ class _ChatComposerState extends State<ChatComposer>
                   color: tokens.secondary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(
-                  Icons.camera_alt_outlined,
-                  color: tokens.secondary,
-                  size: 22,
-                ),
+                child: Icon(Icons.camera_alt_outlined,
+                    color: tokens.secondary, size: 22),
               ),
-              title: Text(
-                'Camera',
-                style: TextStyle(
-                  color: tokens.onSurface,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              subtitle: Text(
-                'Take a new photo',
-                style: TextStyle(
-                  color: tokens.onSurface.withValues(alpha: 0.5),
-                  fontSize: 12,
-                ),
-              ),
+              title: Text('Camera',
+                  style: TextStyle(
+                      color: tokens.onSurface, fontWeight: FontWeight.w500)),
+              subtitle: Text('Take a new photo',
+                  style: TextStyle(
+                      color: tokens.onSurface.withValues(alpha: 0.5),
+                      fontSize: 12)),
               onTap: () {
                 Navigator.pop(ctx);
                 _pickImage(ImageSource.camera);
@@ -952,26 +917,16 @@ class _ChatComposerState extends State<ChatComposer>
                   color: tokens.primary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(
-                  Icons.attach_file_rounded,
-                  color: tokens.primary.withValues(alpha: 0.8),
-                  size: 22,
-                ),
+                child: Icon(Icons.attach_file_rounded,
+                    color: tokens.primary.withValues(alpha: 0.8), size: 22),
               ),
-              title: Text(
-                'Documents',
-                style: TextStyle(
-                  color: tokens.onSurface,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              subtitle: Text(
-                'PDF, text, and other files',
-                style: TextStyle(
-                  color: tokens.onSurface.withValues(alpha: 0.5),
-                  fontSize: 12,
-                ),
-              ),
+              title: Text('Documents',
+                  style: TextStyle(
+                      color: tokens.onSurface, fontWeight: FontWeight.w500)),
+              subtitle: Text('PDF, text, and other files',
+                  style: TextStyle(
+                      color: tokens.onSurface.withValues(alpha: 0.5),
+                      fontSize: 12)),
               onTap: () {
                 Navigator.pop(ctx);
                 _pickFile();
@@ -1137,9 +1092,8 @@ class _ChatComposerState extends State<ChatComposer>
               : raw;
           // Build a 3-line preview for the chip
           final lines = raw.split('\n').take(3).join('\n');
-          preview = lines.length > 180
-              ? '${lines.substring(0, 177)}\u2026'
-              : lines;
+          preview =
+              lines.length > 180 ? '${lines.substring(0, 177)}\u2026' : lines;
         } catch (e) {
           debugPrint('[ChatComposer] file read for preview failed: $e');
         }
@@ -1196,7 +1150,10 @@ class _ChatComposerState extends State<ChatComposer>
       final remaining = _maxImages - _attachedImages.length;
       if (remaining <= 0) return;
       setState(() {
-        _attachedImages = [..._attachedImages, ...xFiles.take(remaining)];
+        _attachedImages = [
+          ..._attachedImages,
+          ...xFiles.take(remaining),
+        ];
         _attachedFile = null;
         _docPreviewText = null;
         _fullFileContent = null;
@@ -1282,9 +1239,8 @@ class _ChatComposerState extends State<ChatComposer>
             ? '${raw.substring(0, maxContentChars)}\n…(truncated)'
             : raw;
         final lines = raw.split('\n').take(3).join('\n');
-        preview = lines.length > 180
-            ? '${lines.substring(0, 177)}\u2026'
-            : lines;
+        preview =
+            lines.length > 180 ? '${lines.substring(0, 177)}\u2026' : lines;
       } catch (e) {
         debugPrint('[ChatComposer] drag-drop file read failed: $e');
       }
@@ -1427,19 +1383,19 @@ class _ChatComposerState extends State<ChatComposer>
               border: Border.all(
                 color: cinematic
                     ? _fieldFocused
-                          ? tokens.primary.withValues(alpha: 0.55)
-                          : tokens.primary.withValues(alpha: 0.18)
+                        ? tokens.primary.withValues(alpha: 0.55)
+                        : tokens.primary.withValues(alpha: 0.18)
                     : _fieldFocused
-                    ? tokens.primary.withValues(alpha: 0.6)
-                    : tokens.frame,
+                        ? tokens.primary.withValues(alpha: 0.6)
+                        : tokens.frame,
                 width: _fieldFocused ? 1.5 : 1.0,
               ),
               boxShadow: [
                 BoxShadow(
                   color: cinematic
                       ? _fieldFocused
-                            ? tokens.primary.withValues(alpha: 0.18)
-                            : tokens.primary.withValues(alpha: 0.08)
+                          ? tokens.primary.withValues(alpha: 0.18)
+                          : tokens.primary.withValues(alpha: 0.08)
                       : Colors.black.withValues(alpha: 0.06),
                   blurRadius: cinematic ? (_fieldFocused ? 28 : 20) : 14,
                   offset: Offset(0, cinematic ? 0 : 4),
@@ -1486,8 +1442,8 @@ class _ChatComposerState extends State<ChatComposer>
                     label: _attachedFile != null
                         ? 'Sending ${_attachedFile!.name}…'
                         : _attachedImages.isNotEmpty
-                        ? 'Sending ${_attachedImages.length} image${_attachedImages.length == 1 ? '' : 's'}…'
-                        : 'Sending…',
+                            ? 'Sending ${_attachedImages.length} image${_attachedImages.length == 1 ? '' : 's'}…'
+                            : 'Sending…',
                   ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -1525,14 +1481,14 @@ class _ChatComposerState extends State<ChatComposer>
                               onSubmitted: (_) => _handleSend(),
                               contentInsertionConfiguration:
                                   ContentInsertionConfiguration(
-                                    onContentInserted: _handleContentInserted,
-                                    allowedMimeTypes: const <String>[
-                                      'image/png',
-                                      'image/jpeg',
-                                      'image/gif',
-                                      'image/webp',
-                                    ],
-                                  ),
+                                onContentInserted: _handleContentInserted,
+                                allowedMimeTypes: const <String>[
+                                  'image/png',
+                                  'image/jpeg',
+                                  'image/gif',
+                                  'image/webp',
+                                ],
+                              ),
                               style: TextStyle(
                                 color: tokens.onSurface,
                                 fontSize: 15,
@@ -1540,9 +1496,8 @@ class _ChatComposerState extends State<ChatComposer>
                               decoration: InputDecoration(
                                 hintText: 'Message Sven…',
                                 hintStyle: TextStyle(
-                                  color: tokens.onSurface.withValues(
-                                    alpha: 0.35,
-                                  ),
+                                  color:
+                                      tokens.onSurface.withValues(alpha: 0.35),
                                   fontSize: 15,
                                 ),
                                 border: InputBorder.none,
@@ -1563,8 +1518,7 @@ class _ChatComposerState extends State<ChatComposer>
                         padding: const EdgeInsets.only(bottom: 4),
                         child: GestureDetector(
                           onTap: () => setState(
-                            () => _composerExpanded = !_composerExpanded,
-                          ),
+                              () => _composerExpanded = !_composerExpanded),
                           child: Padding(
                             padding: const EdgeInsets.all(4),
                             child: Icon(
@@ -1596,9 +1550,7 @@ class _ChatComposerState extends State<ChatComposer>
                           onTap: _showModeSheet,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
+                                horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
                               color: tokens.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(10),

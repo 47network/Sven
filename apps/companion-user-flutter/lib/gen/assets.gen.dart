@@ -28,24 +28,23 @@ class $AssetsImagesGen {
   const $AssetsImagesGen();
 
   /// File path: assets/images/onboarding_features.svg
-  SvgGenImage get onboardingFeatures => const SvgGenImage('assets/images/onboarding_features.svg');
+  SvgGenImage get onboardingFeatures =>
+      const SvgGenImage('assets/images/onboarding_features.svg');
 
   /// File path: assets/images/onboarding_voice.svg
-  SvgGenImage get onboardingVoice => const SvgGenImage('assets/images/onboarding_voice.svg');
+  SvgGenImage get onboardingVoice =>
+      const SvgGenImage('assets/images/onboarding_voice.svg');
 
   /// File path: assets/images/onboarding_welcome.svg
-  SvgGenImage get onboardingWelcome => const SvgGenImage('assets/images/onboarding_welcome.svg');
+  SvgGenImage get onboardingWelcome =>
+      const SvgGenImage('assets/images/onboarding_welcome.svg');
 
   /// File path: assets/images/sven_logo.svg
   SvgGenImage get svenLogo => const SvgGenImage('assets/images/sven_logo.svg');
 
   /// List of all assets
-  List<SvgGenImage> get values => [
-    onboardingFeatures,
-    onboardingVoice,
-    onboardingWelcome,
-    svenLogo,
-  ];
+  List<SvgGenImage> get values =>
+      [onboardingFeatures, onboardingVoice, onboardingWelcome, svenLogo];
 }
 
 class $AssetsLottieGen {
@@ -80,16 +79,16 @@ class $AssetsLottieGen {
 
   /// List of all assets
   List<String> get values => [
-    svenCelebrating,
-    svenHappy,
-    svenIdle,
-    svenListening,
-    svenSleeping,
-    svenSpeaking,
-    svenThinking,
-    svenThoughtBubble,
-    svenWorking,
-  ];
+        svenCelebrating,
+        svenHappy,
+        svenIdle,
+        svenListening,
+        svenSleeping,
+        svenSpeaking,
+        svenThinking,
+        svenThoughtBubble,
+        svenWorking,
+      ];
 }
 
 class $AssetsTrayGen {
@@ -99,7 +98,8 @@ class $AssetsTrayGen {
   String get trayIconIco => 'assets/tray/tray_icon.ico';
 
   /// File path: assets/tray/tray_icon.png
-  AssetGenImage get trayIconPng => const AssetGenImage('assets/tray/tray_icon.png');
+  AssetGenImage get trayIconPng =>
+      const AssetGenImage('assets/tray/tray_icon.png');
 
   /// List of all assets
   List<dynamic> get values => [trayIconIco, trayIconPng];
@@ -115,7 +115,12 @@ class Assets {
 }
 
 class AssetGenImage {
-  const AssetGenImage(this._assetName, {this.size, this.flavors = const {}, this.animation});
+  const AssetGenImage(
+    this._assetName, {
+    this.size,
+    this.flavors = const {},
+    this.animation,
+  });
 
   final String _assetName;
 
@@ -176,8 +181,15 @@ class AssetGenImage {
     );
   }
 
-  ImageProvider provider({AssetBundle? bundle, String? package}) {
-    return AssetImage(_assetName, bundle: bundle, package: package);
+  ImageProvider provider({
+    AssetBundle? bundle,
+    String? package,
+  }) {
+    return AssetImage(
+      _assetName,
+      bundle: bundle,
+      package: package,
+    );
   }
 
   String get path => _assetName;
@@ -198,10 +210,17 @@ class AssetGenImageAnimation {
 }
 
 class SvgGenImage {
-  const SvgGenImage(this._assetName, {this.size, this.flavors = const {}}) : _isVecFormat = false;
+  const SvgGenImage(
+    this._assetName, {
+    this.size,
+    this.flavors = const {},
+  }) : _isVecFormat = false;
 
-  const SvgGenImage.vec(this._assetName, {this.size, this.flavors = const {}})
-    : _isVecFormat = true;
+  const SvgGenImage.vec(
+    this._assetName, {
+    this.size,
+    this.flavors = const {},
+  }) : _isVecFormat = true;
 
   final String _assetName;
   final Size? size;
@@ -231,7 +250,11 @@ class SvgGenImage {
   }) {
     final _svg.BytesLoader loader;
     if (_isVecFormat) {
-      loader = _vg.AssetBytesLoader(_assetName, assetBundle: bundle, packageName: package);
+      loader = _vg.AssetBytesLoader(
+        _assetName,
+        assetBundle: bundle,
+        packageName: package,
+      );
     } else {
       loader = _svg.SvgAssetLoader(
         _assetName,
@@ -253,7 +276,8 @@ class SvgGenImage {
       placeholderBuilder: placeholderBuilder,
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
-      colorFilter: colorFilter ?? (color == null ? null : ColorFilter.mode(color, colorBlendMode)),
+      colorFilter: colorFilter ??
+          (color == null ? null : ColorFilter.mode(color, colorBlendMode)),
       clipBehavior: clipBehavior,
       cacheColorFilter: cacheColorFilter,
     );

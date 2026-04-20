@@ -60,10 +60,8 @@ const _kDevicePixelRatio = 3.0;
 /// Configures the test viewport to a deterministic phone-sized canvas and
 /// returns a teardown that resets it after the test.
 void _setPhoneViewport(WidgetTester tester) {
-  tester.view.physicalSize = const Size(
-    _kLogicalWidth * _kDevicePixelRatio,
-    _kLogicalHeight * _kDevicePixelRatio,
-  );
+  tester.view.physicalSize = const Size(_kLogicalWidth * _kDevicePixelRatio,
+      _kLogicalHeight * _kDevicePixelRatio);
   tester.view.devicePixelRatio = _kDevicePixelRatio;
   addTearDown(() {
     tester.view.resetPhysicalSize();
@@ -225,7 +223,10 @@ void main() {
           home: MediaQuery(
             data: const MediaQueryData(textScaler: TextScaler.linear(1.0)),
             child: RepaintBoundary(
-              child: OnboardingPage(onComplete: () {}, onSetVisualMode: (_) {}),
+              child: OnboardingPage(
+                onComplete: () {},
+                onSetVisualMode: (_) {},
+              ),
             ),
           ),
         ),

@@ -64,20 +64,22 @@ class _DeviceManagerPageState extends State<DeviceManagerPage> {
         ],
       ),
       body: ds.loading && ds.devices.isEmpty
-          ? Center(child: CircularProgressIndicator(color: tokens.primary))
+          ? Center(
+              child: CircularProgressIndicator(color: tokens.primary),
+            )
           : ds.devices.isEmpty
-          ? _EmptyState(tokens: tokens, cinematic: cinematic)
-          : ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
-              itemCount: ds.devices.length,
-              itemBuilder: (context, i) => _DeviceCard(
-                device: ds.devices[i],
-                tokens: tokens,
-                cinematic: cinematic,
-                onTap: () => _openDevice(ds.devices[i]),
-                onDelete: () => _confirmDelete(ds.devices[i]),
-              ),
-            ),
+              ? _EmptyState(tokens: tokens, cinematic: cinematic)
+              : ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+                  itemCount: ds.devices.length,
+                  itemBuilder: (context, i) => _DeviceCard(
+                    device: ds.devices[i],
+                    tokens: tokens,
+                    cinematic: cinematic,
+                    onTap: () => _openDevice(ds.devices[i]),
+                    onDelete: () => _confirmDelete(ds.devices[i]),
+                  ),
+                ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddDeviceSheet,
         backgroundColor: tokens.primary,
@@ -93,15 +95,13 @@ class _DeviceManagerPageState extends State<DeviceManagerPage> {
       _showPairingDialog(device);
       return;
     }
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => DeviceControlPage(
-          deviceService: widget.deviceService,
-          device: device,
-          visualMode: widget.visualMode,
-        ),
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => DeviceControlPage(
+        deviceService: widget.deviceService,
+        device: device,
+        visualMode: widget.visualMode,
       ),
-    );
+    ));
   }
 
   void _showPairingDialog(Device device) {
@@ -125,9 +125,8 @@ class _DeviceManagerPageState extends State<DeviceManagerPage> {
               decoration: BoxDecoration(
                 color: tokens.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: tokens.primary.withValues(alpha: 0.3),
-                ),
+                border:
+                    Border.all(color: tokens.primary.withValues(alpha: 0.3)),
               ),
               child: Text(
                 device.pairingCode ?? '------',
@@ -201,7 +200,10 @@ class _DeviceManagerPageState extends State<DeviceManagerPage> {
               ),
               child: SelectableText(
                 apiKey,
-                style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                style: const TextStyle(
+                  fontFamily: 'monospace',
+                  fontSize: 12,
+                ),
               ),
             ),
           ],
@@ -249,9 +251,9 @@ class _DeviceManagerPageState extends State<DeviceManagerPage> {
             children: [
               Text(
                 'Add New Device',
-                style: Theme.of(
-                  ctx,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+                style: Theme.of(ctx).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
               ),
               const SizedBox(height: 20),
               TextField(
@@ -265,13 +267,11 @@ class _DeviceManagerPageState extends State<DeviceManagerPage> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                'Device Type',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: tokens.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
+              Text('Device Type',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: tokens.onSurface.withValues(alpha: 0.7),
+                  )),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -287,39 +287,36 @@ class _DeviceManagerPageState extends State<DeviceManagerPage> {
                 }).toList(),
               ),
               const SizedBox(height: 16),
-              Text(
-                'Capabilities',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: tokens.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
+              Text('Capabilities',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: tokens.onSurface.withValues(alpha: 0.7),
+                  )),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
-                children:
-                    [
-                      'display',
-                      'camera',
-                      'touch',
-                      'speaker',
-                      'mic',
-                      'gpio',
-                    ].map((cap) {
-                      return FilterChip(
-                        label: Text(cap),
-                        selected: selectedCaps.contains(cap),
-                        onSelected: (on) {
-                          setSheetState(() {
-                            if (on) {
-                              selectedCaps.add(cap);
-                            } else {
-                              selectedCaps.remove(cap);
-                            }
-                          });
-                        },
-                      );
-                    }).toList(),
+                children: [
+                  'display',
+                  'camera',
+                  'touch',
+                  'speaker',
+                  'mic',
+                  'gpio',
+                ].map((cap) {
+                  return FilterChip(
+                    label: Text(cap),
+                    selected: selectedCaps.contains(cap),
+                    onSelected: (on) {
+                      setSheetState(() {
+                        if (on) {
+                          selectedCaps.add(cap);
+                        } else {
+                          selectedCaps.remove(cap);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -434,23 +431,23 @@ class _DeviceCard extends StatelessWidget {
   final VoidCallback onDelete;
 
   IconData get _icon => switch (device.deviceType) {
-    DeviceType.mirror => Icons.smart_screen_rounded,
-    DeviceType.tablet => Icons.tablet_rounded,
-    DeviceType.kiosk => Icons.desktop_windows_rounded,
-    DeviceType.sensorHub => Icons.sensors_rounded,
-  };
+        DeviceType.mirror => Icons.smart_screen_rounded,
+        DeviceType.tablet => Icons.tablet_rounded,
+        DeviceType.kiosk => Icons.desktop_windows_rounded,
+        DeviceType.sensorHub => Icons.sensors_rounded,
+      };
 
   Color get _statusColor => switch (device.status) {
-    DeviceStatus.online => Colors.green,
-    DeviceStatus.offline => Colors.grey,
-    DeviceStatus.pairing => Colors.amber,
-  };
+        DeviceStatus.online => Colors.green,
+        DeviceStatus.offline => Colors.grey,
+        DeviceStatus.pairing => Colors.amber,
+      };
 
   String get _statusLabel => switch (device.status) {
-    DeviceStatus.online => 'Online',
-    DeviceStatus.offline => 'Offline',
-    DeviceStatus.pairing => 'Pairing…',
-  };
+        DeviceStatus.online => 'Online',
+        DeviceStatus.offline => 'Offline',
+        DeviceStatus.pairing => 'Pairing…',
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -673,7 +670,9 @@ class _PairingConfirmFormState extends State<_PairingConfirmForm> {
           decoration: InputDecoration(
             hintText: 'ENTER CODE',
             counterText: '',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(color: widget.tokens.primary, width: 2),

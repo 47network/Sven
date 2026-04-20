@@ -159,93 +159,87 @@ class _InferencePageState extends State<InferencePage> {
           // Available to install
           for (final variant in ModelVariant.values)
             if (!_service.installedModels.any((m) => m.variant == variant)) ...[
-              Builder(
-                builder: (context) {
-                  final compat = _service.checkCompatibility(variant);
-                  final isCompatible =
-                      compat == ModelCompatibility.compatible ||
-                      compat == ModelCompatibility.unknown;
-                  final isRecommended = variant == _service.recommendedVariant;
-                  return ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Row(
-                      children: [
-                        Text(
-                          variant.displayName,
-                          style: TextStyle(
-                            color: isCompatible
-                                ? (isDark ? Colors.white54 : Colors.black45)
-                                : (isDark ? Colors.white24 : Colors.black26),
+              Builder(builder: (context) {
+                final compat = _service.checkCompatibility(variant);
+                final isCompatible = compat == ModelCompatibility.compatible ||
+                    compat == ModelCompatibility.unknown;
+                final isRecommended = variant == _service.recommendedVariant;
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Row(
+                    children: [
+                      Text(
+                        variant.displayName,
+                        style: TextStyle(
+                          color: isCompatible
+                              ? (isDark ? Colors.white54 : Colors.black45)
+                              : (isDark ? Colors.white24 : Colors.black26),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      if (isRecommended && isCompatible)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                const Color(0xFF10b981).withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            'Recommended',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF10b981),
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 6),
-                        if (isRecommended && isCompatible)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(
-                                0xFF10b981,
-                              ).withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: const Text(
-                              'Recommended',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF10b981),
-                              ),
+                      if (!isCompatible)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                const Color(0xFFef4444).withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            compat == ModelCompatibility.insufficientRam
+                                ? 'Needs ${variant.minRamMb ~/ 1024} GB RAM'
+                                : 'Insufficient storage',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFFef4444),
                             ),
                           ),
-                        if (!isCompatible)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(
-                                0xFFef4444,
-                              ).withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              compat == ModelCompatibility.insufficientRam
-                                  ? 'Needs ${variant.minRamMb ~/ 1024} GB RAM'
-                                  : 'Insufficient storage',
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFFef4444),
-                              ),
-                            ),
-                          ),
-                      ],
+                        ),
+                    ],
+                  ),
+                  subtitle: Text(
+                    '${_formatBytes(variant.estimatedSizeBytes)} · '
+                    '${variant.contextWindow ~/ 1000}K context',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isCompatible
+                          ? (isDark ? Colors.white38 : Colors.black26)
+                          : (isDark ? Colors.white12 : Colors.black12),
                     ),
-                    subtitle: Text(
-                      '${_formatBytes(variant.estimatedSizeBytes)} · '
-                      '${variant.contextWindow ~/ 1000}K context',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isCompatible
-                            ? (isDark ? Colors.white38 : Colors.black26)
-                            : (isDark ? Colors.white12 : Colors.black12),
-                      ),
-                    ),
-                    trailing: ElevatedButton(
-                      onPressed:
-                          (!isCompatible ||
-                              _service.state == InferenceState.downloading)
-                          ? null
-                          : () => _showInstallDialog(variant),
-                      child: const Text('Details'),
-                    ),
-                  );
-                },
-              ),
+                  ),
+                  trailing: ElevatedButton(
+                    onPressed: (!isCompatible ||
+                            _service.state == InferenceState.downloading)
+                        ? null
+                        : () => _showInstallDialog(variant),
+                    child: const Text('Details'),
+                  ),
+                );
+              }),
             ],
         ],
       ),
@@ -266,22 +260,22 @@ class _InferencePageState extends State<InferencePage> {
               color: isActive
                   ? const Color(0xFF3b82f6).withValues(alpha: 0.2)
                   : (isDark
-                        ? Colors.white10
-                        : Colors.black.withValues(alpha: 0.05)),
+                      ? Colors.white10
+                      : Colors.black.withValues(alpha: 0.05)),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               isDownloading
                   ? Icons.downloading_rounded
                   : isActive
-                  ? Icons.memory
-                  : Icons.download_done,
+                      ? Icons.memory
+                      : Icons.download_done,
               size: 18,
               color: isDownloading
                   ? const Color(0xFFf59e0b)
                   : isActive
-                  ? const Color(0xFF3b82f6)
-                  : Colors.grey,
+                      ? const Color(0xFF3b82f6)
+                      : Colors.grey,
             ),
           ),
           title: Text(
@@ -300,8 +294,8 @@ class _InferencePageState extends State<InferencePage> {
               color: isDownloading
                   ? const Color(0xFFf59e0b)
                   : isDark
-                  ? Colors.white54
-                  : Colors.black45,
+                      ? Colors.white54
+                      : Colors.black45,
             ),
           ),
           trailing: isDownloading
@@ -317,20 +311,14 @@ class _InferencePageState extends State<InferencePage> {
                       ),
                     if (isActive)
                       IconButton(
-                        icon: const Icon(
-                          Icons.stop,
-                          size: 20,
-                          color: Colors.orange,
-                        ),
+                        icon: const Icon(Icons.stop,
+                            size: 20, color: Colors.orange),
                         onPressed: _service.unloadModel,
                         tooltip: 'Unload',
                       ),
                     IconButton(
-                      icon: Icon(
-                        Icons.delete_outline,
-                        size: 20,
-                        color: Colors.red.shade300,
-                      ),
+                      icon: Icon(Icons.delete_outline,
+                          size: 20, color: Colors.red.shade300),
                       onPressed: () => _service.uninstallModel(model.id),
                       tooltip: 'Remove',
                     ),
@@ -365,7 +353,11 @@ class _InferencePageState extends State<InferencePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _infoRow('Total inferences', '${_service.totalInferences}', isDark),
+          _infoRow(
+            'Total inferences',
+            '${_service.totalInferences}',
+            isDark,
+          ),
           _infoRow(
             'Last inference',
             '${_service.lastInferenceMs.toStringAsFixed(0)} ms',
@@ -395,7 +387,9 @@ class _InferencePageState extends State<InferencePage> {
             contentPadding: EdgeInsets.zero,
             title: Text(
               'Prefer local inference',
-              style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+              style: TextStyle(
+                color: isDark ? Colors.white : Colors.black87,
+              ),
             ),
             subtitle: Text(
               'Process short prompts on-device when a model is loaded',
@@ -442,31 +436,26 @@ class _InferencePageState extends State<InferencePage> {
       title: 'Modules',
       child: Column(
         children: _service.availableModules
-            .map(
-              (m) => ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(
-                  m.name,
-                  style: TextStyle(
-                    color: isDark ? Colors.white : Colors.black87,
+            .map((m) => ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    m.name,
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
                   ),
-                ),
-                subtitle: Text(
-                  m.description,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isDark ? Colors.white54 : Colors.black45,
+                  subtitle: Text(
+                    m.description,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.white54 : Colors.black45,
+                    ),
                   ),
-                ),
-                trailing: m.installed
-                    ? const Icon(
-                        Icons.check_circle,
-                        color: Color(0xFF10b981),
-                        size: 20,
-                      )
-                    : const Icon(Icons.cloud_download_outlined, size: 20),
-              ),
-            )
+                  trailing: m.installed
+                      ? const Icon(Icons.check_circle,
+                          color: Color(0xFF10b981), size: 20)
+                      : const Icon(Icons.cloud_download_outlined, size: 20),
+                ))
             .toList(),
       ),
     );
@@ -477,8 +466,7 @@ class _InferencePageState extends State<InferencePage> {
   void _showInstallDialog(ModelVariant variant) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final compat = _service.checkCompatibility(variant);
-    final isCompatible =
-        compat == ModelCompatibility.compatible ||
+    final isCompatible = compat == ModelCompatibility.compatible ||
         compat == ModelCompatibility.unknown;
     final cap = _service.deviceCapability;
 
@@ -486,7 +474,9 @@ class _InferencePageState extends State<InferencePage> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: isDark ? const Color(0xFF1e293b) : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         title: Row(
           children: [
             Container(
@@ -496,11 +486,8 @@ class _InferencePageState extends State<InferencePage> {
                 color: const Color(0xFF3b82f6).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(
-                Icons.download_rounded,
-                color: Color(0xFF3b82f6),
-                size: 20,
-              ),
+              child: const Icon(Icons.download_rounded,
+                  color: Color(0xFF3b82f6), size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -529,42 +516,25 @@ class _InferencePageState extends State<InferencePage> {
                 ),
               ),
               const SizedBox(height: 16),
+              _dialogInfoRow('Download Size',
+                  _formatBytes(variant.estimatedSizeBytes), isDark),
+              _dialogInfoRow('Context Window',
+                  '${variant.contextWindow ~/ 1000}K tokens', isDark),
               _dialogInfoRow(
-                'Download Size',
-                _formatBytes(variant.estimatedSizeBytes),
-                isDark,
-              ),
-              _dialogInfoRow(
-                'Context Window',
-                '${variant.contextWindow ~/ 1000}K tokens',
-                isDark,
-              ),
-              _dialogInfoRow(
-                'Minimum RAM',
-                '${variant.minRamMb ~/ 1024} GB',
-                isDark,
-              ),
+                  'Minimum RAM', '${variant.minRamMb ~/ 1024} GB', isDark),
               if (cap != null)
-                _dialogInfoRow(
-                  'Your RAM',
-                  cap.ramLabel,
-                  isDark,
-                  valueColor: cap.totalRamMb >= variant.minRamMb
-                      ? const Color(0xFF10b981)
-                      : const Color(0xFFef4444),
-                ),
+                _dialogInfoRow('Your RAM', cap.ramLabel, isDark,
+                    valueColor: cap.totalRamMb >= variant.minRamMb
+                        ? const Color(0xFF10b981)
+                        : const Color(0xFFef4444)),
               if (cap != null)
-                _dialogInfoRow(
-                  'Free Storage',
-                  cap.storageLabel,
-                  isDark,
-                  valueColor:
-                      cap.freeStorageMb >=
-                          (variant.estimatedSizeBytes / (1024 * 1024)).ceil() +
-                              500
-                      ? const Color(0xFF10b981)
-                      : const Color(0xFFef4444),
-                ),
+                _dialogInfoRow('Free Storage', cap.storageLabel, isDark,
+                    valueColor: cap.freeStorageMb >=
+                            (variant.estimatedSizeBytes / (1024 * 1024))
+                                    .ceil() +
+                                500
+                        ? const Color(0xFF10b981)
+                        : const Color(0xFFef4444)),
               const SizedBox(height: 12),
               if (!isCompatible) ...[
                 Container(
@@ -578,19 +548,16 @@ class _InferencePageState extends State<InferencePage> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.warning_amber_rounded,
-                        color: Color(0xFFef4444),
-                        size: 16,
-                      ),
+                      const Icon(Icons.warning_amber_rounded,
+                          color: Color(0xFFef4444), size: 16),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           compat == ModelCompatibility.insufficientRam
                               ? 'Your device does not have enough RAM to run this model. '
-                                    'Try a smaller variant.'
+                                  'Try a smaller variant.'
                               : 'Not enough free storage to download this model. '
-                                    'Free up space or choose a smaller variant.',
+                                  'Free up space or choose a smaller variant.',
                           style: TextStyle(
                             fontSize: 11,
                             color: isDark ? Colors.white60 : Colors.black45,
@@ -629,9 +596,8 @@ class _InferencePageState extends State<InferencePage> {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? Colors.white70
-                            : const Color(0xFF3b82f6),
+                        color:
+                            isDark ? Colors.white70 : const Color(0xFF3b82f6),
                       ),
                     ),
                   );
@@ -649,11 +615,8 @@ class _InferencePageState extends State<InferencePage> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.shield_rounded,
-                      color: Color(0xFF10b981),
-                      size: 16,
-                    ),
+                    const Icon(Icons.shield_rounded,
+                        color: Color(0xFF10b981), size: 16),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -675,7 +638,9 @@ class _InferencePageState extends State<InferencePage> {
             onPressed: () => Navigator.of(ctx).pop(),
             child: Text(
               'Cancel',
-              style: TextStyle(color: isDark ? Colors.white54 : Colors.black45),
+              style: TextStyle(
+                color: isDark ? Colors.white54 : Colors.black45,
+              ),
             ),
           ),
           FilledButton.icon(
@@ -686,23 +651,17 @@ class _InferencePageState extends State<InferencePage> {
                   }
                 : null,
             icon: const Icon(Icons.download_rounded, size: 18),
-            label: Text(
-              isCompatible
-                  ? 'Install ${_formatBytes(variant.estimatedSizeBytes)}'
-                  : 'Not compatible',
-            ),
+            label: Text(isCompatible
+                ? 'Install ${_formatBytes(variant.estimatedSizeBytes)}'
+                : 'Not compatible'),
           ),
         ],
       ),
     );
   }
 
-  Widget _dialogInfoRow(
-    String label,
-    String value,
-    bool isDark, {
-    Color? valueColor,
-  }) {
+  Widget _dialogInfoRow(String label, String value, bool isDark,
+      {Color? valueColor}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
@@ -760,12 +719,8 @@ class _InferencePageState extends State<InferencePage> {
     );
   }
 
-  Widget _infoRow(
-    String label,
-    String value,
-    bool isDark, {
-    Color? valueColor,
-  }) {
+  Widget _infoRow(String label, String value, bool isDark,
+      {Color? valueColor}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(

@@ -59,7 +59,10 @@ abstract final class AbExperiments {
     id: 'suggestion_chips',
     displayName: 'Suggestion Chips',
     description: 'Show / hide quick-reply chips below AI responses.',
-    variants: {'shown': 0.5, 'hidden': 0.5},
+    variants: {
+      'shown': 0.5,
+      'hidden': 0.5,
+    },
   );
 
   /// Visual style of the message composer input field.
@@ -67,7 +70,10 @@ abstract final class AbExperiments {
     id: 'composer_style',
     displayName: 'Composer Style',
     description: 'Rounded pill composer vs flat/square composer.',
-    variants: {'rounded': 0.5, 'flat': 0.5},
+    variants: {
+      'rounded': 0.5,
+      'flat': 0.5,
+    },
   );
 
   /// Onboarding flow variant shown to new users after first sign-in.
@@ -76,7 +82,11 @@ abstract final class AbExperiments {
     displayName: 'Onboarding Flow',
     description:
         'Classic multi-step walkthrough vs minimal vs guided tutorial.',
-    variants: {'classic': 0.4, 'minimal': 0.3, 'guided': 0.3},
+    variants: {
+      'classic': 0.4,
+      'minimal': 0.3,
+      'guided': 0.3,
+    },
   );
 
   /// Size of the Sven avatar in the chat header.
@@ -85,7 +95,11 @@ abstract final class AbExperiments {
     displayName: 'Avatar Size',
     description:
         'Standard / compact / large avatar in the conversation header.',
-    variants: {'standard': 0.5, 'compact': 0.25, 'large': 0.25},
+    variants: {
+      'standard': 0.5,
+      'compact': 0.25,
+      'large': 0.25,
+    },
   );
 
   // ── Master list ────────────────────────────────────────────────────────────

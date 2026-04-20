@@ -97,8 +97,7 @@ class SsoService {
     final gsi = GoogleSignIn(
       // clientId is only required on web and macOS/Windows desktop;
       // Android derives it from google-services.json automatically.
-      clientId:
-          (kIsWeb ||
+      clientId: (kIsWeb ||
               defaultTargetPlatform == TargetPlatform.macOS ||
               defaultTargetPlatform == TargetPlatform.windows ||
               defaultTargetPlatform == TargetPlatform.linux)
@@ -223,10 +222,8 @@ class SsoService {
     const chars =
         'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
     final rng = Random.secure();
-    return List.generate(
-      length,
-      (_) => chars[rng.nextInt(chars.length)],
-    ).join();
+    return List.generate(length, (_) => chars[rng.nextInt(chars.length)])
+        .join();
   }
 
   static String _sha256(String input) =>

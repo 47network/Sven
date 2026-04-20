@@ -59,29 +59,27 @@ class _InMemoryTokenStore extends TokenStore {
 const _api = 'https://test.api';
 
 http.Response _json(Object body, {int status = 200}) => http.Response(
-  jsonEncode(body),
-  status,
-  headers: {'content-type': 'application/json'},
-);
+      jsonEncode(body),
+      status,
+      headers: {'content-type': 'application/json'},
+    );
 
 /// Thread JSON payload matching [ChatThreadSummary.fromJson].
 Map<String, dynamic> _thread(String id, {String? name, String? updatedAt}) => {
-  'id': id,
-  'name': name ?? 'Chat $id',
-  'last_message_at': updatedAt ?? '2025-01-01T00:00:00Z',
-};
+      'id': id,
+      'name': name ?? 'Chat $id',
+      'last_message_at': updatedAt ?? '2025-01-01T00:00:00Z',
+    };
 
 /// Message JSON matching generated [ChatMessage.fromJson].
-Map<String, dynamic> _message(
-  String id, {
-  String role = 'assistant',
-  String text = 'Hello',
-}) => {
-  'id': id,
-  'role': role,
-  'text': text,
-  'created_at': '2025-01-01T00:00:00.000Z',
-};
+Map<String, dynamic> _message(String id,
+        {String role = 'assistant', String text = 'Hello'}) =>
+    {
+      'id': id,
+      'role': role,
+      'text': text,
+      'created_at': '2025-01-01T00:00:00.000Z',
+    };
 
 ChatService _svc(http.Client client) {
   final store = _InMemoryTokenStore();
@@ -100,16 +98,12 @@ void main() {
 
   group('listChats', () {
     test('parses threads from data.rows', () async {
-      final svc = _svc(
-        MockClient(
-          (_) async => _json({
+      final svc = _svc(MockClient((_) async => _json({
             'data': {
               'rows': [_thread('t1'), _thread('t2')],
               'has_more': true,
-            },
-          }),
-        ),
-      );
+            }
+          })));
 
       final page = await svc.listChats();
       expect(page.threads, hasLength(2));
@@ -120,14 +114,12 @@ void main() {
 
     test('sends limit and offset params', () async {
       Uri? captured;
-      final svc = _svc(
-        MockClient((req) async {
-          captured = req.url;
-          return _json({
-            'data': {'rows': [], 'has_more': false},
-          });
-        }),
-      );
+      final svc = _svc(MockClient((req) async {
+        captured = req.url;
+        return _json({
+          'data': {'rows': [], 'has_more': false}
+        });
+      }));
 
       await svc.listChats(limit: 10, offset: 5);
       expect(captured!.queryParameters['limit'], '10');
@@ -145,7 +137,10 @@ void main() {
     test('throws ChatServiceException on non-200', () async {
       final svc = _svc(MockClient((_) async => http.Response('err', 403)));
 
-      expect(() => svc.listChats(), throwsA(isA<ChatServiceException>()));
+      expect(
+        () => svc.listChats(),
+        throwsA(isA<ChatServiceException>()),
+      );
     });
 
     test('throws on retriable status codes', () async {
@@ -153,13 +148,11 @@ void main() {
 
       expect(
         () => svc.listChats(),
-        throwsA(
-          isA<ChatServiceException>().having(
-            (e) => e.message,
-            'message',
-            contains('retrying'),
-          ),
-        ),
+        throwsA(isA<ChatServiceException>().having(
+          (e) => e.message,
+          'message',
+          contains('retrying'),
+        )),
       );
     });
   });
@@ -168,16 +161,12 @@ void main() {
 
   group('listMessages', () {
     test('parses messages from data.rows', () async {
-      final svc = _svc(
-        MockClient(
-          (_) async => _json({
+      final svc = _svc(MockClient((_) async => _json({
             'data': {
               'rows': [_message('m1'), _message('m2', role: 'user')],
               'has_more': false,
-            },
-          }),
-        ),
-      );
+            }
+          })));
 
       final page = await svc.listMessages('chat1');
       expect(page.messages, hasLength(2));
@@ -189,14 +178,12 @@ void main() {
 
     test('sends chatId, limit, and before params', () async {
       Uri? captured;
-      final svc = _svc(
-        MockClient((req) async {
-          captured = req.url;
-          return _json({
-            'data': {'rows': [], 'has_more': false},
-          });
-        }),
-      );
+      final svc = _svc(MockClient((req) async {
+        captured = req.url;
+        return _json({
+          'data': {'rows': [], 'has_more': false}
+        });
+      }));
 
       await svc.listMessages('c42', before: 'cursor-abc', limit: 20);
       expect(captured!.path, endsWith('/v1/chats/c42/messages'));
@@ -218,37 +205,29 @@ void main() {
 
   group('listMessageFeedback', () {
     test('returns map of message_id to feedback', () async {
-      final svc = _svc(
-        MockClient(
-          (_) async => _json({
+      final svc = _svc(MockClient((_) async => _json({
             'data': {
               'rows': [
                 {'message_id': 'm1', 'feedback': 'up'},
                 {'message_id': 'm2', 'feedback': 'down'},
                 {'message_id': 'm3', 'feedback': 'neutral'}, // filtered out
-              ],
-            },
-          }),
-        ),
-      );
+              ]
+            }
+          })));
 
       final fb = await svc.listMessageFeedback('c1');
       expect(fb, {'m1': 'up', 'm2': 'down'});
     });
 
     test('skips rows with missing message_id', () async {
-      final svc = _svc(
-        MockClient(
-          (_) async => _json({
+      final svc = _svc(MockClient((_) async => _json({
             'data': {
               'rows': [
                 {'feedback': 'up'},
                 {'message_id': '', 'feedback': 'up'},
-              ],
-            },
-          }),
-        ),
-      );
+              ]
+            }
+          })));
 
       final fb = await svc.listMessageFeedback('c1');
       expect(fb, isEmpty);
@@ -269,12 +248,10 @@ void main() {
   group('setMessageFeedback', () {
     test('sends PUT with feedback body', () async {
       String? body;
-      final svc = _svc(
-        MockClient((req) async {
-          body = req.body;
-          return _json({'ok': true});
-        }),
-      );
+      final svc = _svc(MockClient((req) async {
+        body = req.body;
+        return _json({'ok': true});
+      }));
 
       await svc.setMessageFeedback('c1', 'm1', feedback: 'up');
       final parsed = jsonDecode(body!) as Map<String, dynamic>;
@@ -295,13 +272,11 @@ void main() {
 
   group('sendMessage', () {
     test('sends text and returns parsed message', () async {
-      final svc = _svc(
-        MockClient((req) async {
-          return _json({
-            'data': _message('m-resp', role: 'assistant', text: 'Reply'),
-          }, status: 201);
-        }),
-      );
+      final svc = _svc(MockClient((req) async {
+        return _json({
+          'data': _message('m-resp', role: 'assistant', text: 'Reply'),
+        }, status: 201);
+      }));
 
       final msg = await svc.sendMessage('c1', 'Hi');
       expect(msg.id, 'm-resp');
@@ -311,20 +286,15 @@ void main() {
 
     test('includes mode, personality, responseLength in body', () async {
       Map<String, dynamic>? body;
-      final svc = _svc(
-        MockClient((req) async {
-          body = jsonDecode(req.body) as Map<String, dynamic>;
-          return _json({'data': _message('m1')}, status: 201);
-        }),
-      );
+      final svc = _svc(MockClient((req) async {
+        body = jsonDecode(req.body) as Map<String, dynamic>;
+        return _json({
+          'data': _message('m1'),
+        }, status: 201);
+      }));
 
-      await svc.sendMessage(
-        'c1',
-        'Hi',
-        mode: 'creative',
-        personality: 'formal',
-        responseLength: 'long',
-      );
+      await svc.sendMessage('c1', 'Hi',
+          mode: 'creative', personality: 'formal', responseLength: 'long');
       expect(body!['mode'], 'creative');
       expect(body!['personality'], 'formal');
       expect(body!['response_length'], 'long');
@@ -332,14 +302,12 @@ void main() {
 
     test('serves cached response for identical prompts', () async {
       var callCount = 0;
-      final svc = _svc(
-        MockClient((req) async {
-          callCount++;
-          return _json({
-            'data': _message('m1', text: 'Cached reply'),
-          }, status: 201);
-        }),
-      );
+      final svc = _svc(MockClient((req) async {
+        callCount++;
+        return _json({
+          'data': _message('m1', text: 'Cached reply'),
+        }, status: 201);
+      }));
 
       final first = await svc.sendMessage('c1', 'Hello');
       final second = await svc.sendMessage('c1', 'Hello');
@@ -358,9 +326,8 @@ void main() {
     });
 
     test('throws when data is null in response', () async {
-      final svc = _svc(
-        MockClient((_) async => _json({'data': null}, status: 201)),
-      );
+      final svc =
+          _svc(MockClient((_) async => _json({'data': null}, status: 201)));
 
       expect(
         () => svc.sendMessage('c1', 'Hi'),
@@ -370,12 +337,10 @@ void main() {
 
     test('includes memory_context when provided', () async {
       Map<String, dynamic>? body;
-      final svc = _svc(
-        MockClient((req) async {
-          body = jsonDecode(req.body) as Map<String, dynamic>;
-          return _json({'data': _message('m1')}, status: 201);
-        }),
-      );
+      final svc = _svc(MockClient((req) async {
+        body = jsonDecode(req.body) as Map<String, dynamic>;
+        return _json({'data': _message('m1')}, status: 201);
+      }));
 
       await svc.sendMessage('c1', 'Hi', memoryContext: 'user likes cats');
       expect(body!['memory_context'], 'user likes cats');
@@ -383,12 +348,10 @@ void main() {
 
     test('includes reply_to_message_id when provided', () async {
       Map<String, dynamic>? body;
-      final svc = _svc(
-        MockClient((req) async {
-          body = jsonDecode(req.body) as Map<String, dynamic>;
-          return _json({'data': _message('m1')}, status: 201);
-        }),
-      );
+      final svc = _svc(MockClient((req) async {
+        body = jsonDecode(req.body) as Map<String, dynamic>;
+        return _json({'data': _message('m1')}, status: 201);
+      }));
 
       await svc.sendMessage('c1', 'Hi', replyToMessageId: 'parent-msg');
       expect(body!['reply_to_message_id'], 'parent-msg');
@@ -399,13 +362,9 @@ void main() {
 
   group('createChat', () {
     test('returns thread id on 201', () async {
-      final svc = _svc(
-        MockClient(
-          (_) async => _json({
+      final svc = _svc(MockClient((_) async => _json({
             'data': {'id': 'new-chat-1'},
-          }, status: 201),
-        ),
-      );
+          }, status: 201)));
 
       final id = await svc.createChat(name: 'My Chat');
       expect(id, 'new-chat-1');
@@ -414,7 +373,10 @@ void main() {
     test('throws on non-201', () async {
       final svc = _svc(MockClient((_) async => http.Response('err', 500)));
 
-      expect(() => svc.createChat(), throwsA(isA<ChatServiceException>()));
+      expect(
+        () => svc.createChat(),
+        throwsA(isA<ChatServiceException>()),
+      );
     });
   });
 
@@ -423,12 +385,10 @@ void main() {
   group('renameChat', () {
     test('sends PATCH with new name', () async {
       String? body;
-      final svc = _svc(
-        MockClient((req) async {
-          body = req.body;
-          return _json({'ok': true});
-        }),
-      );
+      final svc = _svc(MockClient((req) async {
+        body = req.body;
+        return _json({'ok': true});
+      }));
 
       await svc.renameChat('c1', 'Renamed');
       final parsed = jsonDecode(body!) as Map<String, dynamic>;
@@ -463,7 +423,10 @@ void main() {
     test('throws on non-200/204', () async {
       final svc = _svc(MockClient((_) async => http.Response('err', 500)));
 
-      expect(() => svc.deleteChat('c1'), throwsA(isA<ChatServiceException>()));
+      expect(
+        () => svc.deleteChat('c1'),
+        throwsA(isA<ChatServiceException>()),
+      );
     });
   });
 
@@ -491,12 +454,10 @@ void main() {
   group('clearCache', () {
     test('invalidates cached responses', () async {
       var callCount = 0;
-      final svc = _svc(
-        MockClient((req) async {
-          callCount++;
-          return _json({'data': _message('m1')}, status: 201);
-        }),
-      );
+      final svc = _svc(MockClient((req) async {
+        callCount++;
+        return _json({'data': _message('m1')}, status: 201);
+      }));
 
       await svc.sendMessage('c1', 'Hello');
       expect(callCount, 1);
@@ -512,13 +473,9 @@ void main() {
 
   group('shareChat', () {
     test('returns share URL', () async {
-      final svc = _svc(
-        MockClient(
-          (_) async => _json({
-            'data': {'share_url': 'https://share.test/abc'},
-          }),
-        ),
-      );
+      final svc = _svc(MockClient((_) async => _json({
+            'data': {'share_url': 'https://share.test/abc'}
+          })));
 
       final url = await svc.shareChat('c1');
       expect(url, 'https://share.test/abc');
@@ -527,7 +484,10 @@ void main() {
     test('throws on non-200/201', () async {
       final svc = _svc(MockClient((_) async => http.Response('err', 500)));
 
-      expect(() => svc.shareChat('c1'), throwsA(isA<ChatServiceException>()));
+      expect(
+        () => svc.shareChat('c1'),
+        throwsA(isA<ChatServiceException>()),
+      );
     });
   });
 
@@ -541,7 +501,10 @@ void main() {
     test('throws on non-200/204', () async {
       final svc = _svc(MockClient((_) async => http.Response('err', 403)));
 
-      expect(() => svc.revokeShare('c1'), throwsA(isA<ChatServiceException>()));
+      expect(
+        () => svc.revokeShare('c1'),
+        throwsA(isA<ChatServiceException>()),
+      );
     });
   });
 
@@ -549,13 +512,9 @@ void main() {
 
   group('agent control', () {
     test('getAgentPaused returns boolean from data.paused', () async {
-      final svc = _svc(
-        MockClient(
-          (_) async => _json({
-            'data': {'paused': true},
-          }),
-        ),
-      );
+      final svc = _svc(MockClient((_) async => _json({
+            'data': {'paused': true}
+          })));
 
       expect(await svc.getAgentPaused('c1'), isTrue);
     });
@@ -567,25 +526,17 @@ void main() {
     });
 
     test('pauseAgent returns true on success', () async {
-      final svc = _svc(
-        MockClient(
-          (_) async => _json({
-            'data': {'paused': true},
-          }),
-        ),
-      );
+      final svc = _svc(MockClient((_) async => _json({
+            'data': {'paused': true}
+          })));
 
       expect(await svc.pauseAgent('c1'), isTrue);
     });
 
     test('resumeAgent returns false on success', () async {
-      final svc = _svc(
-        MockClient(
-          (_) async => _json({
-            'data': {'paused': false},
-          }),
-        ),
-      );
+      final svc = _svc(MockClient((_) async => _json({
+            'data': {'paused': false}
+          })));
 
       expect(await svc.resumeAgent('c1'), isFalse);
     });
@@ -599,7 +550,10 @@ void main() {
     test('nudgeAgent throws on error', () async {
       final svc = _svc(MockClient((_) async => http.Response('err', 500)));
 
-      expect(() => svc.nudgeAgent('c1'), throwsA(isA<ChatServiceException>()));
+      expect(
+        () => svc.nudgeAgent('c1'),
+        throwsA(isA<ChatServiceException>()),
+      );
     });
   });
 
@@ -607,13 +561,9 @@ void main() {
 
   group('reactions', () {
     test('addReaction returns data map', () async {
-      final svc = _svc(
-        MockClient(
-          (_) async => _json({
-            'data': {'emoji': '👍', 'count': 1},
-          }),
-        ),
-      );
+      final svc = _svc(MockClient((_) async => _json({
+            'data': {'emoji': '👍', 'count': 1}
+          })));
 
       final result = await svc.addReaction('c1', 'm1', '👍');
       expect(result['emoji'], '👍');
@@ -626,17 +576,13 @@ void main() {
     });
 
     test('getReactions returns list', () async {
-      final svc = _svc(
-        MockClient(
-          (_) async => _json({
+      final svc = _svc(MockClient((_) async => _json({
             'data': {
               'reactions': [
-                {'emoji': '👍', 'count': 2},
-              ],
-            },
-          }),
-        ),
-      );
+                {'emoji': '👍', 'count': 2}
+              ]
+            }
+          })));
 
       final reactions = await svc.getReactions('c1', 'm1');
       expect(reactions, hasLength(1));
@@ -659,17 +605,13 @@ void main() {
     });
 
     test('getPinnedMessages returns list', () async {
-      final svc = _svc(
-        MockClient(
-          (_) async => _json({
+      final svc = _svc(MockClient((_) async => _json({
             'data': {
               'pins': [
-                {'message_id': 'm1'},
-              ],
-            },
-          }),
-        ),
-      );
+                {'message_id': 'm1'}
+              ]
+            }
+          })));
 
       final pins = await svc.getPinnedMessages('c1');
       expect(pins, hasLength(1));

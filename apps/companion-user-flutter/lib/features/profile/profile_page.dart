@@ -82,9 +82,7 @@ class _ProfilePageState extends State<ProfilePage> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Profile updated'),
-          duration: Duration(seconds: 2),
-        ),
+            content: Text('Profile updated'), duration: Duration(seconds: 2)),
       );
     } catch (_) {
       if (mounted) {
@@ -120,20 +118,20 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   static String _monthName(int m) => const [
-    '',
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ][m];
+        '',
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
+      ][m];
 
   @override
   Widget build(BuildContext context) {
@@ -151,8 +149,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ? const SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                      child: CircularProgressIndicator(strokeWidth: 2))
                   : const Text('Save'),
             ),
         ],
@@ -176,36 +173,31 @@ class _ProfilePageState extends State<ProfilePage> {
                             ? Text(
                                 _initials,
                                 style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w700,
-                                  color: cs.onPrimaryContainer,
-                                ),
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w700,
+                                    color: cs.onPrimaryContainer),
                               )
                             : null,
                       ),
                       const SizedBox(height: 12),
                       Text(
                         '@${_s(_profile['username'])}',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(color: cs.onSurfaceVariant),
                       ),
                       if (_memberSince.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(
                           'Member since $_memberSince',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: cs.outline,
-                          ),
+                          style: theme.textTheme.bodySmall
+                              ?.copyWith(color: cs.outline),
                         ),
                       ],
                       if (_s(_profile['role']).isNotEmpty) ...[
                         const SizedBox(height: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 3,
-                          ),
+                              horizontal: 10, vertical: 3),
                           decoration: BoxDecoration(
                             color: cs.tertiaryContainer,
                             borderRadius: BorderRadius.circular(12),
@@ -213,10 +205,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: Text(
                             _s(_profile['role']).toUpperCase(),
                             style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: cs.onTertiaryContainer,
-                            ),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: cs.onTertiaryContainer),
                           ),
                         ),
                       ],
@@ -226,12 +217,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(height: 32),
 
                 // Status section
-                Text(
-                  'Status',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                Text('Status',
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -265,12 +253,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(height: 24),
 
                 // Display name
-                Text(
-                  'Display Name',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                Text('Display Name',
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _displayNameCtrl,
@@ -284,12 +269,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(height: 20),
 
                 // Bio
-                Text(
-                  'Bio',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                Text('Bio',
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _bioCtrl,
@@ -303,12 +285,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(height: 20),
 
                 // Timezone
-                Text(
-                  'Timezone',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                Text('Timezone',
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _timezoneCtrl,
@@ -322,12 +301,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
                 // Organization
                 if (_s(_profile['active_organization_name']).isNotEmpty) ...[
-                  Text(
-                    'Organization',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  Text('Organization',
+                      style: theme.textTheme.titleSmall
+                          ?.copyWith(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 8),
                   Card(
                     child: ListTile(

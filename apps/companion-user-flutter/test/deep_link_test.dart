@@ -44,5 +44,6 @@ void main() {
       final target = parseDeepLink(Uri.parse('sven://unknown/path'));
       expect(target, isNull);
     });
+
   });
 }

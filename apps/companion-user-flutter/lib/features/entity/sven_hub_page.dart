@@ -299,10 +299,8 @@ class _FuturisticTabBar extends StatelessWidget {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 260),
                   curve: Curves.easeOutCubic,
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 3,
-                    vertical: 4,
-                  ),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 3, vertical: 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
                     color: selected
@@ -311,8 +309,7 @@ class _FuturisticTabBar extends StatelessWidget {
                     border: selected
                         ? Border.all(
                             color: tokens.primary.withValues(alpha: 0.45),
-                            width: 1,
-                          )
+                            width: 1)
                         : null,
                   ),
                   child: Row(
@@ -330,9 +327,8 @@ class _FuturisticTabBar extends StatelessWidget {
                         tab.label,
                         style: TextStyle(
                           fontSize: 11,
-                          fontWeight: selected
-                              ? FontWeight.w700
-                              : FontWeight.w500,
+                          fontWeight:
+                              selected ? FontWeight.w700 : FontWeight.w500,
                           letterSpacing: 1.4,
                           color: selected
                               ? tokens.primary
@@ -405,18 +401,13 @@ class _TabBarBgPainter extends CustomPainter {
       Offset(selCx, size.height),
       tabW * 0.6,
       Paint()
-        ..shader =
-            RadialGradient(
-              colors: [
-                primary.withValues(alpha: 0.10 + 0.06 * glow),
-                Colors.transparent,
-              ],
-            ).createShader(
-              Rect.fromCircle(
-                center: Offset(selCx, size.height),
-                radius: tabW * 0.6,
-              ),
-            ),
+        ..shader = RadialGradient(
+          colors: [
+            primary.withValues(alpha: 0.10 + 0.06 * glow),
+            Colors.transparent,
+          ],
+        ).createShader(Rect.fromCircle(
+            center: Offset(selCx, size.height), radius: tabW * 0.6)),
     );
 
     // Corner brackets
@@ -430,37 +421,19 @@ class _TabBarBgPainter extends CustomPainter {
     canvas.drawLine(const Offset(3, 3), const Offset(3, 3 + bLen), bp);
     // Top-right
     canvas.drawLine(
-      Offset(size.width - 3, 3),
-      Offset(size.width - 3 - bLen, 3),
-      bp,
-    );
+        Offset(size.width - 3, 3), Offset(size.width - 3 - bLen, 3), bp);
     canvas.drawLine(
-      Offset(size.width - 3, 3),
-      Offset(size.width - 3, 3 + bLen),
-      bp,
-    );
+        Offset(size.width - 3, 3), Offset(size.width - 3, 3 + bLen), bp);
     // Bottom-left
     canvas.drawLine(
-      Offset(3, size.height - 3),
-      Offset(3 + bLen, size.height - 3),
-      bp,
-    );
+        Offset(3, size.height - 3), Offset(3 + bLen, size.height - 3), bp);
     canvas.drawLine(
-      Offset(3, size.height - 3),
-      Offset(3, size.height - 3 - bLen),
-      bp,
-    );
+        Offset(3, size.height - 3), Offset(3, size.height - 3 - bLen), bp);
     // Bottom-right
-    canvas.drawLine(
-      Offset(size.width - 3, size.height - 3),
-      Offset(size.width - 3 - bLen, size.height - 3),
-      bp,
-    );
-    canvas.drawLine(
-      Offset(size.width - 3, size.height - 3),
-      Offset(size.width - 3, size.height - 3 - bLen),
-      bp,
-    );
+    canvas.drawLine(Offset(size.width - 3, size.height - 3),
+        Offset(size.width - 3 - bLen, size.height - 3), bp);
+    canvas.drawLine(Offset(size.width - 3, size.height - 3),
+        Offset(size.width - 3, size.height - 3 - bLen), bp);
   }
 
   @override
@@ -675,7 +648,10 @@ class _MoodStrip extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30),
           color: accent.withValues(alpha: 0.08),
-          border: Border.all(color: accent.withValues(alpha: 0.30), width: 0.8),
+          border: Border.all(
+            color: accent.withValues(alpha: 0.30),
+            width: 0.8,
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -693,7 +669,7 @@ class _MoodStrip extends StatelessWidget {
                         BoxShadow(
                           color: accent.withValues(alpha: 0.50),
                           blurRadius: 6,
-                        ),
+                        )
                       ]
                     : null,
               ),
@@ -935,24 +911,18 @@ class _FormViewState extends State<_FormView> {
             alignment: WrapAlignment.center,
             spacing: 8,
             children: _selected.traits
-                .map(
-                  (t) => Chip(
-                    label: Text(
-                      t,
-                      style: TextStyle(
-                        color: tokens.onSurface,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    backgroundColor: colors[1].withValues(alpha: 0.18),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 0,
-                    ),
-                    side: BorderSide(color: colors[1].withValues(alpha: 0.40)),
-                  ),
-                )
+                .map((t) => Chip(
+                      label: Text(t,
+                          style: TextStyle(
+                              color: tokens.onSurface,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600)),
+                      backgroundColor: colors[1].withValues(alpha: 0.18),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 0),
+                      side:
+                          BorderSide(color: colors[1].withValues(alpha: 0.40)),
+                    ))
                 .toList(),
           ),
           const SizedBox(height: 18),
@@ -974,11 +944,8 @@ class _FormViewState extends State<_FormView> {
               children: [
                 Row(
                   children: [
-                    Icon(
-                      Icons.auto_fix_high_rounded,
-                      size: 14,
-                      color: tokens.primary.withValues(alpha: 0.7),
-                    ),
+                    Icon(Icons.auto_fix_high_rounded,
+                        size: 14, color: tokens.primary.withValues(alpha: 0.7)),
                     const SizedBox(width: 6),
                     Text(
                       'SHAPE FROM IMAGINATION',
@@ -1007,7 +974,10 @@ class _FormViewState extends State<_FormView> {
                       child: TextField(
                         controller: _shapeCtrl,
                         enabled: !_generating,
-                        style: TextStyle(color: tokens.onSurface, fontSize: 13),
+                        style: TextStyle(
+                          color: tokens.onSurface,
+                          fontSize: 13,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'e.g. "neon dragon", "crystal wolf"...',
                           hintStyle: TextStyle(
@@ -1015,9 +985,7 @@ class _FormViewState extends State<_FormView> {
                             fontSize: 12,
                           ),
                           contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
+                              horizontal: 12, vertical: 10),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide(
@@ -1060,21 +1028,16 @@ class _FormViewState extends State<_FormView> {
                             )
                           : IconButton(
                               onPressed: _generateCustomShape,
-                              icon: Icon(
-                                Icons.bolt_rounded,
-                                color: tokens.primary,
-                                size: 20,
-                              ),
+                              icon: Icon(Icons.bolt_rounded,
+                                  color: tokens.primary, size: 20),
                               style: IconButton.styleFrom(
-                                backgroundColor: tokens.primary.withValues(
-                                  alpha: 0.12,
-                                ),
+                                backgroundColor:
+                                    tokens.primary.withValues(alpha: 0.12),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   side: BorderSide(
-                                    color: tokens.primary.withValues(
-                                      alpha: 0.30,
-                                    ),
+                                    color:
+                                        tokens.primary.withValues(alpha: 0.30),
                                   ),
                                 ),
                               ),
@@ -1100,13 +1063,11 @@ class _FormViewState extends State<_FormView> {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: Color(
-                        widget.customShapeSpec!.primaryArgb,
-                      ).withValues(alpha: 0.08),
+                      color: Color(widget.customShapeSpec!.primaryArgb)
+                          .withValues(alpha: 0.08),
                       border: Border.all(
-                        color: Color(
-                          widget.customShapeSpec!.primaryArgb,
-                        ).withValues(alpha: 0.25),
+                        color: Color(widget.customShapeSpec!.primaryArgb)
+                            .withValues(alpha: 0.25),
                         width: 0.6,
                       ),
                     ),
@@ -1132,9 +1093,8 @@ class _FormViewState extends State<_FormView> {
                               Text(
                                 widget.customShapeSpec!.description,
                                 style: TextStyle(
-                                  color: tokens.onSurface.withValues(
-                                    alpha: 0.50,
-                                  ),
+                                  color:
+                                      tokens.onSurface.withValues(alpha: 0.50),
                                   fontSize: 11,
                                 ),
                                 maxLines: 1,
@@ -1156,11 +1116,8 @@ class _FormViewState extends State<_FormView> {
           Center(
             child: OutlinedButton.icon(
               onPressed: () => _pick(_svensChoice()),
-              icon: Icon(
-                Icons.auto_awesome_rounded,
-                size: 15,
-                color: tokens.primary,
-              ),
+              icon: Icon(Icons.auto_awesome_rounded,
+                  size: 15, color: tokens.primary),
               label: Text(
                 'LET SVEN CHOOSE',
                 style: TextStyle(
@@ -1172,27 +1129,22 @@ class _FormViewState extends State<_FormView> {
               ),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: tokens.primary.withValues(alpha: 0.45)),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
+                    borderRadius: BorderRadius.circular(30)),
               ),
             ),
           ),
           const SizedBox(height: 22),
 
           // ── Entity cards ──
-          ...AvatarMode.values.map(
-            (mode) => _HubEntityCard(
-              mode: mode,
-              isSelected: _selected == mode,
-              tokens: tokens,
-              onTap: () => _pick(mode),
-            ),
-          ),
+          ...AvatarMode.values.map((mode) => _HubEntityCard(
+                mode: mode,
+                isSelected: _selected == mode,
+                tokens: tokens,
+                onTap: () => _pick(mode),
+              )),
           const SizedBox(height: 32),
         ],
       ),
@@ -1249,9 +1201,7 @@ class _HubEntityCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: isSelected
                     ? Border.all(
-                        color: accent.withValues(alpha: 0.40),
-                        width: 0.6,
-                      )
+                        color: accent.withValues(alpha: 0.40), width: 0.6)
                     : null,
               ),
               child: Center(
@@ -1286,31 +1236,25 @@ class _HubEntityCard extends StatelessWidget {
                   Wrap(
                     spacing: 5,
                     children: mode.traits
-                        .map(
-                          (t) => Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 7,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: accent.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: accent.withValues(alpha: 0.20),
-                                width: 0.4,
+                        .map((t) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: accent.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: accent.withValues(alpha: 0.20),
+                                  width: 0.4,
+                                ),
                               ),
-                            ),
-                            child: Text(
-                              t,
-                              style: TextStyle(
-                                color: tokens.onSurface.withValues(alpha: 0.70),
-                                fontSize: 9,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                          ),
-                        )
+                              child: Text(t,
+                                  style: TextStyle(
+                                      color: tokens.onSurface
+                                          .withValues(alpha: 0.70),
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w500,
+                                      letterSpacing: 0.3)),
+                            ))
                         .toList(),
                   ),
                 ],
@@ -1351,18 +1295,14 @@ class _DevicesView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.devices_rounded,
-                size: 56,
-                color: tokens.onSurface.withValues(alpha: 0.25),
-              ),
+              Icon(Icons.devices_rounded,
+                  size: 56, color: tokens.onSurface.withValues(alpha: 0.25)),
               const SizedBox(height: 16),
               Text(
                 'Device control not available',
                 style: TextStyle(
-                  color: tokens.onSurface.withValues(alpha: 0.5),
-                  fontSize: 14,
-                ),
+                    color: tokens.onSurface.withValues(alpha: 0.5),
+                    fontSize: 14),
               ),
             ],
           ),
@@ -1375,8 +1315,7 @@ class _DevicesView extends StatelessWidget {
       builder: (context, state, _) {
         if (state.loading && state.devices.isEmpty) {
           return Center(
-            child: CircularProgressIndicator(color: tokens.primary),
-          );
+              child: CircularProgressIndicator(color: tokens.primary));
         }
 
         return RefreshIndicator(
@@ -1389,27 +1328,21 @@ class _DevicesView extends StatelessWidget {
                     Center(
                       child: Column(
                         children: [
-                          Icon(
-                            Icons.devices_other_rounded,
-                            size: 64,
-                            color: tokens.onSurface.withValues(alpha: 0.2),
-                          ),
+                          Icon(Icons.devices_other_rounded,
+                              size: 64,
+                              color: tokens.onSurface.withValues(alpha: 0.2)),
                           const SizedBox(height: 16),
-                          Text(
-                            'No devices registered',
-                            style: TextStyle(
-                              color: tokens.onSurface.withValues(alpha: 0.5),
-                              fontSize: 15,
-                            ),
-                          ),
+                          Text('No devices registered',
+                              style: TextStyle(
+                                  color:
+                                      tokens.onSurface.withValues(alpha: 0.5),
+                                  fontSize: 15)),
                           const SizedBox(height: 8),
-                          Text(
-                            'Add a device from Settings → Devices',
-                            style: TextStyle(
-                              color: tokens.onSurface.withValues(alpha: 0.35),
-                              fontSize: 12,
-                            ),
-                          ),
+                          Text('Add a device from Settings → Devices',
+                              style: TextStyle(
+                                  color:
+                                      tokens.onSurface.withValues(alpha: 0.35),
+                                  fontSize: 12)),
                         ],
                       ),
                     ),
@@ -1422,14 +1355,12 @@ class _DevicesView extends StatelessWidget {
                     _DeviceStatusBar(state: state, tokens: tokens),
                     const SizedBox(height: 16),
                     // ── Device cards ──
-                    ...state.devices.map(
-                      (device) => _DeviceCard(
-                        device: device,
-                        tokens: tokens,
-                        visualMode: visualMode,
-                        deviceService: deviceService!,
-                      ),
-                    ),
+                    ...state.devices.map((device) => _DeviceCard(
+                          device: device,
+                          tokens: tokens,
+                          visualMode: visualMode,
+                          deviceService: deviceService!,
+                        )),
                     // ── Last refresh ──
                     if (state.lastRefresh != null) ...[
                       const SizedBox(height: 12),
@@ -1437,9 +1368,8 @@ class _DevicesView extends StatelessWidget {
                         child: Text(
                           'Updated ${_timeAgo(state.lastRefresh!)}',
                           style: TextStyle(
-                            color: tokens.onSurface.withValues(alpha: 0.3),
-                            fontSize: 11,
-                          ),
+                              color: tokens.onSurface.withValues(alpha: 0.3),
+                              fontSize: 11),
                         ),
                       ),
                     ],
@@ -1474,9 +1404,7 @@ class _DeviceStatusBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         color: tokens.card.withValues(alpha: 0.6),
         border: Border.all(
-          color: tokens.primary.withValues(alpha: 0.15),
-          width: 0.5,
-        ),
+            color: tokens.primary.withValues(alpha: 0.15), width: 0.5),
       ),
       child: Row(
         children: [
@@ -1503,9 +1431,7 @@ class _DeviceStatusBar extends StatelessWidget {
           Text(
             '${state.totalCount} device${state.totalCount == 1 ? '' : 's'}',
             style: TextStyle(
-              color: tokens.onSurface.withValues(alpha: 0.5),
-              fontSize: 12,
-            ),
+                color: tokens.onSurface.withValues(alpha: 0.5), fontSize: 12),
           ),
         ],
       ),
@@ -1514,11 +1440,8 @@ class _DeviceStatusBar extends StatelessWidget {
 }
 
 class _StatusChip extends StatelessWidget {
-  const _StatusChip({
-    required this.label,
-    required this.color,
-    required this.tokens,
-  });
+  const _StatusChip(
+      {required this.label, required this.color, required this.tokens});
   final String label;
   final Color color;
   final SvenModeTokens tokens;
@@ -1535,19 +1458,16 @@ class _StatusChip extends StatelessWidget {
             shape: BoxShape.circle,
             color: color,
             boxShadow: [
-              BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 4),
+              BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 4)
             ],
           ),
         ),
         const SizedBox(width: 5),
-        Text(
-          label,
-          style: TextStyle(
-            color: tokens.onSurface.withValues(alpha: 0.7),
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        Text(label,
+            style: TextStyle(
+                color: tokens.onSurface.withValues(alpha: 0.7),
+                fontSize: 12,
+                fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -1569,19 +1489,19 @@ class _DeviceCard extends StatelessWidget {
   final DeviceService deviceService;
 
   IconData get _typeIcon => switch (device.deviceType) {
-    DeviceType.mirror => Icons.smart_screen_rounded,
-    DeviceType.tablet => Icons.tablet_rounded,
-    DeviceType.kiosk => Icons.tv_rounded,
-    DeviceType.sensorHub => Icons.sensors_rounded,
-  };
+        DeviceType.mirror => Icons.smart_screen_rounded,
+        DeviceType.tablet => Icons.tablet_rounded,
+        DeviceType.kiosk => Icons.tv_rounded,
+        DeviceType.sensorHub => Icons.sensors_rounded,
+      };
 
   @override
   Widget build(BuildContext context) {
     final statusColor = device.isOnline
         ? Colors.green
         : device.isPairing
-        ? Colors.amber
-        : Colors.grey;
+            ? Colors.amber
+            : Colors.grey;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -1591,15 +1511,13 @@ class _DeviceCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           onTap: () {
             HapticFeedback.selectionClick();
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => DeviceControlPage(
-                  deviceService: deviceService,
-                  device: device,
-                  visualMode: visualMode,
-                ),
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => DeviceControlPage(
+                deviceService: deviceService,
+                device: device,
+                visualMode: visualMode,
               ),
-            );
+            ));
           },
           child: Container(
             padding: const EdgeInsets.all(14),
@@ -1607,9 +1525,7 @@ class _DeviceCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               color: tokens.card.withValues(alpha: 0.5),
               border: Border.all(
-                color: tokens.primary.withValues(alpha: 0.10),
-                width: 0.5,
-              ),
+                  color: tokens.primary.withValues(alpha: 0.10), width: 0.5),
             ),
             child: Row(
               children: [
@@ -1621,9 +1537,7 @@ class _DeviceCard extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: statusColor.withValues(alpha: 0.12),
                     border: Border.all(
-                      color: statusColor.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
+                        color: statusColor.withValues(alpha: 0.3), width: 1),
                   ),
                   child: Icon(_typeIcon, color: statusColor, size: 22),
                 ),
@@ -1679,36 +1593,27 @@ class _DeviceCard extends StatelessWidget {
                           runSpacing: 4,
                           children: device.capabilities
                               .take(5)
-                              .map(
-                                (cap) => Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(6),
-                                    color: tokens.primary.withValues(
-                                      alpha: 0.08,
+                              .map((cap) => Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(6),
+                                      color: tokens.primary
+                                          .withValues(alpha: 0.08),
+                                      border: Border.all(
+                                          color: tokens.primary
+                                              .withValues(alpha: 0.15),
+                                          width: 0.4),
                                     ),
-                                    border: Border.all(
-                                      color: tokens.primary.withValues(
-                                        alpha: 0.15,
-                                      ),
-                                      width: 0.4,
+                                    child: Text(
+                                      cap,
+                                      style: TextStyle(
+                                          color: tokens.onSurface
+                                              .withValues(alpha: 0.6),
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w500),
                                     ),
-                                  ),
-                                  child: Text(
-                                    cap,
-                                    style: TextStyle(
-                                      color: tokens.onSurface.withValues(
-                                        alpha: 0.6,
-                                      ),
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              )
+                                  ))
                               .toList(),
                         ),
                       ],
@@ -1716,11 +1621,8 @@ class _DeviceCard extends StatelessWidget {
                   ),
                 ),
                 // ── Chevron ──
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: tokens.onSurface.withValues(alpha: 0.25),
-                  size: 20,
-                ),
+                Icon(Icons.chevron_right_rounded,
+                    color: tokens.onSurface.withValues(alpha: 0.25), size: 20),
               ],
             ),
           ),

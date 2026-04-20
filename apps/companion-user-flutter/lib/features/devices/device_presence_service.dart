@@ -42,9 +42,9 @@ class DevicePresenceState {
   Device? byName(String name) {
     final lower = name.toLowerCase();
     return devices.cast<Device?>().firstWhere(
-      (d) => d!.name.toLowerCase() == lower,
-      orElse: () => null,
-    );
+          (d) => d!.name.toLowerCase() == lower,
+          orElse: () => null,
+        );
   }
 
   DevicePresenceState copyWith({
@@ -52,12 +52,13 @@ class DevicePresenceState {
     bool? loading,
     String? error,
     DateTime? lastRefresh,
-  }) => DevicePresenceState(
-    devices: devices ?? this.devices,
-    loading: loading ?? this.loading,
-    error: error,
-    lastRefresh: lastRefresh ?? this.lastRefresh,
-  );
+  }) =>
+      DevicePresenceState(
+        devices: devices ?? this.devices,
+        loading: loading ?? this.loading,
+        error: error,
+        lastRefresh: lastRefresh ?? this.lastRefresh,
+      );
 }
 
 /// Service that maintains a live view of all devices.
@@ -107,7 +108,10 @@ class DevicePresenceService extends ValueNotifier<DevicePresenceState> {
         lastRefresh: DateTime.now(),
       );
     } catch (e) {
-      value = value.copyWith(loading: false, error: e.toString());
+      value = value.copyWith(
+        loading: false,
+        error: e.toString(),
+      );
       debugPrint('[DevicePresence] refresh error: $e');
     }
   }
@@ -115,10 +119,8 @@ class DevicePresenceService extends ValueNotifier<DevicePresenceState> {
   /// Check whether a device just appeared online since last refresh.
   /// Useful for triggering greetings.
   List<Device> detectNewlyOnline(List<Device> previous) {
-    final prevOnlineIds = previous
-        .where((d) => d.isOnline)
-        .map((d) => d.id)
-        .toSet();
+    final prevOnlineIds =
+        previous.where((d) => d.isOnline).map((d) => d.id).toSet();
     return value.devices
         .where((d) => d.isOnline && !prevOnlineIds.contains(d.id))
         .toList();

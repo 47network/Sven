@@ -47,9 +47,8 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
     setState(() {
       _detail = d;
       _loading = false;
-      _error = d == null
-          ? (widget.deviceService.error ?? 'Failed to load')
-          : null;
+      _error =
+          d == null ? (widget.deviceService.error ?? 'Failed to load') : null;
     });
   }
 
@@ -73,67 +72,61 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
                 ? null
                 : () => _showDesktopPolicyEditor(device),
           ),
-          IconButton(icon: const Icon(Icons.refresh_rounded), onPressed: _load),
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded),
+            onPressed: _load,
+          ),
         ],
       ),
       body: _loading
           ? Center(child: CircularProgressIndicator(color: tokens.primary))
           : _error != null
-          ? Center(
-              child: Text(
-                _error!,
-                style: const TextStyle(color: Colors.redAccent),
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-              children: [
-                _DeviceInfoCard(
-                  device: device,
-                  tokens: tokens,
-                  cinematic: cinematic,
-                ),
-                const SizedBox(height: 20),
-                _QuickActions(
-                  device: device,
-                  tokens: tokens,
-                  cinematic: cinematic,
-                  onCommand: _sendCommand,
-                  onRelaySnapshot: _showRelaySnapshotDialog,
-                ),
-                const SizedBox(height: 24),
-                if (_detail != null && _detail!.recentCommands.isNotEmpty) ...[
-                  _SectionHeader('Command History', tokens: tokens),
-                  const SizedBox(height: 8),
-                  ..._detail!.recentCommands.map(
-                    (cmd) => _CommandTile(
-                      cmd: cmd,
+              ? Center(
+                  child: Text(_error!,
+                      style: const TextStyle(color: Colors.redAccent)))
+              : ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+                  children: [
+                    _DeviceInfoCard(
+                      device: device,
                       tokens: tokens,
                       cinematic: cinematic,
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-                if (_detail != null && _detail!.recentEvents.isNotEmpty) ...[
-                  _SectionHeader('Recent Events', tokens: tokens),
-                  const SizedBox(height: 8),
-                  ..._detail!.recentEvents.map(
-                    (evt) => _EventTile(
-                      event: evt,
+                    const SizedBox(height: 20),
+                    _QuickActions(
+                      device: device,
                       tokens: tokens,
                       cinematic: cinematic,
+                      onCommand: _sendCommand,
+                      onRelaySnapshot: _showRelaySnapshotDialog,
                     ),
-                  ),
-                ],
-              ],
-            ),
+                    const SizedBox(height: 24),
+                    if (_detail != null &&
+                        _detail!.recentCommands.isNotEmpty) ...[
+                      _SectionHeader('Command History', tokens: tokens),
+                      const SizedBox(height: 8),
+                      ..._detail!.recentCommands.map(
+                        (cmd) => _CommandTile(
+                            cmd: cmd, tokens: tokens, cinematic: cinematic),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                    if (_detail != null &&
+                        _detail!.recentEvents.isNotEmpty) ...[
+                      _SectionHeader('Recent Events', tokens: tokens),
+                      const SizedBox(height: 8),
+                      ..._detail!.recentEvents.map(
+                        (evt) => _EventTile(
+                            event: evt, tokens: tokens, cinematic: cinematic),
+                      ),
+                    ],
+                  ],
+                ),
     );
   }
 
-  Future<void> _sendCommand(
-    String command, {
-    Map<String, dynamic>? payload,
-  }) async {
+  Future<void> _sendCommand(String command,
+      {Map<String, dynamic>? payload}) async {
     final result = await widget.deviceService.sendCommand(
       widget.device.id,
       command,
@@ -183,8 +176,7 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Capture from source camera and display on this device',
-              ),
+                  'Capture from source camera and display on this device'),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: selected.id,
@@ -193,12 +185,10 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
                   border: OutlineInputBorder(),
                 ),
                 items: candidates
-                    .map(
-                      (d) => DropdownMenuItem<String>(
-                        value: d.id,
-                        child: Text(d.name),
-                      ),
-                    )
+                    .map((d) => DropdownMenuItem<String>(
+                          value: d.id,
+                          child: Text(d.name),
+                        ))
                     .toList(),
                 onChanged: running
                     ? null
@@ -245,25 +235,24 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
                         return;
                       }
 
-                      final result = await widget.deviceService
-                          .waitForCommandResult(
-                            selected.id,
-                            snapCmd.id,
-                            timeout: const Duration(seconds: 25),
-                          );
+                      final result =
+                          await widget.deviceService.waitForCommandResult(
+                        selected.id,
+                        snapCmd.id,
+                        timeout: const Duration(seconds: 25),
+                      );
                       if (!mounted) return;
 
                       final imageB64 =
                           result?.resultPayload?['image_base64']?.toString() ??
-                          '';
+                              '';
                       if (imageB64.isEmpty ||
                           (result?.status.toLowerCase() == 'failed')) {
                         navigator.pop();
                         messenger.showSnackBar(
                           SnackBar(
-                            content: Text(
-                              result?.errorMessage ?? 'Snapshot relay failed',
-                            ),
+                            content: Text(result?.errorMessage ??
+                                'Snapshot relay failed'),
                             backgroundColor: Colors.red,
                           ),
                         );
@@ -278,20 +267,20 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
                       final displayCmd = await widget.deviceService.sendCommand(
                         widget.device.id,
                         'display',
-                        payload: {'type': 'html', 'content': html},
+                        payload: {
+                          'type': 'html',
+                          'content': html,
+                        },
                       );
                       if (!mounted) return;
                       navigator.pop();
                       messenger.showSnackBar(
                         SnackBar(
-                          content: Text(
-                            displayCmd != null
-                                ? 'Snapshot relayed to display'
-                                : 'Snapshot captured but display command failed',
-                          ),
-                          backgroundColor: displayCmd != null
-                              ? Colors.green
-                              : Colors.orange,
+                          content: Text(displayCmd != null
+                              ? 'Snapshot relayed to display'
+                              : 'Snapshot captured but display command failed'),
+                          backgroundColor:
+                              displayCmd != null ? Colors.green : Colors.orange,
                         ),
                       );
                       if (displayCmd != null) {
@@ -308,9 +297,8 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
 
   Future<void> _showDesktopPolicyEditor(Device device) async {
     final raw = device.config['desktop_control'];
-    final desktop = raw is Map
-        ? Map<String, dynamic>.from(raw)
-        : <String, dynamic>{};
+    final desktop =
+        raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
 
     var enabled = desktop['enabled'] == true;
     final selectedActions = <String>{
@@ -319,13 +307,12 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
           : const <String>[]),
     };
     final hotkeysCtrl = TextEditingController(
-      text:
-          ((desktop['allowed_hotkeys'] is List)
-                  ? (desktop['allowed_hotkeys'] as List)
-                        .map((e) => e.toString())
-                        .toList()
-                  : const <String>[])
-              .join(', '),
+      text: ((desktop['allowed_hotkeys'] is List)
+              ? (desktop['allowed_hotkeys'] as List)
+                  .map((e) => e.toString())
+                  .toList()
+              : const <String>[])
+          .join(', '),
     );
 
     const availableActions = <String>[
@@ -456,9 +443,10 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
                     'Leave actions/hotkeys empty to allow all actions permitted by backend safety checks.',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Theme.of(
-                        ctx,
-                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      color: Theme.of(ctx)
+                          .colorScheme
+                          .onSurface
+                          .withValues(alpha: 0.7),
                     ),
                   ),
                 ],
@@ -480,9 +468,8 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
                             .where((e) => e.isNotEmpty)
                             .toList();
 
-                        final newConfig = Map<String, dynamic>.from(
-                          device.config,
-                        );
+                        final newConfig =
+                            Map<String, dynamic>.from(device.config);
                         newConfig['desktop_control'] = {
                           'enabled': enabled,
                           if (selectedActions.isNotEmpty)
@@ -498,12 +485,10 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
                         Navigator.of(context).pop();
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(
-                              ok
-                                  ? 'Desktop policy updated'
-                                  : (widget.deviceService.error ??
-                                        'Failed to update policy'),
-                            ),
+                            content: Text(ok
+                                ? 'Desktop policy updated'
+                                : (widget.deviceService.error ??
+                                    'Failed to update policy')),
                             backgroundColor: ok ? Colors.green : Colors.red,
                           ),
                         );
@@ -628,33 +613,29 @@ class _DeviceInfoCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
         children: [
-          Text(
-            key,
-            style: TextStyle(
-              fontSize: 13,
-              color: t.onSurface.withValues(alpha: 0.5),
-            ),
-          ),
+          Text(key,
+              style: TextStyle(
+                fontSize: 13,
+                color: t.onSurface.withValues(alpha: 0.5),
+              )),
           const Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: t.onSurface,
-            ),
-          ),
+          Text(value,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: t.onSurface,
+              )),
         ],
       ),
     );
   }
 
   static IconData _iconFor(DeviceType t) => switch (t) {
-    DeviceType.mirror => Icons.smart_screen_rounded,
-    DeviceType.tablet => Icons.tablet_rounded,
-    DeviceType.kiosk => Icons.desktop_windows_rounded,
-    DeviceType.sensorHub => Icons.sensors_rounded,
-  };
+        DeviceType.mirror => Icons.smart_screen_rounded,
+        DeviceType.tablet => Icons.tablet_rounded,
+        DeviceType.kiosk => Icons.desktop_windows_rounded,
+        DeviceType.sensorHub => Icons.sensors_rounded,
+      };
 
   static String _timeAgo(DateTime dt) {
     final diff = DateTime.now().difference(dt);
@@ -682,7 +663,7 @@ class _QuickActions extends StatelessWidget {
   final SvenModeTokens tokens;
   final bool cinematic;
   final Future<void> Function(String command, {Map<String, dynamic>? payload})
-  onCommand;
+      onCommand;
   final Future<void> Function(BuildContext context) onRelaySnapshot;
 
   String? _normalizeUrlInput(String raw) {
@@ -708,8 +689,7 @@ class _QuickActions extends StatelessWidget {
     final value = rawInput.trim();
     if (value.isEmpty) return null;
 
-    final looksLikeUrl =
-        !value.contains(RegExp(r'\s')) &&
+    final looksLikeUrl = !value.contains(RegExp(r'\s')) &&
         (value.contains('.') ||
             value.contains('localhost') ||
             value.contains('/'));
@@ -726,62 +706,27 @@ class _QuickActions extends StatelessWidget {
     final caps = device.capabilities;
 
     final actions = <_ActionDef>[
-      const _ActionDef(
-        Icons.monitor_rounded,
-        'Display',
-        'display',
-        cap: 'display',
-      ),
-      const _ActionDef(
-        Icons.open_in_browser_rounded,
-        'Open URL',
-        'open_url',
-        cap: null,
-      ),
+      const _ActionDef(Icons.monitor_rounded, 'Display', 'display',
+          cap: 'display'),
+      const _ActionDef(Icons.open_in_browser_rounded, 'Open URL', 'open_url',
+          cap: null),
       const _ActionDef(Icons.apps_rounded, 'Open App', 'open_app', cap: null),
+      const _ActionDef(Icons.route_rounded, 'Relay Snapshot', 'relay_snapshot',
+          cap: null),
+      const _ActionDef(Icons.keyboard_rounded, 'Type Text', 'type_text',
+          cap: null),
+      const _ActionDef(Icons.keyboard_command_key_rounded, 'Hotkey', 'hotkey',
+          cap: null),
       const _ActionDef(
-        Icons.route_rounded,
-        'Relay Snapshot',
-        'relay_snapshot',
-        cap: null,
-      ),
-      const _ActionDef(
-        Icons.keyboard_rounded,
-        'Type Text',
-        'type_text',
-        cap: null,
-      ),
-      const _ActionDef(
-        Icons.keyboard_command_key_rounded,
-        'Hotkey',
-        'hotkey',
-        cap: null,
-      ),
-      const _ActionDef(
-        Icons.filter_center_focus_rounded,
-        'Focus',
-        'focus_window',
-        cap: null,
-      ),
-      const _ActionDef(
-        Icons.camera_alt_rounded,
-        'Camera',
-        'camera_snapshot',
-        cap: 'camera',
-      ),
-      const _ActionDef(
-        Icons.record_voice_over_rounded,
-        'Speak',
-        'tts_speak',
-        cap: 'speaker',
-      ),
+          Icons.filter_center_focus_rounded, 'Focus', 'focus_window',
+          cap: null),
+      const _ActionDef(Icons.camera_alt_rounded, 'Camera', 'camera_snapshot',
+          cap: 'camera'),
+      const _ActionDef(Icons.record_voice_over_rounded, 'Speak', 'tts_speak',
+          cap: 'speaker'),
       const _ActionDef(Icons.network_ping_rounded, 'Ping', 'ping', cap: null),
-      const _ActionDef(
-        Icons.restart_alt_rounded,
-        'Reboot',
-        'reboot',
-        cap: null,
-      ),
+      const _ActionDef(Icons.restart_alt_rounded, 'Reboot', 'reboot',
+          cap: null),
     ];
 
     return Column(
@@ -915,13 +860,13 @@ class _QuickActions extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           FilledButton(
             onPressed: () {
               Navigator.pop(ctx);
-              onCommand('tts_speak', payload: {'text': textCtrl.text.trim()});
+              onCommand('tts_speak', payload: {
+                'text': textCtrl.text.trim(),
+              });
             },
             child: const Text('Speak'),
           ),
@@ -955,7 +900,9 @@ class _QuickActions extends StatelessWidget {
             }
 
             setDialogState(() => submitting = true);
-            await onCommand('open_url', payload: {'url': normalized});
+            await onCommand('open_url', payload: {
+              'url': normalized,
+            });
             if (ctx.mounted) {
               Navigator.pop(ctx);
             }
@@ -1023,20 +970,15 @@ class _QuickActions extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           FilledButton(
             onPressed: () {
               Navigator.pop(ctx);
-              onCommand(
-                'open_app',
-                payload: {
-                  'app': appCtrl.text.trim(),
-                  if (argsCtrl.text.trim().isNotEmpty)
-                    'args': argsCtrl.text.trim(),
-                },
-              );
+              onCommand('open_app', payload: {
+                'app': appCtrl.text.trim(),
+                if (argsCtrl.text.trim().isNotEmpty)
+                  'args': argsCtrl.text.trim(),
+              });
             },
             child: const Text('Open'),
           ),
@@ -1122,9 +1064,7 @@ class _QuickActions extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           FilledButton(
             onPressed: () {
               Navigator.pop(ctx);
@@ -1153,16 +1093,13 @@ class _QuickActions extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           FilledButton(
             onPressed: () {
               Navigator.pop(ctx);
-              onCommand(
-                'focus_window',
-                payload: {'target': targetCtrl.text.trim()},
-              );
+              onCommand('focus_window', payload: {
+                'target': targetCtrl.text.trim(),
+              });
             },
             child: const Text('Focus'),
           ),
@@ -1179,9 +1116,7 @@ class _QuickActions extends StatelessWidget {
         content: Text('Reboot "${device.name}"?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           FilledButton(
             onPressed: () {
               Navigator.pop(ctx);
@@ -1300,20 +1235,20 @@ class _CommandTile extends StatelessWidget {
   final bool cinematic;
 
   Color get _statusColor => switch (cmd.status) {
-    'pending' => Colors.amber,
-    'delivered' => Colors.blue,
-    'acknowledged' => Colors.green,
-    'failed' => Colors.red,
-    _ => Colors.grey,
-  };
+        'pending' => Colors.amber,
+        'delivered' => Colors.blue,
+        'acknowledged' => Colors.green,
+        'failed' => Colors.red,
+        _ => Colors.grey,
+      };
 
   IconData get _statusIcon => switch (cmd.status) {
-    'pending' => Icons.schedule_rounded,
-    'delivered' => Icons.send_rounded,
-    'acknowledged' => Icons.check_circle_rounded,
-    'failed' => Icons.error_rounded,
-    _ => Icons.help_outline_rounded,
-  };
+        'pending' => Icons.schedule_rounded,
+        'delivered' => Icons.send_rounded,
+        'acknowledged' => Icons.check_circle_rounded,
+        'failed' => Icons.error_rounded,
+        _ => Icons.help_outline_rounded,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -1387,13 +1322,13 @@ class _EventTile extends StatelessWidget {
   final bool cinematic;
 
   IconData get _icon => switch (event.eventType) {
-    'motion_detected' => Icons.directions_run_rounded,
-    'face_detected' => Icons.face_rounded,
-    'touch' => Icons.touch_app_rounded,
-    'error' => Icons.error_outline_rounded,
-    'boot' => Icons.power_settings_new_rounded,
-    _ => Icons.circle_rounded,
-  };
+        'motion_detected' => Icons.directions_run_rounded,
+        'face_detected' => Icons.face_rounded,
+        'touch' => Icons.touch_app_rounded,
+        'error' => Icons.error_outline_rounded,
+        'boot' => Icons.power_settings_new_rounded,
+        _ => Icons.circle_rounded,
+      };
 
   @override
   Widget build(BuildContext context) {

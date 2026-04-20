@@ -89,9 +89,8 @@ class SvenModeTokens {
     final isDark = onSurface.computeLuminance() > 0.5;
     final pureText = isDark ? const Color(0xFFFFFFFF) : const Color(0xFF000000);
     final pureBg = isDark ? const Color(0xFF000000) : const Color(0xFFFFFFFF);
-    final pureBorder = isDark
-        ? const Color(0xFF555555)
-        : const Color(0xFFAAAAAA);
+    final pureBorder =
+        isDark ? const Color(0xFF555555) : const Color(0xFFAAAAAA);
     return SvenModeTokens(
       primary: primary,
       secondary: secondary,
@@ -102,7 +101,9 @@ class SvenModeTokens {
       card: pureBg,
       frame: pureBorder,
       glow: primary.withValues(alpha: 0.6),
-      backgroundGradient: LinearGradient(colors: [pureBg, pureBg]),
+      backgroundGradient: LinearGradient(
+        colors: [pureBg, pureBg],
+      ),
     );
   }
 }
@@ -121,7 +122,10 @@ class SvenTokens {
     backgroundGradient: LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
-      colors: [Color(0xFFF5F8FC), Color(0xFFEAF0F8)],
+      colors: [
+        Color(0xFFF5F8FC),
+        Color(0xFFEAF0F8),
+      ],
     ),
   );
 
@@ -138,7 +142,11 @@ class SvenTokens {
     backgroundGradient: LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [Color(0xFF030711), Color(0xFF0A1328), Color(0xFF031A25)],
+      colors: [
+        Color(0xFF030711),
+        Color(0xFF0A1328),
+        Color(0xFF031A25),
+      ],
     ),
   );
 

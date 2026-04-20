@@ -219,11 +219,11 @@ final brainServiceProvider = ChangeNotifierProvider<BrainService>(
 /// Overridden in [_SvenUserAppState] with the live `_inferenceService` instance.
 final inferenceServiceProvider =
     ChangeNotifierProvider<OnDeviceInferenceService>(
-      (ref) => throw StateError(
-        'inferenceServiceProvider must be overridden by the root ProviderScope.',
-      ),
-      name: 'inferenceServiceProvider',
-    );
+  (ref) => throw StateError(
+    'inferenceServiceProvider must be overridden by the root ProviderScope.',
+  ),
+  name: 'inferenceServiceProvider',
+);
 
 // ── Sprint 72 — AI pipeline providers ─────────────────────────────────
 

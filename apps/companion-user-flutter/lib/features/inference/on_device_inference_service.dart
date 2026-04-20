@@ -133,10 +133,8 @@ class OnDeviceInferenceService extends ChangeNotifier {
         totalRamMb = mac.memorySize ~/ (1024 * 1024); // bytes → MB
         // macOS doesn't expose freeDiskSize; query via df.
         try {
-          final result = await Process.run('df', [
-            '-m',
-            Directory.systemTemp.path,
-          ]);
+          final result =
+              await Process.run('df', ['-m', Directory.systemTemp.path]);
           if (result.exitCode == 0) {
             final lines = (result.stdout as String).trim().split('\n');
             if (lines.length >= 2) {
@@ -169,18 +167,16 @@ class OnDeviceInferenceService extends ChangeNotifier {
     final modelsJson = prefs.getString(_kModelsInstalled);
     if (modelsJson != null) {
       final list = jsonDecode(modelsJson) as List<dynamic>;
-      _installedModels = list
-          .cast<Map<String, dynamic>>()
-          .map(ModelProfile.fromJson)
-          .toList();
+      _installedModels =
+          list.cast<Map<String, dynamic>>().map(ModelProfile.fromJson).toList();
     }
 
     final activeId = prefs.getString(_kActiveModelId);
     if (activeId != null) {
       _activeModel = _installedModels.cast<ModelProfile?>().firstWhere(
-        (m) => m?.id == activeId,
-        orElse: () => null,
-      );
+            (m) => m?.id == activeId,
+            orElse: () => null,
+          );
     }
 
     _notify();
@@ -206,9 +202,8 @@ class OnDeviceInferenceService extends ChangeNotifier {
     if (_client == null) return;
     try {
       final base = ApiBaseService.currentSync();
-      final response = await _client.get(
-        Uri.parse('$base/v1/admin/gemma4/modules/installed'),
-      );
+      final response = await _client
+          .get(Uri.parse('$base/v1/admin/gemma4/modules/installed'));
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body) as Map<String, dynamic>;
         final data = body['data'] as Map<String, dynamic>? ?? body;
@@ -237,16 +232,14 @@ class OnDeviceInferenceService extends ChangeNotifier {
     // ── Device capability gate ───────────────────────────────────────
     final compat = checkCompatibility(variant);
     if (compat == ModelCompatibility.insufficientRam) {
-      _error =
-          'This model requires ${variant.minRamMb ~/ 1024} GB RAM. '
+      _error = 'This model requires ${variant.minRamMb ~/ 1024} GB RAM. '
           'Your device has ${(_deviceCapability?.totalRamMb ?? 0) ~/ 1024} GB.';
       _notify();
       return ModelInstallResult.insufficientRam;
     }
     if (compat == ModelCompatibility.insufficientStorage) {
       final requiredGb = variant.estimatedSizeBytes / 1073741824;
-      _error =
-          'This model needs ${requiredGb.toStringAsFixed(1)} GB '
+      _error = 'This model needs ${requiredGb.toStringAsFixed(1)} GB '
           'of free storage plus 500 MB overhead. '
           'Available: ${(_deviceCapability?.freeStorageMb ?? 0) ~/ 1024} GB.';
       _notify();
@@ -322,9 +315,9 @@ class OnDeviceInferenceService extends ChangeNotifier {
   /// Load a model into memory for inference.
   Future<void> loadModel(String modelId) async {
     final model = _installedModels.cast<ModelProfile?>().firstWhere(
-      (m) => m?.id == modelId,
-      orElse: () => null,
-    );
+          (m) => m?.id == modelId,
+          orElse: () => null,
+        );
     if (model == null || model.status != ModelStatus.ready) return;
 
     _state = InferenceState.loading;
@@ -453,9 +446,20 @@ class OnDeviceInferenceService extends ChangeNotifier {
 // Data models
 // ═══════════════════════════════════════════════════════════════════════════
 
-enum InferenceState { idle, downloading, loading, ready, inferring, error }
+enum InferenceState {
+  idle,
+  downloading,
+  loading,
+  ready,
+  inferring,
+  error,
+}
 
-enum InferenceRoute { local, cloud, localUnavailable }
+enum InferenceRoute {
+  local,
+  cloud,
+  localUnavailable,
+}
 
 enum ModelVariant {
   e2b,
@@ -464,93 +468,93 @@ enum ModelVariant {
   dense31b;
 
   String get displayName => switch (this) {
-    ModelVariant.e2b => 'E2B (2B)',
-    ModelVariant.e4b => 'E4B (4B)',
-    ModelVariant.moe26b => '26B MoE',
-    ModelVariant.dense31b => '31B Dense',
-  };
+        ModelVariant.e2b => 'E2B (2B)',
+        ModelVariant.e4b => 'E4B (4B)',
+        ModelVariant.moe26b => '26B MoE',
+        ModelVariant.dense31b => '31B Dense',
+      };
 
   int get estimatedSizeBytes => switch (this) {
-    ModelVariant.e2b => 1200000000, // ~1.2 GB
-    ModelVariant.e4b => 2800000000, // ~2.8 GB
-    ModelVariant.moe26b => 15000000000, // ~15 GB
-    ModelVariant.dense31b => 18000000000, // ~18 GB
-  };
+        ModelVariant.e2b => 1200000000, // ~1.2 GB
+        ModelVariant.e4b => 2800000000, // ~2.8 GB
+        ModelVariant.moe26b => 15000000000, // ~15 GB
+        ModelVariant.dense31b => 18000000000, // ~18 GB
+      };
 
   /// Minimum device RAM (MB) required to run this variant.
   /// Accounts for OS overhead — model needs roughly 60-70% of this for
   /// weights + KV cache; the rest is for OS and app processes.
   int get minRamMb => switch (this) {
-    ModelVariant.e2b => 4096, // 4 GB
-    ModelVariant.e4b => 6144, // 6 GB
-    ModelVariant.moe26b => 8192, // 8 GB
-    ModelVariant.dense31b => 12288, // 12 GB
-  };
+        ModelVariant.e2b => 4096, // 4 GB
+        ModelVariant.e4b => 6144, // 6 GB
+        ModelVariant.moe26b => 8192, // 8 GB
+        ModelVariant.dense31b => 12288, // 12 GB
+      };
 
   int get contextWindow => switch (this) {
-    ModelVariant.e2b => 128000,
-    ModelVariant.e4b => 128000,
-    ModelVariant.moe26b => 256000,
-    ModelVariant.dense31b => 256000,
-  };
+        ModelVariant.e2b => 128000,
+        ModelVariant.e4b => 128000,
+        ModelVariant.moe26b => 256000,
+        ModelVariant.dense31b => 256000,
+      };
 
   List<String> get capabilities => switch (this) {
-    ModelVariant.e2b => [
-      'text',
-      'vision',
-      'audio',
-      'function_calling',
-      'multilingual',
-    ],
-    ModelVariant.e4b => [
-      'text',
-      'vision',
-      'audio',
-      'function_calling',
-      'multilingual',
-    ],
-    ModelVariant.moe26b => [
-      'text',
-      'vision',
-      'function_calling',
-      'multilingual',
-      'structured_json',
-    ],
-    ModelVariant.dense31b => [
-      'text',
-      'vision',
-      'function_calling',
-      'multilingual',
-      'structured_json',
-      'fine_tuning',
-    ],
-  };
+        ModelVariant.e2b => [
+            'text',
+            'vision',
+            'audio',
+            'function_calling',
+            'multilingual'
+          ],
+        ModelVariant.e4b => [
+            'text',
+            'vision',
+            'audio',
+            'function_calling',
+            'multilingual'
+          ],
+        ModelVariant.moe26b => [
+            'text',
+            'vision',
+            'function_calling',
+            'multilingual',
+            'structured_json'
+          ],
+        ModelVariant.dense31b => [
+            'text',
+            'vision',
+            'function_calling',
+            'multilingual',
+            'structured_json',
+            'fine_tuning'
+          ],
+      };
 
   String get description => switch (this) {
-    ModelVariant.e2b =>
-      'Lightweight 2-billion parameter model optimized for mobile devices. '
-          'Best for quick text responses, basic vision tasks, and voice commands. '
-          'Runs efficiently on most modern phones with minimal battery impact.',
-    ModelVariant.e4b =>
-      'Mid-range 4-billion parameter model with enhanced reasoning. '
-          'Stronger at multi-step tasks, image understanding, and multilingual conversations. '
-          'Recommended for flagship phones and tablets.',
-    ModelVariant.moe26b =>
-      'Large 26-billion Mixture-of-Experts model for advanced tasks. '
-          'Excellent at complex reasoning, structured JSON output, and detailed analysis. '
-          'Requires a high-end device with 8+ GB RAM. Download may take several minutes.',
-    ModelVariant.dense31b =>
-      'Largest 31-billion dense model with full capabilities including fine-tuning support. '
-          'Best-in-class accuracy for all tasks. Supports custom model adaptation. '
-          'Requires 12+ GB RAM and significant storage. Recommended for desktop/tablet only.',
-  };
+        ModelVariant.e2b =>
+          'Lightweight 2-billion parameter model optimized for mobile devices. '
+              'Best for quick text responses, basic vision tasks, and voice commands. '
+              'Runs efficiently on most modern phones with minimal battery impact.',
+        ModelVariant.e4b =>
+          'Mid-range 4-billion parameter model with enhanced reasoning. '
+              'Stronger at multi-step tasks, image understanding, and multilingual conversations. '
+              'Recommended for flagship phones and tablets.',
+        ModelVariant.moe26b =>
+          'Large 26-billion Mixture-of-Experts model for advanced tasks. '
+              'Excellent at complex reasoning, structured JSON output, and detailed analysis. '
+              'Requires a high-end device with 8+ GB RAM. Download may take several minutes.',
+        ModelVariant.dense31b =>
+          'Largest 31-billion dense model with full capabilities including fine-tuning support. '
+              'Best-in-class accuracy for all tasks. Supports custom model adaptation. '
+              'Requires 12+ GB RAM and significant storage. Recommended for desktop/tablet only.',
+      };
 
   static ModelVariant fromString(String s) => switch (s) {
-    'e4b' => ModelVariant.e4b,
-    'moe26b' => ModelVariant.moe26b,
-    'dense31b' => ModelVariant.dense31b,
-    _ => ModelVariant.e2b,
-  };
+        'e4b' => ModelVariant.e4b,
+        'moe26b' => ModelVariant.moe26b,
+        'dense31b' => ModelVariant.dense31b,
+        _ => ModelVariant.e2b,
+      };
 }
 
 enum ModelStatus {
@@ -559,10 +563,10 @@ enum ModelStatus {
   error;
 
   static ModelStatus fromString(String s) => switch (s) {
-    'ready' => ModelStatus.ready,
-    'error' => ModelStatus.error,
-    _ => ModelStatus.downloading,
-  };
+        'ready' => ModelStatus.ready,
+        'error' => ModelStatus.error,
+        _ => ModelStatus.downloading,
+      };
 }
 
 class ModelProfile {
@@ -578,18 +582,18 @@ class ModelProfile {
   });
 
   factory ModelProfile.fromJson(Map<String, dynamic> json) => ModelProfile(
-    id: json['id'] as String? ?? '',
-    name: json['name'] as String? ?? '',
-    variant: ModelVariant.fromString(json['variant'] as String? ?? ''),
-    sizeBytes: json['size_bytes'] as int? ?? 0,
-    contextWindow: json['context_window'] as int? ?? 0,
-    capabilities:
-        (json['capabilities'] as List<dynamic>?)?.cast<String>().toList() ?? [],
-    installedAt:
-        DateTime.tryParse(json['installed_at'] as String? ?? '') ??
-        DateTime.now().toUtc(),
-    status: ModelStatus.fromString(json['status'] as String? ?? ''),
-  );
+        id: json['id'] as String? ?? '',
+        name: json['name'] as String? ?? '',
+        variant: ModelVariant.fromString(json['variant'] as String? ?? ''),
+        sizeBytes: json['size_bytes'] as int? ?? 0,
+        contextWindow: json['context_window'] as int? ?? 0,
+        capabilities:
+            (json['capabilities'] as List<dynamic>?)?.cast<String>().toList() ??
+                [],
+        installedAt: DateTime.tryParse(json['installed_at'] as String? ?? '') ??
+            DateTime.now().toUtc(),
+        status: ModelStatus.fromString(json['status'] as String? ?? ''),
+      );
 
   final String id;
   final String name;
@@ -601,26 +605,26 @@ class ModelProfile {
   final ModelStatus status;
 
   ModelProfile copyWith({ModelStatus? status}) => ModelProfile(
-    id: id,
-    name: name,
-    variant: variant,
-    sizeBytes: sizeBytes,
-    contextWindow: contextWindow,
-    capabilities: capabilities,
-    installedAt: installedAt,
-    status: status ?? this.status,
-  );
+        id: id,
+        name: name,
+        variant: variant,
+        sizeBytes: sizeBytes,
+        contextWindow: contextWindow,
+        capabilities: capabilities,
+        installedAt: installedAt,
+        status: status ?? this.status,
+      );
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'variant': variant.name,
-    'size_bytes': sizeBytes,
-    'context_window': contextWindow,
-    'capabilities': capabilities,
-    'installed_at': installedAt.toIso8601String(),
-    'status': status.name,
-  };
+        'id': id,
+        'name': name,
+        'variant': variant.name,
+        'size_bytes': sizeBytes,
+        'context_window': contextWindow,
+        'capabilities': capabilities,
+        'installed_at': installedAt.toIso8601String(),
+        'status': status.name,
+      };
 
   String get sizeLabel {
     final gb = sizeBytes / 1073741824;

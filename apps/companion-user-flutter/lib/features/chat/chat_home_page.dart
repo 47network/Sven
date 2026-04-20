@@ -232,15 +232,13 @@ class _ChatHomePageState extends State<ChatHomePage> {
                 height: 56,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.error.withValues(alpha: 0.1),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .error
+                      .withValues(alpha: 0.1),
                 ),
-                child: Icon(
-                  Icons.cloud_off_rounded,
-                  size: 28,
-                  color: Theme.of(context).colorScheme.error,
-                ),
+                child: Icon(Icons.cloud_off_rounded,
+                    size: 28, color: Theme.of(context).colorScheme.error),
               ),
               const SizedBox(height: 20),
               Text(
@@ -251,8 +249,8 @@ class _ChatHomePageState extends State<ChatHomePage> {
               Text(
                 _error!,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: tokens.onSurface.withValues(alpha: 0.5),
-                ),
+                      color: tokens.onSurface.withValues(alpha: 0.5),
+                    ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
@@ -413,16 +411,12 @@ class _ChatHomePageState extends State<ChatHomePage> {
                 ),
                 icon: const Icon(Icons.auto_awesome_rounded, size: 16),
                 label: Text(
-                  '${widget.avatarMode.icon}\u2002Meet ${widget.avatarMode.entityName}\u2002→',
-                ),
+                    '${widget.avatarMode.icon}\u2002Meet ${widget.avatarMode.entityName}\u2002→'),
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
+                      borderRadius: BorderRadius.circular(30)),
                 ),
               ),
             ],
@@ -491,9 +485,9 @@ class _ThreadScaffoldState extends State<_ThreadScaffold> {
                 tag: 'thread_title_${widget.thread.id}',
                 flightShuttleBuilder: (_, anim, dir, from, to) =>
                     DefaultTextStyle(
-                      style: DefaultTextStyle.of(to).style,
-                      child: to.widget,
-                    ),
+                  style: DefaultTextStyle.of(to).style,
+                  child: to.widget,
+                ),
                 child: Text(
                   widget.thread.title,
                   overflow: TextOverflow.ellipsis,

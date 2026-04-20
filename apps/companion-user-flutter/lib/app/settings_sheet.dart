@@ -96,9 +96,9 @@ class SettingsSheet extends StatelessWidget {
   void _openSubPage(BuildContext context, Widget page) {
     final reopen = onReopenSettings;
     Navigator.of(context).pop();
-    Navigator.of(context).push(SvenPageRoute<void>(builder: (_) => page)).then((
-      _,
-    ) {
+    Navigator.of(context)
+        .push(SvenPageRoute<void>(builder: (_) => page))
+        .then((_) {
       if (reopen != null) reopen();
     });
   }
@@ -140,8 +140,10 @@ class SettingsSheet extends StatelessWidget {
                     // Title
                     Text(
                       'Settings',
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.w700),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
                     ),
                     const SizedBox(height: 24),
 
@@ -185,14 +187,11 @@ class SettingsSheet extends StatelessWidget {
                         icon: Icons.keyboard_voice_rounded,
                         title: 'Wake phrase',
                         subtitle: state.wakeWordPhrase,
-                        trailing: Icon(
-                          Icons.chevron_right_rounded,
-                          color: tokens.onSurface.withValues(alpha: 0.45),
-                        ),
+                        trailing: Icon(Icons.chevron_right_rounded,
+                            color: tokens.onSurface.withValues(alpha: 0.45)),
                         onTap: () async {
-                          final controller = TextEditingController(
-                            text: state.wakeWordPhrase,
-                          );
+                          final controller =
+                              TextEditingController(text: state.wakeWordPhrase);
                           final value = await showDialog<String>(
                             context: context,
                             builder: (dialogContext) => AlertDialog(
@@ -211,9 +210,8 @@ class SettingsSheet extends StatelessWidget {
                                   child: const Text('Cancel'),
                                 ),
                                 FilledButton(
-                                  onPressed: () => Navigator.of(
-                                    dialogContext,
-                                  ).pop(controller.text),
+                                  onPressed: () => Navigator.of(dialogContext)
+                                      .pop(controller.text),
                                   child: const Text('Save'),
                                 ),
                               ],
@@ -235,17 +233,14 @@ class SettingsSheet extends StatelessWidget {
                             return const SizedBox.shrink();
                           }
                           // Filter to English voices only
-                          final voices =
-                              snap.data!.whereType<Map>().where((v) {
-                                final locale = (v['locale'] ?? '')
-                                    .toString()
-                                    .toLowerCase();
-                                return locale.startsWith('en');
-                              }).toList()..sort(
-                                (a, b) => (a['name'] ?? '')
-                                    .toString()
-                                    .compareTo((b['name'] ?? '').toString()),
-                              );
+                          final voices = snap.data!.whereType<Map>().where((v) {
+                            final locale =
+                                (v['locale'] ?? '').toString().toLowerCase();
+                            return locale.startsWith('en');
+                          }).toList()
+                            ..sort((a, b) => (a['name'] ?? '')
+                                .toString()
+                                .compareTo((b['name'] ?? '').toString()));
                           if (voices.isEmpty) return const SizedBox.shrink();
                           final current = voiceService!.selectedVoiceName;
                           return _SettingsTile(
@@ -261,23 +256,20 @@ class SettingsSheet extends StatelessWidget {
                                 underline: const SizedBox.shrink(),
                                 isDense: true,
                                 isExpanded: true,
-                                style: Theme.of(context).textTheme.bodySmall
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
                                     ?.copyWith(
                                       color: tokens.primary,
                                       fontWeight: FontWeight.w600,
                                     ),
-                                hint: Text(
-                                  'Default',
-                                  style: TextStyle(
-                                    color: tokens.onSurface.withValues(
-                                      alpha: 0.5,
-                                    ),
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                items: voices.map<DropdownMenuItem<String>>((
-                                  v,
-                                ) {
+                                hint: Text('Default',
+                                    style: TextStyle(
+                                        color: tokens.onSurface
+                                            .withValues(alpha: 0.5),
+                                        fontSize: 12)),
+                                items:
+                                    voices.map<DropdownMenuItem<String>>((v) {
                                   final name = v['name'].toString();
                                   return DropdownMenuItem(
                                     value: name,
@@ -291,8 +283,7 @@ class SettingsSheet extends StatelessWidget {
                                 onChanged: (name) {
                                   if (name == null) return;
                                   final voice = voices.firstWhere(
-                                    (v) => v['name'].toString() == name,
-                                  );
+                                      (v) => v['name'].toString() == name);
                                   final locale =
                                       voice['locale']?.toString() ?? 'en-US';
                                   voiceService!.setVoice(name, locale);
@@ -337,9 +328,8 @@ class SettingsSheet extends StatelessWidget {
                             _SettingsTile(
                               icon: Icons.tune_rounded,
                               title: 'Voice pitch',
-                              subtitle: voiceService!.ttsPitch.toStringAsFixed(
-                                1,
-                              ),
+                              subtitle:
+                                  voiceService!.ttsPitch.toStringAsFixed(1),
                               trailing: SizedBox(
                                 width: 140,
                                 child: Slider(
@@ -375,16 +365,14 @@ class SettingsSheet extends StatelessWidget {
                         underline: const SizedBox.shrink(),
                         isDense: true,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: tokens.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
+                              color: tokens.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
                         items: VoicePersonality.values
-                            .map(
-                              (p) => DropdownMenuItem(
-                                value: p,
-                                child: Text('${p.icon} ${p.label}'),
-                              ),
-                            )
+                            .map((p) => DropdownMenuItem(
+                                  value: p,
+                                  child: Text('${p.icon} ${p.label}'),
+                                ))
                             .toList(),
                         onChanged: (v) {
                           if (v != null) state.setVoicePersonality(v);
@@ -438,16 +426,19 @@ class SettingsSheet extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              Icon(
-                                Icons.circle_outlined,
-                                size: 20,
-                                color: tokens.onSurface.withValues(alpha: 0.55),
-                              ),
+                              Icon(Icons.circle_outlined,
+                                  size: 20,
+                                  color:
+                                      tokens.onSurface.withValues(alpha: 0.55)),
                               const SizedBox(width: 12),
                               Text(
                                 'Accent colour',
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(fontWeight: FontWeight.w500),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
                               ),
                             ],
                           ),
@@ -475,21 +466,17 @@ class SettingsSheet extends StatelessWidget {
                                     boxShadow: isActive
                                         ? [
                                             BoxShadow(
-                                              color: color.withValues(
-                                                alpha: 0.55,
-                                              ),
+                                              color:
+                                                  color.withValues(alpha: 0.55),
                                               blurRadius: 8,
                                               spreadRadius: 1,
-                                            ),
+                                            )
                                           ]
                                         : null,
                                   ),
                                   child: isActive
-                                      ? const Icon(
-                                          Icons.check_rounded,
-                                          size: 18,
-                                          color: Colors.white,
-                                        )
+                                      ? const Icon(Icons.check_rounded,
+                                          size: 18, color: Colors.white)
                                       : null,
                                 ),
                               );
@@ -502,24 +489,19 @@ class SettingsSheet extends StatelessWidget {
                     _SettingsTile(
                       icon: Icons.animation_outlined,
                       title: 'Motion',
-                      subtitle: reduceMotion
-                          ? 'System reduced motion on'
-                          : null,
+                      subtitle:
+                          reduceMotion ? 'System reduced motion on' : null,
                       trailing: DropdownButton<MotionLevel>(
                         value: state.motionLevel,
                         underline: const SizedBox.shrink(),
                         isDense: true,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: tokens.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
+                              color: tokens.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
                         items: MotionLevel.values
-                            .map(
-                              (m) => DropdownMenuItem(
-                                value: m,
-                                child: Text(m.label),
-                              ),
-                            )
+                            .map((m) => DropdownMenuItem(
+                                value: m, child: Text(m.label)))
                             .toList(),
                         onChanged: (v) {
                           if (v != null) state.setMotionLevel(v);
@@ -534,10 +516,8 @@ class SettingsSheet extends StatelessWidget {
                       title: 'Sven\'s form',
                       subtitle:
                           '${state.avatarMode.icon}\u2002${state.avatarMode.entityName}\u2002·\u2002${state.avatarMode.label}',
-                      trailing: Icon(
-                        Icons.chevron_right_rounded,
-                        color: tokens.onSurface.withValues(alpha: 0.45),
-                      ),
+                      trailing: Icon(Icons.chevron_right_rounded,
+                          color: tokens.onSurface.withValues(alpha: 0.45)),
                       onTap: () {
                         showModalBottomSheet<void>(
                           context: context,
@@ -549,8 +529,7 @@ class SettingsSheet extends StatelessWidget {
                             maxChildSize: 0.95,
                             builder: (ctx, ctrl) => ClipRRect(
                               borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(28),
-                              ),
+                                  top: Radius.circular(28)),
                               child: SvenEntityPage(
                                 currentMode: state.avatarMode,
                                 onChanged: state.setAvatarMode,
@@ -575,16 +554,12 @@ class SettingsSheet extends StatelessWidget {
                         underline: const SizedBox.shrink(),
                         isDense: true,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: tokens.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
+                              color: tokens.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
                         items: ResponseLength.values
-                            .map(
-                              (r) => DropdownMenuItem(
-                                value: r,
-                                child: Text(r.label),
-                              ),
-                            )
+                            .map((r) => DropdownMenuItem(
+                                value: r, child: Text(r.label)))
                             .toList(),
                         onChanged: (v) {
                           if (v != null) state.setResponseLength(v);
@@ -687,16 +662,12 @@ class SettingsSheet extends StatelessWidget {
                         underline: const SizedBox.shrink(),
                         isDense: true,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: tokens.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
+                              color: tokens.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
                         items: FontFamily.values
-                            .map(
-                              (f) => DropdownMenuItem(
-                                value: f,
-                                child: Text(f.label),
-                              ),
-                            )
+                            .map((f) => DropdownMenuItem(
+                                value: f, child: Text(f.label)))
                             .toList(),
                         onChanged: (v) {
                           if (v != null) state.setFontFamily(v);
@@ -715,16 +686,12 @@ class SettingsSheet extends StatelessWidget {
                         underline: const SizedBox.shrink(),
                         isDense: true,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: tokens.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
+                              color: tokens.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
                         items: UiDensity.values
-                            .map(
-                              (d) => DropdownMenuItem(
-                                value: d,
-                                child: Text(d.label),
-                              ),
-                            )
+                            .map((d) => DropdownMenuItem(
+                                value: d, child: Text(d.label)))
                             .toList(),
                         onChanged: (v) {
                           if (v != null) state.setUiDensity(v);
@@ -798,9 +765,7 @@ class SettingsSheet extends StatelessWidget {
                       onTap: () => _openSubPage(
                         context,
                         SearchPage(
-                          client: client,
-                          visualMode: state.visualMode,
-                        ),
+                            client: client, visualMode: state.visualMode),
                       ),
                       tokens: tokens,
                       cinematic: cinematic,
@@ -817,9 +782,8 @@ class SettingsSheet extends StatelessWidget {
                         size: 20,
                       ),
                       onTap: () {
-                        final inferSvc = OnDeviceInferenceService(
-                          client: client,
-                        );
+                        final inferSvc =
+                            OnDeviceInferenceService(client: client);
                         _openSubPage(
                           context,
                           AiHubPage(
@@ -830,28 +794,24 @@ class SettingsSheet extends StatelessWidget {
                               Widget? page;
                               switch (route) {
                                 case 'inference':
-                                  page = InferencePage(
-                                    inferenceService: inferSvc,
-                                  );
+                                  page =
+                                      InferencePage(inferenceService: inferSvc);
                                 case 'brain':
                                   page = BrainPage(
-                                    brainService: BrainService(client: client),
-                                  );
+                                      brainService:
+                                          BrainService(client: client));
                                 case 'ai/image':
                                   page = ImageAnalysisPage(
-                                    client: client,
-                                    inferenceService: inferSvc,
-                                  );
+                                      client: client,
+                                      inferenceService: inferSvc);
                                 case 'ai/scribe':
                                   page = AudioScribePage(
-                                    client: client,
-                                    inferenceService: inferSvc,
-                                  );
+                                      client: client,
+                                      inferenceService: inferSvc);
                                 case 'ai/actions':
                                   page = DeviceActionsPage(
-                                    client: client,
-                                    inferenceService: inferSvc,
-                                  );
+                                      client: client,
+                                      inferenceService: inferSvc);
                                 case 'ai/routing':
                                   page = SmartRoutingPage(client: client);
                                 case 'ai/modules':
@@ -860,22 +820,20 @@ class SettingsSheet extends StatelessWidget {
                                   page = PrivacyControlsPage(client: client);
                                 case 'ai/brain-admin':
                                   page = BrainAdminPage(
-                                    service: BrainAdminService(client: client),
-                                  );
+                                      service:
+                                          BrainAdminService(client: client));
                                 case 'ai/community-agents':
                                   page = CommunityAgentsPage(
-                                    service: CommunityAgentsService(
-                                      client: client,
-                                    ),
-                                  );
+                                      service: CommunityAgentsService(
+                                          client: client));
                                 case 'ai/calibration':
                                   page = CalibrationPage(
-                                    service: CalibrationService(client: client),
-                                  );
+                                      service:
+                                          CalibrationService(client: client));
                                 case 'ai/federation':
                                   page = FederationPage(
-                                    service: FederationService(client: client),
-                                  );
+                                      service:
+                                          FederationService(client: client));
                               }
                               if (page != null) {
                                 Navigator.of(navCtx).push(
@@ -903,9 +861,8 @@ class SettingsSheet extends StatelessWidget {
                       onTap: () => _openSubPage(
                         context,
                         InferencePage(
-                          inferenceService: OnDeviceInferenceService(
-                            client: client,
-                          ),
+                          inferenceService:
+                              OnDeviceInferenceService(client: client),
                         ),
                       ),
                       tokens: tokens,
@@ -994,8 +951,10 @@ class SettingsSheet extends StatelessWidget {
                         color: tokens.onSurface.withValues(alpha: 0.3),
                         size: 20,
                       ),
-                      onTap: () =>
-                          _openSubPage(context, ApprovalsPage(client: client)),
+                      onTap: () => _openSubPage(
+                        context,
+                        ApprovalsPage(client: client),
+                      ),
                       tokens: tokens,
                       cinematic: cinematic,
                     ),
@@ -1008,8 +967,10 @@ class SettingsSheet extends StatelessWidget {
                         color: tokens.onSurface.withValues(alpha: 0.3),
                         size: 20,
                       ),
-                      onTap: () =>
-                          _openSubPage(context, const NotificationsPage()),
+                      onTap: () => _openSubPage(
+                        context,
+                        const NotificationsPage(),
+                      ),
                       tokens: tokens,
                       cinematic: cinematic,
                     ),
@@ -1086,25 +1047,19 @@ class SettingsSheet extends StatelessWidget {
                       subtitle: state.notifSound == 'silent'
                           ? 'Silent'
                           : state.notifSound == 'subtle'
-                          ? 'Subtle'
-                          : 'Default',
+                              ? 'Subtle'
+                              : 'Default',
                       trailing: DropdownButton<String>(
                         value: state.notifSound,
                         underline: const SizedBox.shrink(),
                         isDense: true,
                         items: const [
                           DropdownMenuItem(
-                            value: 'default',
-                            child: Text('Default'),
-                          ),
+                              value: 'default', child: Text('Default')),
                           DropdownMenuItem(
-                            value: 'subtle',
-                            child: Text('Subtle'),
-                          ),
+                              value: 'subtle', child: Text('Subtle')),
                           DropdownMenuItem(
-                            value: 'silent',
-                            child: Text('Silent'),
-                          ),
+                              value: 'silent', child: Text('Silent')),
                         ],
                         onChanged: (v) {
                           if (v != null) state.setNotifSound(v);
@@ -1187,7 +1142,10 @@ class SettingsSheet extends StatelessWidget {
                     // ── Server ──
                     _SectionLabel(text: 'Server', tokens: tokens),
                     const SizedBox(height: 12),
-                    _ServerTile(tokens: tokens, cinematic: cinematic),
+                    _ServerTile(
+                      tokens: tokens,
+                      cinematic: cinematic,
+                    ),
                     const SizedBox(height: 32),
 
                     // ── Account ──
@@ -1211,9 +1169,8 @@ class SettingsSheet extends StatelessWidget {
                         children: [
                           CircleAvatar(
                             radius: 20,
-                            backgroundColor: tokens.primary.withValues(
-                              alpha: 0.15,
-                            ),
+                            backgroundColor:
+                                tokens.primary.withValues(alpha: 0.15),
                             child: Text(
                               (state.username ?? '?')
                                   .substring(0, 1)
@@ -1245,9 +1202,8 @@ class SettingsSheet extends StatelessWidget {
                                       ? 'Personal mode'
                                       : 'Multi-user mode',
                                   style: TextStyle(
-                                    color: tokens.onSurface.withValues(
-                                      alpha: 0.5,
-                                    ),
+                                    color:
+                                        tokens.onSurface.withValues(alpha: 0.5),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -1359,13 +1315,13 @@ class SettingsSheet extends StatelessWidget {
                           title: 'Keep me signed in',
                           subtitle: 'Save this account for quick switching',
                           onTap: () async {
-                            final pin = await _showSetPinDialog(
-                              context,
-                              tokens,
-                            );
+                            final pin =
+                                await _showSetPinDialog(context, tokens);
                             if (context.mounted) {
                               try {
-                                await authService!.linkCurrentAccount(pin: pin);
+                                await authService!.linkCurrentAccount(
+                                  pin: pin,
+                                );
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(

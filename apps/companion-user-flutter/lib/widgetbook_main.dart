@@ -48,7 +48,11 @@ class WidgetbookShell extends StatelessWidget {
             ),
           ],
         ),
-        TextScaleAddon(min: 0.8, max: 2.0, divisions: 12),
+        TextScaleAddon(
+          min: 0.8,
+          max: 2.0,
+          divisions: 12,
+        ),
         AlignmentAddon(),
       ],
 
@@ -358,9 +362,8 @@ class _TypographyPreview extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       'The quick brown fox jumps',
-                      style: (r.style ?? const TextStyle()).copyWith(
-                        color: tokens.onScaffold,
-                      ),
+                      style: (r.style ?? const TextStyle())
+                          .copyWith(color: tokens.onScaffold),
                     ),
                     Divider(
                       height: 20,

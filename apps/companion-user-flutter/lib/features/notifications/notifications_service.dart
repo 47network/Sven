@@ -39,7 +39,7 @@ class PendingNotification {
 
 class NotificationsService {
   NotificationsService({AuthenticatedClient? client})
-    : _client = client ?? AuthenticatedClient();
+      : _client = client ?? AuthenticatedClient();
 
   static String get _apiBase => ApiBaseService.currentSync();
 

@@ -49,7 +49,10 @@ class _FocusSearchIntent extends Intent {
 ///   • Global `/` → broadcasts [SvenKeyboardNavScope.focusSearchKey] so that
 ///     chat pages can register their search/compose focus node.
 class SvenKeyboardNavScope extends StatefulWidget {
-  const SvenKeyboardNavScope({super.key, required this.child});
+  const SvenKeyboardNavScope({
+    super.key,
+    required this.child,
+  });
 
   final Widget child;
 
@@ -255,9 +258,10 @@ class _SvenActivatableRegionState extends State<SvenActivatableRegion> {
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.55),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.55),
                       blurRadius: 0,
                       spreadRadius: 2,
                     ),
@@ -326,10 +330,8 @@ class _SvenSkipLinkState extends State<SvenSkipLink> {
               child: InkWell(
                 onTap: () => widget.targetFocusNode.requestFocus(),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Text(
                     widget.label,
                     style: TextStyle(
@@ -397,8 +399,8 @@ class SvenKeyboardShortcutsHelp {
                   Text(
                     'Keyboard Shortcuts',
                     style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                          fontWeight: FontWeight.w700,
+                        ),
                   ),
                   const Spacer(),
                   IconButton(
@@ -416,13 +418,10 @@ class SvenKeyboardShortcutsHelp {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
+                            horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: Theme.of(
-                            ctx,
-                          ).colorScheme.surfaceContainerHighest,
+                          color:
+                              Theme.of(ctx).colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
                             color: Theme.of(ctx).colorScheme.outlineVariant,

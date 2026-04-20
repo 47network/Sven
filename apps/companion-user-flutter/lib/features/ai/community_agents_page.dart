@@ -170,9 +170,8 @@ class _CommunityAgentsPageState extends State<CommunityAgentsPage>
                   children: [
                     Expanded(
                       child: Text(
-                        '${m['agent_name'] ?? m['agent_id'] ?? 'Agent'}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                          '${m['agent_name'] ?? m['agent_id'] ?? 'Agent'}',
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
                     _riskBadge(m['risk_level'] as String? ?? 'pending'),
                   ],
@@ -208,10 +207,10 @@ class _CommunityAgentsPageState extends State<CommunityAgentsPage>
 
   Future<void> _review(Map<String, dynamic> m, String decision) async {
     final id = '${m['decision_id'] ?? m['id']}';
-    final ok = await widget.service.reviewModeration(id, {
-      'decision': decision,
-      'explanation': '$decision by mobile admin',
-    });
+    final ok = await widget.service.reviewModeration(
+      id,
+      {'decision': decision, 'explanation': '$decision by mobile admin'},
+    );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(ok ? 'Review submitted' : 'Review failed')),
@@ -224,22 +223,17 @@ class _CommunityAgentsPageState extends State<CommunityAgentsPage>
     final color = risk == 'high'
         ? Colors.red
         : risk == 'medium'
-        ? Colors.amber.shade700
-        : Colors.grey;
+            ? Colors.amber.shade700
+            : Colors.grey;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(
-        risk,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
-      ),
+      child: Text(risk,
+          style: TextStyle(
+              fontSize: 11, fontWeight: FontWeight.w600, color: color)),
     );
   }
 
@@ -267,14 +261,13 @@ class _CommunityAgentsPageState extends State<CommunityAgentsPage>
                 ? Icon(Icons.check_circle, color: cs.primary, size: 18)
                 : TextButton(
                     onPressed: () async {
-                      final ok = await widget.service.publishChangelog(
-                        '${e['entry_id'] ?? e['id']}',
-                      );
+                      final ok = await widget.service
+                          .publishChangelog('${e['entry_id'] ?? e['id']}');
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(ok ? 'Published' : 'Publish failed'),
-                          ),
+                              content:
+                                  Text(ok ? 'Published' : 'Publish failed')),
                         );
                         _load();
                       }
@@ -330,17 +323,12 @@ class _CommunityAgentsPageState extends State<CommunityAgentsPage>
                   const SizedBox(height: 8),
                   FilledButton.tonal(
                     onPressed: () async {
-                      final ok = await widget.service.verifyCorrection(
-                        '${c['correction_id'] ?? c['id']}',
-                      );
+                      final ok = await widget.service
+                          .verifyCorrection('${c['correction_id'] ?? c['id']}');
                       if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              ok ? 'Verified' : 'Verification failed',
-                            ),
-                          ),
-                        );
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content:
+                                Text(ok ? 'Verified' : 'Verification failed')));
                         _load();
                       }
                     },
@@ -352,14 +340,11 @@ class _CommunityAgentsPageState extends State<CommunityAgentsPage>
                   FilledButton(
                     onPressed: () async {
                       final ok = await widget.service.promoteCorrection(
-                        '${c['correction_id'] ?? c['id']}',
-                      );
+                          '${c['correction_id'] ?? c['id']}');
                       if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(ok ? 'Promoted' : 'Promotion failed'),
-                          ),
-                        );
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content:
+                                Text(ok ? 'Promoted' : 'Promotion failed')));
                         _load();
                       }
                     },
@@ -378,22 +363,17 @@ class _CommunityAgentsPageState extends State<CommunityAgentsPage>
     final color = status == 'verified'
         ? Colors.green
         : status == 'promoted'
-        ? cs.primary
-        : Colors.amber.shade700;
+            ? cs.primary
+            : Colors.amber.shade700;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(
-        status,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
-      ),
+      child: Text(status,
+          style: TextStyle(
+              fontSize: 11, fontWeight: FontWeight.w600, color: color)),
     );
   }
 
@@ -414,29 +394,21 @@ class _CommunityAgentsPageState extends State<CommunityAgentsPage>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Confidence Calibration',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              const Text('Confidence Calibration',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              _statRow(
-                'Avg Confidence',
-                '${_calibration['avg_confidence'] ?? 'N/A'}',
-              ),
-              _statRow(
-                'Calibration Score',
-                '${_calibration['calibration_score'] ?? 'N/A'}',
-              ),
+              _statRow('Avg Confidence',
+                  '${_calibration['avg_confidence'] ?? 'N/A'}'),
+              _statRow('Calibration Score',
+                  '${_calibration['calibration_score'] ?? 'N/A'}'),
               _statRow('Low Confidence Items', '${_lowConf.length}'),
             ],
           ),
         ),
         const SizedBox(height: 12),
         // ── Patterns
-        Text(
-          'Behavioral Patterns (${_patterns.length})',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text('Behavioral Patterns (${_patterns.length})',
+            style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         if (_patterns.isEmpty)
           const Text('No patterns observed yet.')
@@ -448,17 +420,14 @@ class _CommunityAgentsPageState extends State<CommunityAgentsPage>
               leading: const Icon(Icons.pattern, size: 18),
               title: Text('${pat['description'] ?? pat['name'] ?? 'Pattern'}'),
               subtitle: Text(
-                '${pat['type'] ?? ''} · x${pat['occurrences'] ?? pat['count'] ?? 0}',
-              ),
+                  '${pat['type'] ?? ''} · x${pat['occurrences'] ?? pat['count'] ?? 0}'),
               trailing: _statusBadge('${pat['status'] ?? 'observed'}', cs),
             );
           }),
         const SizedBox(height: 16),
         // ── Snapshots
-        Text(
-          'Improvement Snapshots (${_snapshots.length})',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text('Improvement Snapshots (${_snapshots.length})',
+            style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         if (_snapshots.isEmpty)
           const Text('No improvement data collected yet.')
@@ -473,20 +442,15 @@ class _CommunityAgentsPageState extends State<CommunityAgentsPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${snap['date'] ?? snap['snapshot_date'] ?? 'Snapshot'}',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
+                        '${snap['date'] ?? snap['snapshot_date'] ?? 'Snapshot'}',
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 4),
                     Row(
                       children: [
+                        _miniStat('Correction Rate',
+                            '${snap['correction_rate'] ?? 'N/A'}'),
                         _miniStat(
-                          'Correction Rate',
-                          '${snap['correction_rate'] ?? 'N/A'}',
-                        ),
-                        _miniStat(
-                          'Confidence',
-                          '${snap['avg_confidence'] ?? 'N/A'}',
-                        ),
+                            'Confidence', '${snap['avg_confidence'] ?? 'N/A'}'),
                         _miniStat('Patterns', '${snap['patterns_found'] ?? 0}'),
                       ],
                     ),
@@ -508,10 +472,9 @@ class _CommunityAgentsPageState extends State<CommunityAgentsPage>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: const TextStyle(fontSize: 13)),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          ),
+          Text(value,
+              style:
+                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
         ],
       ),
     );
@@ -521,10 +484,9 @@ class _CommunityAgentsPageState extends State<CommunityAgentsPage>
     return Expanded(
       child: Column(
         children: [
-          Text(
-            value,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          ),
+          Text(value,
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
         ],
       ),

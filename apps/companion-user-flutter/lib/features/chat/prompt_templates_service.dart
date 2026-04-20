@@ -20,10 +20,10 @@ class PromptTemplate {
   Map<String, dynamic> toJson() => {'id': id, 'name': name, 'text': text};
 
   factory PromptTemplate.fromJson(Map<String, dynamic> json) => PromptTemplate(
-    id: json['id'] as String,
-    name: json['name'] as String,
-    text: json['text'] as String,
-  );
+        id: json['id'] as String,
+        name: json['name'] as String,
+        text: json['text'] as String,
+      );
 }
 
 /// Persistent, observable list of prompt templates.
@@ -104,13 +104,11 @@ class PromptTemplatesService extends ChangeNotifier {
     _templates.removeWhere(
       (t) => t.name.toLowerCase() == trimName.toLowerCase(),
     );
-    _templates.add(
-      PromptTemplate(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: trimName,
-        text: trimText,
-      ),
-    );
+    _templates.add(PromptTemplate(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: trimName,
+      text: trimText,
+    ));
     notifyListeners();
     await _persist();
   }

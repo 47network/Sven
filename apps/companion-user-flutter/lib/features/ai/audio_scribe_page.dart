@@ -160,9 +160,8 @@ class _AudioScribePageState extends State<AudioScribePage> {
     if (!mounted) return;
     setState(() => _recording = false);
 
-    final transcript = _finalTranscript.isNotEmpty
-        ? _finalTranscript
-        : _currentTranscript;
+    final transcript =
+        _finalTranscript.isNotEmpty ? _finalTranscript : _currentTranscript;
 
     if (transcript.isNotEmpty) {
       setState(() {
@@ -176,7 +175,10 @@ class _AudioScribePageState extends State<AudioScribePage> {
       });
 
       // Sync to server for tracking
-      _service.startSession(source: 'microphone', language: _selectedLang);
+      _service.startSession(
+        source: 'microphone',
+        language: _selectedLang,
+      );
 
       HapticFeedback.lightImpact();
     }
@@ -368,8 +370,8 @@ class _AudioScribePageState extends State<AudioScribePage> {
                     color: _confidence > 0.8
                         ? Colors.green
                         : _confidence > 0.5
-                        ? Colors.orange
-                        : Colors.red,
+                            ? Colors.orange
+                            : Colors.red,
                   ),
                 ),
             ],
@@ -542,17 +544,15 @@ class _AudioScribePageState extends State<AudioScribePage> {
           ),
           const SizedBox(height: 12),
           _statRow('Sessions', '${_stats['total_sessions'] ?? 0}', isDark),
+          _statRow('Total duration', '${_stats['total_duration_sec'] ?? 0}s',
+              isDark),
           _statRow(
-            'Total duration',
-            '${_stats['total_duration_sec'] ?? 0}s',
+              'Avg accuracy', '${_stats['avg_accuracy'] ?? 'N/A'}', isDark),
+          _statRow(
+            'Engine',
+            _config['engine'] ?? 'gemma4-scribe',
             isDark,
           ),
-          _statRow(
-            'Avg accuracy',
-            '${_stats['avg_accuracy'] ?? 'N/A'}',
-            isDark,
-          ),
-          _statRow('Engine', _config['engine'] ?? 'gemma4-scribe', isDark),
         ],
       ),
     );
@@ -565,11 +565,8 @@ class _AudioScribePageState extends State<AudioScribePage> {
           padding: const EdgeInsets.only(top: 24),
           child: Column(
             children: [
-              Icon(
-                Icons.mic_off_rounded,
-                size: 48,
-                color: isDark ? Colors.white24 : Colors.black26,
-              ),
+              Icon(Icons.mic_off_rounded,
+                  size: 48, color: isDark ? Colors.white24 : Colors.black26),
               const SizedBox(height: 8),
               Text(
                 'No transcription sessions yet',
@@ -684,21 +681,15 @@ class _AudioScribePageState extends State<AudioScribePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              color: isDark ? Colors.white60 : Colors.black54,
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : Colors.black87,
-            ),
-          ),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? Colors.white60 : Colors.black54)),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black87)),
         ],
       ),
     );

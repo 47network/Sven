@@ -21,8 +21,7 @@ class ApprovalItem {
       status: (json['status'] ?? 'pending').toString(),
       type: (json['type'] ?? json['tool_name'] ?? 'approval').toString(),
       title: json['title']?.toString(),
-      createdAt:
-          DateTime.tryParse((json['created_at'] ?? '').toString()) ??
+      createdAt: DateTime.tryParse((json['created_at'] ?? '').toString()) ??
           DateTime.now(),
       details: json['details'] is Map<String, dynamic>
           ? Map<String, dynamic>.from(json['details'])

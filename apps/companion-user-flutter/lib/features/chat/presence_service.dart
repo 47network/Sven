@@ -42,7 +42,9 @@ class PresenceService {
 
   Future<List<UnreadCount>> getUnreadCounts() async {
     final base = ApiBaseService.currentSync();
-    final response = await _client.get(Uri.parse('$base/v1/chats/unread'));
+    final response = await _client.get(
+      Uri.parse('$base/v1/chats/unread'),
+    );
     if (response.statusCode != 200) return [];
     final data = jsonDecode(response.body)['data'] as Map<String, dynamic>;
     final chats = data['chats'] as List;
@@ -51,12 +53,12 @@ class PresenceService {
         .toList();
   }
 
-  Future<bool> setPresence(
-    PresenceStatus status, {
-    String? statusMessage,
-  }) async {
+  Future<bool> setPresence(PresenceStatus status,
+      {String? statusMessage}) async {
     final base = ApiBaseService.currentSync();
-    final body = <String, dynamic>{'status': status.name};
+    final body = <String, dynamic>{
+      'status': status.name,
+    };
     if (statusMessage != null) body['status_message'] = statusMessage;
 
     final response = await _client.putJson(
@@ -102,13 +104,13 @@ class ReadReceipt {
   final DateTime? readAt;
 
   factory ReadReceipt.fromJson(Map<String, dynamic> json) => ReadReceipt(
-    userId: json['user_id'] as String? ?? '',
-    lastReadMessageId: json['last_read_message_id'] as String? ?? '',
-    displayName: json['display_name'] as String?,
-    readAt: json['read_at'] != null
-        ? DateTime.tryParse(json['read_at'] as String)
-        : null,
-  );
+        userId: json['user_id'] as String? ?? '',
+        lastReadMessageId: json['last_read_message_id'] as String? ?? '',
+        displayName: json['display_name'] as String?,
+        readAt: json['read_at'] != null
+            ? DateTime.tryParse(json['read_at'] as String)
+            : null,
+      );
 }
 
 class UnreadCount {
@@ -118,10 +120,10 @@ class UnreadCount {
   final String? chatName;
 
   factory UnreadCount.fromJson(Map<String, dynamic> json) => UnreadCount(
-    chatId: json['chat_id'] as String? ?? '',
-    count: json['unread_count'] as int? ?? 0,
-    chatName: json['chat_name'] as String?,
-  );
+        chatId: json['chat_id'] as String? ?? '',
+        count: json['unread_count'] as int? ?? 0,
+        chatName: json['chat_name'] as String?,
+      );
 }
 
 class PresenceInfo {

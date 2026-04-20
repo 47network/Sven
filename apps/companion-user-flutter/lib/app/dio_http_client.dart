@@ -106,9 +106,9 @@ class DioHttpClient extends http.BaseClient {
           // Development builds can use local/self-signed certs.
           client.badCertificateCallback =
               (X509Certificate cert, String host, int port) {
-                debugPrint('[CertPin] bypassed for $host:$port (debug build)');
-                return true;
-              };
+            debugPrint('[CertPin] bypassed for $host:$port (debug build)');
+            return true;
+          };
         }
         return client;
       };
@@ -122,18 +122,18 @@ class DioHttpClient extends http.BaseClient {
         try {
           dynamicAdapter.validateCertificate =
               (dynamic cert, String host, int port) {
-                if (kDebugMode) return true;
-                final der = (cert as X509Certificate?)?.der;
-                if (der == null || der.isEmpty) return false;
-                final fp = sha256.convert(der).toString();
-                final trusted = pins.contains(fp);
-                if (!trusted) {
-                  debugPrint(
-                    '[CertPin] REJECTED untrusted cert for $host:$port fp=$fp',
-                  );
-                }
-                return trusted;
-              };
+            if (kDebugMode) return true;
+            final der = (cert as X509Certificate?)?.der;
+            if (der == null || der.isEmpty) return false;
+            final fp = sha256.convert(der).toString();
+            final trusted = pins.contains(fp);
+            if (!trusted) {
+              debugPrint(
+                '[CertPin] REJECTED untrusted cert for $host:$port fp=$fp',
+              );
+            }
+            return trusted;
+          };
         } catch (_) {
           if (!kDebugMode) {
             throw StateError(
@@ -154,8 +154,7 @@ class DioHttpClient extends http.BaseClient {
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
     // SSE connections must stream bytes incrementally; everything else can be
     // buffered for simplicity.
-    final isEventStream =
-        request.headers['Accept'] == 'text/event-stream' ||
+    final isEventStream = request.headers['Accept'] == 'text/event-stream' ||
         request.headers['accept'] == 'text/event-stream';
 
     final options = Options(
@@ -199,7 +198,10 @@ class DioHttpClient extends http.BaseClient {
         );
       }
     } on DioException catch (e) {
-      throw http.ClientException(e.message ?? 'Connection error', request.url);
+      throw http.ClientException(
+        e.message ?? 'Connection error',
+        request.url,
+      );
     }
   }
 
@@ -231,13 +233,11 @@ class _RetryInterceptor extends Interceptor {
 
     final attempt = (err.requestOptions.extra['_retry_count'] as int?) ?? 0;
 
-    final isTransient =
-        err.type == DioExceptionType.connectionError ||
+    final isTransient = err.type == DioExceptionType.connectionError ||
         err.type == DioExceptionType.receiveTimeout ||
         err.type == DioExceptionType.sendTimeout;
-    final isRetriableStatus = _retriableStatuses.contains(
-      err.response?.statusCode,
-    );
+    final isRetriableStatus =
+        _retriableStatuses.contains(err.response?.statusCode);
 
     if (attempt >= _maxAttempts - 1 || (!isTransient && !isRetriableStatus)) {
       return handler.next(err);
@@ -271,9 +271,7 @@ class _DebugLogInterceptor extends Interceptor {
 
   @override
   void onResponse(
-    Response<dynamic> response,
-    ResponseInterceptorHandler handler,
-  ) {
+      Response<dynamic> response, ResponseInterceptorHandler handler) {
     debugPrint(
       '[DioHttp] ← ${response.statusCode} ${response.requestOptions.uri.path}',
     );
@@ -282,7 +280,9 @@ class _DebugLogInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    debugPrint('[DioHttp] ✗ ${err.type.name}: ${err.requestOptions.uri.path}');
+    debugPrint(
+      '[DioHttp] ✗ ${err.type.name}: ${err.requestOptions.uri.path}',
+    );
     handler.next(err);
   }
 }

@@ -27,8 +27,7 @@ class CouncilConfig {
   factory CouncilConfig.fromJson(Map<String, dynamic> json) {
     return CouncilConfig(
       councilMode: json['council_mode'] == true,
-      councilModels:
-          (json['council_models'] as List<dynamic>?)
+      councilModels: (json['council_models'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],
@@ -104,7 +103,9 @@ class CouncilService {
 
   /// GET /v1/admin/council/config — read current council configuration.
   Future<CouncilConfig> getConfig() async {
-    final r = await _client.get(Uri.parse('$_base/v1/admin/council/config'));
+    final r = await _client.get(
+      Uri.parse('$_base/v1/admin/council/config'),
+    );
     if (r.statusCode < 200 || r.statusCode >= 300) {
       throw Exception('Failed to fetch council config (${r.statusCode})');
     }

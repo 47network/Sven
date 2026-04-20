@@ -111,19 +111,14 @@ class DailyGreeting extends StatelessWidget {
                         const SizedBox(height: 5),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
+                              horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: const Color(
-                              0xFFFF6B35,
-                            ).withValues(alpha: 0.12),
+                            color:
+                                const Color(0xFFFF6B35).withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: const Color(
-                                0xFFFF6B35,
-                              ).withValues(alpha: 0.30),
-                            ),
+                                color: const Color(0xFFFF6B35)
+                                    .withValues(alpha: 0.30)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -147,11 +142,9 @@ class DailyGreeting extends StatelessWidget {
                 ),
                 if (onDismiss != null)
                   IconButton(
-                    icon: Icon(
-                      Icons.close_rounded,
-                      size: 18,
-                      color: tokens.onSurface.withValues(alpha: 0.3),
-                    ),
+                    icon: Icon(Icons.close_rounded,
+                        size: 18,
+                        color: tokens.onSurface.withValues(alpha: 0.3)),
                     onPressed: onDismiss,
                     tooltip: 'Dismiss',
                   ),
@@ -174,10 +167,11 @@ class DailyGreeting extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 6),
-            ...recent.map(
-              (s) =>
-                  _RecentItem(summary: s, tokens: tokens, cinematic: cinematic),
-            ),
+            ...recent.map((s) => _RecentItem(
+                  summary: s,
+                  tokens: tokens,
+                  cinematic: cinematic,
+                )),
           ],
 
           // ── Proactive suggestions ──
@@ -191,17 +185,13 @@ class DailyGreeting extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 color: tokens.primary.withValues(alpha: 0.06),
-                border: Border.all(
-                  color: tokens.primary.withValues(alpha: 0.10),
-                ),
+                border:
+                    Border.all(color: tokens.primary.withValues(alpha: 0.10)),
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.lightbulb_outline_rounded,
-                    size: 16,
-                    color: tokens.primary.withValues(alpha: 0.6),
-                  ),
+                  Icon(Icons.lightbulb_outline_rounded,
+                      size: 16, color: tokens.primary.withValues(alpha: 0.6)),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -228,9 +218,7 @@ class DailyGreeting extends StatelessWidget {
     bool cinematic,
   ) {
     final suggestions = _generateSuggestions(
-      summaries,
-      memoryService?.facts ?? const <UserFact>[],
-    );
+        summaries, memoryService?.facts ?? const <UserFact>[]);
     if (suggestions.isEmpty) return const [];
 
     return [
@@ -261,10 +249,8 @@ class DailyGreeting extends StatelessWidget {
                   ? () => onSuggestionTap!(s.prefill)
                   : null,
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   color: cinematic
@@ -277,11 +263,8 @@ class DailyGreeting extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      s.icon,
-                      size: 14,
-                      color: tokens.primary.withValues(alpha: 0.7),
-                    ),
+                    Icon(s.icon,
+                        size: 14, color: tokens.primary.withValues(alpha: 0.7)),
                     const SizedBox(width: 6),
                     Text(
                       s.label,
@@ -313,57 +296,47 @@ class DailyGreeting extends StatelessWidget {
     // Suggest continuing recent conversations
     for (final s in summaries.take(2)) {
       if (s.title.isNotEmpty) {
-        final short = s.title.length > 30
-            ? '${s.title.substring(0, 27)}...'
-            : s.title;
-        suggestions.add(
-          _Suggestion(
-            icon: Icons.replay_rounded,
-            label: 'Continue: $short',
-            prefill: 'Let\'s continue our conversation about ${s.title}.',
-          ),
-        );
+        final short =
+            s.title.length > 30 ? '${s.title.substring(0, 27)}...' : s.title;
+        suggestions.add(_Suggestion(
+          icon: Icons.replay_rounded,
+          label: 'Continue: $short',
+          prefill: 'Let\'s continue our conversation about ${s.title}.',
+        ));
       }
     }
 
     // Suggest a follow-up if there's a summary with substance
     final withSummary = summaries.where((s) => s.summary.length > 30).toList();
     if (withSummary.isNotEmpty) {
-      suggestions.add(
-        _Suggestion(
-          icon: Icons.explore_outlined,
-          label: 'Dive deeper',
-          prefill:
-              'Tell me more about what we discussed in "${withSummary.first.title}".',
-        ),
-      );
+      suggestions.add(_Suggestion(
+        icon: Icons.explore_outlined,
+        label: 'Dive deeper',
+        prefill:
+            'Tell me more about what we discussed in "${withSummary.first.title}".',
+      ));
     }
 
     // ── Time-based suggestion ──
     final hour = DateTime.now().hour;
     if (hour >= 7 && hour <= 9) {
-      suggestions.add(
-        const _Suggestion(
-          icon: Icons.wb_sunny_outlined,
-          label: 'Plan my day',
-          prefill: 'Help me plan out my day. What should I focus on today?',
-        ),
-      );
+      suggestions.add(const _Suggestion(
+        icon: Icons.wb_sunny_outlined,
+        label: 'Plan my day',
+        prefill: 'Help me plan out my day. What should I focus on today?',
+      ));
     } else if (hour >= 17 && hour <= 20) {
-      suggestions.add(
-        const _Suggestion(
-          icon: Icons.self_improvement_outlined,
-          label: 'Reflect on today',
-          prefill: 'Help me reflect on what I accomplished today.',
-        ),
-      );
+      suggestions.add(const _Suggestion(
+        icon: Icons.self_improvement_outlined,
+        label: 'Reflect on today',
+        prefill: 'Help me reflect on what I accomplished today.',
+      ));
     }
 
     // ── Memory-based: surface time-relevant UserFacts (deadlines, projects, habits) ──
     for (final fact in facts.take(8)) {
       final c = fact.content.toLowerCase();
-      final isRelevant =
-          c.contains('deadline') ||
+      final isRelevant = c.contains('deadline') ||
           c.contains(' due ') ||
           c.contains('by tomorrow') ||
           c.contains('by today') ||
@@ -376,14 +349,12 @@ class DailyGreeting extends StatelessWidget {
         final snippet = fact.content.length > 38
             ? '${fact.content.substring(0, 35)}…'
             : fact.content;
-        suggestions.add(
-          _Suggestion(
-            icon: Icons.lightbulb_outline_rounded,
-            label: 'Recall: $snippet',
-            prefill:
-                'I mentioned earlier: "${fact.content}". Can you help me with this?',
-          ),
-        );
+        suggestions.add(_Suggestion(
+          icon: Icons.lightbulb_outline_rounded,
+          label: 'Recall: $snippet',
+          prefill:
+              'I mentioned earlier: "${fact.content}". Can you help me with this?',
+        ));
         break; // one memory chip max to avoid clutter
       }
     }
@@ -480,11 +451,8 @@ class _RecentItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
       child: Row(
         children: [
-          Icon(
-            Icons.chat_bubble_outline_rounded,
-            size: 14,
-            color: tokens.onSurface.withValues(alpha: 0.30),
-          ),
+          Icon(Icons.chat_bubble_outline_rounded,
+              size: 14, color: tokens.onSurface.withValues(alpha: 0.30)),
           const SizedBox(width: 10),
           Expanded(
             child: Text(

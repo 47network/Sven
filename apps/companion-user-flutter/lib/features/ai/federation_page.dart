@@ -126,10 +126,8 @@ class _FederationPageState extends State<FederationPage>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Federation Identity',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
+              const Text('Federation Identity',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 8),
               if (hasId) ...[
                 _statRow('Key ID', '${_identity['key_id'] ?? 'N/A'}'),
@@ -140,10 +138,9 @@ class _FederationPageState extends State<FederationPage>
                       ? '${'${_identity['public_key']}'.substring(0, 48)}…'
                       : '${_identity['public_key'] ?? ''}',
                   style: TextStyle(
-                    fontFamily: 'monospace',
-                    fontSize: 11,
-                    color: cs.onSurfaceVariant,
-                  ),
+                      fontFamily: 'monospace',
+                      fontSize: 11,
+                      color: cs.onSurfaceVariant),
                 ),
               ] else
                 const Text('No federation identity generated yet.'),
@@ -157,8 +154,7 @@ class _FederationPageState extends State<FederationPage>
               final result = await widget.service.generateIdentity();
               if (mounted && result.isNotEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Identity generated')),
-                );
+                    const SnackBar(content: Text('Identity generated')));
                 _load();
               }
             },
@@ -170,11 +166,8 @@ class _FederationPageState extends State<FederationPage>
             onPressed: () async {
               final ok = await widget.service.rotateIdentity();
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(ok ? 'Key rotated' : 'Rotation failed'),
-                  ),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(ok ? 'Key rotated' : 'Rotation failed')));
                 _load();
               }
             },
@@ -185,24 +178,16 @@ class _FederationPageState extends State<FederationPage>
         // ── Sovereignty & Export
         const Divider(),
         const SizedBox(height: 8),
-        Text(
-          'Data Sovereignty',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text('Data Sovereignty',
+            style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         _statRow('Region', '${_sovereignty['data_residency'] ?? 'Not set'}'),
         _statRow(
-          'Jurisdiction',
-          '${_sovereignty['jurisdiction'] ?? 'Not set'}',
-        ),
-        _statRow(
-          'Enforce Residency',
-          _sovereignty['enforce_residency'] == true ? 'Yes' : 'No',
-        ),
-        _statRow(
-          'Cross-border',
-          _sovereignty['allow_cross_border'] == true ? 'Allowed' : 'Blocked',
-        ),
+            'Jurisdiction', '${_sovereignty['jurisdiction'] ?? 'Not set'}'),
+        _statRow('Enforce Residency',
+            _sovereignty['enforce_residency'] == true ? 'Yes' : 'No'),
+        _statRow('Cross-border',
+            _sovereignty['allow_cross_border'] == true ? 'Allowed' : 'Blocked'),
         const SizedBox(height: 12),
         Text('Export Policy', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
@@ -221,19 +206,15 @@ class _FederationPageState extends State<FederationPage>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              '${_peers.length} peer(s)',
-              style: TextStyle(color: cs.onSurfaceVariant),
-            ),
+            Text('${_peers.length} peer(s)',
+                style: TextStyle(color: cs.onSurfaceVariant)),
             OutlinedButton.icon(
               onPressed: () async {
                 final ok = await widget.service.prunePeers();
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(ok ? 'Stale peers pruned' : 'Prune failed'),
-                    ),
-                  );
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content:
+                          Text(ok ? 'Stale peers pruned' : 'Prune failed')));
                   _load();
                 }
               },
@@ -254,33 +235,23 @@ class _FederationPageState extends State<FederationPage>
               child: ListTile(
                 leading: CircleAvatar(
                   backgroundColor: _trustColor(trust),
-                  child: const Icon(
-                    Icons.people,
-                    color: Colors.white,
-                    size: 18,
-                  ),
+                  child:
+                      const Icon(Icons.people, color: Colors.white, size: 18),
                 ),
                 title: Text('${peer['name'] ?? peer['peer_id'] ?? 'Peer'}'),
                 subtitle: Text(
-                  '${peer['endpoint'] ?? peer['url'] ?? ''}\nLast seen: ${peer['last_seen'] ?? 'never'}',
-                ),
+                    '${peer['endpoint'] ?? peer['url'] ?? ''}\nLast seen: ${peer['last_seen'] ?? 'never'}'),
                 isThreeLine: true,
                 trailing: trust == 'pending'
                     ? IconButton(
                         onPressed: () async {
                           final ok = await widget.service.handshakePeer(
-                            '${peer['peer_id'] ?? peer['id']}',
-                          );
+                              '${peer['peer_id'] ?? peer['id']}');
                           if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  ok
-                                      ? 'Handshake initiated'
-                                      : 'Handshake failed',
-                                ),
-                              ),
-                            );
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(ok
+                                    ? 'Handshake initiated'
+                                    : 'Handshake failed')));
                             _load();
                           }
                         },
@@ -294,10 +265,8 @@ class _FederationPageState extends State<FederationPage>
         const SizedBox(height: 16),
         // ── Topics
         const Divider(),
-        Text(
-          'Federated Topics (${_topics.length})',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text('Federated Topics (${_topics.length})',
+            style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         if (_topics.isEmpty)
           const Text('No federated topics.')
@@ -309,10 +278,8 @@ class _FederationPageState extends State<FederationPage>
               leading: const Icon(Icons.topic, size: 18),
               title: Text('${topic['title'] ?? topic['name'] ?? 'Topic'}'),
               subtitle: Text('${topic['description'] ?? ''}'),
-              trailing: Text(
-                '${topic['peer_count'] ?? 0} peers',
-                style: const TextStyle(fontSize: 12),
-              ),
+              trailing: Text('${topic['peer_count'] ?? 0} peers',
+                  style: const TextStyle(fontSize: 12)),
             );
           }),
       ],
@@ -338,14 +305,9 @@ class _FederationPageState extends State<FederationPage>
         color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(
-        trust,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
-      ),
+      child: Text(trust,
+          style: TextStyle(
+              fontSize: 11, fontWeight: FontWeight.w600, color: color)),
     );
   }
 
@@ -361,10 +323,8 @@ class _FederationPageState extends State<FederationPage>
           _gridCell('Uptime', '${_hsStats['uptime'] ?? 'N/A'}'),
         ]),
         const SizedBox(height: 16),
-        Text(
-          'Connected Homeservers',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text('Connected Homeservers',
+            style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         if (_connections.isEmpty)
           const Text('No active connections.')
@@ -374,25 +334,19 @@ class _FederationPageState extends State<FederationPage>
             return Card(
               margin: const EdgeInsets.only(bottom: 8),
               child: ListTile(
-                leading: Icon(
-                  Icons.dns,
-                  color: conn['status'] == 'connected'
-                      ? Colors.green
-                      : Colors.grey,
-                ),
-                title: Text(
-                  '${conn['server_name'] ?? conn['host'] ?? 'Server'}',
-                ),
-                subtitle: Text('${conn['endpoint'] ?? conn['url'] ?? ''}'),
-                trailing: Text(
-                  '${conn['status'] ?? 'unknown'}',
-                  style: TextStyle(
-                    fontSize: 12,
+                leading: Icon(Icons.dns,
                     color: conn['status'] == 'connected'
                         ? Colors.green
-                        : cs.onSurfaceVariant,
-                  ),
-                ),
+                        : Colors.grey),
+                title:
+                    Text('${conn['server_name'] ?? conn['host'] ?? 'Server'}'),
+                subtitle: Text('${conn['endpoint'] ?? conn['url'] ?? ''}'),
+                trailing: Text('${conn['status'] ?? 'unknown'}',
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: conn['status'] == 'connected'
+                            ? Colors.green
+                            : cs.onSurfaceVariant)),
               ),
             );
           }),
@@ -412,27 +366,17 @@ class _FederationPageState extends State<FederationPage>
           _gridCell('Rate', '${_consentStats['consent_rate'] ?? 'N/A'}%'),
         ]),
         const SizedBox(height: 16),
-        Text(
-          'Consent Settings',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text('Consent Settings',
+            style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         _consentSwitch(
-          'Allow Federation',
-          _consent['allow_federation'] == true,
-        ),
+            'Allow Federation', _consent['allow_federation'] == true),
         _consentSwitch(
-          'Allow Data Sharing',
-          _consent['allow_data_sharing'] == true,
-        ),
+            'Allow Data Sharing', _consent['allow_data_sharing'] == true),
+        _consentSwitch('Allow Identity Disclosure',
+            _consent['allow_identity_disclosure'] == true),
         _consentSwitch(
-          'Allow Identity Disclosure',
-          _consent['allow_identity_disclosure'] == true,
-        ),
-        _consentSwitch(
-          'Allow Message Relay',
-          _consent['allow_message_relay'] == true,
-        ),
+            'Allow Message Relay', _consent['allow_message_relay'] == true),
       ],
     );
   }
@@ -456,13 +400,9 @@ class _FederationPageState extends State<FederationPage>
             onPressed: () async {
               final ok = await widget.service.runHealthCheck();
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      ok ? 'Health check completed' : 'Check failed',
-                    ),
-                  ),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content:
+                        Text(ok ? 'Health check completed' : 'Check failed')));
                 _load();
               }
             },
@@ -486,18 +426,17 @@ class _FederationPageState extends State<FederationPage>
                   status == 'healthy'
                       ? Icons.check_circle
                       : status == 'degraded'
-                      ? Icons.warning
-                      : Icons.error,
+                          ? Icons.warning
+                          : Icons.error,
                   color: status == 'healthy'
                       ? Colors.green
                       : status == 'degraded'
-                      ? Colors.amber
-                      : Colors.red,
+                          ? Colors.amber
+                          : Colors.red,
                 ),
                 title: Text('${peer['name'] ?? peer['peer_id'] ?? 'Peer'}'),
                 subtitle: Text(
-                  'Latency: ${peer['latency_ms'] ?? '?'}ms · Last: ${peer['last_check'] ?? 'never'}',
-                ),
+                    'Latency: ${peer['latency_ms'] ?? '?'}ms · Last: ${peer['last_check'] ?? 'never'}'),
               ),
             );
           }),
@@ -521,10 +460,9 @@ class _FederationPageState extends State<FederationPage>
       ),
       child: Column(
         children: [
-          Text(
-            value,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
+          Text(value,
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           const SizedBox(height: 2),
           Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
         ],
@@ -539,10 +477,9 @@ class _FederationPageState extends State<FederationPage>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: const TextStyle(fontSize: 13)),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          ),
+          Text(value,
+              style:
+                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
         ],
       ),
     );

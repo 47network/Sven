@@ -103,9 +103,9 @@ class _NotificationPrefsPageState extends State<NotificationPrefsPage> {
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Preferences saved')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Preferences saved')),
+        );
       }
     } catch (_) {
       if (mounted) {
@@ -143,183 +143,169 @@ class _NotificationPrefsPageState extends State<NotificationPrefsPage> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.notifications_off_outlined,
-                      color: Colors.orange.shade400,
-                      size: 48,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      _error!,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: theme.brightness == Brightness.dark
-                            ? Colors.white70
-                            : Colors.black54,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          _loading = true;
-                          _error = null;
-                        });
-                        _load();
-                      },
-                      icon: const Icon(Icons.refresh, size: 16),
-                      label: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                // ── Global Sound ──
-                const _SectionHeader(title: 'Global Sound'),
-                const SizedBox(height: 8),
-                _SoundPicker(
-                  value: _globalSound,
-                  onChanged: (v) => setState(() => _globalSound = v),
-                ),
-                const SizedBox(height: 24),
-
-                // ── Do Not Disturb ──
-                const _SectionHeader(title: 'Do Not Disturb'),
-                const SizedBox(height: 8),
-                SwitchListTile(
-                  title: const Text('Enable DND'),
-                  subtitle: const Text(
-                    'Silence notifications during scheduled hours',
-                  ),
-                  value: _dndEnabled,
-                  onChanged: (v) => setState(() => _dndEnabled = v),
-                ),
-                if (_dndEnabled) ...[
-                  ListTile(
-                    title: const Text('Start'),
-                    trailing: Text(
-                      '${_dndStartHour.toString().padLeft(2, '0')}:${_dndStartMinute.toString().padLeft(2, '0')}',
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                    onTap: () async {
-                      final t = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay(
-                          hour: _dndStartHour,
-                          minute: _dndStartMinute,
-                        ),
-                      );
-                      if (t != null) {
-                        setState(() {
-                          _dndStartHour = t.hour;
-                          _dndStartMinute = t.minute;
-                        });
-                      }
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('End'),
-                    trailing: Text(
-                      '${_dndEndHour.toString().padLeft(2, '0')}:${_dndEndMinute.toString().padLeft(2, '0')}',
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                    onTap: () async {
-                      final t = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay(
-                          hour: _dndEndHour,
-                          minute: _dndEndMinute,
-                        ),
-                      );
-                      if (t != null) {
-                        setState(() {
-                          _dndEndHour = t.hour;
-                          _dndEndMinute = t.minute;
-                        });
-                      }
-                    },
-                  ),
-                ],
-                const SizedBox(height: 24),
-
-                // ── Per-Channel ──
-                const _SectionHeader(title: 'Channel Preferences'),
-                const SizedBox(height: 8),
-                ..._channelLabels.entries.map((e) {
-                  final ch = e.key;
-                  final label = e.value;
-                  final isEnabled = _enabled[ch] ?? true;
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  label,
-                                  style: theme.textTheme.titleSmall,
-                                ),
-                              ),
-                              Switch(
-                                value: isEnabled,
-                                onChanged: (v) =>
-                                    setState(() => _enabled[ch] = v),
-                              ),
-                            ],
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.notifications_off_outlined,
+                            color: Colors.orange.shade400, size: 48),
+                        const SizedBox(height: 12),
+                        Text(
+                          _error!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: theme.brightness == Brightness.dark
+                                ? Colors.white70
+                                : Colors.black54,
                           ),
-                          if (isEnabled) ...[
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _SoundPicker(
-                                    value: _sound[ch] ?? 'default',
-                                    onChanged: (v) =>
-                                        setState(() => _sound[ch] = v),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _loading = true;
+                              _error = null;
+                            });
+                            _load();
+                          },
+                          icon: const Icon(Icons.refresh, size: 16),
+                          label: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    // ── Global Sound ──
+                    const _SectionHeader(title: 'Global Sound'),
+                    const SizedBox(height: 8),
+                    _SoundPicker(
+                      value: _globalSound,
+                      onChanged: (v) => setState(() => _globalSound = v),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // ── Do Not Disturb ──
+                    const _SectionHeader(title: 'Do Not Disturb'),
+                    const SizedBox(height: 8),
+                    SwitchListTile(
+                      title: const Text('Enable DND'),
+                      subtitle: const Text(
+                          'Silence notifications during scheduled hours'),
+                      value: _dndEnabled,
+                      onChanged: (v) => setState(() => _dndEnabled = v),
+                    ),
+                    if (_dndEnabled) ...[
+                      ListTile(
+                        title: const Text('Start'),
+                        trailing: Text(
+                          '${_dndStartHour.toString().padLeft(2, '0')}:${_dndStartMinute.toString().padLeft(2, '0')}',
+                          style: theme.textTheme.bodyLarge,
+                        ),
+                        onTap: () async {
+                          final t = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay(
+                                hour: _dndStartHour, minute: _dndStartMinute),
+                          );
+                          if (t != null) {
+                            setState(() {
+                              _dndStartHour = t.hour;
+                              _dndStartMinute = t.minute;
+                            });
+                          }
+                        },
+                      ),
+                      ListTile(
+                        title: const Text('End'),
+                        trailing: Text(
+                          '${_dndEndHour.toString().padLeft(2, '0')}:${_dndEndMinute.toString().padLeft(2, '0')}',
+                          style: theme.textTheme.bodyLarge,
+                        ),
+                        onTap: () async {
+                          final t = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay(
+                                hour: _dndEndHour, minute: _dndEndMinute),
+                          );
+                          if (t != null) {
+                            setState(() {
+                              _dndEndHour = t.hour;
+                              _dndEndMinute = t.minute;
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+
+                    // ── Per-Channel ──
+                    const _SectionHeader(title: 'Channel Preferences'),
+                    const SizedBox(height: 8),
+                    ..._channelLabels.entries.map((e) {
+                      final ch = e.key;
+                      final label = e.value;
+                      final isEnabled = _enabled[ch] ?? true;
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(label,
+                                        style: theme.textTheme.titleSmall),
                                   ),
-                                ),
-                                const SizedBox(width: 16),
+                                  Switch(
+                                    value: isEnabled,
+                                    onChanged: (v) =>
+                                        setState(() => _enabled[ch] = v),
+                                  ),
+                                ],
+                              ),
+                              if (isEnabled) ...[
+                                const SizedBox(height: 8),
                                 Row(
-                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(
-                                      'Vibrate',
-                                      style: theme.textTheme.bodySmall,
+                                    Expanded(
+                                      child: _SoundPicker(
+                                        value: _sound[ch] ?? 'default',
+                                        onChanged: (v) =>
+                                            setState(() => _sound[ch] = v),
+                                      ),
                                     ),
-                                    const SizedBox(width: 4),
-                                    Switch(
-                                      value: _vibrate[ch] ?? true,
-                                      onChanged: (v) =>
-                                          setState(() => _vibrate[ch] = v),
+                                    const SizedBox(width: 16),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text('Vibrate',
+                                            style: theme.textTheme.bodySmall),
+                                        const SizedBox(width: 4),
+                                        Switch(
+                                          value: _vibrate[ch] ?? true,
+                                          onChanged: (v) =>
+                                              setState(() => _vibrate[ch] = v),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
                               ],
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-              ],
-            ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
     );
   }
 }
@@ -332,9 +318,10 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: Theme.of(
-        context,
-      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+      style: Theme.of(context)
+          .textTheme
+          .titleMedium
+          ?.copyWith(fontWeight: FontWeight.w600),
     );
   }
 }

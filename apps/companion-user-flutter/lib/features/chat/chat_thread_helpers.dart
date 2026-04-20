@@ -66,10 +66,8 @@ class _ScrollToBottomFab extends StatelessWidget {
                 top: -6,
                 right: -6,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 5,
-                    vertical: 2,
-                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                   decoration: BoxDecoration(
                     color: tokens.primary,
                     borderRadius: BorderRadius.circular(10),
@@ -134,7 +132,10 @@ class _AnimatedMessageEntryState extends State<_AnimatedMessageEntry>
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _fadeAnim,
-      child: SlideTransition(position: _slideAnim, child: widget.child),
+      child: SlideTransition(
+        position: _slideAnim,
+        child: widget.child,
+      ),
     );
   }
 }
@@ -175,7 +176,9 @@ class _PinnedMessagesBar extends StatelessWidget {
         curve: Curves.easeInOut,
         decoration: BoxDecoration(
           color: bg,
-          border: Border(bottom: BorderSide(color: border, width: 1)),
+          border: Border(
+            bottom: BorderSide(color: border, width: 1),
+          ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -189,18 +192,13 @@ class _PinnedMessagesBar extends StatelessWidget {
               child: InkWell(
                 onTap: onToggleExpand,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 7,
-                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                   child: Row(
                     children: [
                       ExcludeSemantics(
-                        child: Icon(
-                          Icons.push_pin_rounded,
-                          size: 14,
-                          color: tokens.primary,
-                        ),
+                        child: Icon(Icons.push_pin_rounded,
+                            size: 14, color: tokens.primary),
                       ),
                       const SizedBox(width: 6),
                       Text(
@@ -268,14 +266,11 @@ class _PinnedMessagesBar extends StatelessWidget {
                             iconSize: 16,
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
-                            ),
-                            icon: Icon(
-                              Icons.close_rounded,
-                              size: 16,
-                              color: tokens.onSurface.withValues(alpha: 0.35),
-                            ),
+                                minWidth: 32, minHeight: 32),
+                            icon: Icon(Icons.close_rounded,
+                                size: 16,
+                                color:
+                                    tokens.onSurface.withValues(alpha: 0.35)),
                             onPressed: () => onUnpin(msg.id),
                             tooltip: 'Unpin message',
                           ),
@@ -324,10 +319,8 @@ class _SmartReplySuggestions extends StatelessWidget {
             child: GestureDetector(
               onTap: () => onTap(label),
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 6,
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
                   color: tokens.primary.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(20),
@@ -393,9 +386,8 @@ class _StreamingSpeedPill extends StatelessWidget {
               decoration: BoxDecoration(
                 color: tokens.primary.withValues(alpha: 0.07),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: tokens.primary.withValues(alpha: 0.15),
-                ),
+                border:
+                    Border.all(color: tokens.primary.withValues(alpha: 0.15)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -534,7 +526,10 @@ class _ThinkingIndicatorState extends State<_ThinkingIndicator>
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _KeyboardAwareComposer extends StatelessWidget {
-  const _KeyboardAwareComposer({required this.child, required this.visualMode});
+  const _KeyboardAwareComposer({
+    required this.child,
+    required this.visualMode,
+  });
 
   final Widget child;
   final VisualMode visualMode;
@@ -587,7 +582,10 @@ class _SvenRefreshIndicator extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _TtsMiniPlayer extends StatelessWidget {
-  const _TtsMiniPlayer({required this.voiceService, required this.visualMode});
+  const _TtsMiniPlayer({
+    required this.voiceService,
+    required this.visualMode,
+  });
 
   final VoiceService voiceService;
   final VisualMode visualMode;
@@ -637,8 +635,8 @@ class _TtsMiniPlayer extends StatelessWidget {
               final next = voiceService.ttsSpeed < 1.5
                   ? 1.5
                   : voiceService.ttsSpeed < 2.0
-                  ? 2.0
-                  : 1.0;
+                      ? 2.0
+                      : 1.0;
               voiceService.setSpeed(next);
             },
             child: Container(
@@ -823,7 +821,10 @@ class _ReactionBar extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _ArtifactPage extends StatelessWidget {
-  const _ArtifactPage({required this.message, required this.visualMode});
+  const _ArtifactPage({
+    required this.message,
+    required this.visualMode,
+  });
 
   final ChatMessage message;
   final VisualMode visualMode;
@@ -872,18 +873,14 @@ class _ArtifactPage extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.copy_rounded,
-              color: tokens.onSurface.withValues(alpha: 0.7),
-            ),
+            icon: Icon(Icons.copy_rounded,
+                color: tokens.onSurface.withValues(alpha: 0.7)),
             tooltip: 'Copy all',
             onPressed: () => _copyAll(context),
           ),
           IconButton(
-            icon: Icon(
-              Icons.share_rounded,
-              color: tokens.onSurface.withValues(alpha: 0.7),
-            ),
+            icon: Icon(Icons.share_rounded,
+                color: tokens.onSurface.withValues(alpha: 0.7)),
             tooltip: 'Share',
             onPressed: _shareAll,
           ),
@@ -902,44 +899,38 @@ class _ArtifactPage extends StatelessWidget {
                     selectable: true,
                     styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
                         .copyWith(
-                          p: TextStyle(
-                            color: tokens.onSurface,
-                            fontSize: 16,
-                            height: 1.6,
-                          ),
-                          strong: TextStyle(
-                            color: tokens.onSurface,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                          code: TextStyle(
-                            fontFamily: 'monospace',
-                            fontSize: 13,
-                            color: cinematic
-                                ? tokens.primary
-                                : tokens.onSurface,
-                            backgroundColor: cinematic
-                                ? tokens.primary.withValues(alpha: 0.08)
-                                : tokens.onSurface.withValues(alpha: 0.06),
-                          ),
-                          codeblockDecoration: BoxDecoration(
-                            color: cinematic
-                                ? const Color(0xFF0D1117)
-                                : tokens.onSurface.withValues(alpha: 0.04),
-                            borderRadius: BorderRadius.circular(10),
-                            border: cinematic
-                                ? Border.all(color: tokens.frame)
-                                : Border.all(
-                                    color: tokens.onSurface.withValues(
-                                      alpha: 0.08,
-                                    ),
-                                  ),
-                          ),
-                          codeblockPadding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 10,
-                          ),
-                        ),
+                      p: TextStyle(
+                        color: tokens.onSurface,
+                        fontSize: 16,
+                        height: 1.6,
+                      ),
+                      strong: TextStyle(
+                        color: tokens.onSurface,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      code: TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 13,
+                        color: cinematic ? tokens.primary : tokens.onSurface,
+                        backgroundColor: cinematic
+                            ? tokens.primary.withValues(alpha: 0.08)
+                            : tokens.onSurface.withValues(alpha: 0.06),
+                      ),
+                      codeblockDecoration: BoxDecoration(
+                        color: cinematic
+                            ? const Color(0xFF0D1117)
+                            : tokens.onSurface.withValues(alpha: 0.04),
+                        borderRadius: BorderRadius.circular(10),
+                        border: cinematic
+                            ? Border.all(color: tokens.frame)
+                            : Border.all(
+                                color:
+                                    tokens.onSurface.withValues(alpha: 0.08)),
+                      ),
+                      codeblockPadding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
+                    ),
                   ),
                 ],
               ),
@@ -972,34 +963,22 @@ class _ArtifactPage extends StatelessWidget {
                   const Spacer(),
                   TextButton.icon(
                     onPressed: () => _copyAll(context),
-                    icon: Icon(
-                      Icons.copy_rounded,
-                      size: 16,
-                      color: tokens.primary,
-                    ),
-                    label: Text(
-                      'Copy all',
-                      style: TextStyle(
-                        color: tokens.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    icon: Icon(Icons.copy_rounded,
+                        size: 16, color: tokens.primary),
+                    label: Text('Copy all',
+                        style: TextStyle(
+                            color: tokens.primary,
+                            fontWeight: FontWeight.w600)),
                   ),
                   const SizedBox(width: 8),
                   TextButton.icon(
                     onPressed: _shareAll,
-                    icon: Icon(
-                      Icons.share_rounded,
-                      size: 16,
-                      color: tokens.primary,
-                    ),
-                    label: Text(
-                      'Share',
-                      style: TextStyle(
-                        color: tokens.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    icon: Icon(Icons.share_rounded,
+                        size: 16, color: tokens.primary),
+                    label: Text('Share',
+                        style: TextStyle(
+                            color: tokens.primary,
+                            fontWeight: FontWeight.w600)),
                   ),
                 ],
               ),

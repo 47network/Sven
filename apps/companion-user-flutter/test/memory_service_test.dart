@@ -107,12 +107,10 @@ void main() {
     test('setInstructions updates and reflects in system prompt', () async {
       final svc = MemoryService();
       await Future<void>.delayed(const Duration(milliseconds: 50));
-      await svc.setInstructions(
-        const CustomInstructions(
-          userContext: 'I am a developer',
-          responseStyle: 'Be concise',
-        ),
-      );
+      await svc.setInstructions(const CustomInstructions(
+        userContext: 'I am a developer',
+        responseStyle: 'Be concise',
+      ));
       final prompt = svc.buildSystemPrompt();
       expect(prompt, contains('I am a developer'));
       expect(prompt, contains('Be concise'));

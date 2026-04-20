@@ -102,9 +102,13 @@ class HomeWidgetService {
 
   Future<void> _triggerUpdate() async {
     if (Platform.isAndroid) {
-      await HomeWidget.updateWidget(androidName: _kAndroidWidgetProvider);
+      await HomeWidget.updateWidget(
+        androidName: _kAndroidWidgetProvider,
+      );
     } else if (Platform.isIOS) {
-      await HomeWidget.updateWidget(iOSName: 'SvenWidget');
+      await HomeWidget.updateWidget(
+        iOSName: 'SvenWidget',
+      );
     }
   }
 

@@ -75,14 +75,18 @@ class PerformanceTracker {
     if (_homeReadyLogged) return;
     _homeReadyLogged = true;
     final elapsedMs = _coldStartTimer.elapsedMilliseconds;
-    Telemetry.logEvent('startup.chat_home_ready', {'latency_ms': elapsedMs});
+    Telemetry.logEvent('startup.chat_home_ready', {
+      'latency_ms': elapsedMs,
+    });
     _logColdStartIfNeeded(elapsedMs);
   }
 
   static void _logColdStartIfNeeded(int elapsedMs) {
     if (_coldStartLogged) return;
     _coldStartLogged = true;
-    Telemetry.logEvent('startup.cold_start', {'latency_ms': elapsedMs});
+    Telemetry.logEvent('startup.cold_start', {
+      'latency_ms': elapsedMs,
+    });
   }
 
   static void startWarmResume() {
@@ -96,17 +100,23 @@ class PerformanceTracker {
     final elapsedMs = _warmResumeTimer.elapsedMilliseconds;
     _warmResumeTimer.stop();
     if (elapsedMs <= 0) return;
-    Telemetry.logEvent('startup.warm_resume', {'latency_ms': elapsedMs});
+    Telemetry.logEvent('startup.warm_resume', {
+      'latency_ms': elapsedMs,
+    });
   }
 
   static void logChatFirstToken(int latencyMs) {
-    Telemetry.logEvent('chat.stream.first_token', {'latency_ms': latencyMs});
+    Telemetry.logEvent('chat.stream.first_token', {
+      'latency_ms': latencyMs,
+    });
   }
 
   /// Logs the full send → SSE-delivered-assistant-reply round-trip.
   ///
   /// This is the human-perceived latency SLO (target ≤1500ms p95).
   static void logChatRoundTrip(int latencyMs) {
-    Telemetry.logEvent('chat.round_trip', {'latency_ms': latencyMs});
+    Telemetry.logEvent('chat.round_trip', {
+      'latency_ms': latencyMs,
+    });
   }
 }

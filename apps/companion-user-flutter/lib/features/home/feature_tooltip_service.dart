@@ -153,9 +153,8 @@ class _SvenFeatureTooltipState extends State<SvenFeatureTooltip>
 
     final below = widget.preferBelow;
     final top = below ? pos.dy + size.height + 8 : null;
-    final bottom = below
-        ? null
-        : MediaQuery.of(context).size.height - pos.dy + 8;
+    final bottom =
+        below ? null : MediaQuery.of(context).size.height - pos.dy + 8;
 
     return Positioned(
       top: top,
@@ -174,8 +173,7 @@ class _SvenFeatureTooltipState extends State<SvenFeatureTooltip>
                 color: widget.tokens?.background ?? const Color(0xFF1A1E2E),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color:
-                      widget.tokens?.border ??
+                  color: widget.tokens?.border ??
                       const Color(0xFF3B82F6).withValues(alpha: 0.3),
                 ),
                 boxShadow: [
@@ -189,11 +187,9 @@ class _SvenFeatureTooltipState extends State<SvenFeatureTooltip>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.auto_awesome_rounded,
-                    size: 16,
-                    color: widget.tokens?.text ?? const Color(0xFF93C5FD),
-                  ),
+                  Icon(Icons.auto_awesome_rounded,
+                      size: 16,
+                      color: widget.tokens?.text ?? const Color(0xFF93C5FD)),
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(

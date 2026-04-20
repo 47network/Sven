@@ -17,9 +17,9 @@ class ProjectSpace {
     List<String>? conversationIds,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) : conversationIds = conversationIds ?? [],
-       createdAt = createdAt ?? DateTime.now(),
-       updatedAt = updatedAt ?? DateTime.now();
+  })  : conversationIds = conversationIds ?? [],
+        createdAt = createdAt ?? DateTime.now(),
+        updatedAt = updatedAt ?? DateTime.now();
 
   final String id;
   String name;
@@ -50,31 +50,31 @@ class ProjectSpace {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'emoji': emoji,
-    'description': description,
-    'contextNotes': contextNotes,
-    'conversationIds': conversationIds,
-    'createdAt': createdAt.toIso8601String(),
-    'updatedAt': updatedAt.toIso8601String(),
-  };
+        'id': id,
+        'name': name,
+        'emoji': emoji,
+        'description': description,
+        'contextNotes': contextNotes,
+        'conversationIds': conversationIds,
+        'createdAt': createdAt.toIso8601String(),
+        'updatedAt': updatedAt.toIso8601String(),
+      };
 
   factory ProjectSpace.fromJson(Map<String, dynamic> j) => ProjectSpace(
-    id: j['id'] as String,
-    name: j['name'] as String? ?? 'Untitled',
-    emoji: j['emoji'] as String? ?? '📁',
-    description: j['description'] as String? ?? '',
-    contextNotes: j['contextNotes'] as String? ?? '',
-    conversationIds:
-        (j['conversationIds'] as List<dynamic>?)?.cast<String>() ?? [],
-    createdAt: j['createdAt'] != null
-        ? DateTime.tryParse(j['createdAt'] as String) ?? DateTime.now()
-        : DateTime.now(),
-    updatedAt: j['updatedAt'] != null
-        ? DateTime.tryParse(j['updatedAt'] as String) ?? DateTime.now()
-        : DateTime.now(),
-  );
+        id: j['id'] as String,
+        name: j['name'] as String? ?? 'Untitled',
+        emoji: j['emoji'] as String? ?? '📁',
+        description: j['description'] as String? ?? '',
+        contextNotes: j['contextNotes'] as String? ?? '',
+        conversationIds:
+            (j['conversationIds'] as List<dynamic>?)?.cast<String>() ?? [],
+        createdAt: j['createdAt'] != null
+            ? DateTime.tryParse(j['createdAt'] as String) ?? DateTime.now()
+            : DateTime.now(),
+        updatedAt: j['updatedAt'] != null
+            ? DateTime.tryParse(j['updatedAt'] as String) ?? DateTime.now()
+            : DateTime.now(),
+      );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -165,9 +165,7 @@ class ProjectService extends ChangeNotifier {
   }
 
   Future<void> removeConversation(
-    String projectId,
-    String conversationId,
-  ) async {
+      String projectId, String conversationId) async {
     final idx = _projects.indexWhere((p) => p.id == projectId);
     if (idx == -1) return;
     _projects[idx].conversationIds.remove(conversationId);
@@ -187,9 +185,7 @@ class ProjectService extends ChangeNotifier {
         _projects.addAll(
           list.map((j) => ProjectSpace.fromJson(j as Map<String, dynamic>)),
         );
-      } catch (_) {
-        /* ignore corrupt data */
-      }
+      } catch (_) {/* ignore corrupt data */}
     }
     notifyListeners();
   }

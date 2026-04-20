@@ -49,7 +49,9 @@ class MirrorModeScreen extends StatelessWidget {
                         Expanded(
                           child: Text(
                             'Mirror Mode',
-                            style: Theme.of(context).textTheme.headlineSmall
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
                                 ?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
@@ -58,10 +60,8 @@ class MirrorModeScreen extends StatelessWidget {
                         ),
                         IconButton(
                           onPressed: () => Navigator.of(context).maybePop(),
-                          icon: const Icon(
-                            Icons.close_rounded,
-                            color: Colors.white,
-                          ),
+                          icon: const Icon(Icons.close_rounded,
+                              color: Colors.white),
                         ),
                       ],
                     ),
@@ -78,11 +78,20 @@ class MirrorModeScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    _StatusRow(label: 'Gateway', value: gatewayUrl),
+                    _StatusRow(
+                      label: 'Gateway',
+                      value: gatewayUrl,
+                    ),
                     const SizedBox(height: 12),
-                    _StatusRow(label: 'Channel', value: entityChannelId),
+                    _StatusRow(
+                      label: 'Channel',
+                      value: entityChannelId,
+                    ),
                     const SizedBox(height: 12),
-                    _StatusRow(label: 'Motion', value: motionLevel.label),
+                    _StatusRow(
+                      label: 'Motion',
+                      value: motionLevel.label,
+                    ),
                   ],
                 ),
               ),
@@ -95,7 +104,10 @@ class MirrorModeScreen extends StatelessWidget {
 }
 
 class _StatusRow extends StatelessWidget {
-  const _StatusRow({required this.label, required this.value});
+  const _StatusRow({
+    required this.label,
+    required this.value,
+  });
 
   final String label;
   final String value;
@@ -116,17 +128,17 @@ class _StatusRow extends StatelessWidget {
             child: Text(
               label,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: Colors.white70,
-                fontWeight: FontWeight.w600,
-              ),
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.white),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.white,
+                  ),
             ),
           ),
         ],

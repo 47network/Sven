@@ -124,9 +124,8 @@ class _DeviceActionsPageState extends State<DeviceActionsPage> {
         // Merge local builtins with server ones, prioritise local
         _builtins = [
           ..._localBuiltins,
-          ...serverBuiltins.where(
-            (b) => !_localBuiltins.any((l) => l['id'] == b['id']),
-          ),
+          ...serverBuiltins
+              .where((b) => !_localBuiltins.any((l) => l['id'] == b['id'])),
         ];
         _executions = results[1] as List<Map<String, dynamic>>;
         _stats = results[2] as Map<String, dynamic>;
@@ -176,9 +175,7 @@ class _DeviceActionsPageState extends State<DeviceActionsPage> {
   }
 
   Future<void> _executeLocalAction(
-    String actionId,
-    Map<String, dynamic> action,
-  ) async {
+      String actionId, Map<String, dynamic> action) async {
     String message;
     switch (actionId) {
       case 'copy_clipboard':
@@ -258,9 +255,11 @@ class _DeviceActionsPageState extends State<DeviceActionsPage> {
       final parts = result.split('|');
       if (parts.isNotEmpty) {
         final suggestedId = parts[0].trim().toLowerCase();
-        final matchedAction = _builtins
-            .cast<Map<String, dynamic>?>()
-            .firstWhere((b) => b?['id'] == suggestedId, orElse: () => null);
+        final matchedAction =
+            _builtins.cast<Map<String, dynamic>?>().firstWhere(
+                  (b) => b?['id'] == suggestedId,
+                  orElse: () => null,
+                );
         if (matchedAction != null) {
           _executeAction(matchedAction);
         }
@@ -318,11 +317,8 @@ class _DeviceActionsPageState extends State<DeviceActionsPage> {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.auto_awesome_rounded,
-                color: Color(0xFF4CAF50),
-                size: 20,
-              ),
+              const Icon(Icons.auto_awesome_rounded,
+                  color: Color(0xFF4CAF50), size: 20),
               const SizedBox(width: 8),
               Text(
                 'AI Command',
@@ -358,9 +354,7 @@ class _DeviceActionsPageState extends State<DeviceActionsPage> {
                     ),
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
+                        horizontal: 14, vertical: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
@@ -391,9 +385,8 @@ class _DeviceActionsPageState extends State<DeviceActionsPage> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : IconButton(
-                        onPressed: modelReady
-                            ? _processNaturalLanguageCommand
-                            : null,
+                        onPressed:
+                            modelReady ? _processNaturalLanguageCommand : null,
                         icon: const Icon(Icons.send_rounded),
                         color: const Color(0xFF4CAF50),
                       ),
@@ -417,11 +410,8 @@ class _DeviceActionsPageState extends State<DeviceActionsPage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
-            Icons.smart_toy_rounded,
-            size: 16,
-            color: Color(0xFF4CAF50),
-          ),
+          const Icon(Icons.smart_toy_rounded,
+              size: 16, color: Color(0xFF4CAF50)),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -444,17 +434,13 @@ class _DeviceActionsPageState extends State<DeviceActionsPage> {
       decoration: BoxDecoration(
         color: const Color(0xFF4CAF50).withValues(alpha: isDark ? 0.15 : 0.08),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
-        ),
+        border:
+            Border.all(color: const Color(0xFF4CAF50).withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.security_rounded,
-            color: Color(0xFF4CAF50),
-            size: 24,
-          ),
+          const Icon(Icons.security_rounded,
+              color: Color(0xFF4CAF50), size: 24),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -488,10 +474,7 @@ class _DeviceActionsPageState extends State<DeviceActionsPage> {
           ),
           const SizedBox(height: 12),
           _statRow(
-            'Total executions',
-            '${_stats['total_executions'] ?? 0}',
-            isDark,
-          ),
+              'Total executions', '${_stats['total_executions'] ?? 0}', isDark),
           _statRow('Successful', '${_stats['successful'] ?? 0}', isDark),
           _statRow('Failed', '${_stats['failed'] ?? 0}', isDark),
           _statRow('Available actions', '${_builtins.length}', isDark),
@@ -584,10 +567,8 @@ class _DeviceActionsPageState extends State<DeviceActionsPage> {
                     ],
                   ),
                 ),
-                Icon(
-                  Icons.play_circle_outline_rounded,
-                  color: isDark ? Colors.white30 : Colors.black26,
-                ),
+                Icon(Icons.play_circle_outline_rounded,
+                    color: isDark ? Colors.white30 : Colors.black26),
               ],
             ),
           ),
@@ -716,21 +697,15 @@ class _DeviceActionsPageState extends State<DeviceActionsPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              color: isDark ? Colors.white60 : Colors.black54,
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : Colors.black87,
-            ),
-          ),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? Colors.white60 : Colors.black54)),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black87)),
         ],
       ),
     );

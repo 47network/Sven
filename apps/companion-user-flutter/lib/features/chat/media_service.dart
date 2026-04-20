@@ -141,7 +141,10 @@ class MediaService {
     int offset = 0,
   }) async {
     final base = ApiBaseService.currentSync();
-    final params = <String, String>{'limit': '$limit', 'offset': '$offset'};
+    final params = <String, String>{
+      'limit': '$limit',
+      'offset': '$offset',
+    };
     if (type != null) params['type'] = type;
     final qs = params.entries.map((e) => '${e.key}=${e.value}').join('&');
 
@@ -178,16 +181,16 @@ class MediaUpload {
   final DateTime? createdAt;
 
   factory MediaUpload.fromJson(Map<String, dynamic> json) => MediaUpload(
-    id: json['id'] as String? ?? '',
-    fileName: json['file_name'] as String? ?? '',
-    mimeType: json['mime_type'] as String? ?? '',
-    sizeBytes: json['size_bytes'] as int? ?? 0,
-    checksum: json['checksum'] as String?,
-    thumbnailPath: json['thumbnail_path'] as String?,
-    createdAt: json['created_at'] != null
-        ? DateTime.tryParse(json['created_at'] as String)
-        : null,
-  );
+        id: json['id'] as String? ?? '',
+        fileName: json['file_name'] as String? ?? '',
+        mimeType: json['mime_type'] as String? ?? '',
+        sizeBytes: json['size_bytes'] as int? ?? 0,
+        checksum: json['checksum'] as String?,
+        thumbnailPath: json['thumbnail_path'] as String?,
+        createdAt: json['created_at'] != null
+            ? DateTime.tryParse(json['created_at'] as String)
+            : null,
+      );
 }
 
 class MediaGallery {
@@ -196,11 +199,10 @@ class MediaGallery {
   final int total;
 
   factory MediaGallery.fromJson(Map<String, dynamic> json) => MediaGallery(
-    items:
-        (json['items'] as List?)
-            ?.map((m) => MediaUpload.fromJson(m as Map<String, dynamic>))
-            .toList() ??
-        [],
-    total: json['total'] as int? ?? 0,
-  );
+        items: (json['items'] as List?)
+                ?.map((m) => MediaUpload.fromJson(m as Map<String, dynamic>))
+                .toList() ??
+            [],
+        total: json['total'] as int? ?? 0,
+      );
 }

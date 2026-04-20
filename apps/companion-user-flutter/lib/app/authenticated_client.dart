@@ -24,8 +24,8 @@ class AuthenticatedClient {
     TokenStore? tokenStore,
     this.onSessionExpired,
     this.onTokenRefresh,
-  }) : _client = client ?? DioHttpClient(),
-       _store = tokenStore ?? TokenStore();
+  })  : _client = client ?? DioHttpClient(),
+        _store = tokenStore ?? TokenStore();
 
   final http.Client _client;
   final TokenStore _store;
@@ -121,30 +121,29 @@ class AuthenticatedClient {
     Map<String, String>? additionalHeaders,
   }) {
     final encoded = jsonEncode(body);
-    return _execute(
-      (token) => _client.post(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-          ...?additionalHeaders,
-        },
-        body: encoded,
-      ),
-    );
+    return _execute((token) => _client.post(
+          uri,
+          headers: {
+            'Content-Type': 'application/json',
+            if (token != null) 'Authorization': 'Bearer $token',
+            ...?additionalHeaders,
+          },
+          body: encoded,
+        ));
   }
 
   /// GET with automatic auth header injection.
-  Future<http.Response> get(Uri uri, {Map<String, String>? additionalHeaders}) {
-    return _execute(
-      (token) => _client.get(
-        uri,
-        headers: {
-          if (token != null) 'Authorization': 'Bearer $token',
-          ...?additionalHeaders,
-        },
-      ),
-    );
+  Future<http.Response> get(
+    Uri uri, {
+    Map<String, String>? additionalHeaders,
+  }) {
+    return _execute((token) => _client.get(
+          uri,
+          headers: {
+            if (token != null) 'Authorization': 'Bearer $token',
+            ...?additionalHeaders,
+          },
+        ));
   }
 
   /// PUT JSON with automatic auth header injection.
@@ -154,17 +153,15 @@ class AuthenticatedClient {
     Map<String, String>? additionalHeaders,
   }) {
     final encoded = jsonEncode(body);
-    return _execute(
-      (token) => _client.put(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-          ...?additionalHeaders,
-        },
-        body: encoded,
-      ),
-    );
+    return _execute((token) => _client.put(
+          uri,
+          headers: {
+            'Content-Type': 'application/json',
+            if (token != null) 'Authorization': 'Bearer $token',
+            ...?additionalHeaders,
+          },
+          body: encoded,
+        ));
   }
 
   /// PATCH JSON with automatic auth header injection.
@@ -174,17 +171,15 @@ class AuthenticatedClient {
     Map<String, String>? additionalHeaders,
   }) {
     final encoded = jsonEncode(body);
-    return _execute(
-      (token) => _client.patch(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-          ...?additionalHeaders,
-        },
-        body: encoded,
-      ),
-    );
+    return _execute((token) => _client.patch(
+          uri,
+          headers: {
+            'Content-Type': 'application/json',
+            if (token != null) 'Authorization': 'Bearer $token',
+            ...?additionalHeaders,
+          },
+          body: encoded,
+        ));
   }
 
   /// DELETE with automatic auth header injection.
@@ -192,15 +187,13 @@ class AuthenticatedClient {
     Uri uri, {
     Map<String, String>? additionalHeaders,
   }) {
-    return _execute(
-      (token) => _client.delete(
-        uri,
-        headers: {
-          if (token != null) 'Authorization': 'Bearer $token',
-          ...?additionalHeaders,
-        },
-      ),
-    );
+    return _execute((token) => _client.delete(
+          uri,
+          headers: {
+            if (token != null) 'Authorization': 'Bearer $token',
+            ...?additionalHeaders,
+          },
+        ));
   }
 
   Future<void> _handleSessionExpired() async {

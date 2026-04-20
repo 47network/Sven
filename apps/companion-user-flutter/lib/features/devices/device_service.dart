@@ -17,11 +17,11 @@ enum DeviceStatus {
   pairing;
 
   static DeviceStatus fromApi(String? value) => switch (value) {
-    'online' => DeviceStatus.online,
-    'offline' => DeviceStatus.offline,
-    'pairing' => DeviceStatus.pairing,
-    _ => DeviceStatus.offline,
-  };
+        'online' => DeviceStatus.online,
+        'offline' => DeviceStatus.offline,
+        'pairing' => DeviceStatus.pairing,
+        _ => DeviceStatus.offline,
+      };
 }
 
 /// Device type.
@@ -32,26 +32,26 @@ enum DeviceType {
   sensorHub;
 
   String get apiValue => switch (this) {
-    DeviceType.mirror => 'mirror',
-    DeviceType.tablet => 'tablet',
-    DeviceType.kiosk => 'kiosk',
-    DeviceType.sensorHub => 'sensor_hub',
-  };
+        DeviceType.mirror => 'mirror',
+        DeviceType.tablet => 'tablet',
+        DeviceType.kiosk => 'kiosk',
+        DeviceType.sensorHub => 'sensor_hub',
+      };
 
   String get label => switch (this) {
-    DeviceType.mirror => 'Mirror',
-    DeviceType.tablet => 'Tablet',
-    DeviceType.kiosk => 'Kiosk',
-    DeviceType.sensorHub => 'Sensor Hub',
-  };
+        DeviceType.mirror => 'Mirror',
+        DeviceType.tablet => 'Tablet',
+        DeviceType.kiosk => 'Kiosk',
+        DeviceType.sensorHub => 'Sensor Hub',
+      };
 
   static DeviceType fromApi(String? value) => switch (value) {
-    'mirror' => DeviceType.mirror,
-    'tablet' => DeviceType.tablet,
-    'kiosk' => DeviceType.kiosk,
-    'sensor_hub' => DeviceType.sensorHub,
-    _ => DeviceType.mirror,
-  };
+        'mirror' => DeviceType.mirror,
+        'tablet' => DeviceType.tablet,
+        'kiosk' => DeviceType.kiosk,
+        'sensor_hub' => DeviceType.sensorHub,
+        _ => DeviceType.mirror,
+      };
 }
 
 /// A registered/paired device.
@@ -84,9 +84,8 @@ class Device {
 
   factory Device.fromJson(Map<String, dynamic> json) {
     final caps = json['capabilities'];
-    final capList = caps is List
-        ? caps.map((e) => e.toString()).toList()
-        : <String>[];
+    final capList =
+        caps is List ? caps.map((e) => e.toString()).toList() : <String>[];
 
     return Device(
       id: json['id'] as String,
@@ -94,9 +93,8 @@ class Device {
       deviceType: DeviceType.fromApi(json['device_type'] as String?),
       status: DeviceStatus.fromApi(json['status'] as String?),
       capabilities: capList,
-      config: (json['config'] is Map
-          ? json['config'] as Map<String, dynamic>
-          : {}),
+      config:
+          (json['config'] is Map ? json['config'] as Map<String, dynamic> : {}),
       lastSeenAt: json['last_seen_at'] != null
           ? DateTime.tryParse(json['last_seen_at'] as String)
           : null,
@@ -136,18 +134,18 @@ class DeviceCommand {
   final String? errorMessage;
 
   factory DeviceCommand.fromJson(Map<String, dynamic> json) => DeviceCommand(
-    id: json['id'] as String,
-    command: json['command'] as String,
-    payload: json['payload'] is Map
-        ? json['payload'] as Map<String, dynamic>
-        : {},
-    status: json['status'] as String? ?? 'pending',
-    createdAt: DateTime.parse(json['created_at'] as String),
-    resultPayload: json['result_payload'] is Map
-        ? json['result_payload'] as Map<String, dynamic>
-        : null,
-    errorMessage: json['error_message'] as String?,
-  );
+        id: json['id'] as String,
+        command: json['command'] as String,
+        payload: json['payload'] is Map
+            ? json['payload'] as Map<String, dynamic>
+            : {},
+        status: json['status'] as String? ?? 'pending',
+        createdAt: DateTime.parse(json['created_at'] as String),
+        resultPayload: json['result_payload'] is Map
+            ? json['result_payload'] as Map<String, dynamic>
+            : null,
+        errorMessage: json['error_message'] as String?,
+      );
 }
 
 /// An event emitted by a device.
@@ -165,13 +163,13 @@ class DeviceEvent {
   final DateTime createdAt;
 
   factory DeviceEvent.fromJson(Map<String, dynamic> json) => DeviceEvent(
-    id: json['id'] as String,
-    eventType: json['event_type'] as String,
-    payload: json['payload'] is Map
-        ? json['payload'] as Map<String, dynamic>
-        : {},
-    createdAt: DateTime.parse(json['created_at'] as String),
-  );
+        id: json['id'] as String,
+        eventType: json['event_type'] as String,
+        payload: json['payload'] is Map
+            ? json['payload'] as Map<String, dynamic>
+            : {},
+        createdAt: DateTime.parse(json['created_at'] as String),
+      );
 }
 
 /// Full device detail (device + recent events + commands).
@@ -237,9 +235,8 @@ class DeviceService extends ChangeNotifier {
 
   Future<DeviceDetail?> fetchDevice(String deviceId) async {
     try {
-      final resp = await _client.get(
-        Uri.parse('$_apiBase/v1/admin/devices/$deviceId'),
-      );
+      final resp =
+          await _client.get(Uri.parse('$_apiBase/v1/admin/devices/$deviceId'));
       if (resp.statusCode == 200) {
         final data = jsonDecode(resp.body)['data'] as Map<String, dynamic>;
         final events = (data['recent_events'] as List? ?? [])
@@ -278,8 +275,7 @@ class DeviceService extends ChangeNotifier {
       );
       if (resp.statusCode == 201) {
         final device = Device.fromJson(
-          jsonDecode(resp.body)['data'] as Map<String, dynamic>,
-        );
+            jsonDecode(resp.body)['data'] as Map<String, dynamic>);
         _devices.insert(0, device);
         notifyListeners();
         return device;
@@ -328,8 +324,7 @@ class DeviceService extends ChangeNotifier {
       );
       if (resp.statusCode == 201) {
         return DeviceCommand.fromJson(
-          jsonDecode(resp.body)['data'] as Map<String, dynamic>,
-        );
+            jsonDecode(resp.body)['data'] as Map<String, dynamic>);
       }
       _error = _extractError(resp.body);
       notifyListeners();
@@ -397,9 +392,8 @@ class DeviceService extends ChangeNotifier {
 
   Future<bool> deleteDevice(String deviceId) async {
     try {
-      final resp = await _client.delete(
-        Uri.parse('$_apiBase/v1/admin/devices/$deviceId'),
-      );
+      final resp = await _client
+          .delete(Uri.parse('$_apiBase/v1/admin/devices/$deviceId'));
       if (resp.statusCode == 200) {
         _devices.removeWhere((d) => d.id == deviceId);
         notifyListeners();

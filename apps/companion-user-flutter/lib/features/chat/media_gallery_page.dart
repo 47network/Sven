@@ -111,16 +111,11 @@ class _MediaGalleryPageState extends State<MediaGalleryPage>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.photo_library_outlined,
-              size: 48,
-              color: tok.onSurface.withValues(alpha: 0.15),
-            ),
+            Icon(Icons.photo_library_outlined,
+                size: 48, color: tok.onSurface.withValues(alpha: 0.15)),
             const SizedBox(height: 8),
-            Text(
-              'No media yet',
-              style: TextStyle(color: tok.onSurface.withValues(alpha: 0.4)),
-            ),
+            Text('No media yet',
+                style: TextStyle(color: tok.onSurface.withValues(alpha: 0.4))),
           ],
         ),
       );
@@ -153,10 +148,8 @@ class _MediaGalleryPageState extends State<MediaGalleryPage>
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
                       color: tok.card,
-                      child: Icon(
-                        Icons.broken_image,
-                        color: tok.onSurface.withValues(alpha: 0.3),
-                      ),
+                      child: Icon(Icons.broken_image,
+                          color: tok.onSurface.withValues(alpha: 0.3)),
                     ),
                   )
                 else
@@ -170,9 +163,8 @@ class _MediaGalleryPageState extends State<MediaGalleryPage>
                         Text(
                           item.fileName,
                           style: TextStyle(
-                            fontSize: 10,
-                            color: tok.onSurface.withValues(alpha: 0.6),
-                          ),
+                              fontSize: 10,
+                              color: tok.onSurface.withValues(alpha: 0.6)),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
@@ -186,18 +178,13 @@ class _MediaGalleryPageState extends State<MediaGalleryPage>
                     right: 4,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 2,
-                      ),
+                          horizontal: 4, vertical: 2),
                       decoration: BoxDecoration(
                         color: Colors.black54,
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Icon(
-                        Icons.play_circle_outline,
-                        color: Colors.white,
-                        size: 18,
-                      ),
+                      child: const Icon(Icons.play_circle_outline,
+                          color: Colors.white, size: 18),
                     ),
                   ),
               ],
@@ -214,16 +201,11 @@ class _MediaGalleryPageState extends State<MediaGalleryPage>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.folder_open,
-              size: 48,
-              color: tok.onSurface.withValues(alpha: 0.15),
-            ),
+            Icon(Icons.folder_open,
+                size: 48, color: tok.onSurface.withValues(alpha: 0.15)),
             const SizedBox(height: 8),
-            Text(
-              'No files yet',
-              style: TextStyle(color: tok.onSurface.withValues(alpha: 0.4)),
-            ),
+            Text('No files yet',
+                style: TextStyle(color: tok.onSurface.withValues(alpha: 0.4))),
           ],
         ),
       );
@@ -244,11 +226,8 @@ class _MediaGalleryPageState extends State<MediaGalleryPage>
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor: tok.secondary.withValues(alpha: 0.15),
-              child: Icon(
-                _fileIcon(item.mimeType),
-                color: tok.secondary,
-                size: 22,
-              ),
+              child: Icon(_fileIcon(item.mimeType),
+                  color: tok.secondary, size: 22),
             ),
             title: Text(
               item.fileName,
@@ -258,9 +237,7 @@ class _MediaGalleryPageState extends State<MediaGalleryPage>
             subtitle: Text(
               _formatSize(item.sizeBytes),
               style: TextStyle(
-                fontSize: 12,
-                color: tok.onSurface.withValues(alpha: 0.5),
-              ),
+                  fontSize: 12, color: tok.onSurface.withValues(alpha: 0.5)),
             ),
             trailing: Icon(Icons.download, color: tok.primary),
           ),
@@ -270,10 +247,7 @@ class _MediaGalleryPageState extends State<MediaGalleryPage>
   }
 
   void _showPreview(
-    BuildContext context,
-    MediaUpload item,
-    SvenModeTokens tok,
-  ) {
+      BuildContext context, MediaUpload item, SvenModeTokens tok) {
     final base = ApiBaseService.currentSync();
     showDialog(
       context: context,
@@ -289,11 +263,8 @@ class _MediaGalleryPageState extends State<MediaGalleryPage>
               height: 200,
               color: tok.card,
               child: Center(
-                child: Icon(
-                  Icons.broken_image,
-                  color: tok.onSurface.withValues(alpha: 0.3),
-                  size: 48,
-                ),
+                child: Icon(Icons.broken_image,
+                    color: tok.onSurface.withValues(alpha: 0.3), size: 48),
               ),
             ),
           ),

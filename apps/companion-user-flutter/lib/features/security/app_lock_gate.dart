@@ -66,7 +66,9 @@ class _AppLockGateState extends State<AppLockGate> with WidgetsBindingObserver {
       _authenticating = true;
       _authFailed = false;
     });
-    final ok = await widget.lockService.authenticate('Unlock Sven to continue');
+    final ok = await widget.lockService.authenticate(
+      'Unlock Sven to continue',
+    );
     if (mounted) {
       setState(() {
         _authenticating = false;
@@ -129,25 +131,23 @@ class _LockScreen extends StatelessWidget {
               Text(
                 'Sven is locked',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: tokens.onSurface,
-                ),
+                      fontWeight: FontWeight.w700,
+                      color: tokens.onSurface,
+                    ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Authenticate to continue',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: tokens.onSurface.withValues(alpha: 0.5),
-                ),
+                      color: tokens.onSurface.withValues(alpha: 0.5),
+                    ),
                 textAlign: TextAlign.center,
               ),
               if (authFailed) ...[
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.red.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
@@ -184,9 +184,7 @@ class _LockScreen extends StatelessWidget {
                   label: Text(
                     authenticating ? 'Authenticating…' : 'Unlock',
                     style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                    ),
+                        fontWeight: FontWeight.w600, fontSize: 15),
                   ),
                 ),
               ),

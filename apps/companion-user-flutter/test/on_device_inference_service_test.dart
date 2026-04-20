@@ -14,28 +14,18 @@ void main() {
       // Each variant requires more RAM than the previous
       expect(ModelVariant.e4b.minRamMb, greaterThan(ModelVariant.e2b.minRamMb));
       expect(
-        ModelVariant.moe26b.minRamMb,
-        greaterThan(ModelVariant.e4b.minRamMb),
-      );
-      expect(
-        ModelVariant.dense31b.minRamMb,
-        greaterThan(ModelVariant.moe26b.minRamMb),
-      );
+          ModelVariant.moe26b.minRamMb, greaterThan(ModelVariant.e4b.minRamMb));
+      expect(ModelVariant.dense31b.minRamMb,
+          greaterThan(ModelVariant.moe26b.minRamMb));
     });
 
     test('estimatedSizeBytes are ordered by model size', () {
-      expect(
-        ModelVariant.e2b.estimatedSizeBytes,
-        lessThan(ModelVariant.e4b.estimatedSizeBytes),
-      );
-      expect(
-        ModelVariant.e4b.estimatedSizeBytes,
-        lessThan(ModelVariant.moe26b.estimatedSizeBytes),
-      );
-      expect(
-        ModelVariant.moe26b.estimatedSizeBytes,
-        lessThan(ModelVariant.dense31b.estimatedSizeBytes),
-      );
+      expect(ModelVariant.e2b.estimatedSizeBytes,
+          lessThan(ModelVariant.e4b.estimatedSizeBytes));
+      expect(ModelVariant.e4b.estimatedSizeBytes,
+          lessThan(ModelVariant.moe26b.estimatedSizeBytes));
+      expect(ModelVariant.moe26b.estimatedSizeBytes,
+          lessThan(ModelVariant.dense31b.estimatedSizeBytes));
     });
 
     test('displayName contains model size identifier', () {
@@ -71,17 +61,11 @@ void main() {
     test('all enum values exist', () {
       expect(ModelCompatibility.values, hasLength(4));
       expect(
-        ModelCompatibility.values,
-        contains(ModelCompatibility.compatible),
-      );
-      expect(
-        ModelCompatibility.values,
-        contains(ModelCompatibility.insufficientRam),
-      );
-      expect(
-        ModelCompatibility.values,
-        contains(ModelCompatibility.insufficientStorage),
-      );
+          ModelCompatibility.values, contains(ModelCompatibility.compatible));
+      expect(ModelCompatibility.values,
+          contains(ModelCompatibility.insufficientRam));
+      expect(ModelCompatibility.values,
+          contains(ModelCompatibility.insufficientStorage));
       expect(ModelCompatibility.values, contains(ModelCompatibility.unknown));
     });
   });
@@ -90,22 +74,14 @@ void main() {
     test('all enum values exist', () {
       expect(ModelInstallResult.values, hasLength(5));
       expect(ModelInstallResult.values, contains(ModelInstallResult.success));
-      expect(
-        ModelInstallResult.values,
-        contains(ModelInstallResult.alreadyInstalled),
-      );
-      expect(
-        ModelInstallResult.values,
-        contains(ModelInstallResult.insufficientRam),
-      );
-      expect(
-        ModelInstallResult.values,
-        contains(ModelInstallResult.insufficientStorage),
-      );
-      expect(
-        ModelInstallResult.values,
-        contains(ModelInstallResult.downloadFailed),
-      );
+      expect(ModelInstallResult.values,
+          contains(ModelInstallResult.alreadyInstalled));
+      expect(ModelInstallResult.values,
+          contains(ModelInstallResult.insufficientRam));
+      expect(ModelInstallResult.values,
+          contains(ModelInstallResult.insufficientStorage));
+      expect(ModelInstallResult.values,
+          contains(ModelInstallResult.downloadFailed));
     });
   });
 
@@ -123,10 +99,8 @@ void main() {
 
     test('returns unknown when device capability not yet probed', () {
       // deviceCapability is null before probe completes
-      expect(
-        service.checkCompatibility(ModelVariant.e2b),
-        ModelCompatibility.unknown,
-      );
+      expect(service.checkCompatibility(ModelVariant.e2b),
+          ModelCompatibility.unknown);
     });
   });
 

@@ -36,22 +36,16 @@ void main() {
 
     test('every experiment has at least 2 variants', () {
       for (final exp in AbExperiments.all) {
-        expect(
-          exp.variants.length,
-          greaterThanOrEqualTo(2),
-          reason: '${exp.id} must have ≥ 2 variants',
-        );
+        expect(exp.variants.length, greaterThanOrEqualTo(2),
+            reason: '${exp.id} must have ≥ 2 variants');
       }
     });
 
     test('all variant weights are positive', () {
       for (final exp in AbExperiments.all) {
         for (final w in exp.variants.values) {
-          expect(
-            w,
-            greaterThan(0.0),
-            reason: '${exp.id} must have positive weights',
-          );
+          expect(w, greaterThan(0.0),
+              reason: '${exp.id} must have positive weights');
         }
       }
     });
@@ -97,11 +91,8 @@ void main() {
       final svc = freshService();
       await svc.bind(userId: 'tester');
       for (final exp in AbExperiments.all) {
-        expect(
-          svc.assignments.containsKey(exp.id),
-          isTrue,
-          reason: '${exp.id} should be assigned',
-        );
+        expect(svc.assignments.containsKey(exp.id), isTrue,
+            reason: '${exp.id} should be assigned');
       }
     });
 
@@ -135,11 +126,8 @@ void main() {
       await svc.bind(userId: 'validate');
       for (final exp in AbExperiments.all) {
         final variant = svc.getVariant(exp.id);
-        expect(
-          exp.variants.containsKey(variant),
-          isTrue,
-          reason: '$variant is not valid for ${exp.id}',
-        );
+        expect(exp.variants.containsKey(variant), isTrue,
+            reason: '$variant is not valid for ${exp.id}');
       }
     });
 
@@ -151,24 +139,20 @@ void main() {
     });
 
     test(
-      'different userIds can produce different variants (distribution check)',
-      () async {
-        // With 100 users and two equal variants (50/50), we expect both variants
-        // to appear.  Not a flaky test — the hash is deterministic.
-        final seen = <String>{};
-        for (var i = 0; i < 100; i++) {
-          final svc = AbTestService.instance..resetForLogout();
-          SharedPreferences.setMockInitialValues({});
-          await svc.bind(userId: 'user_$i');
-          seen.add(svc.getVariant(AbExperiments.suggestionChips.id));
-        }
-        expect(
-          seen.length,
-          greaterThan(1),
-          reason: 'Hash bucketing should produce both variants over 100 users',
-        );
-      },
-    );
+        'different userIds can produce different variants (distribution check)',
+        () async {
+      // With 100 users and two equal variants (50/50), we expect both variants
+      // to appear.  Not a flaky test — the hash is deterministic.
+      final seen = <String>{};
+      for (var i = 0; i < 100; i++) {
+        final svc = AbTestService.instance..resetForLogout();
+        SharedPreferences.setMockInitialValues({});
+        await svc.bind(userId: 'user_$i');
+        seen.add(svc.getVariant(AbExperiments.suggestionChips.id));
+      }
+      expect(seen.length, greaterThan(1),
+          reason: 'Hash bucketing should produce both variants over 100 users');
+    });
 
     test('isControl returns true for first variant, false otherwise', () async {
       // Iterate users until we find one in control and one not in control.

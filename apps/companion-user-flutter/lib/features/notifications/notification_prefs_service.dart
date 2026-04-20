@@ -18,8 +18,7 @@ class NotificationPrefsService {
     );
     if (r.statusCode < 200 || r.statusCode >= 300) {
       throw Exception(
-        'Failed to fetch notification preferences (${r.statusCode})',
-      );
+          'Failed to fetch notification preferences (${r.statusCode})');
     }
     final body = jsonDecode(r.body) as Map<String, dynamic>;
     return (body['data'] as Map<String, dynamic>?) ?? {};
@@ -33,8 +32,7 @@ class NotificationPrefsService {
     );
     if (r.statusCode < 200 || r.statusCode >= 300) {
       throw Exception(
-        'Failed to save notification preferences (${r.statusCode})',
-      );
+          'Failed to save notification preferences (${r.statusCode})');
     }
   }
 }

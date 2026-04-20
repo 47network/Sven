@@ -15,7 +15,10 @@ import 'memory_service.dart';
 // ═══════════════════════════════════════════════════════════════════════════
 
 class MemoryPage extends ConsumerStatefulWidget {
-  const MemoryPage({super.key, required this.visualMode});
+  const MemoryPage({
+    super.key,
+    required this.visualMode,
+  });
 
   final VisualMode visualMode;
 
@@ -186,9 +189,8 @@ class _MemoriesTabState extends State<_MemoriesTab> {
           .toList();
     }
     if (_filterCategory != null) {
-      displayFacts = displayFacts
-          .where((f) => f.category == _filterCategory)
-          .toList();
+      displayFacts =
+          displayFacts.where((f) => f.category == _filterCategory).toList();
     }
     // Starred first, then newest first
     displayFacts.sort((a, b) {
@@ -212,19 +214,15 @@ class _MemoriesTabState extends State<_MemoriesTab> {
           cinematic: widget.cinematic,
           child: Row(
             children: [
-              Icon(
-                Icons.person_outline_rounded,
-                size: 18,
-                color: widget.tokens.onSurface.withValues(alpha: 0.5),
-              ),
+              Icon(Icons.person_outline_rounded,
+                  size: 18,
+                  color: widget.tokens.onSurface.withValues(alpha: 0.5)),
               const SizedBox(width: 10),
               Expanded(
                 child: TextField(
                   controller: widget.nameCtrl,
-                  style: TextStyle(
-                    color: widget.tokens.onSurface,
-                    fontSize: 15,
-                  ),
+                  style:
+                      TextStyle(color: widget.tokens.onSurface, fontSize: 15),
                   decoration: InputDecoration(
                     hintText: 'What should Sven call you?',
                     hintStyle: TextStyle(
@@ -239,11 +237,8 @@ class _MemoriesTabState extends State<_MemoriesTab> {
               ),
               if (widget.nameCtrl.text.trim().isNotEmpty)
                 IconButton(
-                  icon: Icon(
-                    Icons.check_rounded,
-                    color: widget.tokens.primary,
-                    size: 20,
-                  ),
+                  icon: Icon(Icons.check_rounded,
+                      color: widget.tokens.primary, size: 20),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                   onPressed: () => ms.setUserName(widget.nameCtrl.text),
@@ -262,15 +257,14 @@ class _MemoriesTabState extends State<_MemoriesTab> {
               ? TextButton(
                   onPressed: () => _confirmClearAll(context),
                   style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(
-                      context,
-                    ).colorScheme.error.withValues(alpha: 0.9),
+                    foregroundColor: Theme.of(context)
+                        .colorScheme
+                        .error
+                        .withValues(alpha: 0.9),
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                   ),
-                  child: const Text(
-                    'Clear all',
-                    style: TextStyle(fontSize: 12),
-                  ),
+                  child:
+                      const Text('Clear all', style: TextStyle(fontSize: 12)),
                 )
               : null,
         ),
@@ -287,22 +281,18 @@ class _MemoriesTabState extends State<_MemoriesTab> {
                 children: FactCategory.values.map((cat) {
                   final selected = cat == _selectedCategory;
                   return ChoiceChip(
-                    label: Text(
-                      cat.label,
-                      style: const TextStyle(fontSize: 11),
-                    ),
+                    label:
+                        Text(cat.label, style: const TextStyle(fontSize: 11)),
                     selected: selected,
                     onSelected: (_) => setState(() => _selectedCategory = cat),
-                    selectedColor: widget.tokens.primary.withValues(
-                      alpha: 0.15,
-                    ),
+                    selectedColor:
+                        widget.tokens.primary.withValues(alpha: 0.15),
                     labelStyle: TextStyle(
                       color: selected
                           ? widget.tokens.primary
                           : widget.tokens.onSurface.withValues(alpha: 0.5),
-                      fontWeight: selected
-                          ? FontWeight.w600
-                          : FontWeight.normal,
+                      fontWeight:
+                          selected ? FontWeight.w600 : FontWeight.normal,
                     ),
                     side: BorderSide(
                       color: selected
@@ -321,15 +311,12 @@ class _MemoriesTabState extends State<_MemoriesTab> {
                     child: TextField(
                       controller: _addCtrl,
                       style: TextStyle(
-                        color: widget.tokens.onSurface,
-                        fontSize: 14,
-                      ),
+                          color: widget.tokens.onSurface, fontSize: 14),
                       decoration: InputDecoration(
                         hintText: 'e.g. I prefer concise responses',
                         hintStyle: TextStyle(
-                          color: widget.tokens.onSurface.withValues(
-                            alpha: 0.35,
-                          ),
+                          color:
+                              widget.tokens.onSurface.withValues(alpha: 0.35),
                         ),
                         border: InputBorder.none,
                         isDense: true,
@@ -340,11 +327,8 @@ class _MemoriesTabState extends State<_MemoriesTab> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(
-                      Icons.add_circle_rounded,
-                      color: widget.tokens.primary,
-                      size: 24,
-                    ),
+                    icon: Icon(Icons.add_circle_rounded,
+                        color: widget.tokens.primary, size: 24),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                     onPressed: _addFact,
@@ -382,31 +366,24 @@ class _MemoriesTabState extends State<_MemoriesTab> {
                     fontSize: 13,
                   ),
                   prefixIcon: ExcludeSemantics(
-                    child: Icon(
-                      Icons.search_rounded,
-                      size: 17,
-                      color: widget.tokens.onSurface.withValues(alpha: 0.35),
-                    ),
+                    child: Icon(Icons.search_rounded,
+                        size: 17,
+                        color: widget.tokens.onSurface.withValues(alpha: 0.35)),
                   ),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? GestureDetector(
                           onTap: () => _searchCtrl.clear(),
                           child: ExcludeSemantics(
-                            child: Icon(
-                              Icons.close_rounded,
-                              size: 15,
-                              color: widget.tokens.onSurface.withValues(
-                                alpha: 0.4,
-                              ),
-                            ),
+                            child: Icon(Icons.close_rounded,
+                                size: 15,
+                                color: widget.tokens.onSurface
+                                    .withValues(alpha: 0.4)),
                           ),
                         )
                       : null,
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 9,
-                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
                 ),
               ),
             ),
@@ -453,11 +430,9 @@ class _MemoriesTabState extends State<_MemoriesTab> {
             padding: const EdgeInsets.symmetric(vertical: 32),
             child: Column(
               children: [
-                Icon(
-                  Icons.psychology_alt_outlined,
-                  size: 48,
-                  color: widget.tokens.onSurface.withValues(alpha: 0.2),
-                ),
+                Icon(Icons.psychology_alt_outlined,
+                    size: 48,
+                    color: widget.tokens.onSurface.withValues(alpha: 0.2)),
                 const SizedBox(height: 12),
                 Text(
                   'No memories yet',
@@ -492,19 +467,17 @@ class _MemoriesTabState extends State<_MemoriesTab> {
             ),
           )
         else
-          ...displayFacts.map(
-            (fact) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: _FactTile(
-                fact: fact,
-                tokens: widget.tokens,
-                cinematic: widget.cinematic,
-                onDelete: () => ms.deleteFact(fact.id),
-                onEdit: (newContent) => ms.updateFact(fact.id, newContent),
-                onToggleStar: () => ms.toggleStarFact(fact.id),
-              ),
-            ),
-          ),
+          ...displayFacts.map((fact) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: _FactTile(
+                  fact: fact,
+                  tokens: widget.tokens,
+                  cinematic: widget.cinematic,
+                  onDelete: () => ms.deleteFact(fact.id),
+                  onEdit: (newContent) => ms.updateFact(fact.id, newContent),
+                  onToggleStar: () => ms.toggleStarFact(fact.id),
+                ),
+              )),
       ],
     );
   }
@@ -536,8 +509,7 @@ class _MemoriesTabState extends State<_MemoriesTab> {
       builder: (ctx) => AlertDialog(
         title: const Text('Clear all memories?'),
         content: const Text(
-          'Sven will forget everything you\'ve shared. This cannot be undone.',
-        ),
+            'Sven will forget everything you\'ve shared. This cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -601,8 +573,7 @@ class _FactTileState extends State<_FactTile> {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label:
-          '${widget.fact.content}. Category: ${widget.fact.category.label}'
+      label: '${widget.fact.content}. Category: ${widget.fact.category.label}'
           '${widget.fact.isStarred ? ". Starred" : ""}',
       child: _MemoryCard(
         tokens: widget.tokens,
@@ -630,9 +601,7 @@ class _FactTileState extends State<_FactTile> {
                       controller: _ctrl,
                       autofocus: true,
                       style: TextStyle(
-                        color: widget.tokens.onSurface,
-                        fontSize: 14,
-                      ),
+                          color: widget.tokens.onSurface, fontSize: 14),
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         isDense: true,
@@ -646,9 +615,7 @@ class _FactTileState extends State<_FactTile> {
                   : Text(
                       widget.fact.content,
                       style: TextStyle(
-                        color: widget.tokens.onSurface,
-                        fontSize: 14,
-                      ),
+                          color: widget.tokens.onSurface, fontSize: 14),
                     ),
             ),
             const SizedBox(width: 4),
@@ -813,9 +780,8 @@ class _InstructionsTabState extends State<_InstructionsTab> {
               hintText:
                   'e.g. I\'m a software engineer who works with Python and Flutter. I prefer technical explanations.',
               hintStyle: TextStyle(
-                color: widget.tokens.onSurface.withValues(alpha: 0.3),
-                fontSize: 13,
-              ),
+                  color: widget.tokens.onSurface.withValues(alpha: 0.3),
+                  fontSize: 13),
               border: InputBorder.none,
               isDense: true,
             ),
@@ -842,9 +808,8 @@ class _InstructionsTabState extends State<_InstructionsTab> {
               hintText:
                   'e.g. Be concise. Use bullet points where possible. Respond in casual English.',
               hintStyle: TextStyle(
-                color: widget.tokens.onSurface.withValues(alpha: 0.3),
-                fontSize: 13,
-              ),
+                  color: widget.tokens.onSurface.withValues(alpha: 0.3),
+                  fontSize: 13),
               border: InputBorder.none,
               isDense: true,
             ),
@@ -859,13 +824,11 @@ class _InstructionsTabState extends State<_InstructionsTab> {
           label: const Text('Save instructions'),
           style: FilledButton.styleFrom(
             backgroundColor: widget.tokens.primary,
-            foregroundColor: widget.cinematic
-                ? const Color(0xFF040712)
-                : Colors.white,
+            foregroundColor:
+                widget.cinematic ? const Color(0xFF040712) : Colors.white,
             minimumSize: const Size.fromHeight(48),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           ),
         ),
         if (!_unsaved) ...[
@@ -874,9 +837,8 @@ class _InstructionsTabState extends State<_InstructionsTab> {
             child: Text(
               'Changes saved automatically',
               style: TextStyle(
-                color: widget.tokens.onSurface.withValues(alpha: 0.35),
-                fontSize: 12,
-              ),
+                  color: widget.tokens.onSurface.withValues(alpha: 0.35),
+                  fontSize: 12),
             ),
           ),
         ],
@@ -919,8 +881,8 @@ class _MemoryFilterChip extends StatelessWidget {
             color: selected
                 ? activeColor.withValues(alpha: 0.14)
                 : (cinematic
-                      ? tokens.surface.withValues(alpha: 0.3)
-                      : tokens.onSurface.withValues(alpha: 0.04)),
+                    ? tokens.surface.withValues(alpha: 0.3)
+                    : tokens.onSurface.withValues(alpha: 0.04)),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: selected

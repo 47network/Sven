@@ -82,7 +82,10 @@ class _AccountPickerSheetState extends State<AccountPickerSheet> {
 
     setState(() => _switchingUserId = account.userId);
     try {
-      final result = await widget.auth.switchAccount(account.userId, pin: pin);
+      final result = await widget.auth.switchAccount(
+        account.userId,
+        pin: pin,
+      );
       if (mounted) {
         Navigator.of(context).pop();
         widget.onAccountSwitched(result);
@@ -122,25 +125,18 @@ class _AccountPickerSheetState extends State<AccountPickerSheet> {
             autofocus: true,
             decoration: InputDecoration(
               labelText: 'PIN for ${account.username}',
-              labelStyle: TextStyle(
-                color: tokens.onSurface.withValues(alpha: 0.6),
-              ),
+              labelStyle:
+                  TextStyle(color: tokens.onSurface.withValues(alpha: 0.6)),
             ),
             style: TextStyle(
-              color: tokens.onSurface,
-              fontSize: 24,
-              letterSpacing: 8,
-            ),
+                color: tokens.onSurface, fontSize: 24, letterSpacing: 8),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: Text(
-                'Cancel',
-                style: TextStyle(
-                  color: tokens.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
+              child: Text('Cancel',
+                  style: TextStyle(
+                      color: tokens.onSurface.withValues(alpha: 0.6))),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(ctx, controller.text),
@@ -159,10 +155,8 @@ class _AccountPickerSheetState extends State<AccountPickerSheet> {
         final tokens = SvenTokens.forMode(widget.visualMode);
         return AlertDialog(
           backgroundColor: tokens.surface,
-          title: Text(
-            'Remove account?',
-            style: TextStyle(color: tokens.onSurface),
-          ),
+          title: Text('Remove account?',
+              style: TextStyle(color: tokens.onSurface)),
           content: Text(
             'Remove ${account.username} from saved accounts on this device?',
             style: TextStyle(color: tokens.onSurface.withValues(alpha: 0.7)),
@@ -221,17 +215,15 @@ class _AccountPickerSheetState extends State<AccountPickerSheet> {
                 Text(
                   'Accounts',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: tokens.onSurface,
-                    fontWeight: FontWeight.w600,
-                  ),
+                        color: tokens.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
                 const Spacer(),
                 if (widget.onAddAccount != null)
                   IconButton(
-                    icon: Icon(
-                      Icons.person_add_outlined,
-                      color: tokens.onSurface,
-                    ),
+                    icon: Icon(Icons.person_add_outlined,
+                        color: tokens.onSurface),
                     tooltip: 'Add account',
                     onPressed: () {
                       Navigator.pop(context);
@@ -250,17 +242,13 @@ class _AccountPickerSheetState extends State<AccountPickerSheet> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.error_outline,
-                      color: Colors.red,
-                      size: 18,
-                    ),
+                    const Icon(Icons.error_outline,
+                        color: Colors.red, size: 18),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: Text(
-                        _error!,
-                        style: const TextStyle(color: Colors.red, fontSize: 13),
-                      ),
+                      child: Text(_error!,
+                          style:
+                              const TextStyle(color: Colors.red, fontSize: 13)),
                     ),
                   ],
                 ),
@@ -277,26 +265,22 @@ class _AccountPickerSheetState extends State<AccountPickerSheet> {
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
-                    Icon(
-                      Icons.account_circle_outlined,
-                      size: 48,
-                      color: tokens.onSurface.withValues(alpha: 0.3),
-                    ),
+                    Icon(Icons.account_circle_outlined,
+                        size: 48,
+                        color: tokens.onSurface.withValues(alpha: 0.3)),
                     const SizedBox(height: 12),
                     Text(
                       'No saved accounts',
                       style: TextStyle(
-                        color: tokens.onSurface.withValues(alpha: 0.5),
-                      ),
+                          color: tokens.onSurface.withValues(alpha: 0.5)),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Sign in and tap "Keep me signed in" to save accounts for quick switching.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: tokens.onSurface.withValues(alpha: 0.4),
-                        fontSize: 13,
-                      ),
+                          color: tokens.onSurface.withValues(alpha: 0.4),
+                          fontSize: 13),
                     ),
                   ],
                 ),
@@ -314,8 +298,7 @@ class _AccountPickerSheetState extends State<AccountPickerSheet> {
                     borderRadius: BorderRadius.circular(12),
                     child: ListTile(
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                          borderRadius: BorderRadius.circular(12)),
                       leading: CircleAvatar(
                         backgroundColor: account.isActive
                             ? tokens.primary
@@ -336,18 +319,15 @@ class _AccountPickerSheetState extends State<AccountPickerSheet> {
                       title: Text(
                         account.displayName ?? account.username,
                         style: TextStyle(
-                          color: tokens.onSurface,
-                          fontWeight: FontWeight.w500,
-                        ),
+                            color: tokens.onSurface,
+                            fontWeight: FontWeight.w500),
                       ),
                       subtitle: account.displayName != null
-                          ? Text(
-                              '@${account.username}',
+                          ? Text('@${account.username}',
                               style: TextStyle(
-                                color: tokens.onSurface.withValues(alpha: 0.5),
-                                fontSize: 13,
-                              ),
-                            )
+                                  color:
+                                      tokens.onSurface.withValues(alpha: 0.5),
+                                  fontSize: 13))
                           : null,
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -355,42 +335,34 @@ class _AccountPickerSheetState extends State<AccountPickerSheet> {
                           if (account.hasPin)
                             Padding(
                               padding: const EdgeInsets.only(right: 4),
-                              child: Icon(
-                                Icons.lock_outline,
-                                size: 16,
-                                color: tokens.onSurface.withValues(alpha: 0.4),
-                              ),
+                              child: Icon(Icons.lock_outline,
+                                  size: 16,
+                                  color:
+                                      tokens.onSurface.withValues(alpha: 0.4)),
                             ),
                           if (account.isActive)
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
+                                  horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
                                 color: tokens.primary.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Text(
-                                'Active',
-                                style: TextStyle(
-                                  color: tokens.primary,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                              child: Text('Active',
+                                  style: TextStyle(
+                                      color: tokens.primary,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600)),
                             )
                           else if (isSwitching)
                             const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
+                                width: 20,
+                                height: 20,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2))
                           else
-                            Icon(
-                              Icons.chevron_right,
-                              color: tokens.onSurface.withValues(alpha: 0.3),
-                            ),
+                            Icon(Icons.chevron_right,
+                                color: tokens.onSurface.withValues(alpha: 0.3)),
                         ],
                       ),
                       onTap: isSwitching ? null : () => _switchTo(account),

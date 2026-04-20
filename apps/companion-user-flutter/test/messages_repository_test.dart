@@ -34,31 +34,33 @@ ChatThreadSummary _thread({
   String id = 't1',
   String title = 'Test Thread',
   String lastMessage = 'last msg',
-}) => ChatThreadSummary(
-  id: id,
-  title: title,
-  lastMessage: lastMessage,
-  updatedAt: DateTime(2025, 1, 1),
-  unreadCount: 0,
-  type: 'dm',
-  messageCount: 0,
-  isPinned: false,
-  isArchived: false,
-);
+}) =>
+    ChatThreadSummary(
+      id: id,
+      title: title,
+      lastMessage: lastMessage,
+      updatedAt: DateTime(2025, 1, 1),
+      unreadCount: 0,
+      type: 'dm',
+      messageCount: 0,
+      isPinned: false,
+      isArchived: false,
+    );
 
 ChatMessage _message({
   String id = 'm1',
   String chatId = 't1',
   String text = 'hello world',
   ChatMessageStatus status = ChatMessageStatus.sent,
-}) => ChatMessage(
-  id: id,
-  chatId: chatId,
-  role: 'user',
-  text: text,
-  timestamp: DateTime(2025, 1, 1, 12),
-  status: status,
-);
+}) =>
+    ChatMessage(
+      id: id,
+      chatId: chatId,
+      role: 'user',
+      text: text,
+      timestamp: DateTime(2025, 1, 1, 12),
+      status: status,
+    );
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Thread tests
@@ -150,9 +152,7 @@ void main() {
     test('cachedMessages scoped to chatId — t1 does not pollute t2', () async {
       await repo.cacheMessage('t1', _message(id: 'm1', chatId: 't1'));
       await repo.cacheMessage(
-        't2',
-        _message(id: 'm2', chatId: 't2', text: 'from t2'),
-      );
+          't2', _message(id: 'm2', chatId: 't2', text: 'from t2'));
       expect((await repo.cachedMessages('t1')).length, 1);
       expect((await repo.cachedMessages('t2')).length, 1);
     });
@@ -202,23 +202,11 @@ void main() {
 
     test('getAllOutboxItems orders by queuedAt ascending', () async {
       await repo.enqueueOutbox(
-        id: 'o3',
-        chatId: 't1',
-        text: 'c',
-        queuedAt: 300,
-      );
+          id: 'o3', chatId: 't1', text: 'c', queuedAt: 300);
       await repo.enqueueOutbox(
-        id: 'o1',
-        chatId: 't1',
-        text: 'a',
-        queuedAt: 100,
-      );
+          id: 'o1', chatId: 't1', text: 'a', queuedAt: 100);
       await repo.enqueueOutbox(
-        id: 'o2',
-        chatId: 't1',
-        text: 'b',
-        queuedAt: 200,
-      );
+          id: 'o2', chatId: 't1', text: 'b', queuedAt: 200);
       final items = await repo.getAllOutboxItems();
       expect(items.map((i) => i.id).toList(), ['o1', 'o2', 'o3']);
     });
@@ -276,25 +264,19 @@ void main() {
       expect(threads.first.title, 'Secret Title');
     });
 
-    test(
-      'message content is encrypted at-rest but decrypted on read',
-      () async {
-        await repo.cacheMessage('t1', _message(text: 'Top secret content'));
-        final rawRows = await db.getMessagesForThread('t1');
-        expect(rawRows.first.content, isNot('Top secret content'));
-        expect(rawRows.first.content.startsWith('v2:'), isTrue);
-        final msgs = await repo.cachedMessages('t1');
-        expect(msgs.first.text, 'Top secret content');
-      },
-    );
+    test('message content is encrypted at-rest but decrypted on read',
+        () async {
+      await repo.cacheMessage('t1', _message(text: 'Top secret content'));
+      final rawRows = await db.getMessagesForThread('t1');
+      expect(rawRows.first.content, isNot('Top secret content'));
+      expect(rawRows.first.content.startsWith('v2:'), isTrue);
+      final msgs = await repo.cachedMessages('t1');
+      expect(msgs.first.text, 'Top secret content');
+    });
 
     test('outbox body is encrypted at-rest but decrypted on read', () async {
       await repo.enqueueOutbox(
-        id: 'o1',
-        chatId: 't1',
-        text: 'secure payload',
-        queuedAt: 1,
-      );
+          id: 'o1', chatId: 't1', text: 'secure payload', queuedAt: 1);
       final rawRows = await db.getAllOutboxItems();
       expect(rawRows.first.body, isNot('secure payload'));
       expect(rawRows.first.body.startsWith('v2:'), isTrue);
@@ -302,20 +284,16 @@ void main() {
       expect(items.first.body, 'secure payload');
     });
 
-    test(
-      'encryption round-trip survives multiple cacheMessage calls',
-      () async {
-        const messages = ['alpha', 'beta', 'gamma'];
-        for (var i = 0; i < messages.length; i++) {
-          await repo.cacheMessage(
-            't1',
-            _message(id: 'm$i', chatId: 't1', text: messages[i]),
-          );
-        }
-        final retrieved = await repo.cachedMessages('t1');
-        expect(retrieved.map((m) => m.text).toList(), messages);
-      },
-    );
+    test('encryption round-trip survives multiple cacheMessage calls',
+        () async {
+      const messages = ['alpha', 'beta', 'gamma'];
+      for (var i = 0; i < messages.length; i++) {
+        await repo.cacheMessage(
+            't1', _message(id: 'm$i', chatId: 't1', text: messages[i]));
+      }
+      final retrieved = await repo.cachedMessages('t1');
+      expect(retrieved.map((m) => m.text).toList(), messages);
+    });
   });
 
   group('MessagesRepository — encryption invariants', () {
@@ -324,7 +302,10 @@ void main() {
         db: _freshDb(),
         encryptionFuture: Future<DbEncryption?>.value(null),
       );
-      await expectLater(() => repo.cachedThreads(), throwsA(isA<StateError>()));
+      await expectLater(
+        () => repo.cachedThreads(),
+        throwsA(isA<StateError>()),
+      );
     });
   });
 }

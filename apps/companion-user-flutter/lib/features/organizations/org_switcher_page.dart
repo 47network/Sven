@@ -35,8 +35,7 @@ class _OrgSwitcherPageState extends State<OrgSwitcherPage> {
   Future<void> _load() async {
     try {
       final data = await widget.service.getOrganizations();
-      final orgs =
-          (data['organizations'] as List<dynamic>?)
+      final orgs = (data['organizations'] as List<dynamic>?)
               ?.cast<Map<String, dynamic>>() ??
           [];
       setState(() {
@@ -62,15 +61,15 @@ class _OrgSwitcherPageState extends State<OrgSwitcherPage> {
       });
       widget.onSwitched();
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Workspace switched')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Workspace switched')),
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to switch: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to switch: $e')),
+        );
       }
     } finally {
       if (mounted) setState(() => _switching = false);
@@ -86,92 +85,85 @@ class _OrgSwitcherPageState extends State<OrgSwitcherPage> {
       backgroundColor: tokens.scaffold,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: Text(
-          'Workspaces',
-          style: TextStyle(
-            color: tokens.onSurface,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        title: Text('Workspaces',
+            style: TextStyle(
+                color: tokens.onSurface, fontWeight: FontWeight.w600)),
         iconTheme: IconThemeData(color: tokens.onSurface),
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _orgs.isEmpty
-          ? Center(
-              child: Text(
-                'No organisations found',
-                style: TextStyle(
-                  color: tokens.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
-            )
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: _orgs.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
-              itemBuilder: (context, i) {
-                final org = _orgs[i];
-                final isActive = org['id'] == _activeOrgId;
-                final name = org['name'] as String? ?? 'Unnamed';
-                final role = org['role'] as String? ?? 'member';
-                final slug = org['slug'] as String? ?? '';
-
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  decoration: BoxDecoration(
-                    color: isActive
-                        ? tokens.primary.withValues(alpha: 0.12)
-                        : (cinematic
-                              ? Colors.white.withValues(alpha: 0.04)
-                              : Colors.white),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: isActive
-                          ? tokens.primary
-                          : tokens.frame.withValues(alpha: 0.3),
-                      width: isActive ? 1.5 : 0.5,
-                    ),
+              ? Center(
+                  child: Text(
+                    'No organisations found',
+                    style: TextStyle(
+                        color: tokens.onSurface.withValues(alpha: 0.6)),
                   ),
-                  child: ListTile(
-                    onTap: _switching
-                        ? null
-                        : () => _switch(org['id'] as String),
-                    leading: CircleAvatar(
-                      backgroundColor: tokens.primary.withValues(alpha: 0.15),
-                      child: Text(
-                        name.isNotEmpty ? name[0].toUpperCase() : '?',
-                        style: TextStyle(
-                          color: tokens.primary,
-                          fontWeight: FontWeight.w700,
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _orgs.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemBuilder: (context, i) {
+                    final org = _orgs[i];
+                    final isActive = org['id'] == _activeOrgId;
+                    final name = org['name'] as String? ?? 'Unnamed';
+                    final role = org['role'] as String? ?? 'member';
+                    final slug = org['slug'] as String? ?? '';
+
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      decoration: BoxDecoration(
+                        color: isActive
+                            ? tokens.primary.withValues(alpha: 0.12)
+                            : (cinematic
+                                ? Colors.white.withValues(alpha: 0.04)
+                                : Colors.white),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isActive
+                              ? tokens.primary
+                              : tokens.frame.withValues(alpha: 0.3),
+                          width: isActive ? 1.5 : 0.5,
                         ),
                       ),
-                    ),
-                    title: Text(
-                      name,
-                      style: TextStyle(
-                        color: tokens.onSurface,
-                        fontWeight: FontWeight.w600,
+                      child: ListTile(
+                        onTap: _switching
+                            ? null
+                            : () => _switch(org['id'] as String),
+                        leading: CircleAvatar(
+                          backgroundColor:
+                              tokens.primary.withValues(alpha: 0.15),
+                          child: Text(
+                            name.isNotEmpty ? name[0].toUpperCase() : '?',
+                            style: TextStyle(
+                              color: tokens.primary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        title: Text(
+                          name,
+                          style: TextStyle(
+                            color: tokens.onSurface,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        subtitle: Text(
+                          '$slug · $role',
+                          style: TextStyle(
+                            color: tokens.onSurface.withValues(alpha: 0.5),
+                            fontSize: 12,
+                          ),
+                        ),
+                        trailing: isActive
+                            ? Icon(Icons.check_circle_rounded,
+                                color: tokens.primary, size: 22)
+                            : null,
                       ),
-                    ),
-                    subtitle: Text(
-                      '$slug · $role',
-                      style: TextStyle(
-                        color: tokens.onSurface.withValues(alpha: 0.5),
-                        fontSize: 12,
-                      ),
-                    ),
-                    trailing: isActive
-                        ? Icon(
-                            Icons.check_circle_rounded,
-                            color: tokens.primary,
-                            size: 22,
-                          )
-                        : null,
-                  ),
-                );
-              },
-            ),
+                    );
+                  },
+                ),
     );
   }
 }

@@ -31,14 +31,11 @@ class _FatalBootstrapApp extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  '⚠ Startup Error',
-                  style: TextStyle(
-                    color: Colors.redAccent,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                const Text('⚠ Startup Error',
+                    style: TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
                 Text(
                   message,
@@ -79,8 +76,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> _initializeFirebaseAndPush() async {
   try {
     await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+        options: DefaultFirebaseOptions.currentPlatform);
     // Re-enable messaging auto-init after launch so token generation and
     // background handlers are available without blocking cold-start.
     await FirebaseMessaging.instance.setAutoInitEnabled(true);
@@ -111,29 +107,22 @@ void main() {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '⚠ Widget Error',
-                      style: TextStyle(
-                        color: Colors.redAccent,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    const Text('⚠ Widget Error',
+                        style: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
                     Text(
                       details.exceptionAsString(),
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 13,
-                      ),
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 13),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       (details.stack ?? StackTrace.empty).toString(),
-                      style: const TextStyle(
-                        color: Colors.white38,
-                        fontSize: 10,
-                      ),
+                      style:
+                          const TextStyle(color: Colors.white38, fontSize: 10),
                       maxLines: 40,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -165,14 +154,12 @@ void main() {
             stack: stackTrace,
             library: 'app-bootstrap',
             context: ErrorDescription(
-              'while initializing secure startup dependencies',
-            ),
+                'while initializing secure startup dependencies'),
           ),
         );
         runApp(
           _FatalBootstrapApp(
-            message:
-                'Startup failed:\n\n$error\n\n'
+            message: 'Startup failed:\n\n$error\n\n'
                 'Stack trace (top):\n${stackTrace.toString().split('\n').take(15).join('\n')}',
           ),
         );
@@ -189,14 +176,17 @@ void main() {
       if (dsn.isEmpty) {
         runApp(app);
       } else {
-        await SentryFlutter.init((options) {
-          options.dsn = dsn;
-          options.tracesSampleRate = 0.2;
-          // ignore: experimental_member_use
-          options.profilesSampleRate = 0.1;
-          options.attachScreenshot = true;
-          options.environment = EnvConfig.sentryEnv;
-        }, appRunner: () => runApp(app));
+        await SentryFlutter.init(
+          (options) {
+            options.dsn = dsn;
+            options.tracesSampleRate = 0.2;
+            // ignore: experimental_member_use
+            options.profilesSampleRate = 0.1;
+            options.attachScreenshot = true;
+            options.environment = EnvConfig.sentryEnv;
+          },
+          appRunner: () => runApp(app),
+        );
       }
 
       // Defer non-critical startup work to avoid blocking first frame.
@@ -211,8 +201,7 @@ void main() {
       try {
         runApp(
           _FatalBootstrapApp(
-            message:
-                'Uncaught zone error:\n\n$error\n\n'
+            message: 'Uncaught zone error:\n\n$error\n\n'
                 'Stack trace:\n${stackTrace.toString().split('\n').take(20).join('\n')}',
           ),
         );

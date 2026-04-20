@@ -224,10 +224,8 @@ class MemoryService extends ChangeNotifier {
 
   // ── Facts CRUD ──
 
-  Future<void> addFact(
-    String content, {
-    FactCategory category = FactCategory.general,
-  }) async {
+  Future<void> addFact(String content,
+      {FactCategory category = FactCategory.general}) async {
     if (content.trim().isEmpty) return;
     final fact = UserFact(
       id: '${DateTime.now().millisecondsSinceEpoch}_${_idCounter++}',
@@ -240,11 +238,8 @@ class MemoryService extends ChangeNotifier {
     await _saveFacts();
   }
 
-  Future<void> updateFact(
-    String id,
-    String newContent, {
-    FactCategory? category,
-  }) async {
+  Future<void> updateFact(String id, String newContent,
+      {FactCategory? category}) async {
     final idx = _facts.indexWhere((f) => f.id == id);
     if (idx < 0) return;
     _facts[idx] = _facts[idx].copyWith(
@@ -302,21 +297,18 @@ class MemoryService extends ChangeNotifier {
   }) async {
     if (summary.trim().isEmpty) return;
     _conversationSummaries.removeWhere((s) => s.chatId == chatId);
-    _conversationSummaries.add(
-      ConversationSummary(
-        chatId: chatId,
-        title: title,
-        summary: summary.trim(),
-        updatedAt: DateTime.now(),
-        topicKeywords: topicKeywords,
-      ),
-    );
+    _conversationSummaries.add(ConversationSummary(
+      chatId: chatId,
+      title: title,
+      summary: summary.trim(),
+      updatedAt: DateTime.now(),
+      topicKeywords: topicKeywords,
+    ));
     // Prune to max
     if (_conversationSummaries.length > _maxSummaries) {
       _conversationSummaries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-      _conversationSummaries = _conversationSummaries
-          .take(_maxSummaries)
-          .toList();
+      _conversationSummaries =
+          _conversationSummaries.take(_maxSummaries).toList();
     }
     notifyListeners();
     await _saveSummaries();
@@ -334,9 +326,8 @@ class MemoryService extends ChangeNotifier {
   String extractSummaryFromMessages(List<String> messages) {
     if (messages.isEmpty) return '';
     // Take the last 6 messages (3 turns max)
-    final recent = messages.length > 6
-        ? messages.sublist(messages.length - 6)
-        : messages;
+    final recent =
+        messages.length > 6 ? messages.sublist(messages.length - 6) : messages;
     // Produce a simple topic-based summary from the messages
     final joined = recent.join(' ').replaceAll(RegExp(r'\s+'), ' ');
     // Truncate to 300 chars
@@ -527,7 +518,7 @@ class MemoryService extends ChangeNotifier {
         'cuando',
         'porque',
         'esto',
-        'ser\u00e1',
+        'ser\u00e1'
       ],
       'French': [
         'les',
@@ -543,7 +534,7 @@ class MemoryService extends ChangeNotifier {
         'mais',
         'donc',
         's\'il',
-        'tr\u00e8s',
+        'tr\u00e8s'
       ],
       'German': [
         'die',
@@ -559,7 +550,7 @@ class MemoryService extends ChangeNotifier {
         'oder',
         'ein',
         'ich',
-        'eine',
+        'eine'
       ],
       'Portuguese': [
         'que',
@@ -572,7 +563,7 @@ class MemoryService extends ChangeNotifier {
         'isso',
         'este',
         'n\u00e3o',
-        'tamb\u00e9m',
+        'tamb\u00e9m'
       ],
       'Italian': [
         'che',
@@ -584,7 +575,7 @@ class MemoryService extends ChangeNotifier {
         'anche',
         'questo',
         'sulla',
-        'della',
+        'della'
       ],
       'Dutch': [
         'het',
@@ -596,7 +587,7 @@ class MemoryService extends ChangeNotifier {
         'aan',
         'ook',
         'maar',
-        'over',
+        'over'
       ],
       'Russian': [
         '\u044d\u0442\u043e',
@@ -604,14 +595,14 @@ class MemoryService extends ChangeNotifier {
         '\u0447\u0442\u043e',
         '\u043a\u0430\u043a',
         '\u0442\u043e',
-        '\u0432',
+        '\u0432'
       ],
       'Arabic': [
         '\u0645\u0646',
         '\u0641\u064a',
         '\u0639\u0644\u0649',
         '\u0647\u0630\u0627',
-        '\u0627\u0644',
+        '\u0627\u0644'
       ],
       'Japanese': [
         '\u3067\u3059',
@@ -619,7 +610,7 @@ class MemoryService extends ChangeNotifier {
         '\u3092',
         '\u306f',
         '\u306b',
-        '\u3044',
+        '\u3044'
       ],
       'Chinese': ['\u7684', '\u662f', '\u6211', '\u4e0d', '\u5728', '\u4e86'],
       'Korean': [
@@ -627,7 +618,7 @@ class MemoryService extends ChangeNotifier {
         '\uc6a9',
         '\u0020\uc774',
         '\ub098',
-        '\uac00',
+        '\uac00'
       ],
     };
 
@@ -680,9 +671,8 @@ class MemoryService extends ChangeNotifier {
     }
 
     // Language instruction: explicit user preference takes priority
-    final effectiveLang = _preferredLanguage != 'auto'
-        ? _preferredLanguage
-        : _detectedLanguage;
+    final effectiveLang =
+        _preferredLanguage != 'auto' ? _preferredLanguage : _detectedLanguage;
     if (effectiveLang.isNotEmpty) {
       buf.writeln(
         'The user communicates in $effectiveLang. '
@@ -705,21 +695,18 @@ class MemoryService extends ChangeNotifier {
 
     // Cross-conversation context — include recent conversation summaries
     // excluding the current one, with explicit recall instructions
-    final otherSummaries =
-        _conversationSummaries
-            .where((s) => s.chatId != currentChatId && s.summary.isNotEmpty)
-            .toList()
-          ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    final otherSummaries = _conversationSummaries
+        .where((s) => s.chatId != currentChatId && s.summary.isNotEmpty)
+        .toList()
+      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
     if (otherSummaries.isNotEmpty) {
-      buf.writeln(
-        '\nYou have memory of past conversations with this user. '
-        'When relevant, naturally reference them with phrases like '
-        '"Last time you mentioned…", "Earlier we discussed…", '
-        'or "You were working on…". '
-        'Only reference past context when it is genuinely relevant — '
-        'do not force it into every response.',
-      );
+      buf.writeln('\nYou have memory of past conversations with this user. '
+          'When relevant, naturally reference them with phrases like '
+          '"Last time you mentioned…", "Earlier we discussed…", '
+          'or "You were working on…". '
+          'Only reference past context when it is genuinely relevant — '
+          'do not force it into every response.');
       buf.writeln();
       buf.writeln('Past conversations:');
       for (final s in otherSummaries.take(5)) {
@@ -728,8 +715,8 @@ class MemoryService extends ChangeNotifier {
         final timeAgo = age.inDays > 0
             ? '${age.inDays}d ago'
             : age.inHours > 0
-            ? '${age.inHours}h ago'
-            : 'recently';
+                ? '${age.inHours}h ago'
+                : 'recently';
         final keywords = s.topicKeywords.isNotEmpty
             ? ' [topics: ${s.topicKeywords.join(", ")}]'
             : '';

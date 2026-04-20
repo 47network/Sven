@@ -30,7 +30,8 @@ class _ResponseCache {
     String mode,
     String personality,
     String responseLength,
-  ) => '$chatId|$mode|$personality|$responseLength|$text';
+  ) =>
+      '$chatId|$mode|$personality|$responseLength|$text';
 
   ChatMessage? get(
     String chatId,
@@ -86,9 +87,11 @@ bool _isRetriable(int statusCode) =>
 
 /// API client for chat operations against the gateway.
 class ChatService {
-  ChatService({required AuthenticatedClient client, MessagesRepository? repo})
-    : _client = client,
-      _repo = repo;
+  ChatService({
+    required AuthenticatedClient client,
+    MessagesRepository? repo,
+  })  : _client = client,
+        _repo = repo;
 
   static String get _apiBase => ApiBaseService.currentSync();
 
@@ -110,9 +113,8 @@ class ChatService {
       'limit': limit.toString(),
       if (offset > 0) 'offset': offset.toString(),
     };
-    final uri = Uri.parse(
-      '$_apiBase/v1/chats',
-    ).replace(queryParameters: params);
+    final uri =
+        Uri.parse('$_apiBase/v1/chats').replace(queryParameters: params);
 
     try {
       final response = await _retryOptions.retry(
@@ -166,9 +168,8 @@ class ChatService {
     final params = <String, String>{'limit': limit.toString()};
     if (before != null) params['before'] = before;
 
-    final uri = Uri.parse(
-      '$_apiBase/v1/chats/$chatId/messages',
-    ).replace(queryParameters: params);
+    final uri = Uri.parse('$_apiBase/v1/chats/$chatId/messages')
+        .replace(queryParameters: params);
 
     try {
       final response = await _retryOptions.retry(
@@ -248,9 +249,8 @@ class ChatService {
     String messageId, {
     String? feedback,
   }) async {
-    final uri = Uri.parse(
-      '$_apiBase/v1/chats/$chatId/messages/$messageId/feedback',
-    );
+    final uri =
+        Uri.parse('$_apiBase/v1/chats/$chatId/messages/$messageId/feedback');
     final response = await _retryOptions.retry(
       () => _client.putJson(uri, {'feedback': feedback}),
       retryIf: (e) => e is SocketException || e is ClientException,
@@ -269,17 +269,14 @@ class ChatService {
   ///
   /// [widgetUsername] — when provided the home-screen widget is updated with
   /// the assistant response text after a successful send.
-  Future<ChatMessage> sendMessage(
-    String chatId,
-    String text, {
-    String mode = 'balanced',
-    String responseLength = 'balanced',
-    String personality = 'friendly',
-    String? memoryContext,
-    String? widgetUsername,
-    String? replyToMessageId,
-    List<XFile>? images,
-  }) async {
+  Future<ChatMessage> sendMessage(String chatId, String text,
+      {String mode = 'balanced',
+      String responseLength = 'balanced',
+      String personality = 'friendly',
+      String? memoryContext,
+      String? widgetUsername,
+      String? replyToMessageId,
+      List<XFile>? images}) async {
     // ─ Cache read ─
     final cached = _cache.get(chatId, text, mode, personality, responseLength);
     if (cached != null) return cached;
@@ -307,10 +304,10 @@ class ChatService {
         final mime = ext == 'png'
             ? 'image/png'
             : ext == 'gif'
-            ? 'image/gif'
-            : ext == 'webp'
-            ? 'image/webp'
-            : 'image/jpeg';
+                ? 'image/gif'
+                : ext == 'webp'
+                    ? 'image/webp'
+                    : 'image/jpeg';
         imageData.add({'mime_type': mime, 'data': b64});
       }
       body['image_data'] = imageData;
@@ -362,10 +359,13 @@ class ChatService {
   }) async {
     final uri = Uri.parse('$_apiBase/v1/chats/$chatId/a2ui/interaction');
     try {
-      final response = await _client.postJson(uri, {
-        'event_type': eventType,
-        'payload': payload ?? const <String, dynamic>{},
-      });
+      final response = await _client.postJson(
+        uri,
+        {
+          'event_type': eventType,
+          'payload': payload ?? const <String, dynamic>{},
+        },
+      );
       if (response.statusCode < 200 || response.statusCode >= 300) {
         throw ChatServiceException(
           'Failed to send interaction (${response.statusCode})',
@@ -574,9 +574,10 @@ class ChatService {
 
       for (final id in toPreload) {
         // Ignore errors — preload is best-effort and must never break the UI.
-        await listMessages(
-          id,
-        ).catchError((_) => const MessagesPage(messages: [], hasMore: false));
+        await listMessages(id).catchError((_) => const MessagesPage(
+              messages: [],
+              hasMore: false,
+            ));
       }
     } catch (_) {
       // Swallow all errors — preload must never surface to the user.
@@ -587,13 +588,9 @@ class ChatService {
 
   /// Add an emoji reaction to a message.
   Future<Map<String, dynamic>> addReaction(
-    String chatId,
-    String messageId,
-    String emoji,
-  ) async {
-    final uri = Uri.parse(
-      '$_apiBase/v1/chats/$chatId/messages/$messageId/reactions',
-    );
+      String chatId, String messageId, String emoji) async {
+    final uri =
+        Uri.parse('$_apiBase/v1/chats/$chatId/messages/$messageId/reactions');
     final r = await _client.postJson(uri, {'emoji': emoji});
     if (r.statusCode != 200 && r.statusCode != 201) {
       throw ChatServiceException('Failed to add reaction (${r.statusCode})');
@@ -604,13 +601,9 @@ class ChatService {
 
   /// Remove an emoji reaction from a message.
   Future<void> removeReaction(
-    String chatId,
-    String messageId,
-    String emoji,
-  ) async {
+      String chatId, String messageId, String emoji) async {
     final uri = Uri.parse(
-      '$_apiBase/v1/chats/$chatId/messages/$messageId/reactions?emoji=${Uri.encodeComponent(emoji)}',
-    );
+        '$_apiBase/v1/chats/$chatId/messages/$messageId/reactions?emoji=${Uri.encodeComponent(emoji)}');
     final r = await _client.delete(uri);
     if (r.statusCode != 200 && r.statusCode != 204) {
       throw ChatServiceException('Failed to remove reaction (${r.statusCode})');
@@ -619,9 +612,8 @@ class ChatService {
 
   /// Get reactions for a message.
   Future<List<dynamic>> getReactions(String chatId, String messageId) async {
-    final uri = Uri.parse(
-      '$_apiBase/v1/chats/$chatId/messages/$messageId/reactions',
-    );
+    final uri =
+        Uri.parse('$_apiBase/v1/chats/$chatId/messages/$messageId/reactions');
     final r = await _client.get(uri);
     if (r.statusCode != 200) {
       throw ChatServiceException('Failed to get reactions (${r.statusCode})');
@@ -657,8 +649,7 @@ class ChatService {
     final r = await _client.get(uri);
     if (r.statusCode != 200) {
       throw ChatServiceException(
-        'Failed to get pinned messages (${r.statusCode})',
-      );
+          'Failed to get pinned messages (${r.statusCode})');
     }
     final body = jsonDecode(r.body) as Map<String, dynamic>;
     final data = body['data'] as Map<String, dynamic>? ?? {};

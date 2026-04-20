@@ -55,37 +55,34 @@ void main() {
       expect(
         elapsed.inMilliseconds,
         lessThan(200),
-        reason:
-            'MemoryService cold-start took ${elapsed.inMilliseconds}ms — '
+        reason: 'MemoryService cold-start took ${elapsed.inMilliseconds}ms — '
             'check for blocking I/O in _load()',
       );
     });
 
-    test(
-      'second load (warm SharedPreferences) is not slower than cold load',
-      () async {
-        // Prime SharedPreferences with realistic data.
-        SharedPreferences.setMockInitialValues({
-          'sven.memory.enabled': true,
-          'sven.memory.facts': List.generate(50, (i) => 'fact $i').join('\n'),
-          'sven.memory.instructions': 'Be concise. Respond in English.',
-          'sven.memory.personality_override': 'mentor',
-          'sven.memory.preferred_language': 'English',
-        });
+    test('second load (warm SharedPreferences) is not slower than cold load',
+        () async {
+      // Prime SharedPreferences with realistic data.
+      SharedPreferences.setMockInitialValues({
+        'sven.memory.enabled': true,
+        'sven.memory.facts': List.generate(50, (i) => 'fact $i').join('\n'),
+        'sven.memory.instructions': 'Be concise. Respond in English.',
+        'sven.memory.personality_override': 'mentor',
+        'sven.memory.preferred_language': 'English',
+      });
 
-        final elapsed = await _elapsedAsync(() async {
-          // ignore: unused_local_variable
-          final svc = MemoryService();
-          await Future<void>.delayed(const Duration(milliseconds: 50));
-          return;
-        });
-        expect(
-          elapsed.inMilliseconds,
-          lessThan(200),
-          reason: 'Warm MemoryService load took ${elapsed.inMilliseconds}ms',
-        );
-      },
-    );
+      final elapsed = await _elapsedAsync(() async {
+        // ignore: unused_local_variable
+        final svc = MemoryService();
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        return;
+      });
+      expect(
+        elapsed.inMilliseconds,
+        lessThan(200),
+        reason: 'Warm MemoryService load took ${elapsed.inMilliseconds}ms',
+      );
+    });
   });
 
   // ─── 2. buildSystemPrompt() throughput ────────────────────────────────────
@@ -102,8 +99,7 @@ void main() {
       expect(
         elapsed.inMilliseconds,
         lessThan(20),
-        reason:
-            'buildSystemPrompt() with 100 facts took '
+        reason: 'buildSystemPrompt() with 100 facts took '
             '${elapsed.inMilliseconds}ms',
       );
     });
@@ -221,8 +217,7 @@ void main() {
       expect(
         elapsed.inMilliseconds,
         lessThan(100),
-        reason:
-            '100k flag lookups took ${elapsed.inMilliseconds}ms — '
+        reason: '100k flag lookups took ${elapsed.inMilliseconds}ms — '
             'check isEnabled() implementation',
       );
     });

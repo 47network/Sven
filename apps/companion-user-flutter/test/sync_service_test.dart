@@ -64,93 +64,90 @@ class _InMemoryTokenStore extends TokenStore {
 // ─────────────────────────────────────────────────────────────────────────────
 
 MessagesRepository _freshRepo() => MessagesRepository.plaintextForTests(
-  db: AppDatabase(NativeDatabase.memory()),
-);
+    db: AppDatabase(NativeDatabase.memory()));
 
 AuthenticatedClient _client(int statusCode) => AuthenticatedClient(
-  client: MockClient(
-    (_) async => http.Response(
-      jsonEncode({'ok': true}),
-      statusCode,
-      headers: {'content-type': 'application/json'},
-    ),
-  ),
-  tokenStore: _InMemoryTokenStore(),
-);
+      client: MockClient((_) async => http.Response(
+            jsonEncode({'ok': true}),
+            statusCode,
+            headers: {'content-type': 'application/json'},
+          )),
+      tokenStore: _InMemoryTokenStore(),
+    );
 
 AuthenticatedClient _syncAwareClient() => AuthenticatedClient(
-  client: MockClient((req) async {
-    final path = req.url.path;
-    if (path == '/v1/chats') {
-      return http.Response(
-        jsonEncode({
-          'data': {
-            'rows': [
-              {
-                'id': 'chat-1',
-                'name': 'Thread One',
-                'type': 'dm',
-                'message_count': 1,
-                'updated_at': DateTime.now().toIso8601String(),
+      client: MockClient((req) async {
+        final path = req.url.path;
+        if (path == '/v1/chats') {
+          return http.Response(
+            jsonEncode({
+              'data': {
+                'rows': [
+                  {
+                    'id': 'chat-1',
+                    'name': 'Thread One',
+                    'type': 'dm',
+                    'message_count': 1,
+                    'updated_at': DateTime.now().toIso8601String(),
+                  },
+                ],
+                'has_more': false,
               },
-            ],
-            'has_more': false,
-          },
-        }),
-        200,
-        headers: {'content-type': 'application/json'},
-      );
-    }
+            }),
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }
 
-    if (path == '/v1/chats/chat-1/messages') {
-      return http.Response(
-        jsonEncode({
-          'data': {
-            'rows': [
-              {
-                'id': 'msg-1',
-                'role': 'assistant',
-                'text': 'hello from sync',
-                'created_at': DateTime.now().toIso8601String(),
-                'chat_id': 'chat-1',
-                'content_type': 'text',
-                'status': 'sent',
+        if (path == '/v1/chats/chat-1/messages') {
+          return http.Response(
+            jsonEncode({
+              'data': {
+                'rows': [
+                  {
+                    'id': 'msg-1',
+                    'role': 'assistant',
+                    'text': 'hello from sync',
+                    'created_at': DateTime.now().toIso8601String(),
+                    'chat_id': 'chat-1',
+                    'content_type': 'text',
+                    'status': 'sent',
+                  },
+                ],
+                'has_more': false,
               },
-            ],
-            'has_more': false,
-          },
-        }),
-        200,
-        headers: {'content-type': 'application/json'},
-      );
-    }
+            }),
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }
 
-    return http.Response(
-      jsonEncode({'error': 'not found'}),
-      404,
-      headers: {'content-type': 'application/json'},
+        return http.Response(
+          jsonEncode({'error': 'not found'}),
+          404,
+          headers: {'content-type': 'application/json'},
+        );
+      }),
+      tokenStore: _InMemoryTokenStore(),
     );
-  }),
-  tokenStore: _InMemoryTokenStore(),
-);
 
 AuthenticatedClient _failingChatsClient() => AuthenticatedClient(
-  client: MockClient((req) async {
-    if (req.url.path == '/v1/chats') {
-      return http.Response(
-        jsonEncode({'error': 'temporary'}),
-        503,
-        headers: {'content-type': 'application/json'},
-      );
-    }
-    return http.Response(
-      jsonEncode({'ok': true}),
-      200,
-      headers: {'content-type': 'application/json'},
+      client: MockClient((req) async {
+        if (req.url.path == '/v1/chats') {
+          return http.Response(
+            jsonEncode({'error': 'temporary'}),
+            503,
+            headers: {'content-type': 'application/json'},
+          );
+        }
+        return http.Response(
+          jsonEncode({'ok': true}),
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+      }),
+      tokenStore: _InMemoryTokenStore(),
     );
-  }),
-  tokenStore: _InMemoryTokenStore(),
-);
 
 // Enqueue items directly through the repository (bypasses connectivity check).
 Future<void> _enqueue(
@@ -158,12 +155,13 @@ Future<void> _enqueue(
   String id,
   String chatId,
   String text,
-) => repo.enqueueOutbox(
-  id: id,
-  chatId: chatId,
-  text: text,
-  queuedAt: DateTime.now().millisecondsSinceEpoch,
-);
+) =>
+    repo.enqueueOutbox(
+      id: id,
+      chatId: chatId,
+      text: text,
+      queuedAt: DateTime.now().millisecondsSinceEpoch,
+    );
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tests
@@ -269,20 +267,18 @@ void main() {
       svc = SyncService(repository: repo)..setClient(_client(200));
     });
 
-    test(
-      'item at _kMaxAttempts (5) is abandoned and deleted on next drain',
-      () async {
-        await _enqueue(repo, 'o1', 't1', 'old message');
-        // Manually bump attempt count to 5 (the threshold).
-        for (var i = 0; i < 5; i++) {
-          await repo.incrementOutboxAttemptCount('o1');
-        }
-        await svc.drain();
-        // Item must be silently dropped — not re-delivered.
-        expect(await repo.getAllOutboxItems(), isEmpty);
-        expect(svc.pendingCount, 0);
-      },
-    );
+    test('item at _kMaxAttempts (5) is abandoned and deleted on next drain',
+        () async {
+      await _enqueue(repo, 'o1', 't1', 'old message');
+      // Manually bump attempt count to 5 (the threshold).
+      for (var i = 0; i < 5; i++) {
+        await repo.incrementOutboxAttemptCount('o1');
+      }
+      await svc.drain();
+      // Item must be silently dropped — not re-delivered.
+      expect(await repo.getAllOutboxItems(), isEmpty);
+      expect(svc.pendingCount, 0);
+    });
 
     test('item at _kMaxAttempts - 1 (4 attempts) is still tried', () async {
       await _enqueue(repo, 'o1', 't1', 'almost dead');
@@ -357,7 +353,10 @@ void main() {
     test('swallows listChats failure without throwing', () async {
       svc.setClient(_failingChatsClient());
 
-      await expectLater(svc.refreshInboxCache(), completes);
+      await expectLater(
+        svc.refreshInboxCache(),
+        completes,
+      );
 
       final threads = await repo.cachedThreads();
       expect(threads, isEmpty);

@@ -74,7 +74,7 @@ class AppDatabase extends _$AppDatabase {
   /// Production constructor — opens (or creates) the `sven_app.sqlite3` file
   /// via drift_flutter's platform-appropriate path helper.
   AppDatabase([QueryExecutor? executor])
-    : super(executor ?? driftDatabase(name: 'sven_app'));
+      : super(executor ?? driftDatabase(name: 'sven_app'));
 
   @override
   int get schemaVersion => 2;
@@ -84,23 +84,25 @@ class AppDatabase extends _$AppDatabase {
   /// v1 → v2: add the [dbOutboxMessages] table for persistent offline queue.
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (m) async => m.createAll(),
-    onUpgrade: (m, from, to) async {
-      if (from < 2) {
-        await m.createTable(dbOutboxMessages);
-      }
-    },
-  );
+        onCreate: (m) async => m.createAll(),
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.createTable(dbOutboxMessages);
+          }
+        },
+      );
 
   // ── Thread queries ────────────────────────────────────────────────────
 
   /// All threads ordered by most-recently-updated first.
-  Future<List<DbChatThread>> getAllThreads() =>
-      (select(dbChatThreads)..orderBy([
-            (t) =>
-                OrderingTerm(expression: t.updatedAt, mode: OrderingMode.desc),
-          ]))
-          .get();
+  Future<List<DbChatThread>> getAllThreads() => (select(dbChatThreads)
+        ..orderBy([
+          (t) => OrderingTerm(
+                expression: t.updatedAt,
+                mode: OrderingMode.desc,
+              ),
+        ]))
+      .get();
 
   /// Fetch a single thread by id, or null if absent.
   Future<DbChatThread?> getThread(String id) =>
@@ -111,7 +113,9 @@ class AppDatabase extends _$AppDatabase {
       into(dbChatThreads).insertOnConflictUpdate(companion);
 
   /// Batch upsert — efficient for syncing a full page of threads.
-  Future<void> upsertThreads(List<DbChatThreadsCompanion> companions) =>
+  Future<void> upsertThreads(
+    List<DbChatThreadsCompanion> companions,
+  ) =>
       batch((b) {
         for (final c in companions) {
           b.insert(dbChatThreads, c, mode: InsertMode.insertOrReplace);
@@ -129,7 +133,9 @@ class AppDatabase extends _$AppDatabase {
   Future<List<DbChatMessage>> getMessagesForThread(String chatId) =>
       (select(dbChatMessages)
             ..where((m) => m.chatId.equals(chatId))
-            ..orderBy([(m) => OrderingTerm(expression: m.timestamp)]))
+            ..orderBy([
+              (m) => OrderingTerm(expression: m.timestamp),
+            ]))
           .get();
 
   /// Insert or fully replace a message row.
@@ -137,7 +143,9 @@ class AppDatabase extends _$AppDatabase {
       into(dbChatMessages).insertOnConflictUpdate(companion);
 
   /// Batch upsert — efficient for writing a full messages page.
-  Future<void> upsertMessages(List<DbChatMessagesCompanion> companions) =>
+  Future<void> upsertMessages(
+    List<DbChatMessagesCompanion> companions,
+  ) =>
       batch((b) {
         for (final c in companions) {
           b.insert(dbChatMessages, c, mode: InsertMode.insertOrReplace);
@@ -151,9 +159,9 @@ class AppDatabase extends _$AppDatabase {
   // ── Outbox (offline queue) queries ────────────────────────────────────────
 
   /// All outbox items ordered from oldest to newest (delivery order).
-  Future<List<DbOutboxMessage>> getAllOutboxItems() => (select(
-    dbOutboxMessages,
-  )..orderBy([(o) => OrderingTerm(expression: o.queuedAt)])).get();
+  Future<List<DbOutboxMessage>> getAllOutboxItems() => (select(dbOutboxMessages)
+        ..orderBy([(o) => OrderingTerm(expression: o.queuedAt)]))
+      .get();
 
   /// Insert a new outbox item.
   Future<void> insertOutboxItem(DbOutboxMessagesCompanion companion) =>
@@ -169,10 +177,10 @@ class AppDatabase extends _$AppDatabase {
       (delete(dbOutboxMessages)..where((o) => o.chatId.equals(chatId))).go();
 
   /// Increment the delivery attempt counter for a given item.
-  Future<void> incrementOutboxAttemptCount(String id) =>
-      (update(dbOutboxMessages)..where((o) => o.id.equals(id))).write(
-        DbOutboxMessagesCompanion.custom(
-          attemptCount: dbOutboxMessages.attemptCount + const Constant(1),
-        ),
-      );
+  Future<void> incrementOutboxAttemptCount(String id) => (update(
+        dbOutboxMessages,
+      )..where((o) => o.id.equals(id)))
+          .write(DbOutboxMessagesCompanion.custom(
+        attemptCount: dbOutboxMessages.attemptCount + const Constant(1),
+      ));
 }

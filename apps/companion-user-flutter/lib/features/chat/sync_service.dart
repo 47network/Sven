@@ -91,9 +91,8 @@ class SyncService extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
 
     // Subscribe to connectivity changes.
-    _connectivitySub = Connectivity().onConnectivityChanged.listen(
-      _onConnectivityChanged,
-    );
+    _connectivitySub =
+        Connectivity().onConnectivityChanged.listen(_onConnectivityChanged);
 
     // Drain immediately if we are already online.
     final current = await Connectivity().checkConnectivity();
@@ -129,8 +128,7 @@ class SyncService extends ChangeNotifier with WidgetsBindingObserver {
   /// Immediately attempts a drain if the device is online.
   Future<void> enqueue(String chatId, String text) async {
     if (_disposed) return;
-    final id =
-        'outbox-${chatId.hashCode.toUnsigned(32).toRadixString(16)}-'
+    final id = 'outbox-${chatId.hashCode.toUnsigned(32).toRadixString(16)}-'
         '${DateTime.now().millisecondsSinceEpoch}';
     await _repo.enqueueOutbox(
       id: id,
@@ -227,8 +225,7 @@ class SyncService extends ChangeNotifier with WidgetsBindingObserver {
           await chatService.listMessages(thread.id, limit: 30);
         } catch (e) {
           debugPrint(
-            '[SyncService] refreshInboxCache thread ${thread.id} failed: $e',
-          );
+              '[SyncService] refreshInboxCache thread ${thread.id} failed: $e');
         }
       }
     } catch (e) {
@@ -243,8 +240,7 @@ class SyncService extends ChangeNotifier with WidgetsBindingObserver {
     try {
       final base = ApiBaseService.currentSync();
       final uri = Uri.parse(
-        '$base/v1/chats/${Uri.encodeComponent(item.chatId)}/messages',
-      );
+          '$base/v1/chats/${Uri.encodeComponent(item.chatId)}/messages');
       final response = await _client!.postJson(uri, {'text': item.body});
       return response.statusCode == 200 || response.statusCode == 201;
     } catch (_) {
