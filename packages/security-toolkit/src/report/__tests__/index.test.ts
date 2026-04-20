@@ -290,13 +290,13 @@ describe('Security Report Generator', () => {
             framework: 'OWASP|A',
             control: 'A03\nInjection',
             status: 'fail',
-            detail: 'value|with|pipes\nand newline',
+            detail: 'value|with|pipes\nand newline\\path',
           },
         ],
       };
 
       const markdown = postureToMarkdown(posture);
-      expect(markdown).toContain('| OWASP\\|A | A03 Injection | FAIL | value\\|with\\|pipes and newline |');
+      expect(markdown).toContain('| OWASP\\|A | A03 Injection | FAIL | value\\|with\\|pipes and newline\\\\path |');
     });
   });
 });

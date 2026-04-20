@@ -257,6 +257,7 @@ export function generateSecurityDigest(
 export function postureToMarkdown(posture: SecurityPosture): string {
   const escapeMarkdownTableCell = (value: string): string =>
     value
+      .replace(/\\/g, '\\\\')
       .replace(/\r?\n/g, ' ')
       .replace(/\|/g, '\\|')
       .trim();
