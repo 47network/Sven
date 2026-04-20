@@ -29,9 +29,10 @@ interface Props {
   parcels: EidolonParcel[];
   selectedBuildingId?: string | null;
   selectedParcelId?: string | null;
+  selectedCitizenId?: string | null;
 }
 
-export function MiniMap({ buildings, citizens, parcels, selectedBuildingId, selectedParcelId }: Props) {
+export function MiniMap({ buildings, citizens, parcels, selectedBuildingId, selectedParcelId, selectedCitizenId }: Props) {
   const buildingDots = useMemo(
     () =>
       buildings.map((b) => {
@@ -45,9 +46,9 @@ export function MiniMap({ buildings, citizens, parcels, selectedBuildingId, sele
     () =>
       citizens.map((c) => {
         const { x, y } = toMap(c.position.x, c.position.z);
-        return { id: c.id, x, y };
+        return { id: c.id, x, y, selected: c.id === selectedCitizenId };
       }),
-    [citizens],
+    [citizens, selectedCitizenId],
   );
 
   const parcelDots = useMemo(
@@ -96,9 +97,18 @@ export function MiniMap({ buildings, citizens, parcels, selectedBuildingId, sele
           />
         ))}
 
-        {/* Citizens — tiny white dots */}
+        {/* Citizens — tiny dots, highlighted when selected */}
         {citizenDots.map((c) => (
-          <circle key={c.id} cx={c.x} cy={c.y} r={1} fill="#e2e8f0" opacity={0.5} />
+          <circle
+            key={c.id}
+            cx={c.x}
+            cy={c.y}
+            r={c.selected ? 3 : 1}
+            fill={c.selected ? '#22d3ee' : '#e2e8f0'}
+            opacity={c.selected ? 1 : 0.5}
+            stroke={c.selected ? '#ffffff' : 'none'}
+            strokeWidth={c.selected ? 0.5 : 0}
+          />
         ))}
       </svg>
     </div>

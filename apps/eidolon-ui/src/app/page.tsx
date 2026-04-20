@@ -201,6 +201,8 @@ export default function EidolonPage() {
           events={events}
           selectedParcelId={selectedParcel?.id ?? null}
           onSelectParcel={handleSelectParcel}
+          selectedCitizenId={selectedCitizenId}
+          onSelectCitizen={handleSelectCitizen}
         />
       </div>
 
@@ -210,6 +212,7 @@ export default function EidolonPage() {
         parcels={snapshot?.parcels ?? []}
         selectedBuildingId={selected?.id}
         selectedParcelId={selectedParcel?.id}
+        selectedCitizenId={selectedCitizenId}
       />
 
       <header className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-4 pointer-events-none">
@@ -259,7 +262,11 @@ export default function EidolonPage() {
       </aside>
 
       <aside className="absolute bottom-4 right-4 z-10 w-96">
-        <EventFeed events={events} />
+        <EventFeed
+          events={events}
+          onSelectCitizen={handleSelectCitizen}
+          onSelectBuilding={handleSelectBuildingById}
+        />
       </aside>
 
       {error && (

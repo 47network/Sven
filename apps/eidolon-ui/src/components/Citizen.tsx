@@ -83,10 +83,13 @@ function CitizenGeometry({ archetype }: { archetype: string | undefined }) {
 interface Props {
   citizen: EidolonCitizen;
   runtime?: EidolonAgentRuntimeSlim | null;
+  selected?: boolean;
+  onSelect?: (citizen: EidolonCitizen) => void;
 }
 
-export function Citizen({ citizen, runtime }: Props) {
+export function Citizen({ citizen, runtime, selected, onSelect }: Props) {
   const ref = useRef<Mesh>(null);
+  const ringRef = useRef<Mesh>(null);
   const seed = citizen.id.charCodeAt(citizen.id.length - 1) / 255;
 
   // Live runtime state wins over listing-derived status when available, so
@@ -123,20 +126,47 @@ export function Citizen({ citizen, runtime }: Props) {
         ? Math.abs(Math.sin(t * 4)) * 0.35
         : Math.sin(t * 2) * 0.15;
     mat.emissiveIntensity = intensityBase + intensityVariance;
+
+    // Selection ring orbits the citizen when selected.
+    if (ringRef.current) {
+      ringRef.current.position.y = ref.current.position.y;
+      ringRef.current.rotation.y = t * 1.5;
+    }
   });
 
   return (
-    <mesh
-      ref={ref}
-      position={[citizen.position.x, 1, citizen.position.z]}
-      castShadow
-    >
-      <CitizenGeometry archetype={citizen.archetype} />
-      <meshStandardMaterial
-        color={baseColor}
-        emissive={baseColor}
-        emissiveIntensity={0.8}
-      />
-    </mesh>
+    <group>
+      <mesh
+        ref={ref}
+        position={[citizen.position.x, 1, citizen.position.z]}
+        castShadow
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelect?.(citizen);
+        }}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          document.body.style.cursor = onSelect ? 'pointer' : 'default';
+        }}
+        onPointerOut={() => { document.body.style.cursor = 'default'; }}
+      >
+        <CitizenGeometry archetype={citizen.archetype} />
+        <meshStandardMaterial
+          color={baseColor}
+          emissive={baseColor}
+          emissiveIntensity={0.8}
+        />
+      </mesh>
+      {selected && (
+        <mesh
+          ref={ringRef}
+          position={[citizen.position.x, 1, citizen.position.z]}
+          rotation={[Math.PI / 2, 0, 0]}
+        >
+          <torusGeometry args={[1.1, 0.06, 8, 32]} />
+          <meshStandardMaterial color="#22d3ee" emissive="#22d3ee" emissiveIntensity={1.5} transparent opacity={0.8} />
+        </mesh>
+      )}
+    </group>
   );
 }

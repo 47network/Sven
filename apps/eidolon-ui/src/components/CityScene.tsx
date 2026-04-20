@@ -18,9 +18,11 @@ interface Props {
   events: EidolonEvent[];
   selectedParcelId?: string | null;
   onSelectParcel?: (p: import('@/lib/api').EidolonParcel) => void;
+  selectedCitizenId?: string | null;
+  onSelectCitizen?: (citizenId: string) => void;
 }
 
-function CityContent({ snapshot, selectedId, onSelect, events, selectedParcelId, onSelectParcel }: Props) {
+function CityContent({ snapshot, selectedId, onSelect, events, selectedParcelId, onSelectParcel, selectedCitizenId, onSelectCitizen }: Props) {
   const buildings = snapshot?.buildings ?? [];
   const citizens = snapshot?.citizens ?? [];
   const parcels = snapshot?.parcels ?? [];
@@ -107,7 +109,15 @@ function CityContent({ snapshot, selectedId, onSelect, events, selectedParcelId,
         // citizen.id is `agent:<agentId>`; agentStates is keyed by raw agentId.
         const rawAgentId = c.id.startsWith('agent:') ? c.id.slice('agent:'.length) : c.id;
         const runtime = agentStates?.[rawAgentId] ?? null;
-        return <Citizen key={c.id} citizen={c} runtime={runtime} />;
+        return (
+          <Citizen
+            key={c.id}
+            citizen={c}
+            runtime={runtime}
+            selected={selectedCitizenId === c.id}
+            onSelect={(cit) => onSelectCitizen?.(cit.id)}
+          />
+        );
       })}
 
       {/* Suburban parcels — clickable for inspection */}
@@ -119,7 +129,7 @@ function CityContent({ snapshot, selectedId, onSelect, events, selectedParcelId,
   );
 }
 
-export function CityScene({ snapshot, selectedId, onSelect, events, selectedParcelId, onSelectParcel }: Props) {
+export function CityScene({ snapshot, selectedId, onSelect, events, selectedParcelId, onSelectParcel, selectedCitizenId, onSelectCitizen }: Props) {
   const worldTime = useWorldTime();
   return (
     <Canvas
@@ -160,6 +170,8 @@ export function CityScene({ snapshot, selectedId, onSelect, events, selectedParc
           events={events}
           selectedParcelId={selectedParcelId}
           onSelectParcel={onSelectParcel}
+          selectedCitizenId={selectedCitizenId}
+          onSelectCitizen={onSelectCitizen}
         />
       </Suspense>
 
