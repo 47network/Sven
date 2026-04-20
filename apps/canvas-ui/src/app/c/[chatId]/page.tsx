@@ -475,6 +475,7 @@ export default function ChatTimelinePage() {
   const handleToggleSearch = useCallback(() => {
     setSearchOpen((s) => !s);
   }, []);
+
   const handleReplyTo = useCallback((message: ChatMessage) => {
     const preview = message.text?.trim() || '[non-text message]';
     const quoted = preview.length > 140 ? `${preview.slice(0, 140)}...` : preview;

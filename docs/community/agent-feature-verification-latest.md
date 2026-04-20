@@ -1,7 +1,7 @@
 # Sven Feature Verification Catalog (Community Agents)
 
-Generated: 2026-04-16T23:45:02.133Z
-Status: fail
+Generated: 2026-04-17T06:53:34.955Z
+Status: pass
 
 This catalog is generated from live endpoint checks and required doc surfaces.
 

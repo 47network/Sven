@@ -6,7 +6,7 @@ import { BlockRenderer, type CanvasBlock } from '@/components/blocks';
 import { MarkdownBlock } from '@/components/blocks/MarkdownBlock';
 import { useCreateMemory, useDeleteMemory } from '@/lib/hooks';
 import { toast } from 'sonner';
-import { memo, useState } from 'react';
+import { useState, memo } from 'react';
 
 export type ChatMessage = {
     id: string;
