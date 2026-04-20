@@ -14,6 +14,7 @@ Groups:
   release
     soak start|status|stop
     status
+    misiuni-ui-vm4-restart [restart|check]
     post-verify
     verify-post-local
     gate
@@ -90,6 +91,7 @@ case "$group" in
         esac
         ;;
       status) exec sh "$DIR/release-status.sh" "$@" ;;
+      misiuni-ui-vm4-restart) exec sh "$DIR/release-misiuni-ui-vm4-restart.sh" "$@" ;;
       post-verify) exec sh "$DIR/release-post-verify.sh" "$@" ;;
       verify-post-local) exec sh "$DIR/release-verify-post-local.sh" "$@" ;;
       gate) exec sh "$DIR/release-gate.sh" "$@" ;;
