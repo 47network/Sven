@@ -29,6 +29,7 @@ The production runtime is a standalone Next.js build launched on the Sven VM4 ho
 - PM2 process name: `sven-misiuni-ui`
 - Default local port: `3400`
 - Public domains: `misiuni.ro`, `misiuni.from.sven.systems`
+- Public SEO routes: `/robots.txt`, `/sitemap.xml`
 - Repo PM2 config auto-detects `apps/misiuni-ui/.next/standalone/apps/misiuni-ui/server.js` after a local `next build`
 - To point PM2 at a deployed standalone artifact outside the repo tree, set `SVEN_MISIUNI_UI_STANDALONE_SERVER` to the full `server.js` path
 - Checked-in VM4 restart helper: `sh scripts/ops/sh/ops.sh release misiuni-ui-vm4-restart`
