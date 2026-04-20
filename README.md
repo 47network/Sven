@@ -19,6 +19,9 @@ One platform that runs your entire AI stack — agents, voice, RAG, document int
 
 ---
 
+[![GitHub Stars](https://img.shields.io/github/stars/47network/sven?style=social)](https://github.com/47network/sven)
+[![GitHub Forks](https://img.shields.io/github/forks/47network/sven?style=social)](https://github.com/47network/sven/fork)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-0.2.1-blue)](CHANGELOG.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
