@@ -7,7 +7,7 @@ import type { EidolonSnapshot, EidolonBuilding, EidolonEvent } from '@/lib/api';
 import { Building } from './Building';
 import { Citizen } from './Citizen';
 import { ParcelGrid } from './ParcelGrid';
-import { MovementPaths } from './MovementPaths';
+import { MovementPaths, locationToPos } from './MovementPaths';
 import { useEventGlow } from '@/hooks/useEventGlow';
 import { useWorldTime } from '@/hooks/useWorldTime';
 
@@ -35,6 +35,45 @@ function CityContent({ snapshot, selectedId, onSelect, events }: Props) {
     ],
     [],
   );
+
+  // Build per-agent parcel coord lookup once per snapshot — used to resolve
+  // 'parcel' targetLocations into world space for movement paths.
+  const parcelByAgent = useMemo(() => {
+    const m = new Map<string, { x: number; z: number }>();
+    for (const p of parcels) m.set(p.agentId, { x: p.gridX, z: p.gridZ });
+    return m;
+  }, [parcels]);
+
+  // Live movement paths: any citizen whose runtime state implies travel
+  // (travelling, returning_home, exploring) gets a dashed bezier arc from its
+  // current position to its target. Skips when no targetLocation is known or
+  // when source and target collapse to the same point.
+  const movements = useMemo(() => {
+    if (!agentStates) return [];
+    const out: { id: string; agentName?: string; fromX: number; fromZ: number; toX: number; toZ: number }[] = [];
+    for (const c of citizens) {
+      const rawAgentId = c.id.startsWith('agent:') ? c.id.slice('agent:'.length) : c.id;
+      const rt = agentStates[rawAgentId];
+      if (!rt) continue;
+      if (rt.state !== 'travelling' && rt.state !== 'returning_home' && rt.state !== 'exploring') continue;
+      const target = rt.targetLocation;
+      if (!target) continue;
+      const home = parcelByAgent.get(rawAgentId);
+      const to = locationToPos(target, home?.x, home?.z);
+      const dx = to.x - c.position.x;
+      const dz = to.z - c.position.z;
+      if (dx * dx + dz * dz < 4) continue; // < 2 units apart — not worth drawing
+      out.push({
+        id: c.id,
+        agentName: c.label,
+        fromX: c.position.x,
+        fromZ: c.position.z,
+        toX: to.x,
+        toZ: to.z,
+      });
+    }
+    return out;
+  }, [agentStates, citizens, parcelByAgent]);
 
   return (
     <>
@@ -73,8 +112,8 @@ function CityContent({ snapshot, selectedId, onSelect, events }: Props) {
       {/* Suburban parcels */}
       <ParcelGrid parcels={parcels} />
 
-      {/* Animated travel paths (placeholder — movements injected via prop or API) */}
-      <MovementPaths movements={[]} />
+      {/* Live travel arcs — citizens travelling/returning_home/exploring */}
+      <MovementPaths movements={movements} />
     </>
   );
 }
