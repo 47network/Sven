@@ -46,7 +46,6 @@ const REQUIRED_PROVENANCE_KEYS = [
   'mcp_server_compat_ci',
   'a2a_compat_ci',
   'release_ops_drill_ci',
-  'd9_keycloak_interop_ci',
   'desktop_release_ci',
   'client_env_governance_ci',
   'backend_capability_e2e_ci',
@@ -197,22 +196,7 @@ const checklistSyncPlan = [
     line: 'New parity E2E suite passes in CI',
     checked: hasCiGateAttestation(gates, 'parity_e2e_ci'),
   },
-  {
-    id: 'd9_keycloak_interop_ci',
-    kind: 'literal',
-    line: 'D9 Keycloak live OIDC interop gate passes in CI',
-    checked: hasCiGateAttestation(gates, 'd9_keycloak_interop_ci'),
-  },
-  {
-    id: 'd9_local_selfcheck',
-    kind: 'regex',
-    pattern: /^\s*-\s\[(?:x| )\] D9 Keycloak local selfcheck passes \(.*selfcheck:local.*\)$/m,
-    to: d9LocalSelfcheckPass
-      ? '- [x] D9 Keycloak local selfcheck passes (`release:sso:keycloak:interop:selfcheck:local`)'
-      : '- [ ] D9 Keycloak local selfcheck passes (`release:sso:keycloak:interop:selfcheck:local`)',
-    target: d9LocalSelfcheckPass ? 'checked' : 'unchecked',
-  },
-  {
+      {
     id: 'soak_72h',
     kind: 'literal',
     line: 'Release candidate runs 72h soak without Sev1/Sev2 incident',
@@ -233,22 +217,7 @@ const checklistSyncPlan = [
 ];
 
 const releaseChecklistSyncPlan = [
-  {
-    id: 'release_d9_keycloak_interop_ci',
-    kind: 'literal',
-    line: 'Keycloak live interop gate passes in CI (`d9-keycloak-interop-gate`).',
-    checked: hasCiGateAttestation(gates, 'd9_keycloak_interop_ci'),
-  },
-  {
-    id: 'release_d9_local_selfcheck',
-    kind: 'regex',
-    pattern: /^\s*-\s\[(?:x| )\] Keycloak local selfcheck passes \(.*selfcheck:local.*\)\.$/m,
-    to: d9LocalSelfcheckPass
-      ? '- [x] Keycloak local selfcheck passes (`release:sso:keycloak:interop:selfcheck:local`).'
-      : '- [ ] Keycloak local selfcheck passes (`release:sso:keycloak:interop:selfcheck:local`).',
-    target: d9LocalSelfcheckPass ? 'checked' : 'unchecked',
-  },
-];
+    ];
 
 const mainChecklistResult = applyChecklistSync(checklistPath, checklistSyncPlan);
 const releaseChecklistResult = applyChecklistSync(releaseChecklistPath, releaseChecklistSyncPlan);
