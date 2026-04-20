@@ -121,7 +121,7 @@ services:
 
   # ── OpenSearch ───────────────────────────────────────────────────────────
   opensearch:
-    image: opensearchproject/opensearch@sha256:645d3d9390ade7ebef988d3c9bc61a6616f1863ff41efe97e2347d6bf7972504
+    image: opensearchproject/opensearch@sha256:57bd3c879ad27123a9a6cd75e2adba504189d3131d00a669f3baf9210bc4538c
     restart: unless-stopped
     environment:
       - discovery.type=single-node
