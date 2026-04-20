@@ -36,7 +36,7 @@ class _NotificationPrefsPageState extends State<NotificationPrefsPage> {
     'messages': 'Messages',
     'approvals': 'Approvals',
     'reminders': 'Reminders',
-    'trading': 'Trading Alerts',
+    'exchange': 'exchange Alerts',
     'agents': 'Agent Activity',
     'calls': 'Calls',
     'memory': 'Memory Events',

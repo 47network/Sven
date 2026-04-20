@@ -414,7 +414,7 @@ export default function EvolutionPage() {
                     className="input w-full"
                     value={wizardForm.name}
                     onChange={(e) => setWizardForm({ ...wizardForm, name: e.target.value })}
-                    placeholder="My trading strategy optimization"
+                    placeholder="My exchange strategy optimization"
                   />
                 </div>
                 <div>
@@ -425,7 +425,7 @@ export default function EvolutionPage() {
                     onChange={(e) => setWizardForm({ ...wizardForm, domain: e.target.value })}
                   >
                     <option value="">Select a domain…</option>
-                    <option value="trading_strategy">Trading Strategy</option>
+                    <option value="exchange_strategy">exchange Strategy</option>
                     <option value="rag_retrieval">RAG Retrieval</option>
                     <option value="model_routing">Model Routing</option>
                     <option value="prompt_engineering">Prompt Engineering</option>

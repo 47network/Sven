@@ -45,10 +45,10 @@ void main() {
       expect(target, isNull);
     });
 
-    test('parses trading deep link', () {
-      final target = parseDeepLink(Uri.parse('sven://trading'));
+    test('parses exchange deep link', () {
+      final target = parseDeepLink(Uri.parse('sven://exchange'));
       expect(target, isNotNull);
-      expect(target!.kind, 'trading');
+      expect(target!.kind, 'exchange');
       expect(target.chatId, isNull);
     });
   });

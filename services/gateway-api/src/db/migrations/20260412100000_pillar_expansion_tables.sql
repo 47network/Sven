@@ -1,6 +1,6 @@
 -- Migration: Create pillar expansion tables
 -- Supports: Design (P1), Model Router (P2), Documents (P3), Quantum (P4),
---           Security (P5), Trading (P6), Marketing (P7), Compute Mesh (P8)
+--           Security (P5), exchange (P6), Marketing (P7), Compute Mesh (P8)
 
 BEGIN;
 
@@ -93,9 +93,9 @@ CREATE TABLE IF NOT EXISTS security_scans (
 CREATE INDEX IF NOT EXISTS idx_security_scans_org ON security_scans(org_id, type, created_at DESC);
 
 -- ═══════════════════════════════════════════════════════════════════════
--- Pillar 6 — Trading Platform
+-- Pillar 6 — exchange Platform
 -- ═══════════════════════════════════════════════════════════════════════
-CREATE TABLE IF NOT EXISTS trading_orders (
+CREATE TABLE IF NOT EXISTS exchange_orders (
   id            UUID PRIMARY KEY,
   org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
   user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -111,9 +111,9 @@ CREATE TABLE IF NOT EXISTS trading_orders (
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at    TIMESTAMPTZ
 );
-CREATE INDEX IF NOT EXISTS idx_trading_orders_org ON trading_orders(org_id, status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_exchange_orders_org ON exchange_orders(org_id, status, created_at DESC);
 
-CREATE TABLE IF NOT EXISTS trading_positions (
+CREATE TABLE IF NOT EXISTS exchange_positions (
   id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
   user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -127,9 +127,9 @@ CREATE TABLE IF NOT EXISTS trading_positions (
   opened_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   closed_at        TIMESTAMPTZ
 );
-CREATE INDEX IF NOT EXISTS idx_trading_positions_org ON trading_positions(org_id, status);
+CREATE INDEX IF NOT EXISTS idx_exchange_positions_org ON exchange_positions(org_id, status);
 
-CREATE TABLE IF NOT EXISTS trading_performance (
+CREATE TABLE IF NOT EXISTS exchange_performance (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
   total_trades    INTEGER NOT NULL DEFAULT 0,
@@ -139,9 +139,9 @@ CREATE TABLE IF NOT EXISTS trading_performance (
   sharpe_ratio    NUMERIC(10,4) NOT NULL DEFAULT 0,
   updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE UNIQUE INDEX IF NOT EXISTS idx_trading_performance_org ON trading_performance(org_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_exchange_performance_org ON exchange_performance(org_id);
 
-CREATE TABLE IF NOT EXISTS trading_predictions (
+CREATE TABLE IF NOT EXISTS exchange_predictions (
   id          UUID PRIMARY KEY,
   org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
   user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -151,9 +151,9 @@ CREATE TABLE IF NOT EXISTS trading_predictions (
   ensemble    JSONB NOT NULL DEFAULT '{}',
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE INDEX IF NOT EXISTS idx_trading_predictions_org ON trading_predictions(org_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_exchange_predictions_org ON exchange_predictions(org_id, created_at DESC);
 
-CREATE TABLE IF NOT EXISTS trading_news_events (
+CREATE TABLE IF NOT EXISTS exchange_news_events (
   id              UUID PRIMARY KEY,
   org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
   headline        TEXT NOT NULL,
@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS trading_news_events (
   entities        JSONB NOT NULL DEFAULT '[]',
   created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE INDEX IF NOT EXISTS idx_trading_news_org ON trading_news_events(org_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_exchange_news_org ON exchange_news_events(org_id, created_at DESC);
 
 -- ═══════════════════════════════════════════════════════════════════════
 -- Pillar 7 — Marketing Intelligence
