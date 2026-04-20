@@ -374,7 +374,7 @@ jobs:
           output-file: docs/release/status/release-sbom-install-cmd.spdx.json
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@v3.8.1
+        uses: sigstore/cosign-installer@v4.1.1
 
       - name: Keyless sign SBOM blob
         continue-on-error: true
