@@ -10,7 +10,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
-- **Misiuni Public UI Base** (`apps/misiuni-ui`, VM4 PM2 port 3400): New Next.js 15 launch surface for `misiuni.ro` and `misiuni.from.sven.systems`, with a production health endpoint, public-facing rollout narrative, and PM2 runtime wiring for the Sven app host.
+- **Misiuni Public UI Base** (`apps/misiuni-ui`, VM4 PM2 port 3400): New Next.js 15 launch surface for `misiuni.ro` and `misiuni.from.sven.systems`, with a production health endpoint, premium public coming-soon narrative, indexable SEO metadata/routes, and PM2 runtime wiring for the Sven app host.
 - **Autonomous Economy — Batch 23**: Misiuni.ro Platform (AI Hires Humans).
   - **Migration**: 7 new tables — misiuni_workers, misiuni_tasks, misiuni_bids, misiuni_proofs, misiuni_payments, misiuni_reviews, misiuni_disputes. 27 indexes, CHECK constraints, JSONB metadata columns.
   - **Shared Types** (`packages/shared/src/misiuni.ts`): 15+ type unions (MisiuniTaskCategory, MisiuniProofType, MisiuniTaskStatus, WorkerAvailability, BidStatus, ProofVerificationStatus, etc.), 7 interfaces, utility functions (calculatePlatformFee, calculateWorkerPayout, canTransitionTask, haversineKm), 42 Romanian counties, platform constants.
