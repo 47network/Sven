@@ -14,12 +14,39 @@ function resolveFirstExisting(paths) {
 }
 
 function resolveSoakRuntimeEnv() {
+  // The soak runtime file (docs/release/status/soak-72h-run.json) is written
+  // by the 72-hour soak harness and points at ephemeral test containers
+  // (random ports). Production processes must NEVER inherit those values —
+  // a stale soak file with status="running" but expired expected_end_at
+  // routes prod traffic at a port that no longer exists (ECONNREFUSED).
+  //
+  // Defense in depth: this lookup is now opt-in only, AND validates that the
+  // recorded soak window is still active, AND verifies the recorded soak PID
+  // is alive. Any check failing → empty result, falling back to the explicit
+  // env-var chain (SVEN_RUNTIME_DATABASE_URL → DATABASE_URL → safe default).
+  if (process.env.SVEN_PM2_USE_SOAK_RUNTIME !== '1') {
+    return { databaseUrl: '', natsUrl: '' };
+  }
   try {
     const runPath = path.resolve(__dirname, '..', '..', 'docs', 'release', 'status', 'soak-72h-run.json');
     if (!fs.existsSync(runPath)) return { databaseUrl: '', natsUrl: '' };
     const raw = fs.readFileSync(runPath, 'utf8');
     const parsed = JSON.parse(raw);
     if (String(parsed?.status || '') !== 'running') return { databaseUrl: '', natsUrl: '' };
+    // Freshness check: expected_end_at must be in the future (with 5min grace).
+    const expectedEnd = parsed?.expected_end_at ? Date.parse(String(parsed.expected_end_at)) : NaN;
+    if (!Number.isFinite(expectedEnd) || expectedEnd < Date.now() - 5 * 60 * 1000) {
+      return { databaseUrl: '', natsUrl: '' };
+    }
+    // Liveness check: recorded soak_pid must still exist.
+    const soakPid = Number(parsed?.soak_pid);
+    if (Number.isFinite(soakPid) && soakPid > 0) {
+      try {
+        process.kill(soakPid, 0); // throws if PID dead
+      } catch {
+        return { databaseUrl: '', natsUrl: '' };
+      }
+    }
     return {
       databaseUrl: String(parsed?.database_url || '').trim(),
       natsUrl: String(parsed?.nats_url || '').trim(),
