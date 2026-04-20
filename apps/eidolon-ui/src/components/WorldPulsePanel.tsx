@@ -12,7 +12,7 @@
 // for Romanian operators via formatBucharestTime().
 // ---------------------------------------------------------------------------
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { formatBucharestTime } from '@/lib/time';
 import type { EidolonWorldOverview, EidolonWorldTick } from '@/lib/api';
 
@@ -74,6 +74,63 @@ function relativeAge(iso: string | null): string {
   return `${Math.floor(ms / 3_600_000)}h ago`;
 }
 
+// ---------------------------------------------------------------------------
+// NextTickCountdown — estimates the next tick ETA from the mean interval of
+// the last few completed ticks (most recent first in `recentTicks`). Updates
+// the countdown every second locally; falls back to '—' when fewer than two
+// ticks are known. Shows 'due now' once ETA is reached so operators can spot
+// stalled tick loops at a glance.
+// ---------------------------------------------------------------------------
+function NextTickCountdown({ ticks }: { ticks: EidolonWorldTick[] }) {
+  const meanIntervalMs = useMemo(() => {
+    if (ticks.length < 2) return null;
+    // recentTicks is newest-first; convert to chronological order before
+    // computing consecutive deltas. Use up to the last 5 intervals to smooth
+    // out jitter without lagging far behind cadence changes.
+    const ordered = [...ticks].reverse().slice(-6);
+    const deltas: number[] = [];
+    for (let i = 1; i < ordered.length; i += 1) {
+      const a = new Date(ordered[i - 1].startedAt).getTime();
+      const b = new Date(ordered[i].startedAt).getTime();
+      if (Number.isFinite(a) && Number.isFinite(b) && b > a) deltas.push(b - a);
+    }
+    if (deltas.length === 0) return null;
+    return deltas.reduce((s, v) => s + v, 0) / deltas.length;
+  }, [ticks]);
+
+  const lastStartMs = ticks[0] ? new Date(ticks[0].startedAt).getTime() : null;
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  if (!meanIntervalMs || !lastStartMs) {
+    return <span className="text-[10px] text-gray-500">next: —</span>;
+  }
+  const etaMs = lastStartMs + meanIntervalMs - now;
+  if (etaMs <= 0) {
+    return (
+      <span
+        className="text-[10px] text-amber-300"
+        title={`mean interval ${(meanIntervalMs / 1000).toFixed(1)}s`}
+      >
+        next: due now
+      </span>
+    );
+  }
+  const secs = Math.ceil(etaMs / 1000);
+  const label = secs >= 60 ? `${Math.floor(secs / 60)}m ${secs % 60}s` : `${secs}s`;
+  return (
+    <span
+      className="text-[10px] text-gray-400"
+      title={`mean interval ${(meanIntervalMs / 1000).toFixed(1)}s`}
+    >
+      next: {label}
+    </span>
+  );
+}
+
 export function WorldPulsePanel({ world }: Props) {
   // Tracks which interaction row is expanded to show full message + participants.
   // Local component state — no parent wiring needed.
@@ -104,16 +161,19 @@ export function WorldPulsePanel({ world }: Props) {
       <div>
         <div className="text-[10px] uppercase tracking-[0.3em] text-gray-500">world pulse</div>
         {tick ? (
-          <div className="mt-1 flex items-baseline justify-between">
+          <div className="mt-1 flex items-baseline justify-between gap-2">
             <span className="text-sm font-semibold text-brand-400">
               tick #{tick.tickNo}
             </span>
-            <span
-              className="text-[10px] text-gray-500"
-              title={`Romanian time (Europe/Bucharest) · ${relativeAge(tick.startedAt)}`}
-            >
-              {formatBucharestTime(tick.startedAt)}
-            </span>
+            <div className="flex items-baseline gap-2">
+              <NextTickCountdown ticks={world.recentTicks} />
+              <span
+                className="text-[10px] text-gray-500"
+                title={`Romanian time (Europe/Bucharest) · ${relativeAge(tick.startedAt)}`}
+              >
+                {formatBucharestTime(tick.startedAt)}
+              </span>
+            </div>
           </div>
         ) : (
           <div className="text-xs text-gray-500 mt-1">no ticks yet</div>

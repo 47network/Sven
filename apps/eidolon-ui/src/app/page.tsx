@@ -12,6 +12,8 @@ const CityScene = dynamic(
 import { EventFeed } from '@/components/EventFeed';
 import { WorldPulsePanel } from '@/components/WorldPulsePanel';
 import { CitizenStripPanel } from '@/components/CitizenStripPanel';
+import { WorldTimeBadge } from '@/components/WorldTimeBadge';
+import { WorldTimeBadge } from '@/components/WorldTimeBadge';
 import { useEidolonEvents } from '@/hooks/useEidolonEvents';
 import { fetchSnapshot, type EidolonBuilding, type EidolonSnapshot } from '@/lib/api';
 
@@ -20,9 +22,33 @@ const DEFAULT_ORG = process.env.NEXT_PUBLIC_DEFAULT_ORG || 'default';
 
 export default function EidolonPage() {
   const [snapshot, setSnapshot] = useState<EidolonSnapshot | null>(null);
-  const [selected, setSelected] = useState<EidolonBuilding | null>(null);
+  const [selectedCitizenId, setSelectedCitizenId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const events = useEidolonEvents();
+
+  // Selecting a building clears any citizen selection (and vice versa) so the
+  // single InspectorPanel slot is never split between two contexts.
+  const handleSelectBuilding = useCallback((b: EidolonBuilding | null) => {
+    setSelected(b);
+    if (b) setSelectedCitizenId(null);
+  }, []);
+  const handleSelectCitizen = useCallback((id: string) => {
+    setSelectedCitizenId((prev) => (prev === id ? null : id));
+    setSelected(null);
+  }, []ectedCitizenId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const events = useEidolonEvents();
+
+  // Selecting a building clears any citizen selection (and vice versa) so the
+  // single InspectorPanel slot is never split between two contexts.
+  const handleSelectBuilding = useCallback((b: EidolonBuilding | null) => {
+    setSelected(b);
+    if (b) setSelectedCitizenId(null);
+  }, []);
+  const handleSelectCitizen = useCallback((id: string) => {
+    setSelectedCitizenId((prev) => (prev === id ? null : id));
+    setSelected(null);
+  }, []);
 
   const load = useCallback(async (signal?: AbortSignal) => {
     try {
@@ -47,31 +73,56 @@ export default function EidolonPage() {
     if (!snapshot) return [];
     const revenue = snapshot.buildings.reduce(
       (acc, b) => acc + (b.metrics.revenueUsd ?? 0),
-      0,
-    );
-    return [
-      { label: 'Buildings', value: String(snapshot.buildings.length) },
-      { label: 'Citizens', value: String(snapshot.citizens.length) },
-      { label: 'Revenue', value: `$${revenue.toFixed(2)}` },
-      { label: 'Treasury', value: `$${treasury?.totalBalanceUsd.toFixed(2) ?? '0.00'}` },
+      0,handleSelectBuilding} events={events} />
+      </div>
+
+      <header className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-4 pointer-events-none">
+        <div className="flex items-center gap-3">
+          <div className="glass-card px-4 py-2 pointer-events-auto">
+            <div className="text-[10px] uppercase tracking-[0.3em] text-gray-500">eidolon</div>
+            <div className="text-sm font-semibold text-brand-400">Sven · Autonomous Economy</div>
+          </div>
+          <WorldTimeBadge /
     ];
   }, [snapshot, treasury]);
 
   return (
     <main className="relative h-screen w-screen overflow-hidden">
       <div className="absolute inset-0">
-        <CityScene snapshot={snapshot} selectedId={selected?.id ?? null} onSelect={setSelected} events={events} />
+        <CityScene snapshot={snapshot} selectedId={selected?.id ?? null} onSelect={handleSelectBuilding} events={events} />
       </div>
 
       <header className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-4 pointer-events-none">
-        <div className="glass-card px-4 py-2 pointer-events-auto">
-          <div className="text-[10px] uppercase tracking-[0.3em] text-gray-500">eidolon</div>
-          <div className="text-sm font-semibold text-brand-400">Sven · Autonomous Economy</div>
-        </div>
-        <div className="glass-card flex divide-x divide-white/5 pointer-events-auto">
-          {headlineMetrics.map((m) => (
-            <div key={m.label} className="px-4 py-2">
-              <div className="text-[10px] uppercase tracking-wider text-gray-500">{m.label}</div>
+        <div className="flex items-center gap-3">
+          <div className="glass-card px-4 py-2 pointer-events-auto">
+            <div className="text-[10px] uppercase tracking-[0.3em] text-gray-500">eidolon</div>
+            <div className="text-sm font-semibold text-brand-400">Sven · Autonomous Economy</div>
+          </div>
+          <WorldTimeBadge />
+          selectedId={selectedCitizenId}
+          onSelect={handleSelectCitizen}
+        />
+      </aside>
+
+      <aside className="absolute bottom-4 left-4 z-10 w-80 space-y-3">
+        <InspectorPanel
+          building={selected}
+          citizen={
+            selectedCitizenId
+              ? snapshot?.citizens.find((c) => c.id === selectedCitizenId) ?? null
+              : null
+          }
+          citizenRuntime={
+            selectedCitizenId
+              ? snapshot?.world?.agentStates?.[
+                  selectedCitizenId.startsWith('agent:')
+                    ? selectedCitizenId.slice('agent:'.length)
+                    : selectedCitizenId
+                ] ?? null
+              : null
+          }
+          onClose={() => setSelectedCitizenId(null)}
+       ppercase tracking-wider text-gray-500">{m.label}</div>
               <div className="text-sm font-semibold text-gray-100">{m.value}</div>
             </div>
           ))}
@@ -83,11 +134,30 @@ export default function EidolonPage() {
         <CitizenStripPanel
           citizens={snapshot?.citizens ?? []}
           agentStates={snapshot?.world?.agentStates ?? null}
+          selectedId={selectedCitizenId}
+          onSelect={handleSelectCitizen}
         />
       </aside>
 
       <aside className="absolute bottom-4 left-4 z-10 w-80 space-y-3">
-        <InspectorPanel building={selected} />
+        <InspectorPanel
+          building={selected}
+          citizen={
+            selectedCitizenId
+              ? snapshot?.citizens.find((c) => c.id === selectedCitizenId) ?? null
+              : null
+          }
+          citizenRuntime={
+            selectedCitizenId
+              ? snapshot?.world?.agentStates?.[
+                  selectedCitizenId.startsWith('agent:')
+                    ? selectedCitizenId.slice('agent:'.length)
+                    : selectedCitizenId
+                ] ?? null
+              : null
+          }
+          onClose={() => setSelectedCitizenId(null)}
+        />
       </aside>
 
       <aside className="absolute bottom-4 right-4 z-10 w-96">
