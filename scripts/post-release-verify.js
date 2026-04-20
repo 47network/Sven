@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import pg from 'pg';
 
 const RAW_API_URL = String(process.env.API_URL || '').trim();
 const DATABASE_URL = process.env.DATABASE_URL || '';
@@ -96,9 +97,7 @@ async function run() {
       }),
     );
   } else {
-    const pg = await import('pg');
-    const PgClient = pg.default?.Client || pg.Client;
-    const client = new PgClient({ connectionString: DATABASE_URL });
+    const client = new pg.Client({ connectionString: DATABASE_URL });
     try {
       await client.connect();
 

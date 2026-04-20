@@ -183,7 +183,6 @@ function main() {
   const mobileReadiness = readJson('docs/release/status/mobile-release-readiness-latest.json');
 
   const summary = {
-    status: finalSignoff?.status || 'pass',
     generated_at: new Date().toISOString(),
     release_id: releaseId,
     head_sha: headSha,

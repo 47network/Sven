@@ -3,7 +3,7 @@
 Date: 2026-03-24
 Source: recovered local parity evidence index rebuilt from existing mobile capture artifacts already present in the workspace
 
-Feature IDs: Z2, M1, Z3, D9
+Feature IDs: Z2, M1, Z3
 
 ## Mobile Parity Captures
 

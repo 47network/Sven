@@ -382,7 +382,6 @@ async function main() {
   ];
 
   const summary = {
-    status: rollout?.status || 'pass',
     generated_at: new Date().toISOString(),
     release_id: releaseId,
     head_sha: headSha,

@@ -220,7 +220,6 @@ export function applyTemporalDecay(
   score: number,
   createdAt: string,
   decayFactor: number,
-  // curve: 'linear' | 'exponential' | 'step' (plus 'quantum_fade' with quantumParams)
   curve: DecayCurve = 'exponential',
   stepDays = 7,
   quantumParams?: {

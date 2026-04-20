@@ -102,7 +102,6 @@ function main() {
   );
 
   const metrics = {
-    status: 'pass',
     generated_at: new Date().toISOString(),
     metrics: {
       migrations_sql_files: migrationFiles.length,

@@ -1,7 +1,7 @@
 module.exports = {
-  preset: 'ts-jest',
+  preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
-  coverageProvider: 'v8',
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.d.ts',
@@ -9,10 +9,10 @@ module.exports = {
   ],
   coverageThreshold: {
     global: {
-      branches: 50,
-      functions: 25,
-      lines: 5,
-      statements: 5,
+      branches: 35,
+      functions: 40,
+      lines: 45,
+      statements: 45,
     },
   },
   testMatch: [
@@ -34,6 +34,7 @@ module.exports = {
   transform: {
     '^.+\\.[tj]sx?$': ['ts-jest', {
       tsconfig: 'tsconfig.jest.json',
+      useESM: true,
       diagnostics: false,
     }],
   },

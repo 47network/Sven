@@ -75,7 +75,6 @@ export default function ComposerBar({
                         type="button"
                         className="ml-2 rounded px-2 py-0.5 text-cyan-200 hover:bg-cyan-300/20"
                         onClick={onClearReply}
-                        aria-label="Clear reply draft"
                     >
                         clear
                     </button>

@@ -28,6 +28,7 @@ function runCmd(cwd, args, env = process.env) {
 
 function runJestInGateway(testPath) {
   return runCmd(gatewayDir, [
+    '--experimental-vm-modules',
     jestBin,
     '--config',
     'jest.config.cjs',

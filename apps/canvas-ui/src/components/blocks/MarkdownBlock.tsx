@@ -1,6 +1,5 @@
 'use client';
 
-import { memo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -12,7 +11,7 @@ interface MarkdownBlockProps {
 
 const LATEX_PATTERN = /\$\$[\s\S]+?\$\$|\$(?!\s)(?:\\.|[^$\n\\])+\$/;
 
-export const MarkdownBlock = memo(function MarkdownBlock({ content }: MarkdownBlockProps) {
+export function MarkdownBlock({ content }: MarkdownBlockProps) {
   const text = typeof content === 'string' ? content : String(content);
   const hasMath = LATEX_PATTERN.test(text);
 
@@ -39,4 +38,4 @@ export const MarkdownBlock = memo(function MarkdownBlock({ content }: MarkdownBl
       </ReactMarkdown>
     </div>
   );
-});
+}

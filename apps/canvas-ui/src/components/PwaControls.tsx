@@ -126,7 +126,6 @@ export default function PwaControls({ compact = false }: { compact?: boolean }) 
         onClick={() => void installApp()}
         className="btn btn-sm btn-secondary w-full justify-center"
         title="Install PWA"
-        aria-label="Install Sven Canvas"
       >
         <Download className="h-3.5 w-3.5" />
         {!compact && <span>Install</span>}
@@ -137,7 +136,6 @@ export default function PwaControls({ compact = false }: { compact?: boolean }) 
           onClick={() => void disablePush()}
           className="btn btn-sm w-full justify-center border border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-300 dark:hover:bg-amber-950"
           title="Disable notifications"
-          aria-label="Disable notifications"
         >
           <BellOff className="h-3.5 w-3.5" />
           {!compact && <span>Mute</span>}
@@ -147,7 +145,6 @@ export default function PwaControls({ compact = false }: { compact?: boolean }) 
           onClick={() => void enablePush()}
           className="btn btn-sm btn-primary w-full justify-center"
           title="Enable notifications"
-          aria-label="Enable notifications"
           disabled={permission === 'denied'}
         >
           <Bell className="h-3.5 w-3.5" />
