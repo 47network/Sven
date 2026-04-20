@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "@sven/shared": ["../../packages/shared/src/index.ts"],
+      "@sven/shared/*": ["../../packages/shared/src/*"],
+      "@sven/compute-mesh": ["../../packages/compute-mesh/src/index.ts"],
+      "@sven/compute-mesh/*": ["../../packages/compute-mesh/src/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "references": [
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/compute-mesh" }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "name": "@sven/model-router",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Multi-model inference routing, model registry, benchmarking, agency orchestration, fleet monitoring, and VRAM budget management for Sven.",
+  "exports": {
+    "./registry": {
+      "types": "./src/registry/index.ts",
+      "import": "./dist/registry/index.js",
+      "default": "./dist/registry/index.js"
+    },
+    "./router": {
+      "types": "./src/router/index.ts",
+      "import": "./dist/router/index.js",
+      "default": "./dist/router/index.js"
+    },
+    "./agency": {
+      "types": "./src/agency/index.ts",
+      "import": "./dist/agency/index.js",
+      "default": "./dist/agency/index.js"
+    },
+    "./benchmark": {
+      "types": "./src/benchmark/index.ts",
+      "import": "./dist/benchmark/index.js",
+      "default": "./dist/benchmark/index.js"
+    },
+    "./fleet": {
+      "types": "./src/fleet/index.ts",
+      "import": "./dist/fleet/index.js",
+      "default": "./dist/fleet/index.js"
+    },
+    "./deploy": {
+      "types": "./src/deploy/index.ts",
+      "import": "./dist/deploy/index.js",
+      "default": "./dist/deploy/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "node ../../node_modules/jest/bin/jest.js --config jest.config.cjs --passWithNoTests",
+    "test:coverage": "node ../../node_modules/jest/bin/jest.js --config jest.config.cjs --coverage"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "typescript": "catalog:"
+  }
+}

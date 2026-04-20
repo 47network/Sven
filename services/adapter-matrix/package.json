@@ -1,0 +1,21 @@
+{
+  "name": "@sven/adapter-matrix",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "@sven/shared": "workspace:*",
+    "fake-indexeddb": "^6.2.5",
+    "matrix-js-sdk": "^38.4.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
+}

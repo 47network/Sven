@@ -1,0 +1,14 @@
+{
+  "gateway_url": "http://127.0.0.1:3999",
+  "gateway": {
+    "cors_origin": "*"
+  },
+  "auth": {
+    "cookie_secret": "short",
+    "cookie_secure": false,
+    "admin_password": "changeme"
+  },
+  "secrets": {
+    "api_key": "plaintext-secret"
+  }
+}

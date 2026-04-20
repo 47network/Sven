@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+.next/
+out/
+coverage/
+tmp/
+*.min.js
+*.d.ts
+src-tauri/target/

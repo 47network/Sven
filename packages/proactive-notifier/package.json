@@ -1,0 +1,40 @@
+{
+  "name": "@sven/proactive-notifier",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Proactive notification engine — lets Sven autonomously reach out via Slack, Discord, WhatsApp, or any adapter channel",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./triggers": {
+      "types": "./src/triggers/index.ts",
+      "import": "./dist/triggers/index.js",
+      "default": "./dist/triggers/index.js"
+    },
+    "./channels": {
+      "types": "./src/channels/index.ts",
+      "import": "./dist/channels/index.js",
+      "default": "./dist/channels/index.js"
+    },
+    "./engine": {
+      "types": "./src/engine/index.ts",
+      "import": "./dist/engine/index.js",
+      "default": "./dist/engine/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.20.0",
+    "@types/uuid": "^10.0.0",
+    "nats": "^2.29.3",
+    "pg": "^8.20.0",
+    "uuid": "^10.0.0"
+  }
+}

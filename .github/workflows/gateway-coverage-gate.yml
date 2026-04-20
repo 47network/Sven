@@ -1,0 +1,60 @@
+name: gateway-coverage-gate
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'services/gateway-api/**'
+      - 'scripts/coverage-gate-check.cjs'
+      - '.github/workflows/gateway-coverage-gate.yml'
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'services/gateway-api/**'
+      - 'scripts/coverage-gate-check.cjs'
+      - '.github/workflows/gateway-coverage-gate.yml'
+
+
+permissions:
+  contents: read
+jobs:
+  coverage-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enable corepack
+        run: corepack enable
+
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared and pillar packages
+        run: |
+          pnpm --filter ./packages/shared run build
+          for pkg in compute-mesh model-router security-toolkit document-intel marketing-intel proactive-notifier quantum-sim design-system; do
+            pnpm --filter ./packages/$pkg run build
+          done
+
+      - name: Run gateway tests with coverage
+        run: pnpm --filter ./services/gateway-api run test -- --coverage --coverageReporters=json-summary --runInBand
+
+      - name: Validate gateway coverage gate config
+        continue-on-error: true
+        run: pnpm run test:gateway:coverage:gate
+
+      - name: Upload gateway coverage status artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gateway-coverage-status
+          path: |
+            services/gateway-api/coverage/coverage-summary.json
+            docs/release/status/gateway-coverage-gate-latest.json
+            docs/release/status/gateway-coverage-gate-latest.md

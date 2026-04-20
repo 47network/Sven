@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "types": []
+  },
+  "references": [
+    { "path": "packages/shared" },
+    { "path": "packages/compute-mesh" },
+    { "path": "packages/design-system" },
+    { "path": "packages/document-intel" },
+    { "path": "packages/marketing-intel" },
+    { "path": "packages/model-router" },
+    { "path": "packages/proactive-notifier" },
+    { "path": "packages/quantum-sim" },
+    { "path": "packages/security-toolkit" },
+    { "path": "services/gateway-api" },
+    { "path": "services/agent-runtime" },
+    { "path": "services/registry-worker" },
+    { "path": "services/skill-runner" },
+    { "path": "services/rag-indexer" },
+    { "path": "services/rag-nas-ingestor" },
+    { "path": "services/rag-git-ingestor" },
+    { "path": "services/rag-notes-ingestor" },
+    { "path": "services/notification-service" },
+    { "path": "services/wake-word" },
+    { "path": "services/workflow-executor" },
+    { "path": "services/compute-mesh" },
+    { "path": "services/model-router" },
+    { "path": "services/security-toolkit" },
+    { "path": "services/document-intel" },
+    { "path": "services/marketing-intel" },
+    { "path": "services/proactive-notifier" },
+    { "path": "services/quantum-sim" }
+  ],
+  "files": []
+}
