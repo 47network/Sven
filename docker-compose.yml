@@ -101,7 +101,7 @@ services:
 
   # ── SearXNG (Private Search Engine) ──────────────────────────────
   searxng:
-    image: searxng/searxng@sha256:c5e5aedb70ec4b7ff5b1e8f8ea69253dceb85a98b8757360c1b65fe8652d6066
+    image: searxng/searxng@sha256:0bbe85fb9bebe413a26c0e385c76309d15c91fdb9dc8a6bf01b35b714d0ece43
     restart: unless-stopped
     environment:
       - SEARXNG_BASE_URL=http://searxng:8080/
