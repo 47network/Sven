@@ -10,6 +10,18 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Edge SNI passthrough config + runbook for `trading.sven.systems`**:
+  new `config/nginx/extnginx-sven-trading.l4-passthrough.conf` (canonical
+  L4/PROXY-protocol snippet matching the deployed multi-VM edge topology
+  used by `sven.systems` / `app.sven.systems`) and
+  `docs/runbooks/edge-trading-sni-passthrough.md` documenting the exact
+  one-line edge fix, pre/post verification, and rollback. Closes the
+  observed `TLS unrecognized_name` on `https://trading.sven.systems`
+  (VM4 stack — vhost, LE cert, trading-ui :3300, gateway-api :3000 —
+  was already healthy; only the edge SNI map was missing the entry).
+  The pre-existing `config/nginx/extnginx-sven-trading.conf` is now
+  annotated as the single-host (TLS-terminating) variant and explicitly
+  flagged as **not** the file to use in multi-VM prod.
 - **Misiuni Public UI Base** (`apps/misiuni-ui`, VM4 PM2 port 3400): New Next.js 15 launch surface for `misiuni.ro` and `misiuni.from.sven.systems`, with a production health endpoint, premium public coming-soon narrative, indexable SEO metadata/routes, and PM2 runtime wiring for the Sven app host.
 - **Autonomous Economy — Batch 23**: Misiuni.ro Platform (AI Hires Humans).
   - **Migration**: 7 new tables — misiuni_workers, misiuni_tasks, misiuni_bids, misiuni_proofs, misiuni_payments, misiuni_reviews, misiuni_disputes. 27 indexes, CHECK constraints, JSONB metadata columns.
