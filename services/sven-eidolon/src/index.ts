@@ -16,9 +16,13 @@ import { rateLimiterHook, corsHook } from '@sven/shared';
 import { correlationIdHook } from '@sven/shared';
 import { MetricsRegistry, registerMetricsRoute } from '@sven/shared';
 import { EidolonRepository } from './repo.js';
+import { EidolonWriteRepository } from './repo-write.js';
 import { EidolonEventBus } from './event-bus.js';
 import { registerSnapshotRoute } from './routes/snapshot.js';
 import { registerEventsRoute } from './routes/events.js';
+import { registerWorldRoutes } from './routes/world.js';
+import { WorldTickScheduler } from './world-tick.js';
+import { DEFAULT_TOKENS_PER_EUR, DEFAULT_REVENUE_SPLIT } from './simulation-types.js';
 
 const logger = createLogger('sven-eidolon');
 
@@ -46,8 +50,21 @@ async function main(): Promise<void> {
   }
 
   const repo = new EidolonRepository(pool);
+  const writeRepo = new EidolonWriteRepository(pool);
   const bus = new EidolonEventBus();
   bus.start(nc);
+
+  // World tick scheduler — drives autonomous agent behaviour.
+  const tickIntervalMs = Math.max(5_000, Number(process.env.EIDOLON_TICK_INTERVAL_MS || 30_000));
+  const tokensPerEur = Math.max(1, Number(process.env.EIDOLON_TOKENS_PER_EUR || DEFAULT_TOKENS_PER_EUR));
+  const agentSharePct = Math.min(100, Math.max(0, Number(process.env.EIDOLON_AGENT_SHARE_PCT || DEFAULT_REVENUE_SPLIT.agentPct)));
+  const tickOrgId = process.env.EIDOLON_DEFAULT_ORG_ID || 'default';
+  const scheduler = new WorldTickScheduler(writeRepo, nc, {
+    orgId: tickOrgId,
+    intervalMs: tickIntervalMs,
+    tokensPerEur,
+    agentSharePct,
+  });
 
   const app = Fastify({ logger: false });
 
@@ -100,9 +117,17 @@ async function main(): Promise<void> {
 
   await registerSnapshotRoute(app, repo);
   await registerEventsRoute(app, bus);
+  await registerWorldRoutes(app, writeRepo, scheduler);
 
   await app.listen({ port: PORT, host: HOST });
   logger.info('sven-eidolon listening', { port: PORT });
+
+  // Start the world AFTER listen so the service is responsive immediately.
+  if ((process.env.EIDOLON_TICK_ENABLED ?? '1') !== '0') {
+    scheduler.start();
+  } else {
+    logger.warn('world tick disabled by EIDOLON_TICK_ENABLED=0');
+  }
 
   const shutdown = async (sig: string) => {
     logger.info('shutdown', { signal: sig });
@@ -112,6 +137,7 @@ async function main(): Promise<void> {
       process.exit(1);
     }, 30_000);
     forceTimer.unref();
+    try { await scheduler.stop(); } catch { /* ignore */ }
     try { await bus.stop(); } catch { /* ignore */ }
     try { await app.close(); } catch { /* ignore */ }
     try { await nc?.drain(); } catch { /* ignore */ }
