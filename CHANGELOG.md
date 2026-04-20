@@ -1,3 +1,12 @@
+## pm2: gate soak-runtime fallback behind explicit opt-in (prevents stale ephemeral port poisoning)
+- `config/pm2/ecosystem.config.cjs` — `resolveSoakRuntimeEnv()` previously read `docs/release/status/soak-72h-run.json` unconditionally and used its `database_url` / `nats_url` as the highest-priority value in the env fallback chain for every app. A long-finished soak (e.g. one that crashed mid-run leaving `status: "running"`) routes prod processes at ephemeral test container ports → `ECONNREFUSED 127.0.0.1:38527` on every tick, every NATS publish, every DB query.
+- Fix is defense in depth, not a single check:
+  1. **Opt-in only** — function returns empty unless `SVEN_PM2_USE_SOAK_RUNTIME=1` is set. The soak harness must opt in explicitly; production never does.
+  2. **Freshness check** — even when opted in, `expected_end_at` must be in the future (5min grace) or the file is treated as stale.
+  3. **Liveness check** — recorded `soak_pid` is verified alive via `process.kill(pid, 0)`; dead PID → empty result.
+- Net effect on prod: env chain reduces to `SVEN_RUNTIME_DATABASE_URL → DATABASE_URL → safe default`, which is what every prod operator already expects.
+- Verified on VM4: `pm2 reload sven-eidolon --update-env` resolves DATABASE_URL to the canonical socket (port 5432), 5 consecutive post-reload ticks (#28–#32) processed all 8 agents with 0 errors, 7 interactions and 8 business runs persisted in the window.
+
 ## Eidolon Phase 1 — completion migration (token_balance + parcels + movements + crews)
 - New migration `services/gateway-api/src/db/migrations/20260635710000_eidolon_phase1_completion.sql` — fills the schema gap that the Phase 1 migration omitted but the Phase 1 runtime depends on.
   - `agent_profiles.token_balance NUMERIC(18,4) NOT NULL DEFAULT 0` with non-negative CHECK; backfilled from `agent_token_ledger.balance_after` so the cached mirror matches the source-of-truth ledger on first deploy.
