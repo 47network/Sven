@@ -18,7 +18,7 @@ export async function registerInviteRoutes(app: FastifyInstance, pool: pg.Pool) 
   const validRoles = new Set(['admin', 'operator', 'user']);
 
   // ─── POST /invites ─── Create an invite token (admin/owner only)
-  app.post('/invites', async (request: any, reply) => {
+  app.post('/invites', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request: any, reply) => {
     const orgId = String(request.orgId || '').trim();
     if (!orgId) {
       return reply.status(403).send({
@@ -89,7 +89,7 @@ export async function registerInviteRoutes(app: FastifyInstance, pool: pg.Pool) 
   });
 
   // ─── GET /invites ─── List invites for current org
-  app.get('/invites', async (request: any, reply) => {
+  app.get('/invites', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request: any, reply) => {
     const orgId = String(request.orgId || '').trim();
     if (!orgId) {
       return reply.status(403).send({
@@ -119,7 +119,7 @@ export async function registerInviteRoutes(app: FastifyInstance, pool: pg.Pool) 
   });
 
   // ─── GET /invites/:id ─── Get single invite details
-  app.get('/invites/:id', async (request: any, reply) => {
+  app.get('/invites/:id', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request: any, reply) => {
     const orgId = String(request.orgId || '').trim();
     if (!orgId) {
       return reply.status(403).send({
@@ -162,7 +162,7 @@ export async function registerInviteRoutes(app: FastifyInstance, pool: pg.Pool) 
   });
 
   // ─── DELETE /invites/:id ─── Revoke an invite
-  app.delete('/invites/:id', async (request: any, reply) => {
+  app.delete('/invites/:id', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request: any, reply) => {
     const orgId = String(request.orgId || '').trim();
     if (!orgId) {
       return reply.status(403).send({

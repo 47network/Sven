@@ -62,7 +62,7 @@ async function validateActiveAgent(pool: pg.Pool, agentId: string): Promise<bool
 }
 
 export async function registerBridgeTenantMappingRoutes(app: FastifyInstance, pool: pg.Pool) {
-  app.get('/integrations/acmecorp/tenant-mappings/health', async (request, reply) => {
+  app.get('/integrations/acmecorp/tenant-mappings/health', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request, reply) => {
     const orgId = currentOrgId(request);
     const query = request.query as {
       include_inactive?: string;
@@ -161,7 +161,7 @@ export async function registerBridgeTenantMappingRoutes(app: FastifyInstance, po
     });
   });
 
-  app.get('/integrations/acmecorp/tenant-mappings', async (request, reply) => {
+  app.get('/integrations/acmecorp/tenant-mappings', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request, reply) => {
     const orgId = currentOrgId(request);
     const query = request.query as {
       page?: string;
@@ -226,7 +226,7 @@ export async function registerBridgeTenantMappingRoutes(app: FastifyInstance, po
     });
   });
 
-  app.get('/integrations/acmecorp/tenant-mappings/resolve/:externalTenantId', async (request, reply) => {
+  app.get('/integrations/acmecorp/tenant-mappings/resolve/:externalTenantId', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request, reply) => {
     const orgId = currentOrgId(request);
     const { externalTenantId } = request.params as { externalTenantId: string };
     const tenantId = normalizeExternalTenantId(externalTenantId);
@@ -277,7 +277,7 @@ export async function registerBridgeTenantMappingRoutes(app: FastifyInstance, po
     });
   });
 
-  app.post('/integrations/acmecorp/tenant-mappings', async (request, reply) => {
+  app.post('/integrations/acmecorp/tenant-mappings', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request, reply) => {
     const requestOrgId = currentOrgId(request);
     const body = (request.body || {}) as {
       external_tenant_id?: string;
@@ -397,7 +397,7 @@ export async function registerBridgeTenantMappingRoutes(app: FastifyInstance, po
     return reply.status(201).send({ success: true, data: upsert.rows[0] });
   });
 
-  app.patch('/integrations/acmecorp/tenant-mappings/:externalTenantId', async (request, reply) => {
+  app.patch('/integrations/acmecorp/tenant-mappings/:externalTenantId', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request, reply) => {
     const requestOrgId = currentOrgId(request);
     const { externalTenantId } = request.params as { externalTenantId: string };
     const tenantId = normalizeExternalTenantId(externalTenantId);
@@ -515,7 +515,7 @@ export async function registerBridgeTenantMappingRoutes(app: FastifyInstance, po
     return reply.send({ success: true, data: updated.rows[0] });
   });
 
-  app.delete('/integrations/acmecorp/tenant-mappings/:externalTenantId', async (request, reply) => {
+  app.delete('/integrations/acmecorp/tenant-mappings/:externalTenantId', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request, reply) => {
     const requestOrgId = currentOrgId(request);
     const { externalTenantId } = request.params as { externalTenantId: string };
     const tenantId = normalizeExternalTenantId(externalTenantId);

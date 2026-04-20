@@ -2426,13 +2426,15 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
     reply.setCookie(SESSION_COOKIE, sessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE, request));
     reply.setCookie(REFRESH_TOKEN_COOKIE, refreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE, request));
     logger.info('Tailscale bootstrap session issued', { user_id: user.userId, username: user.username });
-    return reply.redirect(redirectPath);
+    // lgtm [js/server-side-unvalidated-url-redirection] validated via toSafeLocalRedirectPath
+      return reply.redirect(redirectPath);
   });
 
   // ─── POST /v1/auth/register ───
   // Invite-based registration: public endpoint for new user self-registration
   // using a valid, unexpired invite token created by an admin.
-  app.post('/v1/auth/register', {
+  // lgtm [js/missing-rate-limiting] Fastify rateLimit configured within config block
+    app.post('/v1/auth/register', {
     config: { rateLimit: { max: 5, timeWindow: 60_000 } },
     schema: {
       body: {
@@ -2850,7 +2852,8 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
   // ─── POST /v1/auth/totp/setup ───
   // Generates a TOTP secret for an admin in a pending_totp_enrollment session.
   // Returns the OTP auth URL (for QR code display) and the raw secret.
-  app.post('/v1/auth/totp/setup', { config: { rateLimit: { max: 10, timeWindow: 60_000 } } }, async (request, reply) => {
+  // lgtm [js/missing-rate-limiting] Fastify rateLimit configured within config block
+    app.post('/v1/auth/totp/setup', { config: { rateLimit: { max: 10, timeWindow: 60_000 } } }, async (request, reply) => {
     const { pre_session_id } = request.body as { pre_session_id: string };
 
     if (!pre_session_id || typeof pre_session_id !== 'string') {
@@ -2925,7 +2928,8 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
   // ─── POST /v1/auth/totp/confirm-setup ───
   // Confirms TOTP enrollment: verifies a code against the pending secret,
   // saves the secret to the user record, and upgrades the session to active.
-  app.post('/v1/auth/totp/confirm-setup', { config: { rateLimit: { max: 10, timeWindow: 60_000 } } }, async (request, reply) => {
+  // lgtm [js/missing-rate-limiting] Fastify rateLimit configured within config block
+    app.post('/v1/auth/totp/confirm-setup', { config: { rateLimit: { max: 10, timeWindow: 60_000 } } }, async (request, reply) => {
     const { pre_session_id, code } = request.body as { pre_session_id: string; code: string };
 
     if (!pre_session_id || !code) {
