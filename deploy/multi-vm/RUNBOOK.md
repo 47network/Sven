@@ -27,6 +27,10 @@ part of the live Sven environment.
 
 - `misiuni.ro` and `misiuni.from.sven.systems` are active Misiuni platform domains.
 - Route both domains through the same Sven edge ingress policy on VM4 used for other platform hosts.
+- The public Misiuni UI runs on VM4 as a standalone Next.js app (`apps/misiuni-ui`) behind PM2 on port `3400`.
+- When driving the app with the repo PM2 config on VM4, point `SVEN_MISIUNI_UI_STANDALONE_SERVER` at the deployed standalone artifact path so PM2 starts the same `server.js` used by the live rollout.
+- Prefer the checked-in helper `sh scripts/ops/sh/ops.sh release misiuni-ui-vm4-restart` for VM4 restarts so the standalone path, PM2 app name, and health verification stay standardized.
+- Keep `/v1/*` routed to Gateway API, `/admin47` routed to the admin UI, and treat the 47Dynamics host as edge-only.
 
 ### Resource Requirements
 

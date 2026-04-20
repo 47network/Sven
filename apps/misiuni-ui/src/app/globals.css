@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --page-bg: #f6f0e8;
+    --surface: rgba(255, 250, 244, 0.76);
+    --surface-strong: rgba(255, 251, 247, 0.9);
+    --surface-border: rgba(23, 20, 18, 0.1);
+    --ink: #171412;
+    --muted: #6f6257;
+    --accent: #e06724;
+    --accent-strong: #bd4d17;
+    --accent-soft: rgba(224, 103, 36, 0.12);
+    --trust: #1f875f;
+  }
+
+  * {
+    @apply border-sand;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply text-ink antialiased;
+    background:
+      radial-gradient(circle at 8% 14%, rgba(224, 103, 36, 0.2), transparent 30%),
+      radial-gradient(circle at 88% 14%, rgba(31, 135, 95, 0.14), transparent 28%),
+      linear-gradient(180deg, #fbf7f2 0%, var(--page-bg) 100%);
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+
+  ::selection {
+    background: rgba(224, 103, 36, 0.2);
+    color: var(--ink);
+  }
+}
+
+@layer components {
+  .grain-bg {
+    @apply pointer-events-none fixed inset-0 opacity-40;
+    background-image: theme('backgroundImage.mission-grid');
+    background-size: 24px 24px;
+    mask-image: radial-gradient(circle at center, black 46%, transparent 88%);
+  }
+
+  .ambient-orb {
+    @apply pointer-events-none fixed rounded-full blur-3xl;
+    animation: drift 14s ease-in-out infinite;
+  }
+
+  .ambient-orb-a {
+    @apply left-[-6rem] top-24 h-72 w-72 bg-clay-200/70;
+  }
+
+  .ambient-orb-b {
+    @apply right-[-3rem] top-12 h-64 w-64 bg-spruce-200/60;
+    animation-delay: 1.8s;
+  }
+
+  .hero-shell {
+    @apply relative overflow-hidden rounded-[2rem] border border-[var(--surface-border)] bg-[var(--surface)] shadow-float backdrop-blur-xl;
+  }
+
+  .soft-card {
+    @apply rounded-[1.5rem] border border-[var(--surface-border)] bg-[var(--surface-strong)] p-5 shadow-[0_14px_34px_rgba(30,18,10,0.07)];
+  }
+
+  .metric-card {
+    @apply rounded-[1.5rem] border border-[var(--surface-border)] bg-white/65 p-5;
+  }
+
+  .section-kicker {
+    @apply inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em];
+    color: var(--accent-strong);
+    background: var(--accent-soft);
+    border-color: rgba(224, 103, 36, 0.16);
+  }
+
+  .signal-pill {
+    @apply inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium;
+    border-color: rgba(31, 135, 95, 0.15);
+    background: rgba(31, 135, 95, 0.08);
+    color: var(--trust);
+  }
+
+  .primary-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-400;
+    background: linear-gradient(135deg, #e06724 0%, #f08b44 100%);
+    box-shadow: 0 14px 28px rgba(224, 103, 36, 0.24);
+  }
+
+  .secondary-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold text-ink transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-300;
+    border-color: var(--surface-border);
+    background: rgba(255, 255, 255, 0.62);
+  }
+
+  .primary-btn:hover,
+  .secondary-btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .timeline-step {
+    @apply rounded-[1.25rem] border border-[var(--surface-border)] bg-white/70 p-4;
+  }
+
+  .fade-rise {
+    animation: fade-rise 420ms ease-out both;
+  }
+
+  .fade-rise-delay-1 {
+    animation-delay: 80ms;
+  }
+
+  .fade-rise-delay-2 {
+    animation-delay: 160ms;
+  }
+}
+
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, 18px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .ambient-orb,
+  .fade-rise,
+  .fade-rise-delay-1,
+  .fade-rise-delay-2 {
+    animation: none !important;
+  }
+}

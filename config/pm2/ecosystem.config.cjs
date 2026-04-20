@@ -42,6 +42,11 @@ const webApiUrl =
   process.env.SVEN_WEB_API_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
   'http://127.0.0.1:3000';
+const misiuniApiUrl =
+  process.env.SVEN_MISIUNI_API_URL ||
+  process.env.MISIUNI_PUBLIC_API_URL ||
+  'http://127.0.0.1:3000';
+const misiuniUiPort = process.env.MISIUNI_UI_PORT || '3400';
 const searxngUrl =
   process.env.SEARXNG_URL ||
   'http://searxng.localtest.me:18080';
@@ -52,6 +57,52 @@ const storageRoot =
   process.env.ARTIFACT_STORAGE_ROOT ||
   process.env.SVEN_STORAGE_ROOT ||
   path.resolve(__dirname, '..', '..', 'storage');
+const nextCliScript = path.resolve(__dirname, '..', '..', 'node_modules', 'next', 'dist', 'bin', 'next');
+
+function resolveStandaloneRoot(serverPath, appDir) {
+  const depth = appDir.split(/[\\/]/).filter(Boolean).length;
+  return path.resolve(path.dirname(serverPath), ...new Array(depth).fill('..'));
+}
+
+function createNextUiApp({ name, appDir, port, apiUrl, standaloneServerEnvVar }) {
+  const standaloneServer = resolveFirstExisting([
+    process.env[standaloneServerEnvVar],
+    path.resolve(__dirname, '..', '..', appDir, '.next', 'standalone', appDir, 'server.js'),
+  ]);
+  const env = {
+    NODE_ENV: 'production',
+    PORT: port,
+    NEXT_PUBLIC_API_URL: apiUrl,
+  };
+
+  if (standaloneServer) {
+    return {
+      name,
+      cwd: resolveStandaloneRoot(standaloneServer, appDir),
+      script: standaloneServer,
+      interpreter: nodeExe,
+      env,
+      autorestart: true,
+      max_restarts: 10,
+      restart_delay: 2000,
+      time: true,
+    };
+  }
+
+  return {
+    name,
+    cwd: appDir,
+    script: nextCliScript,
+    args: `start --port ${port}`,
+    interpreter: nodeExe,
+    env,
+    autorestart: true,
+    max_restarts: 10,
+    restart_delay: 2000,
+    time: true,
+  };
+}
+
 module.exports = {
   apps: [
     {
@@ -116,53 +167,33 @@ module.exports = {
       restart_delay: 2000,
       time: true,
     },
-    {
+    createNextUiApp({
       name: 'sven-admin-ui',
-      cwd: 'apps/admin-ui',
-      script: path.resolve(__dirname, '..', '..', 'node_modules', 'next', 'dist', 'bin', 'next'),
-      args: 'start --port 3100',
-      interpreter: nodeExe,
-      env: {
-        NODE_ENV: 'production',
-        PORT: '3100',
-        NEXT_PUBLIC_API_URL: webApiUrl,
-      },
-      autorestart: true,
-      max_restarts: 10,
-      restart_delay: 2000,
-      time: true,
-    },
-    {
+      appDir: 'apps/admin-ui',
+      port: '3100',
+      apiUrl: webApiUrl,
+      standaloneServerEnvVar: 'SVEN_ADMIN_UI_STANDALONE_SERVER',
+    }),
+    createNextUiApp({
       name: 'sven-canvas-ui',
-      cwd: 'apps/canvas-ui',
-      script: path.resolve(__dirname, '..', '..', 'node_modules', 'next', 'dist', 'bin', 'next'),
-      args: 'start --port 3200',
-      interpreter: nodeExe,
-      env: {
-        NODE_ENV: 'production',
-        PORT: '3200',
-        NEXT_PUBLIC_API_URL: webApiUrl,
-      },
-      autorestart: true,
-      max_restarts: 10,
-      restart_delay: 2000,
-      time: true,
-    },
-    {
+      appDir: 'apps/canvas-ui',
+      port: '3200',
+      apiUrl: webApiUrl,
+      standaloneServerEnvVar: 'SVEN_CANVAS_UI_STANDALONE_SERVER',
+    }),
+    createNextUiApp({
       name: 'sven-trading-ui',
-      cwd: 'apps/trading-ui',
-      script: path.resolve(__dirname, '..', '..', 'node_modules', 'next', 'dist', 'bin', 'next'),
-      args: 'start --port 3300',
-      interpreter: nodeExe,
-      env: {
-        NODE_ENV: 'production',
-        PORT: '3300',
-        NEXT_PUBLIC_API_URL: webApiUrl,
-      },
-      autorestart: true,
-      max_restarts: 10,
-      restart_delay: 2000,
-      time: true,
-    },
+      appDir: 'apps/trading-ui',
+      port: '3300',
+      apiUrl: webApiUrl,
+      standaloneServerEnvVar: 'SVEN_TRADING_UI_STANDALONE_SERVER',
+    }),
+    createNextUiApp({
+      name: 'sven-misiuni-ui',
+      appDir: 'apps/misiuni-ui',
+      port: misiuniUiPort,
+      apiUrl: misiuniApiUrl,
+      standaloneServerEnvVar: 'SVEN_MISIUNI_UI_STANDALONE_SERVER',
+    }),
   ],
 };
