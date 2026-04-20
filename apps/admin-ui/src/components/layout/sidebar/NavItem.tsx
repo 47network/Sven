@@ -11,10 +11,12 @@ export default function NavItem({ item, active, collapsed, onClick, badge, kbd }
             href={item.href}
             onClick={onClick}
             title={collapsed ? item.label : undefined}
+            aria-label={collapsed ? item.label : undefined}
+            aria-current={active ? 'page' : undefined}
             className={`mx-2 flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors ${active ? 'bg-cyan-500/15 text-cyan-300 font-medium' : 'text-slate-300 hover:bg-slate-800'
                 }`}
         >
-            <Icon className="h-4 w-4 shrink-0" />
+            <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
             {!collapsed && (
                 <span className="flex flex-1 items-center justify-between truncate">
                     {item.label}
