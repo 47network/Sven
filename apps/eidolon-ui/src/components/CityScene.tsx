@@ -16,9 +16,11 @@ interface Props {
   selectedId: string | null;
   onSelect: (b: EidolonBuilding | null) => void;
   events: EidolonEvent[];
+  selectedParcelId?: string | null;
+  onSelectParcel?: (p: import('@/lib/api').EidolonParcel) => void;
 }
 
-function CityContent({ snapshot, selectedId, onSelect, events }: Props) {
+function CityContent({ snapshot, selectedId, onSelect, events, selectedParcelId, onSelectParcel }: Props) {
   const buildings = snapshot?.buildings ?? [];
   const citizens = snapshot?.citizens ?? [];
   const parcels = snapshot?.parcels ?? [];
@@ -108,8 +110,8 @@ function CityContent({ snapshot, selectedId, onSelect, events }: Props) {
         return <Citizen key={c.id} citizen={c} runtime={runtime} />;
       })}
 
-      {/* Suburban parcels */}
-      <ParcelGrid parcels={parcels} />
+      {/* Suburban parcels — clickable for inspection */}
+      <ParcelGrid parcels={parcels} selectedId={selectedParcelId} onSelect={onSelectParcel} />
 
       {/* Live travel arcs — citizens travelling/returning_home/exploring */}
       <MovementPaths movements={movements} />
@@ -117,7 +119,7 @@ function CityContent({ snapshot, selectedId, onSelect, events }: Props) {
   );
 }
 
-export function CityScene({ snapshot, selectedId, onSelect, events }: Props) {
+export function CityScene({ snapshot, selectedId, onSelect, events, selectedParcelId, onSelectParcel }: Props) {
   const worldTime = useWorldTime();
   return (
     <Canvas
@@ -156,6 +158,8 @@ export function CityScene({ snapshot, selectedId, onSelect, events }: Props) {
           selectedId={selectedId}
           onSelect={onSelect}
           events={events}
+          selectedParcelId={selectedParcelId}
+          onSelectParcel={onSelectParcel}
         />
       </Suspense>
 

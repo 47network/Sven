@@ -5,6 +5,7 @@ import type {
   EidolonAgentRuntimeSlim,
   EidolonBuilding,
   EidolonCitizen,
+  EidolonParcel,
 } from '@/lib/api';
 
 const KIND_LABEL: Record<EidolonBuilding['kind'], string> = {
@@ -44,6 +45,16 @@ const RUNTIME_STATE_LABEL: Record<string, string> = {
   resting: 'Resting',
 };
 
+const ZONE_LABEL: Record<string, string> = {
+  residential: 'Residential',
+  commercial: 'Commercial',
+  workshop: 'Workshop',
+  laboratory: 'Laboratory',
+  farm: 'Farm',
+  outpost: 'Outpost',
+  estate: 'Estate',
+};
+
 const CITIZEN_STATUS_CLASS: Record<EidolonCitizen['status'], string> = {
   idle: 'chip',
   working: 'chip-ok',
@@ -56,21 +67,29 @@ interface Props {
   citizen?: EidolonCitizen | null;
   citizenRuntime?: EidolonAgentRuntimeSlim | null;
   buildingOccupants?: EidolonCitizen[];
+  parcel?: EidolonParcel | null;
+  parcelOwnerLabel?: string | null;
+  citizenParcel?: EidolonParcel | null;
   onSelectBuildingById?: (buildingId: string) => void;
   onSelectCitizen?: (citizenId: string) => void;
+  onSelectParcelOwner?: (citizenId: string) => void;
+  onSelectParcelByAgentId?: (agentId: string) => void;
   onClose?: () => void;
 }
 
-// Citizen selection takes precedence over building selection so a freshly
-// clicked citizen always wins the inspector slot. The page also clears the
-// other selection when one is set, but precedence here is the safety net.
+// Citizen selection takes precedence, then parcel, then building.
 export function InspectorPanel({
   building,
   citizen,
   citizenRuntime,
   buildingOccupants,
+  parcel,
+  parcelOwnerLabel,
+  citizenParcel,
   onSelectBuildingById,
   onSelectCitizen,
+  onSelectParcelOwner,
+  onSelectParcelByAgentId,
   onClose,
 }: Props) {
   if (citizen) {
@@ -78,7 +97,19 @@ export function InspectorPanel({
       <CitizenInspector
         citizen={citizen}
         runtime={citizenRuntime ?? null}
+        parcel={citizenParcel ?? null}
         onSelectBuildingById={onSelectBuildingById}
+        onSelectParcel={onSelectParcelByAgentId}
+        onClose={onClose}
+      />
+    );
+  }
+  if (parcel) {
+    return (
+      <ParcelInspector
+        parcel={parcel}
+        ownerLabel={parcelOwnerLabel ?? null}
+        onSelectOwner={onSelectParcelOwner}
         onClose={onClose}
       />
     );
@@ -191,12 +222,16 @@ function BuildingInspector({
 function CitizenInspector({
   citizen,
   runtime,
+  parcel,
   onSelectBuildingById,
+  onSelectParcel,
   onClose,
 }: {
   citizen: EidolonCitizen;
   runtime: EidolonAgentRuntimeSlim | null;
+  parcel: EidolonParcel | null;
   onSelectBuildingById?: (buildingId: string) => void;
+  onSelectParcel?: (agentId: string) => void;
   onClose?: () => void;
 }) {
   const energyPct = runtime ? Math.max(0, Math.min(100, Math.round(runtime.energy))) : null;
@@ -267,6 +302,9 @@ function CitizenInspector({
             onSelect={onSelectBuildingById}
           />
         )}
+        {parcel && onSelectParcel && (
+          <ParcelStat parcel={parcel} onSelect={() => onSelectParcel(parcel.agentId)} />
+        )}
       </dl>
 
       {citizen.specializations && citizen.specializations.length > 0 && (
@@ -330,5 +368,127 @@ function HomeStat({
       </div>
       <div className="text-sm text-gray-100 truncate">{buildingId}</div>
     </button>
+  );
+}
+
+// Clickable stat to jump from citizen → their parcel.
+function ParcelStat({
+  parcel,
+  onSelect,
+}: {
+  parcel: EidolonParcel;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className="text-left rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2 min-w-0 hover:bg-brand-500/15 hover:border-brand-400/40 focus:outline-none focus-visible:ring-1 focus-visible:ring-brand-400 transition-colors group"
+      aria-label={`view parcel ${parcel.zone}`}
+      title={`jump to ${parcel.zone} parcel`}
+    >
+      <div className="text-[10px] uppercase tracking-wider text-gray-500 group-hover:text-brand-300">
+        Parcel →
+      </div>
+      <div className="text-sm text-gray-100 truncate">
+        {ZONE_LABEL[parcel.zone] ?? parcel.zone} · {parcel.parcelSize}
+      </div>
+    </button>
+  );
+}
+
+function ParcelInspector({
+  parcel,
+  ownerLabel,
+  onSelectOwner,
+  onClose,
+}: {
+  parcel: EidolonParcel;
+  ownerLabel: string | null;
+  onSelectOwner?: (citizenId: string) => void;
+  onClose?: () => void;
+}) {
+  const citizenId = `agent:${parcel.agentId}`;
+  const acquiredDate = parcel.acquiredAt
+    ? new Date(parcel.acquiredAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    : '—';
+  const lastVisit = parcel.lastCityVisit
+    ? new Date(parcel.lastCityVisit).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    : '—';
+
+  return (
+    <div className="glass-card p-4 space-y-3">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-[10px] uppercase tracking-wider text-gray-500">
+            parcel · {ZONE_LABEL[parcel.zone] ?? parcel.zone}
+          </div>
+          <div className="text-sm font-semibold text-gray-100">
+            {parcel.parcelSize} {parcel.zone} plot
+          </div>
+        </div>
+        <div className="flex items-start gap-2">
+          <span className="chip">{parcel.currentLocation.replace(/_/g, ' ')}</span>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="close inspector"
+              className="text-gray-500 hover:text-gray-200 text-xs leading-none px-1"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Owner cross-link */}
+      {onSelectOwner && ownerLabel ? (
+        <button
+          type="button"
+          onClick={() => onSelectOwner(citizenId)}
+          className="w-full text-left rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2 hover:bg-brand-500/15 hover:border-brand-400/40 focus:outline-none focus-visible:ring-1 focus-visible:ring-brand-400 transition-colors group"
+          aria-label={`inspect owner ${ownerLabel}`}
+        >
+          <div className="text-[10px] uppercase tracking-wider text-gray-500 group-hover:text-brand-300">
+            Owner →
+          </div>
+          <div className="text-sm text-gray-100 truncate">{ownerLabel}</div>
+        </button>
+      ) : (
+        <div className="text-[10px] text-gray-500">owner: {parcel.agentId}</div>
+      )}
+
+      <dl className="grid grid-cols-2 gap-2 text-xs">
+        <Stat label="Land Value" value={`$${parcel.landValue.toFixed(2)}`} />
+        <Stat label="Invested" value={`$${parcel.tokenInvested.toFixed(2)}`} />
+        <Stat label="City Visits" value={String(parcel.totalCityVisits)} />
+        <Stat label="Last Visit" value={lastVisit} />
+        <Stat label="Acquired" value={acquiredDate} />
+        <Stat label="Grid" value={`${parcel.gridX}, ${parcel.gridZ}`} />
+      </dl>
+
+      {/* Structures list */}
+      {parcel.structures.length > 0 && (
+        <div>
+          <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">
+            structures · {parcel.structures.length}
+          </div>
+          <ul className="space-y-1">
+            {parcel.structures.map((s, i) => (
+              <li
+                key={`${s.type}-${i}`}
+                className="text-[11px] text-gray-200 flex items-center justify-between bg-white/[0.03] rounded px-2 py-1"
+              >
+                <span className="truncate">{s.label || s.type}</span>
+                <span className="text-gray-500 ml-2 shrink-0">Lv {s.level}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="text-[10px] font-mono text-gray-500 break-all">{parcel.id}</div>
+    </div>
   );
 }

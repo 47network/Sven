@@ -17,7 +17,7 @@ const WorldTimeBadge = dynamic(
   { ssr: false },
 );
 import { useEidolonEvents } from '@/hooks/useEidolonEvents';
-import { fetchSnapshot, type EidolonBuilding, type EidolonSnapshot } from '@/lib/api';
+import { fetchSnapshot, type EidolonBuilding, type EidolonParcel, type EidolonSnapshot } from '@/lib/api';
 
 const REFRESH_MS = 15_000;
 const DEFAULT_ORG = process.env.NEXT_PUBLIC_DEFAULT_ORG || 'default';
@@ -26,6 +26,7 @@ export default function EidolonPage() {
   const [snapshot, setSnapshot] = useState<EidolonSnapshot | null>(null);
   const [selected, setSelected] = useState<EidolonBuilding | null>(null);
   const [selectedCitizenId, setSelectedCitizenId] = useState<string | null>(null);
+  const [selectedParcel, setSelectedParcel] = useState<EidolonParcel | null>(null);
   const [error, setError] = useState<string | null>(null);
   const events = useEidolonEvents();
 
@@ -33,7 +34,7 @@ export default function EidolonPage() {
   // single InspectorPanel slot is never split between two contexts.
   const handleSelectBuilding = useCallback((b: EidolonBuilding | null) => {
     setSelected(b);
-    if (b) setSelectedCitizenId(null);
+    if (b) { setSelectedCitizenId(null); setSelectedParcel(null); }
   }, []);
   const handleSelectCitizen = useCallback((id: string | null) => {
     if (id == null) {
@@ -42,10 +43,17 @@ export default function EidolonPage() {
     }
     setSelectedCitizenId((prev) => (prev === id ? null : id));
     setSelected(null);
+    setSelectedParcel(null);
+  }, []);
+  const handleSelectParcel = useCallback((p: EidolonParcel) => {
+    setSelectedParcel(p);
+    setSelected(null);
+    setSelectedCitizenId(null);
   }, []);
   const handleClearAll = useCallback(() => {
     setSelected(null);
     setSelectedCitizenId(null);
+    setSelectedParcel(null);
   }, []);
 
   // Esc clears any active selection — quick way to dismiss the inspector
@@ -117,6 +125,23 @@ export default function EidolonPage() {
       .slice(0, 12);
   }, [selected, snapshot]);
 
+  // Parcel owner label — resolves the parcel's agentId to a citizen name.
+  const parcelOwnerLabel = useMemo(() => {
+    if (!selectedParcel || !snapshot) return null;
+    const cid = `agent:${selectedParcel.agentId}`;
+    const c = snapshot.citizens.find((cc) => cc.id === cid);
+    return c?.name ?? selectedParcel.agentId;
+  }, [selectedParcel, snapshot]);
+
+  // The parcel belonging to the currently selected citizen (for cross-link).
+  const citizenParcel = useMemo(() => {
+    if (!selectedCitizenId || !snapshot) return null;
+    const raw = selectedCitizenId.startsWith('agent:')
+      ? selectedCitizenId.slice('agent:'.length)
+      : selectedCitizenId;
+    return snapshot.parcels?.find((p) => p.agentId === raw) ?? null;
+  }, [selectedCitizenId, snapshot]);
+
   // Lookup helper: select a building by id (used by citizen "Home" cross-link).
   const handleSelectBuildingById = useCallback(
     (buildingId: string) => {
@@ -124,6 +149,23 @@ export default function EidolonPage() {
       if (b) handleSelectBuilding(b);
     },
     [snapshot, handleSelectBuilding],
+  );
+
+  // Cross-link: parcel owner → citizen inspector.
+  const handleSelectParcelOwner = useCallback(
+    (citizenId: string) => {
+      handleSelectCitizen(citizenId);
+    },
+    [handleSelectCitizen],
+  );
+
+  // Cross-link: citizen → their parcel inspector.
+  const handleSelectParcelByAgentId = useCallback(
+    (agentId: string) => {
+      const p = snapshot?.parcels?.find((pp) => pp.agentId === agentId) ?? null;
+      if (p) handleSelectParcel(p);
+    },
+    [snapshot, handleSelectParcel],
   );
 
   return (
@@ -134,6 +176,8 @@ export default function EidolonPage() {
           selectedId={selected?.id ?? null}
           onSelect={handleSelectBuilding}
           events={events}
+          selectedParcelId={selectedParcel?.id ?? null}
+          onSelectParcel={handleSelectParcel}
         />
       </div>
 
@@ -171,8 +215,13 @@ export default function EidolonPage() {
           citizen={selectedCitizen}
           citizenRuntime={selectedCitizenRuntime}
           buildingOccupants={buildingOccupants}
+          parcel={selectedParcel}
+          parcelOwnerLabel={parcelOwnerLabel}
+          citizenParcel={citizenParcel}
           onSelectBuildingById={handleSelectBuildingById}
           onSelectCitizen={handleSelectCitizen}
+          onSelectParcelOwner={handleSelectParcelOwner}
+          onSelectParcelByAgentId={handleSelectParcelByAgentId}
           onClose={handleClearAll}
         />
       </aside>
