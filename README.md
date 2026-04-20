@@ -1,13 +1,6 @@
 <div align="center">
 
-```
- ███████╗██╗   ██╗███████╗███╗   ██╗
- ██╔════╝██║   ██║██╔════╝████╗  ██║
- ███████╗██║   ██║█████╗  ██╔██╗ ██║
- ╚════██║╚██╗ ██╔╝██╔══╝  ██║╚██╗██║
- ███████║ ╚████╔╝ ███████╗██║ ╚████║
- ╚══════╝  ╚═══╝  ╚══════╝╚═╝  ╚═══╝
-```
+<img src="assets/brand/sven_logo.png" alt="Sven AI Platform" width="350"/>
 
 ### The self-hosted AI platform.
 
@@ -23,7 +16,7 @@ One platform that runs your entire AI stack — agents, voice, RAG, document int
 [![Flutter CI](https://github.com/47network/sven/actions/workflows/flutter-user-app-ci.yml/badge.svg)](https://github.com/47network/sven/actions)
 [![E2E](https://github.com/47network/sven/actions/workflows/parity-e2e.yml/badge.svg)](https://github.com/47network/sven/actions)
 [![Release Gates](https://github.com/47network/sven/actions/workflows/release-gates-sync.yml/badge.svg)](https://github.com/47network/sven/actions)
-[![Version](https://img.shields.io/badge/version-0.1.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.3.0-blue)](CHANGELOG.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 <br/>
