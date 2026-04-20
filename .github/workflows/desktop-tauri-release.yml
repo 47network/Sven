@@ -112,13 +112,13 @@ jobs:
     needs: [build-windows, build-linux]
     steps:
       - name: Download Windows bundles
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: desktop-tauri-windows
           path: out/windows
 
       - name: Download Linux bundles
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: desktop-tauri-linux
           path: out/linux
@@ -141,7 +141,7 @@ jobs:
     needs: [checksums]
     steps:
       - name: Download checksums
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: desktop-tauri-checksums
           path: out/provenance
