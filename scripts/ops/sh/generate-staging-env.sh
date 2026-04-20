@@ -2,7 +2,7 @@
 set -eu
 
 TARGET_FILE="${1:-/srv/sven/staging/env/.env.staging}"
-TOPOLOGY="${STAGING_TOPOLOGY:-proxmox-lan-gpu}"
+TOPOLOGY="${STAGING_TOPOLOGY:-hypervisor-lan-gpu}"
 PUBLIC_URL="${SVEN_PUBLIC_BASE_URL:-https://staging.sven.systems}"
 ADMIN_URL="${SVEN_ADMIN_BASE_URL:-https://admin.staging.sven.systems}"
 INFERENCE_URL="${OLLAMA_URL:-http://sven-inference-01.lan:11434}"
@@ -79,7 +79,7 @@ VOICE_TTS_STORAGE=/var/lib/sven/tts
 WAKE_WORD_STORAGE=/var/lib/sven/wake-word
 GIT_INGEST_CLONE_ROOT=/var/lib/sven/git
 
-# Linux host bind roots consumed by docker-compose.staging.linux-vm.yml
+# Linux host bind roots consumed by docker-compose.staging.linux-server.yml
 SVEN_STAGE_ROOT=/srv/sven/staging
 SVEN_STAGE_DATA_ROOT=/srv/sven/staging/data
 SVEN_STAGE_POSTGRES_DIR=/srv/sven/staging/data/postgres

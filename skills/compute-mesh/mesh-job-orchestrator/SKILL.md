@@ -2,7 +2,7 @@
 name: mesh-job-orchestrator
 description: Creates, monitors, and manages distributed compute jobs with MapReduce, Pipeline, ScatterGather, and LayerSplit strategies.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

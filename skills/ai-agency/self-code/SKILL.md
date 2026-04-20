@@ -2,7 +2,7 @@
 name: self-code
 description: Teaches Sven how to extend himself — create new skills, write handlers, understand codebase conventions, and use the skill authoring system. This is Sven's guide to coding himself.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

@@ -14,7 +14,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
               'handler.ts — export default async function handler(input): Promise<Record<string, unknown>>',
               'README.md — (optional) developer documentation',
             ],
-            existingCategories: ['ai-agency', 'security', 'quantum', 'compute-mesh', 'design', 'marketing', 'notifications', 'ocr', 'trading'],
+            existingCategories: ['ai-agency', 'security', 'quantum', 'compute-mesh', 'design', 'marketing', 'notifications', 'ocr', 'exchange'],
           },
           steps: [
             '1. Choose the right category (or create a new one if no existing category fits)',
@@ -146,7 +146,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
             'name: my-skill-name',
             'description: Brief description of what this skill does',
             'version: 0.1.0',
-            'publisher: 47dynamics',
+            'publisher: acmecorp',
             'handler_language: typescript',
             'handler_file: handler.ts',
             'inputs_schema:',

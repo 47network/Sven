@@ -2,7 +2,7 @@
 name: model-benchmark
 description: Runs benchmark suites against models, tracks ELO rankings, manages A/B tests, and generates performance reports.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

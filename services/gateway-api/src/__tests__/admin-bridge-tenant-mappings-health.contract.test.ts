@@ -8,7 +8,7 @@ describe('admin bridge tenant mappings health contract', () => {
   it('exposes health endpoint for strict-mode readiness and invalid mapping audit', async () => {
     const source = await fs.readFile(BRIDGE_MAPPING_ROUTE, 'utf8');
 
-    expect(source).toContain("app.get('/integrations/47dynamics/tenant-mappings/health'");
+    expect(source).toContain("app.get('/integrations/acmecorp/tenant-mappings/health'");
     expect(source).toContain('strict_mode_ready');
     expect(source).toContain('invalid_active_mappings');
     expect(source).toContain('issues');

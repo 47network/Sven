@@ -17,7 +17,7 @@ RUN npm install --include=dev
 
 # Copy all sources (restores original gateway package.json with file: refs)
 COPY packages/shared packages/shared
-COPY packages/trading-platform packages/trading-platform
+COPY packages/exchange-platform packages/exchange-platform
 COPY packages/compute-mesh packages/compute-mesh
 COPY packages/design-system packages/design-system
 COPY packages/document-intel packages/document-intel
@@ -33,7 +33,7 @@ COPY docs/release/status docs/release/status
 RUN npm run build --workspace=packages/shared
 
 # Build pillar packages (pure TS, no npm deps)
-RUN for pkg in trading-platform compute-mesh design-system document-intel \
+RUN for pkg in exchange-platform compute-mesh design-system document-intel \
     marketing-intel model-router quantum-sim security-toolkit; do \
     echo "Building @sven/$pkg..." && cd /app/packages/$pkg && npx tsc; \
   done
@@ -41,7 +41,7 @@ RUN for pkg in trading-platform compute-mesh design-system document-intel \
 # Symlink @sven/* packages into node_modules so tsc NodeNext resolution finds them
 RUN mkdir -p /app/node_modules/@sven \
   && ln -sf /app/packages/shared /app/node_modules/@sven/shared \
-  && ln -sf /app/packages/trading-platform /app/node_modules/@sven/trading-platform \
+  && ln -sf /app/packages/exchange-platform /app/node_modules/@sven/exchange-platform \
   && ln -sf /app/packages/compute-mesh /app/node_modules/@sven/compute-mesh \
   && ln -sf /app/packages/design-system /app/node_modules/@sven/design-system \
   && ln -sf /app/packages/document-intel /app/node_modules/@sven/document-intel \
@@ -70,7 +70,7 @@ COPY --from=builder /app/docs/release/status docs/release/status
 # Symlink all @sven/* packages into node_modules for runtime resolution
 RUN rm -rf node_modules/@sven && mkdir -p node_modules/@sven \
   && ln -s ../../packages/shared node_modules/@sven/shared \
-  && ln -s ../../packages/trading-platform node_modules/@sven/trading-platform \
+  && ln -s ../../packages/exchange-platform node_modules/@sven/exchange-platform \
   && ln -s ../../packages/compute-mesh node_modules/@sven/compute-mesh \
   && ln -s ../../packages/design-system node_modules/@sven/design-system \
   && ln -s ../../packages/document-intel node_modules/@sven/document-intel \

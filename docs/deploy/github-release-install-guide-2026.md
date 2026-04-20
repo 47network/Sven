@@ -72,14 +72,14 @@ Use this when:
 
 Start from:
 
-- [staging-linux-vm-2026.md](staging-linux-vm-2026.md)
+- [staging-linux-server-2026.md](staging-linux-server-2026.md)
 - [staging-execution-plan-2026.md](staging-execution-plan-2026.md)
 - [staging-host-bringup-checklist-2026.md](staging-host-bringup-checklist-2026.md)
 
 If your infra differs:
 
-- Proxmox small host + LAN GPU:
-  - [staging-proxmox-small-host-lan-gpu-2026.md](staging-proxmox-small-host-lan-gpu-2026.md)
+- Hypervisor small host + LAN GPU:
+  - [staging-hypervisor-small-host-lan-gpu-2026.md](staging-hypervisor-small-host-lan-gpu-2026.md)
 - Bare metal:
   - [staging-bare-metal-2026.md](staging-bare-metal-2026.md)
 
@@ -91,7 +91,7 @@ Use these only after staging is proven.
 
 Production v1:
 
-- [production-v1-linux-vm-2026.md](production-v1-linux-vm-2026.md)
+- [production-v1-linux-server-2026.md](production-v1-linux-server-2026.md)
 - [production-v1-rollout-plan-2026.md](production-v1-rollout-plan-2026.md)
 
 Production scale:

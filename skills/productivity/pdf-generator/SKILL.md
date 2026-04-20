@@ -2,7 +2,7 @@
 name: pdf-generator
 description: Create PDF documents from structured content — headings, paragraphs, tables, lists, and page breaks.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 when-to-use: Use when the user asks to create a PDF document or export content as PDF.

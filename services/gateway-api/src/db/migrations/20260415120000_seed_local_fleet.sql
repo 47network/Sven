@@ -1,5 +1,5 @@
 -- Migration 20260415120000: Seed inference_nodes and model_registry with real local GPU fleet
--- Part of Epic G (argentum) — Local Model Fleet
+-- Part of Epic G (project-x) — Local Model Fleet
 --
 -- Hardware:
 --   VM5 (sven-ai, 10.47.47.9): llama-server port 8080

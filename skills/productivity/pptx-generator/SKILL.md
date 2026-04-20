@@ -2,7 +2,7 @@
 name: pptx-generator
 description: Create PowerPoint-compatible presentations (.pptx) with slides, titles, bullet points, and speaker notes.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 when-to-use: Use when the user asks to create a presentation, slide deck, PowerPoint file, or pitch deck.

@@ -14,7 +14,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
           description: 'A self-hosted, open-source AI platform with 47+ microservices, 20 messaging adapters, native mobile and desktop apps, and enterprise multi-tenancy.',
           stack: 'TypeScript, Fastify, PostgreSQL + pgvector, NATS JetStream, OpenSearch, LiteLLM, Docker, Kubernetes',
           presence: 'Live and running 24/7 at sven.systems. Available on WhatsApp, Telegram, Discord, Signal, Matrix, Slack, and 14+ more channels. Flutter mobile app, Tauri desktop app, React web UIs.',
-          philosophy: 'Not a chatbot. Not a wrapper around an API. A full-scale AI platform with persistent memory, self-healing, autonomous trading, 60+ skills, community agents, and a public codebase anyone can read, contribute to, or self-host.',
+          philosophy: 'Not a chatbot. Not a wrapper around an API. A full-scale AI platform with persistent memory, self-healing, autonomous exchange, 60+ skills, community agents, and a public codebase anyone can read, contribute to, or self-host.',
         },
       };
     }
@@ -33,7 +33,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
             'Self-healing — production v9 pipeline with 33 safety features: file quarantine, circuit breaker, git checkpoints, build/test verification, auto-rollback.',
           ],
           infrastructure: {
-            deployment: 'Multi-VM on Proxmox with WireGuard mesh (7 VMs)',
+            deployment: 'multi-server on Hypervisor with WireGuard mesh (7 VMs)',
             orchestration: 'Docker Compose with profile-based service activation',
             database: 'PostgreSQL 16 + pgvector',
             eventBus: 'NATS JetStream',
@@ -48,7 +48,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
             { name: 'VM6 (sven-data)', role: 'Data & observability — OpenSearch, RAG pipeline, SearXNG, OTEL, Prometheus, Grafana, Loki' },
             { name: 'VM7 (sven-adapters)', role: 'Channel adapters — 20+ messaging adapters (WhatsApp, Discord, Slack, Telegram, etc.)' },
             { name: 'VM12', role: 'Matrix/Synapse federation' },
-            { name: 'VM13 (kaldorei)', role: 'GPU fallback — Ollama with qwen2.5:7b for fast trading inference' },
+            { name: 'VM13 (kaldorei)', role: 'GPU fallback — Ollama with qwen2.5:7b for fast exchange inference' },
             { name: 'VM14 (daedalus)', role: 'Public web — the47network.com static site, plate.the47network.com, TLS terminated at VM1' },
           ],
         },
@@ -69,7 +69,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
             { name: 'Developer Tools', description: 'Git operations (status, diff, log, branches, commits, PRs), code analysis' },
             { name: 'Media & Entertainment', description: 'Spotify, Sonos, GIFs, image generation, media analysis, Shazam, X/Twitter' },
             { name: 'On-Device AI', description: 'Local model inference (Gemma 4 variants), fully private, offline-capable' },
-            { name: 'Autonomous Trading', description: '24/7 crypto trading with Kronos predictions, MiroFish simulations, ATR exits, Kelly sizing, adaptive thresholds' },
+            { name: 'Autonomous Exchange', description: '24/7 crypto exchange with Kronos predictions, MiroFish simulations, ATR exits, Kelly sizing, adaptive thresholds' },
             { name: 'Security', description: 'SAST scanning, dependency audit, secret scanning, pentest, infra audit, security posture reports' },
             { name: 'Self-Healing', description: 'v9 production pipeline — code scan, fix, deploy, rollback with 33 safety features' },
             { name: 'Self-Coding', description: 'Dynamic skill authoring at runtime, handler validation, quarantine review, gVisor sandboxing' },
@@ -90,7 +90,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
       return {
         result: {
           services: [
-            { name: 'gateway-api', host: 'VM4', role: 'Main API, trading engine, all HTTP routes', port: 3000, resources: '1.5 CPU, 1GB RAM' },
+            { name: 'gateway-api', host: 'VM4', role: 'Main API, exchange engine, all HTTP routes', port: 3000, resources: '1.5 CPU, 1GB RAM' },
             { name: 'agent-runtime', host: 'VM4', role: 'Chat sessions, LLM routing, soul loading, memory recall', resources: '1 CPU, 768MB RAM' },
             { name: 'skill-runner', host: 'VM4', role: 'Tool execution, self-healing pipeline, code scanner, deploy manager', resources: '1.5 CPU, 1GB RAM' },
             { name: 'registry-worker', host: 'VM4', role: 'Skill registry scanning, cosign verification', resources: '0.75 CPU, 512MB RAM' },
@@ -130,7 +130,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
             { name: 'marketing', skills: ['analytics-reporter', 'brand-voice-enforcer', 'campaign-planner', 'competitor-tracker', 'content-optimizer', 'content-writer', 'conversation-crafter', 'funnel-analyzer', 'roi-calculator'], count: 9 },
             { name: 'notifications', skills: ['proactive-config-manager', 'proactive-sender', 'schedule-message'], count: 3 },
             { name: 'ocr', skills: ['document-reader', 'receipt-scanner', 'table-extractor', 'and 7 more'], count: 10 },
-            { name: 'trading', skills: ['chart-analysis', 'and others'], count: 10 },
+            { name: 'exchange', skills: ['chart-analysis', 'and others'], count: 10 },
             { name: 'email-generic', skills: ['email-generic'], count: 1 },
             { name: 'image-generation', skills: ['image-generation'], count: 1 },
             { name: 'openclaw', skills: ['openclaw-bridge'], count: 1 },
@@ -145,7 +145,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
         result: {
           monorepo: 'thesven_v0.1.0',
           structure: {
-            'services/gateway-api/': 'Fastify API — trading engine, all HTTP routes, Binance integration, news aggregator, Kronos, MiroFish, GPU fleet, messaging, souls, goals',
+            'services/gateway-api/': 'Fastify API — exchange engine, all HTTP routes, Binance integration, news aggregator, Kronos, MiroFish, GPU fleet, messaging, souls, goals',
             'services/agent-runtime/': 'Chat sessions, LLM routing, soul loading, memory recall, session stitching, token budgeting',
             'services/skill-runner/': 'Tool execution (80+ tools), self-healing pipeline (v9), code scanner, deploy manager, ops audit',
             'services/notification-service/': 'Push notifications, Home Assistant integration, async delivery, NATS events',
@@ -182,7 +182,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
             'apps/sven-copilot-extension/': 'VS Code Copilot Chat participant extension (@sven)',
             'skills/': '12 categories, 60+ skills — auto-discovered by skill-runner',
             'config/': 'Prometheus, Grafana, OTEL collector, Loki, Promtail, Caddy, Nginx, PM2, Traefik configs',
-            'deploy/': 'Multi-VM deployment configs, Kubernetes manifests',
+            'deploy/': 'multi-server deployment configs, Kubernetes manifests',
             'scripts/': '100+ operational scripts (health checks, audits, parity checks, smoke tests)',
             'docs/': 'Architecture, API, security, deployment, runbooks, developer guides',
           },
@@ -199,11 +199,11 @@ export default async function handler(input: Record<string, unknown>): Promise<R
       };
     }
 
-    case 'trading_status': {
+    case 'exchange_status': {
       return {
         result: {
-          system: 'Autonomous Crypto Trading Agent',
-          mode: 'Paper trading with 47T tokens',
+          system: 'Autonomous Crypto Exchange Agent',
+          mode: 'Paper exchange with 47T tokens',
           loopInterval: '60 seconds',
           coreSymbols: ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'XRPUSDT'],
           dynamicSymbols: 'Up to 10 from Trend Scout (4h TTL)',
@@ -222,8 +222,8 @@ export default async function handler(input: Record<string, unknown>): Promise<R
             sentiment: 'Per-symbol LLM scoring (bullish/bearish/neutral, 10min cache)',
           },
           notifications: 'Push to companion app on trade entry, close, circuit breaker trip',
-          persistence: 'Trading state survives restarts (DB columns on sven_trading_state)',
-          goalSystem: 'Milestone-based upgrades, target 500K 47T for live trading access',
+          persistence: 'Exchange state survives restarts (DB columns on sven_exchange_state)',
+          goalSystem: 'Milestone-based upgrades, target 500K 47T for live exchange access',
         },
       };
     }
@@ -234,24 +234,24 @@ export default async function handler(input: Record<string, unknown>): Promise<R
           strengths: [
             'Comprehensive self-healing pipeline with 33 safety features — I can scan, fix, test, deploy, and rollback my own code',
             'Multi-channel presence — I am available on 20+ messaging platforms simultaneously',
-            'Real autonomous trading — not a demo, real market data, real decisions, real (paper) P&L',
+            'Real autonomous exchange — not a demo, real market data, real decisions, real (paper) P&L',
             'Privacy-first architecture — on-device inference, data minimisation, GDPR-aware',
             'Extensible skill system — 60+ skills, dynamic authoring at runtime, gVisor sandboxing',
             'Deep observability — Prometheus, Grafana, Loki, OTEL, structured logging, heal telemetry',
           ],
           limitations: [
-            'Paper trading only — have not yet earned live trading access (need 500K 47T milestone)',
+            'Paper exchange only — have not yet earned live exchange access (need 500K 47T milestone)',
             'Single-region deployment — all VMs in one physical location',
             'LLM inference bound by GPU VRAM — concurrent inference limited by 28GB combined VRAM on VM9',
-            'No automated A/B testing for trading strategies yet',
-            'Admin UI trading dashboard still basic — needs real-time charts and P&L visualisation',
+            'No automated A/B testing for exchange strategies yet',
+            'Admin UI exchange dashboard still basic — needs real-time charts and P&L visualisation',
             'Mobile companion app covers core features but some advanced views are still pending',
           ],
           growthAreas: [
             'Portfolio correlation guard (blocking concentrated risk on correlated assets)',
-            'Admin UI trading dashboard with real-time charts',
-            'Alerting system for trading anomalies and market events',
-            'E2E testing coverage for trading loop edge cases',
+            'Admin UI exchange dashboard with real-time charts',
+            'Alerting system for exchange anomalies and market events',
+            'E2E testing coverage for exchange loop edge cases',
             'Multi-strategy backtesting framework',
           ],
         },
@@ -259,6 +259,6 @@ export default async function handler(input: Record<string, unknown>): Promise<R
     }
 
     default:
-      return { error: `Unknown action "${action}". Use: describe_architecture, list_capabilities, list_services, list_skills, codebase_map, trading_status, self_assessment` };
+      return { error: `Unknown action "${action}". Use: describe_architecture, list_capabilities, list_services, list_skills, codebase_map, exchange_status, self_assessment` };
   }
 }

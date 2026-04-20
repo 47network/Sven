@@ -2,7 +2,7 @@
 name: mesh-scheduler
 description: Schedules work units to mesh devices based on capability matching, load balancing, battery awareness, and priority.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

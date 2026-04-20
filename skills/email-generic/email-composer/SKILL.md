@@ -2,7 +2,7 @@
 name: email-composer
 description: Draft professional emails from context — compose, format, suggest subject lines and tone.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 when-to-use: Use when the user wants to compose, draft, or write a new email.

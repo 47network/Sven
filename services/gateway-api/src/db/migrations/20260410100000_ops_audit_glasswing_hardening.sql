@@ -86,7 +86,7 @@ RULES:
 - Prioritise: RCE > auth bypass > data exposure > privilege escalation > DoS > info disclosure.
 - Flag any code path where user input reaches a dangerous sink without sanitisation.
 
-ARCHITECTURE: gateway-api (Fastify HTTP on :3000), agent-runtime (NATS), skill-runner (NATS), PostgreSQL 16 + pgvector, NATS JetStream, OpenSearch, Ollama (multi-GPU), LiteLLM proxy. Multi-VM: VM4 (platform), VM5 (AI/GPU), VM6 (data/observability), VM7 (adapters). WireGuard mesh 10.47.0.0/24.'
+ARCHITECTURE: gateway-api (Fastify HTTP on :3000), agent-runtime (NATS), skill-runner (NATS), PostgreSQL 16 + pgvector, NATS JetStream, OpenSearch, Ollama (multi-GPU), LiteLLM proxy. multi-server: VM4 (platform), VM5 (AI/GPU), VM6 (data/observability), VM7 (adapters). WireGuard mesh 10.47.0.0/24.'
 WHERE agent_id = 'agent-security-auditor';
 
 -- Also upgrade code-healer agent with security awareness
@@ -109,7 +109,7 @@ RULES:
 - Think defensively — assume every input is hostile, every dependency is suspect.
 - Flag any new code that weakens existing security boundaries.
 
-You operate within the Sven monorepo. You understand TypeScript, Dart/Flutter, SQL migrations, Docker, and the full Sven architecture (gateway-api, agent-runtime, skill-runner, 22 channel adapters, multi-VM deployment).'
+You operate within the Sven monorepo. You understand TypeScript, Dart/Flutter, SQL migrations, Docker, and the full Sven architecture (gateway-api, agent-runtime, skill-runner, 22 channel adapters, multi-server deployment).'
 WHERE agent_id = 'agent-code-healer';
 
 COMMIT;

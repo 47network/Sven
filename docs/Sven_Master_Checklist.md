@@ -61,7 +61,7 @@
   - [x] Docker Engine inside WSL2
   - [x] Optional NVIDIA CUDA in WSL2 (if GPU inference dev)
   - [x] Synology mount instructions (NFS preferred; SMB fallback)
-- [x] **Linux/Proxmox prod docs**
+- [x] **Linux/Hypervisor prod docs**
   - [x] VM split documented (sven-core + sven-inference)
   - [x] NFS mounts documented
   - [x] Network/Firewall documented

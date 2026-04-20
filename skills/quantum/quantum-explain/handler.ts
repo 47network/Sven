@@ -79,7 +79,7 @@ const ALGORITHM_EXPLANATIONS: Record<string, { description: string; complexity: 
   qmc: {
     description: 'Quantum Monte Carlo uses quantum amplitude estimation to achieve quadratic speedup in Monte Carlo sampling.',
     complexity: 'O(1/ε) vs O(1/ε²) classical — quadratic speedup in precision',
-    svenUseCase: 'Enhanced price predictions, option pricing, risk estimation in the trading platform.',
+    svenUseCase: 'Enhanced price predictions, option pricing, risk estimation in the exchange platform.',
     steps: [
       '1. Encode the probability distribution as quantum amplitudes',
       '2. Apply a function evaluation oracle',

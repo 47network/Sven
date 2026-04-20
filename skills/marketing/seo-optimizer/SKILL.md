@@ -2,7 +2,7 @@
 name: seo-optimizer
 description: SEO analysis and optimization — meta tags, content structure, keyword density, and technical SEO checks.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 when-to-use: Use when the user wants to analyze SEO, optimize page content for search engines, or check meta tags.

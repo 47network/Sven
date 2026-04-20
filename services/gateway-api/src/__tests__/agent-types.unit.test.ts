@@ -354,7 +354,7 @@ describe('QA Agent bug deduplication', () => {
 describe('Agent test VM compose file', () => {
   const composePath = path.resolve(
     __dirname,
-    '../../../../deploy/multi-vm/docker-compose.vm-agents-test.yml',
+    '../../../../deploy/multi-server/docker-compose.vm-agents-test.yml',
   );
 
   it('exists', () => {

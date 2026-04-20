@@ -3,10 +3,10 @@ name: evolution-engine
 description: >
   Self-improving research loop based on ASI-Evolve.
   3-agent pipeline (Researcher → Engineer → Analyzer) that autonomously
-  evolves algorithms: trading strategies, routing policies, RAG retrieval,
+  evolves algorithms: exchange strategies, routing policies, RAG retrieval,
   scheduling heuristics, and prompt engineering.
 version: 1.0.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 
@@ -28,7 +28,7 @@ inputs_schema:
     description: Evolution run ID (for get_run, stop, get_best, inject_knowledge)
   domain:
     type: string
-    enum: [trading_strategy, rag_retrieval, model_routing, prompt_engineering, scheduling, custom]
+    enum: [exchange_strategy, rag_retrieval, model_routing, prompt_engineering, scheduling, custom]
   experiment:
     type: object
     description: Experiment template override (for start_evolution)
@@ -50,7 +50,7 @@ outputs_schema:
 when-to-use: >
   Use when the user wants Sven to autonomously improve an algorithm,
   strategy, or configuration through iterative evolution. Supports
-  trading strategies, RAG retrieval tuning, model routing optimization,
+  exchange strategies, RAG retrieval tuning, model routing optimization,
   prompt engineering, and workflow scheduling.
 ---
 
@@ -78,7 +78,7 @@ Three-agent pipeline per evolution step:
 
 | Domain | Evaluator | Metrics |
 |--------|-----------|---------|
-| Trading Strategy | Backtest P&L | Sharpe, drawdown |
+| Exchange Strategy | Backtest P&L | Sharpe, drawdown |
 | RAG Retrieval | Accuracy test set | MRR, NDCG |
 | Model Routing | Quality + latency + cost | Judge score, p95, $/query |
 | Prompt Engineering | Task completion | Accuracy, format compliance |

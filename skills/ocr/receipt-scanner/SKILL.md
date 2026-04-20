@@ -2,7 +2,7 @@
 name: receipt-scanner
 description: Extracts vendor, items, totals, tax, and payment information from receipt images and scans.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

@@ -2,16 +2,16 @@ syntax = "proto3";
 
 package fortyseven.sven.bridge.v1;
 
-option go_package = "github.com/47network/47dynamics/api-go/internal/svenbridge/pb";
+option go_package = "github.com/47network/acmecorp/api-go/internal/svenbridge/pb";
 
-// SvenBridge defines the gRPC contract between 47Dynamics (client) and
+// SvenBridge defines the gRPC contract between Acmecorp (client) and
 // TheSven AI platform (server). All AI processing that was previously handled
-// by the 47Dynamics Python AI service is delegated to TheSven through this
+// by the Acmecorp Python AI service is delegated to TheSven through this
 // service, which runs as an isolated "legacy" tenant on the TheSven platform.
 //
 // Transport: mTLS-authenticated gRPC over HTTP/2.
 // Auth: Keycloak service-account client_credentials + per-call tenant_id header.
-// Tenant isolation: 47Dynamics operates as org "47dynamics-legacy" on TheSven,
+// Tenant isolation: Acmecorp operates as org "acmecorp-legacy" on TheSven,
 // with data fully isolated via TheSven's multi-tenancy model.
 service SvenBridge {
   // CopilotAsk sends a RAG-augmented question to TheSven's agent runtime.
@@ -32,7 +32,7 @@ service SvenBridge {
   rpc EdgeSummarize(EdgeSummarizeRequest) returns (EdgeSummarizeResponse);
 
   // IndexDomainKnowledge requests TheSven's RAG pipeline to index
-  // 47Dynamics domain data (device docs, patch catalogs, KB articles, etc.).
+  // Acmecorp domain data (device docs, patch catalogs, KB articles, etc.).
   rpc IndexDomainKnowledge(IndexDomainKnowledgeRequest) returns (IndexDomainKnowledgeResponse);
 
   // RunbookSuggest returns runbook recommendations for a given alert type
@@ -47,8 +47,8 @@ service SvenBridge {
 
 // TenantContext is included in every request for tenant isolation.
 message TenantContext {
-  // 47Dynamics tenant UUID — mapped to a sub-scope within the
-  // 47dynamics-legacy organization on TheSven.
+  // Acmecorp tenant UUID — mapped to a sub-scope within the
+  // acmecorp-legacy organization on TheSven.
   string tenant_id = 1;
   // Correlation ID for distributed tracing (propagated to OTel).
   string correlation_id = 2;
@@ -64,7 +64,7 @@ message CopilotAskRequest {
   repeated string context_device_ids = 3;
   // Optional alert UUIDs for context enrichment (max 50).
   repeated string context_alert_ids = 4;
-  // Pre-enriched operational context from 47Dynamics API (device summaries,
+  // Pre-enriched operational context from Acmecorp API (device summaries,
   // alert summaries, ticket counts) — avoids TheSven needing direct DB access.
   OperationalContext operational_context = 5;
 }

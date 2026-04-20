@@ -116,7 +116,7 @@ async function getPackagesSection(root: vscode.Uri): Promise<string[]> {
 function getInfrastructureSection(): string[] {
   const sections: string[] = [];
   sections.push('**Infrastructure:**');
-  sections.push('- `deploy/multi-vm/` — Multi-VM deployment (VM4 Platform, VM5/9 AI, VM6 Data, VM7 Adapters, VM12 Matrix, VM13 GPU)');
+  sections.push('- `deploy/multi-server/` — multi-server deployment (VM4 Platform, VM5/9 AI, VM6 Data, VM7 Adapters, VM12 Matrix, VM13 GPU)');
   sections.push('- `config/` — Prometheus, Grafana, OTEL, Loki, Promtail, Caddy, Nginx, PM2, Traefik');
   sections.push('- `contracts/grpc/` — gRPC protocol definitions');
   sections.push('- `scripts/` — 100+ operational scripts');

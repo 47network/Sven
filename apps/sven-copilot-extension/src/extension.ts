@@ -236,7 +236,7 @@ async function handleDeploy(
   stream.markdown('```bash\n');
   stream.markdown('cd /srv/sven/prod/src\n');
   stream.markdown('docker compose up -d --build gateway-api\n');
-  stream.markdown('docker network connect --alias sven-gateway-api --alias gateway-api multi-vm_platform src-gateway-api-1\n');
+  stream.markdown('docker network connect --alias sven-gateway-api --alias gateway-api multi-server_platform src-gateway-api-1\n');
   stream.markdown('```\n\n');
 
   stream.markdown('### Flutter Companion App\n');

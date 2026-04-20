@@ -2,7 +2,7 @@
 name: self-knowledge
 description: Introspects Sven's own architecture, capabilities, codebase structure, service topology, and current operational state. Use when Sven needs to describe himself, explain what he can do, or reference his own systems.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:
@@ -10,7 +10,7 @@ inputs_schema:
   properties:
     action:
       type: string
-      enum: [describe_identity, describe_architecture, list_capabilities, list_services, list_skills, codebase_map, trading_status, self_assessment]
+      enum: [describe_identity, describe_architecture, list_capabilities, list_services, list_skills, codebase_map, exchange_status, self_assessment]
   required: [action]
 outputs_schema:
   type: object
@@ -30,5 +30,5 @@ Actions:
 - `list_services` — All microservices with their roles, hosts, and resource limits
 - `list_skills` — All installed skill categories and individual skills
 - `codebase_map` — Monorepo directory structure with purpose of each directory
-- `trading_status` — Current trading system configuration and capabilities
+- `exchange_status` — Current exchange system configuration and capabilities
 - `self_assessment` — Sven's honest assessment of his strengths, limitations, and growth areas

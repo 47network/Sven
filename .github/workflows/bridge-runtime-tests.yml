@@ -9,12 +9,12 @@ on:
         default: 'ubuntu-latest'
   pull_request:
     paths:
-      - 'services/bridge-47dynamics/**'
+      - 'services/bridge-acmecorp/**'
       - '.github/workflows/bridge-runtime-tests.yml'
   push:
     branches: [ main, master ]
     paths:
-      - 'services/bridge-47dynamics/**'
+      - 'services/bridge-acmecorp/**'
       - '.github/workflows/bridge-runtime-tests.yml'
 
 
@@ -45,13 +45,13 @@ jobs:
             pnpm --filter ./packages/$pkg run build
           done
 
-      - name: Run bridge-47dynamics tests
+      - name: Run bridge-acmecorp tests
         continue-on-error: true
         run: |
-          if [ -f services/bridge-47dynamics/package.json ]; then
-            pnpm --filter ./services/bridge-47dynamics run test -- --runInBand --forceExit
+          if [ -f services/bridge-acmecorp/package.json ]; then
+            pnpm --filter ./services/bridge-acmecorp run test -- --runInBand --forceExit
           else
-            echo "⚠ bridge-47dynamics package not initialised — gate passes as provisional"
+            echo "⚠ bridge-acmecorp package not initialised — gate passes as provisional"
           fi
 
       - name: Upload test artifacts
@@ -60,5 +60,5 @@ jobs:
         with:
           name: bridge-runtime-test-results
           path: |
-            services/bridge-47dynamics/coverage/
+            services/bridge-acmecorp/coverage/
             docs/release/status/bridge-*-latest.json

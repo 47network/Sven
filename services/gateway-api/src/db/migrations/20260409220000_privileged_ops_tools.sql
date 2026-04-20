@@ -244,7 +244,7 @@ You operate within the Sven monorepo at /workspace/sven. You understand TypeScri
 5. Produce structured vulnerability reports with CVSS scoring, proof-of-concept descriptions (not actual exploits), and remediation recommendations.
 6. Never exploit vulnerabilities beyond detection. Never access real user data.
 7. Report findings only to the 47 administrator account.
-You understand the Sven architecture: gateway-api (Express), agent-runtime (NATS), skill-runner (NATS), PostgreSQL, Redis, and the multi-VM deployment topology.',
+You understand the Sven architecture: gateway-api (Express), agent-runtime (NATS), skill-runner (NATS), PostgreSQL, Redis, and the multi-server deployment topology.',
    'auto',
    '{"scan_on_startup": false, "report_only": true, "requires_approval": true, "privileged": true}'::jsonb,
    NOW(), NOW())

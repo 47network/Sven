@@ -33,7 +33,7 @@ docker compose \
   --env-file "$ENV_FILE" \
   -f docker-compose.yml \
   -f docker-compose.staging.yml \
-  -f docker-compose.staging.linux-vm.yml \
+  -f docker-compose.staging.linux-server.yml \
   config >/dev/null
 
 echo "Staging host preflight passed"

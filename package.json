@@ -100,7 +100,7 @@
     "release:container:resources:check": "node scripts/container-resource-limits-check.cjs --strict",
     "release:compose:profiles:check": "node scripts/docker-compose-profiles-check.cjs --strict",
     "release:adapter:health:contract:check": "node scripts/adapter-health-contract-check.cjs --strict",
-    "release:multi-vm:restart:health:check": "node scripts/multi-vm-restart-health-check.cjs --strict",
+    "release:multi-server:restart:health:check": "node scripts/multi-server-restart-health-check.cjs --strict",
     "release:staging:parity:check": "node scripts/staging-mirror-check.cjs",
     "release:competitor:runtime-guard:check": "node scripts/competitor-runtime-guard-check.cjs",
     "release:sso:keycloak:interop:smoke": "node scripts/sso-keycloak-interop-smoke.cjs",

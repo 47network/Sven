@@ -2,7 +2,7 @@
 name: video-generator
 description: Create videos programmatically — marketing videos, data visualizations, social media content, tutorials, and brand videos using ffmpeg-based rendering with declarative JSON composition specs.
 version: 1.0.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema: {"type":"object","properties":{"action":{"type":"string","enum":["create_video","list_templates","render","get_status","cancel","preview","get_stats"],"default":"list_templates"},"description":{"type":"string","description":"Natural language description of the video to create (for create_video action)"},"template":{"type":"string","enum":["social_media","data_dashboard","product_showcase","tutorial","brand"],"description":"Pre-built template domain to use"},"aspect_ratio":{"type":"string","enum":["16:9","9:16","1:1","4:3"],"default":"16:9"},"spec":{"type":"object","description":"Full VideoSpec JSON override (optional, for advanced users)"},"job_id":{"type":"string","description":"Render job ID (for get_status, cancel actions)"},"org_id":{"type":"string","description":"Organization ID"},"user_id":{"type":"string","description":"User ID"}},"required":["action"],"additionalProperties":false}

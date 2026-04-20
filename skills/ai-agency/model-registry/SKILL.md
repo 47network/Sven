@@ -2,7 +2,7 @@
 name: model-registry
 description: Manages the model catalog — register, unregister, query models by task or status, set defaults, and check health.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

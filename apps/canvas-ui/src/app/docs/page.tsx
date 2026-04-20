@@ -61,7 +61,7 @@ const guides = [
   },
   {
     title: 'Deployment & Operations',
-    body: 'Docker Compose profiles, Kubernetes manifests, bare-metal systemd, PM2, and multi-VM deploy guides.',
+    body: 'Docker Compose profiles, Kubernetes manifests, bare-metal systemd, PM2, and multi-server deploy guides.',
     href: '/suite/docs',
   },
 ];

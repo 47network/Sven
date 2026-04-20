@@ -55,11 +55,11 @@ Required runtime env:
 
 Executable assets for this tier:
 
-- `config/env/.env.production.linux-vm.example`
-- `docker-compose.production.linux-vm.yml`
-- `scripts/ops/sh/bootstrap-production-linux-vm.sh`
-- `scripts/ops/sh/production-linux-vm-up.sh`
-- `scripts/ops/sh/production-linux-vm-verify.sh`
+- `config/env/.env.production.linux-server.example`
+- `docker-compose.production.linux-server.yml`
+- `scripts/ops/sh/bootstrap-production-linux-server.sh`
+- `scripts/ops/sh/production-linux-server-up.sh`
+- `scripts/ops/sh/production-linux-server-verify.sh`
 
 ---
 
@@ -99,15 +99,15 @@ Bring up:
 Recommended production bootstrap order:
 
 ```bash
-sh scripts/ops/sh/bootstrap-production-linux-vm.sh
-cp config/env/.env.production.linux-vm.example /srv/sven/prod/env/.env.production
+sh scripts/ops/sh/bootstrap-production-linux-server.sh
+cp config/env/.env.production.linux-server.example /srv/sven/prod/env/.env.production
 # edit /srv/sven/prod/env/.env.production
 
 docker compose \
   --env-file /srv/sven/prod/env/.env.production \
   -f docker-compose.yml \
   -f docker-compose.production.yml \
-  -f docker-compose.production.linux-vm.yml \
+  -f docker-compose.production.linux-server.yml \
   up -d postgres nats opensearch
 
 npm install
@@ -115,8 +115,8 @@ npm run --workspace services/gateway-api build
 npm run --workspace services/gateway-api db:migrate
 npm run --workspace services/gateway-api db:seed
 
-sh scripts/ops/sh/production-linux-vm-up.sh
-sh scripts/ops/sh/production-linux-vm-verify.sh
+sh scripts/ops/sh/production-linux-server-up.sh
+sh scripts/ops/sh/production-linux-server-verify.sh
 ```
 
 ### 5. Post-deploy smoke

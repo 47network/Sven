@@ -16,7 +16,7 @@ Use it to answer one question quickly:
 | Quick trial from release assets | GitHub / evaluators | existing Linux or Windows machine | quickstart installer | [quickstart-installers.md](quickstart-installers.md) |
 | First real staging | operators | single Linux VM | Docker Compose | [staging-execution-plan-2026.md](staging-execution-plan-2026.md) |
 | Staging on bare metal | operators | bare-metal Linux | Docker Compose | [staging-bare-metal-2026.md](staging-bare-metal-2026.md) |
-| Staging on small Proxmox + LAN GPU | operators | Proxmox VM + inference LAN VM(s) | Docker Compose | [staging-proxmox-small-host-lan-gpu-2026.md](staging-proxmox-small-host-lan-gpu-2026.md) |
+| Staging on small Hypervisor + LAN GPU | operators | Hypervisor VM + inference LAN VM(s) | Docker Compose | [staging-hypervisor-small-host-lan-gpu-2026.md](staging-hypervisor-small-host-lan-gpu-2026.md) |
 | First real production | operators | single hardened Linux VM | Docker Compose | [production-v1-rollout-plan-2026.md](production-v1-rollout-plan-2026.md) |
 | Production scale | platform/ops | Kubernetes on Linux nodes | Kustomize / cluster services | [production-scale-kubernetes-reference-2026.md](production-scale-kubernetes-reference-2026.md) |
 
@@ -65,14 +65,14 @@ Start with:
 ### Linux VM
 
 - docs:
-  - [staging-linux-vm-2026.md](staging-linux-vm-2026.md)
-  - [production-v1-linux-vm-2026.md](production-v1-linux-vm-2026.md)
+  - [staging-linux-server-2026.md](staging-linux-server-2026.md)
+  - [production-v1-linux-server-2026.md](production-v1-linux-server-2026.md)
 
-### Proxmox VM with external inference
+### Hypervisor VM with external inference
 
 - docs:
-  - [staging-proxmox-small-host-lan-gpu-2026.md](staging-proxmox-small-host-lan-gpu-2026.md)
-  - [proxmox-prod.md](proxmox-prod.md)
+  - [staging-hypervisor-small-host-lan-gpu-2026.md](staging-hypervisor-small-host-lan-gpu-2026.md)
+  - [hypervisor-prod.md](hypervisor-prod.md)
 
 ### Bare metal Linux
 
@@ -117,7 +117,7 @@ This separation is deliberate and should not be collapsed.
 
 ## Scope Notes
 
-- `proxmox-prod.md` is a specialization of the production v1 topology for teams that want VM separation or LAN inference isolation. It is not a replacement for the deployment ladder.
+- `hypervisor-prod.md` is a specialization of the production v1 topology for teams that want VM separation or LAN inference isolation. It is not a replacement for the deployment ladder.
 - bare metal is covered for staging today. If a production bare-metal path is needed, it should be documented explicitly rather than inferred.
 
 ---

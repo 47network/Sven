@@ -282,8 +282,8 @@ For production deployments beyond `docker compose`:
 
 - [Deployment Ladder](docs/deploy/deployment-ladder-2026.md) — choose your deployment tier
 - [Setup Paths Matrix](docs/deploy/setup-paths-matrix-2026.md) — hardware and config decision tree
-- [Staging VM Guide](docs/deploy/staging-linux-vm-2026.md) — single-node staging deployment
-- [Production VM Guide](docs/deploy/production-v1-linux-vm-2026.md) — production-grade single-node
+- [Staging VM Guide](docs/deploy/staging-linux-server-2026.md) — single-node staging deployment
+- [Production VM Guide](docs/deploy/production-v1-linux-server-2026.md) — production-grade single-node
 - [Production Scale](docs/deploy/production-scale-2026.md) — multi-node / Kubernetes
 
 ---

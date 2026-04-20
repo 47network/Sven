@@ -7,7 +7,7 @@
 ## Scope touched
 - Bridge runtime test lane and gateway bridge contract lane.
 - Required release workflow inventory under `.github/workflows/`.
-- Multi-VM strict-mode tenant-mapping cutover guidance.
+- multi-server strict-mode tenant-mapping cutover guidance.
 
 ## Operational impact
 - CI surfaces will execute broader bridge and gateway contract checks.

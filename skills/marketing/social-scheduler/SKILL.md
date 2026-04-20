@@ -2,7 +2,7 @@
 name: social-scheduler
 description: Plan and schedule social media content — multi-platform posting calendar, hashtag suggestions, optimal timing.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 when-to-use: Use when the user wants to plan social media posts, create a content calendar, or schedule content.

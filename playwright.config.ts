@@ -2,16 +2,16 @@ import fs from 'node:fs';
 import { defineConfig } from '@playwright/test';
 
 const hasDesktopTauri = fs.existsSync('apps/companion-desktop-tauri');
-const hasTradingUi = fs.existsSync('apps/trading-ui');
+const hasExchangeUi = fs.existsSync('apps/exchange-ui');
 const adminPort = Number(process.env.ADMIN_UI_PORT || '3100');
 const canvasPort = Number(process.env.CANVAS_UI_PORT || '3200');
-const tradingPort = Number(process.env.TRADING_UI_PORT || '3300');
+const exchangePort = Number(process.env.EXCHANGE_UI_PORT || '3300');
 const adminBasePath = process.env.ADMIN_BASE_PATH || '/admin47';
 const normalizedAdminBasePath = adminBasePath === '/' ? '' : adminBasePath.replace(/\/$/, '');
 const adminOrigin = `http://127.0.0.1:${adminPort}`;
 const adminBaseUrl = `${adminOrigin}${normalizedAdminBasePath}`;
 const canvasBaseUrl = `http://127.0.0.1:${canvasPort}`;
-const tradingBaseUrl = `http://127.0.0.1:${tradingPort}`;
+const exchangeBaseUrl = `http://127.0.0.1:${exchangePort}`;
 
 const projects: Array<{ name: string; use: { baseURL: string }; grep: RegExp }> = [
   {
@@ -26,11 +26,11 @@ const projects: Array<{ name: string; use: { baseURL: string }; grep: RegExp }> 
   },
 ];
 
-if (hasTradingUi) {
+if (hasExchangeUi) {
   projects.push({
-    name: 'trading-web',
-    use: { baseURL: tradingBaseUrl },
-    grep: /@trading/,
+    name: 'exchange-web',
+    use: { baseURL: exchangeBaseUrl },
+    grep: /@exchange/,
   });
 }
 
@@ -49,10 +49,10 @@ const webServer: Array<{ command: string; url: string; reuseExistingServer: bool
   },
 ];
 
-if (hasTradingUi) {
+if (hasExchangeUi) {
   webServer.push({
-    command: `cd apps/trading-ui && npx next dev --port ${tradingPort}`,
-    url: tradingBaseUrl,
+    command: `cd apps/exchange-ui && npx next dev --port ${exchangePort}`,
+    url: exchangeBaseUrl,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   });

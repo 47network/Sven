@@ -75,7 +75,7 @@ function run() {
 
   checks.push({
     id: 'vm_restart_drill_repo_contract_present',
-    pass: hasCommand(evidence, /release:multi-vm:restart:health:check/),
+    pass: hasCommand(evidence, /release:multi-server:restart:health:check/),
     detail: 'repo restart-health contract command recorded',
   });
 

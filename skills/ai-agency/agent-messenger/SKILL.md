@@ -2,7 +2,7 @@
 name: agent-messenger
 description: Sends messages between agents, broadcasts to channels, and retrieves message history for inter-agent communication.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

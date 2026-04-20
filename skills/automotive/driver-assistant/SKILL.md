@@ -5,7 +5,7 @@ description: >
   generates ticket appeal PDFs with dashcam evidence, checks STAS 1848 road sign compliance,
   reads OBD-II diagnostic trouble codes, and OCR-extracts receipts/invoices for TCO dashboards.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

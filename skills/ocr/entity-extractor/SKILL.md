@@ -2,7 +2,7 @@
 name: entity-extractor
 description: Extracts named entities (people, organizations, dates, currency, PII) from document text with optional PII redaction.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

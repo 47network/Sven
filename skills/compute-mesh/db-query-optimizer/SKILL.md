@@ -2,7 +2,7 @@
 name: db-query-optimizer
 description: Analyze SQL queries — suggest indexes, detect N+1 patterns, explain execution plans.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 when-to-use: Use when the user wants to optimize SQL queries, analyze database performance, or get index suggestions.

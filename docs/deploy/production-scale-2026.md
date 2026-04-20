@@ -30,7 +30,7 @@ Acceptable:
 
 Not recommended as the first scale step:
 
-- custom hand-managed multi-VM scripts without orchestration
+- custom hand-managed multi-server scripts without orchestration
 
 Reference package:
 
@@ -175,7 +175,7 @@ If you skip the first two, production-scale architecture becomes guesswork.
 ## Related
 
 - [deployment-ladder-2026.md](deployment-ladder-2026.md)
-- [production-v1-linux-vm-2026.md](production-v1-linux-vm-2026.md)
+- [production-v1-linux-server-2026.md](production-v1-linux-server-2026.md)
 - [production-scale-kubernetes-reference-2026.md](production-scale-kubernetes-reference-2026.md)
 - [observability-standards-2026.md](../architecture/observability-standards-2026.md)
 - [performance-capacity-targets-2026.md](../performance/performance-capacity-targets-2026.md)

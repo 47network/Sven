@@ -4,7 +4,7 @@ This is the recommended staging plan if you want one physical Linux host to carr
 
 Use this when:
 
-- you do not want the Proxmox layer for staging
+- you do not want the Hypervisor layer for staging
 - you have a single strong Linux host available
 - you want fewer virtualization variables during first real deployment proof
 
@@ -83,13 +83,13 @@ EMBEDDINGS_URL=http://sven-inference-01.lan:11434
 
 ## When Bare Metal Is Better
 
-Prefer bare metal staging over Proxmox when:
+Prefer bare metal staging over Hypervisor when:
 
 - you want the shortest path to first real Linux proof
 - disk IO on the physical host is materially better
 - you want to eliminate VM sizing mistakes during first rollout
 
-Prefer Proxmox when:
+Prefer Hypervisor when:
 
 - you need better host consolidation
 - you want snapshot workflows at the hypervisor layer
@@ -124,6 +124,6 @@ Bare-metal staging is accepted only when:
 
 ## Related
 
-- [staging-linux-vm-2026.md](staging-linux-vm-2026.md)
+- [staging-linux-server-2026.md](staging-linux-server-2026.md)
 - [staging-execution-plan-2026.md](staging-execution-plan-2026.md)
 - [staging-host-bringup-checklist-2026.md](staging-host-bringup-checklist-2026.md)

@@ -20,7 +20,7 @@ CREATE INDEX IF NOT EXISTS idx_bridge_tenant_mappings_active_lookup
 CREATE INDEX IF NOT EXISTS idx_bridge_tenant_mappings_org
   ON bridge_tenant_mappings (organization_id, is_active);
 
--- Seed wildcard fallback mapping for current legacy 47Dynamics deployment.
+-- Seed wildcard fallback mapping for current legacy acmecorp deployment.
 INSERT INTO bridge_tenant_mappings (
   id,
   source_platform,
@@ -35,20 +35,20 @@ INSERT INTO bridge_tenant_mappings (
 )
 SELECT
   gen_random_uuid()::text,
-  '47dynamics',
+  'acmecorp',
   '*',
-  '47dynamics-legacy-org',
-  '47dynamics-hq',
-  '47dynamics-copilot',
+  'acmecorp-legacy-org',
+  'acmecorp-hq',
+  'acmecorp-copilot',
   TRUE,
   '{"seeded_from":"legacy_defaults"}'::jsonb,
   NOW(),
   NOW()
 WHERE EXISTS (
-  SELECT 1 FROM organizations WHERE id = '47dynamics-legacy-org'
+  SELECT 1 FROM organizations WHERE id = 'acmecorp-legacy-org'
 )
 AND EXISTS (
-  SELECT 1 FROM chats WHERE id = '47dynamics-hq'
+  SELECT 1 FROM chats WHERE id = 'acmecorp-hq'
 )
 ON CONFLICT (source_platform, external_tenant_id) DO NOTHING;
 

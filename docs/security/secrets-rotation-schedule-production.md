@@ -2,7 +2,7 @@
 
 **Last audited:** 2026-03-20  
 **Owner:** Platform Operations  
-**Scope:** Multi-VM production deployment (VM4–VM7)
+**Scope:** multi-server production deployment (VM4–VM7)
 
 ---
 
@@ -43,12 +43,12 @@
 
 All production `.env` files live on the respective VMs under:
 ```
-/srv/sven/prod/src/deploy/multi-vm/.env
+/srv/sven/prod/src/deploy/multi-server/.env
 ```
 
 The `SVEN_METRICS_AUTH_TOKEN` is stored separately for Prometheus:
 ```
-VM6: /srv/sven/prod/src/deploy/multi-vm/secrets/metrics-token
+VM6: /srv/sven/prod/src/deploy/multi-server/secrets/metrics-token
 ```
 
 ---
@@ -89,18 +89,18 @@ ssh sven-platform "sudo docker exec sven-postgres psql -U sven -d sven -c \
 # 3. Update .env on ALL VMs
 for vm in sven-platform sven-ai sven-data sven-adapters; do
   ssh $vm "sudo sed -i 's|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$NEW_PG_PASS|' \
-    /srv/sven/prod/src/deploy/multi-vm/.env"
+    /srv/sven/prod/src/deploy/multi-server/.env"
 done
 
 # 4. Restart services on each VM (order: VM4 first, then others)
 ssh sven-platform "cd /srv/sven/prod/src && sudo docker compose \
-  -f deploy/multi-vm/docker-compose.vm4-platform.yml restart"
+  -f deploy/multi-server/docker-compose.vm4-platform.yml restart"
 ssh sven-ai "cd /srv/sven/prod/src && sudo docker compose \
-  -f deploy/multi-vm/docker-compose.vm5-ai.yml restart"
+  -f deploy/multi-server/docker-compose.vm5-ai.yml restart"
 ssh sven-data "cd /srv/sven/prod/src && sudo docker compose \
-  -f deploy/multi-vm/docker-compose.vm6-data.yml restart"
+  -f deploy/multi-server/docker-compose.vm6-data.yml restart"
 ssh sven-adapters "cd /srv/sven/prod/src && sudo docker compose \
-  -f deploy/multi-vm/docker-compose.vm7-adapters.yml restart"
+  -f deploy/multi-server/docker-compose.vm7-adapters.yml restart"
 
 # 5. Verify
 ssh sven-platform "sudo docker exec sven-postgres psql -U sven -d sven -c 'SELECT 1;'"
@@ -120,11 +120,11 @@ NEW_COOKIE=$(openssl rand -hex 32)
 
 # 2. Update .env on VM4
 ssh sven-platform "sudo sed -i 's|^COOKIE_SECRET=.*|COOKIE_SECRET=$NEW_COOKIE|' \
-  /srv/sven/prod/src/deploy/multi-vm/.env"
+  /srv/sven/prod/src/deploy/multi-server/.env"
 
 # 3. Restart gateway only
 ssh sven-platform "cd /srv/sven/prod/src && sudo docker compose \
-  -f deploy/multi-vm/docker-compose.vm4-platform.yml restart gateway-api"
+  -f deploy/multi-server/docker-compose.vm4-platform.yml restart gateway-api"
 
 # 4. Verify login works
 curl -sk https://sven.systems/api/health
@@ -143,23 +143,23 @@ NEW_ADAPTER_TOKEN=$(openssl rand -hex 32)
 
 # 2. Update on VM4 (gateway accepts this token)
 ssh sven-platform "sudo sed -i 's|^SVEN_ADAPTER_TOKEN=.*|SVEN_ADAPTER_TOKEN=$NEW_ADAPTER_TOKEN|' \
-  /srv/sven/prod/src/deploy/multi-vm/.env"
+  /srv/sven/prod/src/deploy/multi-server/.env"
 ssh sven-platform "cd /srv/sven/prod/src && sudo docker compose \
-  -f deploy/multi-vm/docker-compose.vm4-platform.yml restart gateway-api"
+  -f deploy/multi-server/docker-compose.vm4-platform.yml restart gateway-api"
 
 # 3. Update on VM5, VM6, VM7
 for vm in sven-ai sven-data sven-adapters; do
   ssh $vm "sudo sed -i 's|^SVEN_ADAPTER_TOKEN=.*|SVEN_ADAPTER_TOKEN=$NEW_ADAPTER_TOKEN|' \
-    /srv/sven/prod/src/deploy/multi-vm/.env"
+    /srv/sven/prod/src/deploy/multi-server/.env"
 done
 
 # 4. Restart adapter services
 ssh sven-adapters "cd /srv/sven/prod/src && sudo docker compose \
-  -f deploy/multi-vm/docker-compose.vm7-adapters.yml restart"
+  -f deploy/multi-server/docker-compose.vm7-adapters.yml restart"
 ssh sven-ai "cd /srv/sven/prod/src && sudo docker compose \
-  -f deploy/multi-vm/docker-compose.vm5-ai.yml restart"
+  -f deploy/multi-server/docker-compose.vm5-ai.yml restart"
 ssh sven-data "cd /srv/sven/prod/src && sudo docker compose \
-  -f deploy/multi-vm/docker-compose.vm6-data.yml restart"
+  -f deploy/multi-server/docker-compose.vm6-data.yml restart"
 
 # 5. Verify Discord bot reconnects
 ssh sven-adapters "sudo docker logs --tail 5 sven-adapter-discord 2>&1 | grep -i 'guild\|connect'"
@@ -178,11 +178,11 @@ NEW_ADMIN_PASS=$(openssl rand -base64 24 | tr -d '/+=' | head -c 24)
 
 # 2. Update .env on VM4
 ssh sven-platform "sudo sed -i 's|^ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$NEW_ADMIN_PASS|' \
-  /srv/sven/prod/src/deploy/multi-vm/.env"
+  /srv/sven/prod/src/deploy/multi-server/.env"
 
 # 3. Restart gateway
 ssh sven-platform "cd /srv/sven/prod/src && sudo docker compose \
-  -f deploy/multi-vm/docker-compose.vm4-platform.yml restart gateway-api"
+  -f deploy/multi-server/docker-compose.vm4-platform.yml restart gateway-api"
 
 # 4. Verify login
 echo "New admin credentials: 47 / $NEW_ADMIN_PASS"
@@ -208,16 +208,16 @@ ssh sven-data "sudo docker exec sven-opensearch bash -c \
 # 3. Update .env on VM4 and VM6
 for vm in sven-platform sven-data; do
   ssh $vm "sudo sed -i 's|^OPENSEARCH_PASSWORD=.*|OPENSEARCH_PASSWORD=$NEW_OS_PASS|' \
-    /srv/sven/prod/src/deploy/multi-vm/.env"
+    /srv/sven/prod/src/deploy/multi-server/.env"
   ssh $vm "sudo sed -i 's|^OPENSEARCH_INITIAL_ADMIN_PASSWORD=.*|OPENSEARCH_INITIAL_ADMIN_PASSWORD=$NEW_OS_PASS|' \
-    /srv/sven/prod/src/deploy/multi-vm/.env"
+    /srv/sven/prod/src/deploy/multi-server/.env"
 done
 
 # 4. Restart consumers
 ssh sven-data "cd /srv/sven/prod/src && sudo docker compose \
-  -f deploy/multi-vm/docker-compose.vm6-data.yml restart"
+  -f deploy/multi-server/docker-compose.vm6-data.yml restart"
 ssh sven-platform "cd /srv/sven/prod/src && sudo docker compose \
-  -f deploy/multi-vm/docker-compose.vm4-platform.yml restart gateway-api"
+  -f deploy/multi-server/docker-compose.vm4-platform.yml restart gateway-api"
 ```
 
 ---
@@ -233,13 +233,13 @@ NEW_METRICS_TOKEN=$(openssl rand -hex 24)
 
 # 2. Update .env on VM4 (gateway validates this token)
 ssh sven-platform "sudo sed -i 's|^SVEN_METRICS_AUTH_TOKEN=.*|SVEN_METRICS_AUTH_TOKEN=$NEW_METRICS_TOKEN|' \
-  /srv/sven/prod/src/deploy/multi-vm/.env"
+  /srv/sven/prod/src/deploy/multi-server/.env"
 ssh sven-platform "cd /srv/sven/prod/src && sudo docker compose \
-  -f deploy/multi-vm/docker-compose.vm4-platform.yml restart gateway-api"
+  -f deploy/multi-server/docker-compose.vm4-platform.yml restart gateway-api"
 
 # 3. Update the token file on VM6
 ssh sven-data "printf '%s' '$NEW_METRICS_TOKEN' | sudo tee \
-  /srv/sven/prod/src/deploy/multi-vm/secrets/metrics-token > /dev/null"
+  /srv/sven/prod/src/deploy/multi-server/secrets/metrics-token > /dev/null"
 
 # 4. Restart Prometheus (it re-reads the file on scrape, but restart to be safe)
 ssh sven-data "sudo docker restart sven-prometheus"
@@ -267,7 +267,7 @@ ssh sven-data "sudo docker exec sven-grafana grafana cli admin reset-admin-passw
 
 # 3. Update .env for consistency
 ssh sven-data "sudo sed -i 's|^GRAFANA_ADMIN_PASSWORD=.*|GRAFANA_ADMIN_PASSWORD=$NEW_GRAFANA_PASS|' \
-  /srv/sven/prod/src/deploy/multi-vm/.env"
+  /srv/sven/prod/src/deploy/multi-server/.env"
 
 # 4. Verify
 echo "New Grafana credentials: admin / $NEW_GRAFANA_PASS"
@@ -286,17 +286,17 @@ NEW_LITELLM_KEY="sk-$(openssl rand -hex 24)"
 
 # 2. Update .env on VM5
 ssh sven-ai "sudo sed -i 's|^LITELLM_MASTER_KEY=.*|LITELLM_MASTER_KEY=$NEW_LITELLM_KEY|' \
-  /srv/sven/prod/src/deploy/multi-vm/.env"
+  /srv/sven/prod/src/deploy/multi-server/.env"
 
 # 3. Update .env on VM4 (gateway references this key)
 ssh sven-platform "sudo sed -i 's|^LITELLM_MASTER_KEY=.*|LITELLM_MASTER_KEY=$NEW_LITELLM_KEY|' \
-  /srv/sven/prod/src/deploy/multi-vm/.env"
+  /srv/sven/prod/src/deploy/multi-server/.env"
 
 # 4. Restart LiteLLM then gateway
 ssh sven-ai "cd /srv/sven/prod/src && sudo docker compose \
-  -f deploy/multi-vm/docker-compose.vm5-ai.yml restart litellm"
+  -f deploy/multi-server/docker-compose.vm5-ai.yml restart litellm"
 ssh sven-platform "cd /srv/sven/prod/src && sudo docker compose \
-  -f deploy/multi-vm/docker-compose.vm4-platform.yml restart gateway-api"
+  -f deploy/multi-server/docker-compose.vm4-platform.yml restart gateway-api"
 
 # 5. Verify
 ssh sven-ai "curl -s -H 'Authorization: Bearer $NEW_LITELLM_KEY' http://localhost:4000/health | head -1"
@@ -335,9 +335,9 @@ alongside these procedures. Additional steps:
 ## Audit Notes
 
 - **Hardcoded secret fixed (2026-03-20):** `SVEN_METRICS_AUTH_TOKEN` was previously
-  hardcoded in `deploy/multi-vm/prometheus-multi-vm.yml`. Moved to file-based loading
+  hardcoded in `deploy/multi-server/prometheus-multi-server.yml`. Moved to file-based loading
   via `http_headers.<name>.files` in Prometheus 2.54. Token now stored at
-  `deploy/multi-vm/secrets/metrics-token` (git-ignored, host-only).
+  `deploy/multi-server/secrets/metrics-token` (git-ignored, host-only).
 - **No secrets in source control:** All `.env` files are git-ignored. Example templates
   (`.env.vm*.example`) contain only placeholder values.
 - **Backup scripts:** `backup-restore.sh` reads credentials dynamically from `.env`

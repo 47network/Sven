@@ -2,7 +2,7 @@
 name: self-heal-guide
 description: Teaches Sven how to use his own self-healing pipeline — diagnose issues, scan code, propose fixes, deploy, rollback, and introspect heal history. This is Sven's operational playbook for maintaining himself.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

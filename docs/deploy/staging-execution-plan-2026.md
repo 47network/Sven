@@ -7,7 +7,7 @@ Use this document when you are ready to stop validating on the Windows host and 
 Operator checklist companion:
 
 - [staging-host-bringup-checklist-2026.md](staging-host-bringup-checklist-2026.md)
-- [staging-proxmox-small-host-lan-gpu-2026.md](staging-proxmox-small-host-lan-gpu-2026.md)
+- [staging-hypervisor-small-host-lan-gpu-2026.md](staging-hypervisor-small-host-lan-gpu-2026.md)
 - [staging-bare-metal-2026.md](staging-bare-metal-2026.md)
 
 ---
@@ -111,7 +111,7 @@ If SSH should not be public, restrict `22/tcp` to your admin subnet or VPN only.
 Create the runtime directories:
 
 ```bash
-sh scripts/ops/sh/bootstrap-staging-linux-vm.sh
+sh scripts/ops/sh/bootstrap-staging-linux-server.sh
 sh scripts/ops/sh/generate-staging-env.sh /srv/sven/staging/env/.env.staging
 ```
 
@@ -177,7 +177,7 @@ SVEN_NAS_ROOT=/srv/sven/staging/data/nas
 
 Do not reuse production secrets.
 
-If you are using the Proxmox small-host + LAN GPU topology, override inference before generation:
+If you are using the Hypervisor small-host + LAN GPU topology, override inference before generation:
 
 ```bash
 export OLLAMA_URL=http://sven-inference-01.lan:11434
@@ -219,7 +219,7 @@ docker compose \
   --env-file /srv/sven/staging/env/.env.staging \
   -f docker-compose.yml \
   -f docker-compose.staging.yml \
-  -f docker-compose.staging.linux-vm.yml \
+  -f docker-compose.staging.linux-server.yml \
   up -d postgres nats opensearch
 ```
 
@@ -252,14 +252,14 @@ Staging is not valid until seed baseline succeeds.
 ## Phase 7: Start Sven Services
 
 ```bash
-sh scripts/ops/sh/staging-linux-vm-up.sh
+sh scripts/ops/sh/staging-linux-server-up.sh
 ```
 
 Verify:
 
 ```bash
 sh scripts/ops/sh/staging-host-preflight.sh
-sh scripts/ops/sh/staging-linux-vm-verify.sh
+sh scripts/ops/sh/staging-linux-server-verify.sh
 curl -fsS http://127.0.0.1:3000/healthz
 ```
 

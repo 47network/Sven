@@ -2,7 +2,7 @@
 name: quantum-random
 description: Generate quantum-quality random numbers using Hadamard superposition measurement. Returns bits, bytes, entropy score, and randomness analysis.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

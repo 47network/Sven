@@ -2,7 +2,7 @@
 name: docx-generator
 description: Create Word-compatible documents (.docx) from structured content — headings, paragraphs, tables, lists, and styled text.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 when-to-use: Use when the user asks to create a Word document, DOCX file, or formatted text document with structured content.

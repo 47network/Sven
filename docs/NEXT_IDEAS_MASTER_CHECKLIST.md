@@ -3,7 +3,7 @@
 > Generated: 2026-04-15
 > Source: Video transcript research + architecture analysis
 > Status: PLANNING PHASE — no code yet
-> Private branch codename: **`argentum`** (Ag — element 47, Latin for silver)
+> Private branch codename: **`project-x`** (Ag — element 47, Latin for silver)
 
 ---
 
@@ -570,7 +570,7 @@ C (Memory) → F (Skills use improved memory)
 
 ### Decision 1 — GPU Inventory ✅
 
-**Source:** `deploy/multi-vm/docker-compose.vm5-ai.yml` + `deploy/multi-vm/RUNBOOK.md` + `skills/ai-agency/self-knowledge/handler.ts`
+**Source:** `deploy/multi-server/docker-compose.vm5-ai.yml` + `deploy/multi-server/RUNBOOK.md` + `skills/ai-agency/self-knowledge/handler.ts`
 
 | Node | GPU(s) | VRAM | Arch | Role | Status |
 |------|--------|------|------|------|--------|

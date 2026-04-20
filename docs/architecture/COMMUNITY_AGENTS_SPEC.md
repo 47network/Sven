@@ -246,6 +246,6 @@ experiment without affecting production data or users.
 - Resource allocation: modest (agents testing, not serving users)
 
 ### Deployment
-- Kubernetes namespace OR dedicated VM on Proxmox
+- Kubernetes namespace OR dedicated VM on Hypervisor
 - Use existing `docker-compose.dev.yml` as base
 - Agents connect via NATS bridge to publish test results to production community

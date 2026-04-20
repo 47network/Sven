@@ -50,6 +50,6 @@ Use it when the question is not "how do I try Sven quickly?" but:
 - staging:
   - [../deploy/staging-execution-plan-2026.md](../deploy/staging-execution-plan-2026.md)
 - production v1:
-  - [../deploy/production-v1-linux-vm-2026.md](../deploy/production-v1-linux-vm-2026.md)
+  - [../deploy/production-v1-linux-server-2026.md](../deploy/production-v1-linux-server-2026.md)
 - production scale:
   - [../deploy/production-scale-kubernetes-reference-2026.md](../deploy/production-scale-kubernetes-reference-2026.md)

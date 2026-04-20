@@ -2,7 +2,7 @@
 name: document-summarizer
 description: Generates extractive summaries from documents with configurable style, key point extraction, and document comparison.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

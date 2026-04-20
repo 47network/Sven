@@ -374,7 +374,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
             '5. sven.ops.heal_history — check recent heal activity and CB status',
             '6. Based on findings: sven.ops.code_fix → approval → deploy',
           ],
-          tips: 'Provide a more specific symptom description for targeted guidance. Example: "typescript error in trading.ts", "gateway-api container crashing", "deploy failed".',
+          tips: 'Provide a more specific symptom description for targeted guidance. Example: "typescript error in exchange.ts", "gateway-api container crashing", "deploy failed".',
         },
       };
     }

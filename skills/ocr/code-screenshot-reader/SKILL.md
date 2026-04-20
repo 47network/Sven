@@ -2,7 +2,7 @@
 name: code-screenshot-reader
 description: Extracts code from screenshots using OCR with code-aware detection and syntax preservation.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

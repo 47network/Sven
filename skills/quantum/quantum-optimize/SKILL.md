@@ -2,7 +2,7 @@
 name: quantum-optimize
 description: Apply QAOA and quantum annealing to optimization problems — portfolio allocation, scheduling, routing, and custom combinatorial objectives.
 version: 0.1.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 inputs_schema:

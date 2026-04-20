@@ -70,7 +70,7 @@ Purpose:
 
 Document:
 
-- [staging-linux-vm-2026.md](staging-linux-vm-2026.md)
+- [staging-linux-server-2026.md](staging-linux-server-2026.md)
 - [staging-execution-plan-2026.md](staging-execution-plan-2026.md)
 
 ### Stage 2: Production v1
@@ -85,7 +85,7 @@ Purpose:
 
 Document:
 
-- [production-v1-linux-vm-2026.md](production-v1-linux-vm-2026.md)
+- [production-v1-linux-server-2026.md](production-v1-linux-server-2026.md)
 - [production-v1-rollout-plan-2026.md](production-v1-rollout-plan-2026.md)
 
 ### Stage 3: Production Scale
@@ -148,7 +148,7 @@ Bare metal note:
 ## Related Documents
 
 - [ARCHITECTURE.md](../ARCHITECTURE.md)
-- [proxmox-prod.md](proxmox-prod.md)
+- [hypervisor-prod.md](hypervisor-prod.md)
 - [ingress-topologies.md](ingress-topologies.md)
 - [edge-nginx-and-traefik-options.md](edge-nginx-and-traefik-options.md)
 - [backup-and-restore-guide-2026.md](../ops/backup-and-restore-guide-2026.md)

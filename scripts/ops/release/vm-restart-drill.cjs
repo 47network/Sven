@@ -67,12 +67,12 @@ function commandRecord(step, shellCommand, enabled) {
 }
 
 function main() {
-  const envFile = process.env.SVEN_MULTI_VM_ENV_FILE || 'deploy/multi-vm/.env';
+  const envFile = process.env.SVEN_MULTI_VM_ENV_FILE || 'deploy/multi-server/.env';
   const vm5Profiles = String(process.env.SVEN_VM5_PROFILES || '').trim();
   const vm7Profiles = String(process.env.SVEN_VM7_PROFILES || 'adapters tunnel').trim();
 
-  const vm5Compose = 'deploy/multi-vm/docker-compose.vm5-ai.yml';
-  const vm7Compose = 'deploy/multi-vm/docker-compose.vm7-adapters.yml';
+  const vm5Compose = 'deploy/multi-server/docker-compose.vm5-ai.yml';
+  const vm7Compose = 'deploy/multi-server/docker-compose.vm7-adapters.yml';
   const vm5ProfileArgs = vm5Profiles ? vm5Profiles.split(/\s+/).map((profile) => `--profile ${profile}`).join(' ') : '';
   const vm7ProfileArgs = vm7Profiles ? vm7Profiles.split(/\s+/).map((profile) => `--profile ${profile}`).join(' ') : '';
 
@@ -95,7 +95,7 @@ function main() {
     },
     {
       step: 'repo_contract',
-      command: 'npm run -s release:multi-vm:restart:health:check',
+      command: 'npm run -s release:multi-server:restart:health:check',
     },
   ];
 

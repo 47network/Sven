@@ -6,9 +6,9 @@ Use it when preparing the first real staging host.
 
 Primary references:
 
-- [staging-linux-vm-2026.md](staging-linux-vm-2026.md)
+- [staging-linux-server-2026.md](staging-linux-server-2026.md)
 - [staging-execution-plan-2026.md](staging-execution-plan-2026.md)
-- [staging-proxmox-small-host-lan-gpu-2026.md](staging-proxmox-small-host-lan-gpu-2026.md)
+- [staging-hypervisor-small-host-lan-gpu-2026.md](staging-hypervisor-small-host-lan-gpu-2026.md)
 - [staging-bare-metal-2026.md](staging-bare-metal-2026.md)
 
 ---
@@ -127,7 +127,7 @@ ss -tulpn
 Command:
 
 ```bash
-sh scripts/ops/sh/bootstrap-staging-linux-vm.sh
+sh scripts/ops/sh/bootstrap-staging-linux-server.sh
 sh scripts/ops/sh/generate-staging-env.sh /srv/sven/staging/env/.env.staging
 ```
 
@@ -225,7 +225,7 @@ docker compose \
   --env-file /srv/sven/staging/env/.env.staging \
   -f docker-compose.yml \
   -f docker-compose.staging.yml \
-  -f docker-compose.staging.linux-vm.yml \
+  -f docker-compose.staging.linux-server.yml \
   up -d postgres nats opensearch
 ```
 
@@ -274,8 +274,8 @@ Command:
 
 ```bash
 sh scripts/ops/sh/staging-host-preflight.sh
-sh scripts/ops/sh/staging-linux-vm-up.sh
-sh scripts/ops/sh/staging-linux-vm-verify.sh
+sh scripts/ops/sh/staging-linux-server-up.sh
+sh scripts/ops/sh/staging-linux-server-verify.sh
 ```
 
 ---

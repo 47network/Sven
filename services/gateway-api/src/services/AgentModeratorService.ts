@@ -58,7 +58,7 @@ export class AgentModeratorService {
 
     // Factor 3: Sensitive topic markers
     const sensitivePatterns = [
-      { pattern: /\b(invest|financial|trading|crypto|stock|bitcoin)\b/i, label: 'financial_advice' },
+      { pattern: /\b(invest|financial|exchange|crypto|stock|bitcoin)\b/i, label: 'financial_advice' },
       { pattern: /\b(diagnos|medical|prescription|symptom|treatment|dosage)\b/i, label: 'medical_content' },
       { pattern: /\b(legal|lawyer|lawsuit|court|litigation|attorney)\b/i, label: 'legal_content' },
       { pattern: /\b(password|credential|secret|api[_-]?key|token)\b/i, label: 'credential_content' },

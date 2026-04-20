@@ -24,12 +24,12 @@ This directory contains all operational, release, security, and architectural do
 | [deploy/public-route-contract-and-auth-boundaries-2026.md](deploy/public-route-contract-and-auth-boundaries-2026.md) | Host/route/auth matrix for public and gated runtime surfaces |
 | [deploy/sven-systems-cutover-checklist-2026.md](deploy/sven-systems-cutover-checklist-2026.md) | Exact DNS, TLS, ingress, validation, and rollback checklist for the real public move to `sven.systems` and `app.sven.systems` |
 | [deploy/windows-nginx-acme-renewal-2026.md](deploy/windows-nginx-acme-renewal-2026.md) | Docker-based ACME issuance and renewal workflow for the live Windows nginx edge on `44747` |
-| [deploy/staging-linux-vm-2026.md](deploy/staging-linux-vm-2026.md) | Exact staging target on a Linux VM |
+| [deploy/staging-linux-server-2026.md](deploy/staging-linux-server-2026.md) | Exact staging target on a Linux VM |
 | [deploy/staging-execution-plan-2026.md](deploy/staging-execution-plan-2026.md) | Exact step-by-step staging build and validation sequence |
 | [deploy/staging-host-bringup-checklist-2026.md](deploy/staging-host-bringup-checklist-2026.md) | Operator-ready checklist for the first real staging Linux host |
-| [deploy/staging-proxmox-small-host-lan-gpu-2026.md](deploy/staging-proxmox-small-host-lan-gpu-2026.md) | Staging plan for a small Proxmox host with LAN GPU inference nodes |
+| [deploy/staging-hypervisor-small-host-lan-gpu-2026.md](deploy/staging-hypervisor-small-host-lan-gpu-2026.md) | Staging plan for a small Hypervisor host with LAN GPU inference nodes |
 | [deploy/staging-bare-metal-2026.md](deploy/staging-bare-metal-2026.md) | Staging plan for a direct bare-metal Linux host |
-| [deploy/production-v1-linux-vm-2026.md](deploy/production-v1-linux-vm-2026.md) | Exact first real production target on a hardened Linux VM |
+| [deploy/production-v1-linux-server-2026.md](deploy/production-v1-linux-server-2026.md) | Exact first real production target on a hardened Linux VM |
 | [deploy/production-v1-rollout-plan-2026.md](deploy/production-v1-rollout-plan-2026.md) | Controlled promotion path from staging into production v1 |
 | [deploy/production-scale-2026.md](deploy/production-scale-2026.md) | Multi-node scale target using orchestration |
 | [deploy/production-scale-kubernetes-reference-2026.md](deploy/production-scale-kubernetes-reference-2026.md) | Reference Kubernetes package and validation path for the scale tier |

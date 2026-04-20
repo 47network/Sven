@@ -6,7 +6,7 @@ description: >
   (idle→thinking→speaking→celebrating), walk cycles, thought bubbles,
   sound effects, and real-time agent event sync.
 version: 1.0.0
-publisher: 47dynamics
+publisher: acmecorp
 handler_language: typescript
 handler_file: handler.ts
 

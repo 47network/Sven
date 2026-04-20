@@ -294,8 +294,8 @@ Recommended ladder:
 | Stage | Host model | Runtime model | Primary document |
 |:--|:--|:--|:--|
 | dev | developer workstation | Docker Compose / PM2 | [deploy/deployment-ladder-2026.md](deploy/deployment-ladder-2026.md) |
-| staging | single Linux VM | Docker Compose | [deploy/staging-linux-vm-2026.md](deploy/staging-linux-vm-2026.md) |
-| production v1 | single hardened Linux VM | Docker Compose + ingress + backups + monitoring | [deploy/production-v1-linux-vm-2026.md](deploy/production-v1-linux-vm-2026.md) |
+| staging | single Linux VM | Docker Compose | [deploy/staging-linux-server-2026.md](deploy/staging-linux-server-2026.md) |
+| production v1 | single hardened Linux VM | Docker Compose + ingress + backups + monitoring | [deploy/production-v1-linux-server-2026.md](deploy/production-v1-linux-server-2026.md) |
 | production scale | Linux node pool | Kubernetes or Nomad | [deploy/production-scale-2026.md](deploy/production-scale-2026.md) |
 
 ### Docker Compose profiles
