@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-04-21T03:00:52.242Z",
+  "generated_at": "2026-04-21T03:01:46.534Z",
   "source_branch": "sentinel-fix-frigate-ssrf-15527942488435792961",
   "source_head_sha": "6a66bd83ec1981f385eade3bd5aba9cb269d9f34",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-21T03:00:51.649Z",
+    "captured_at": "2026-04-21T03:01:45.958Z",
     "branch": "sentinel-fix-frigate-ssrf-15527942488435792961",
     "total_runs": 14
   },
@@ -41,28 +41,26 @@
       "head_sha": "6a66bd83ec1981f385eade3bd5aba9cb269d9f34",
       "head_branch": "sentinel-fix-frigate-ssrf-15527942488435792961",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "workflow_id": 261310863,
       "workflow_name": "final-dod-e2e",
       "matched_target_sha": true,
       "gate_key": "final_dod_e2e_ci",
-      "decision": "pending_non_final_target_sha",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "parity_e2e_ci": {
       "run_id": 24701700179,
       "head_sha": "6a66bd83ec1981f385eade3bd5aba9cb269d9f34",
       "head_branch": "sentinel-fix-frigate-ssrf-15527942488435792961",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "workflow_id": 261310885,
       "workflow_name": "parity-e2e",
       "matched_target_sha": true,
       "gate_key": "parity_e2e_ci",
-      "decision": "pending_non_final_target_sha",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
@@ -91,7 +89,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-21T03:00:48.445Z"
+      "generated_at": "2026-04-21T03:01:42.697Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -121,7 +119,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-21T03:00:49.904Z"
+      "generated_at": "2026-04-21T03:01:44.251Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -136,7 +134,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-21T03:00:51.224Z"
+      "generated_at": "2026-04-21T03:01:45.551Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -185,14 +183,13 @@
       "head_sha": "6a66bd83ec1981f385eade3bd5aba9cb269d9f34",
       "head_branch": "sentinel-fix-frigate-ssrf-15527942488435792961",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "workflow_id": 261310875,
       "workflow_name": "mobile-auth-session-smoke",
       "matched_target_sha": true,
       "gate_key": "mobile_auth_session_smoke_ci",
-      "decision": "pending_non_final_target_sha",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "mobile_release_readiness_ci": {
       "run_id": null,
@@ -447,14 +444,13 @@
         "head_sha": "6a66bd83ec1981f385eade3bd5aba9cb269d9f34",
         "head_branch": "sentinel-fix-frigate-ssrf-15527942488435792961",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310863,
         "workflow_name": "final-dod-e2e",
         "matched_target_sha": true,
         "gate_key": "final_dod_e2e_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "final_dod_e2e_ci"
     },
@@ -465,14 +461,13 @@
         "head_sha": "6a66bd83ec1981f385eade3bd5aba9cb269d9f34",
         "head_branch": "sentinel-fix-frigate-ssrf-15527942488435792961",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310885,
         "workflow_name": "parity-e2e",
         "matched_target_sha": true,
         "gate_key": "parity_e2e_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "parity_e2e_ci"
     },
@@ -519,14 +514,13 @@
         "head_sha": "6a66bd83ec1981f385eade3bd5aba9cb269d9f34",
         "head_branch": "sentinel-fix-frigate-ssrf-15527942488435792961",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310875,
         "workflow_name": "mobile-auth-session-smoke",
         "matched_target_sha": true,
         "gate_key": "mobile_auth_session_smoke_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "mobile_auth_session_smoke_ci"
     },
