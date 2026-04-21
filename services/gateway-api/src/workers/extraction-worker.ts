@@ -80,7 +80,7 @@ async function processPendingJobs(): Promise<void> {
       const messageIds = jobsNeedingContent.map((job) => job.message_id);
       try {
         const msgResult = await pool.query(
-          `SELECT id, content FROM messages WHERE id = ANY($1::text[])`,
+          `SELECT id, content FROM messages WHERE id = ANY($1)`,
           [messageIds]
         );
         const contentMap = new Map<string, string>();
@@ -123,7 +123,7 @@ async function requeueClaimedJobs(jobIds: string[]): Promise<void> {
        SET status = 'pending',
            started_at = NULL,
            updated_at = CURRENT_TIMESTAMP
-       WHERE id = ANY($1::uuid[])
+       WHERE id = ANY($1)
          AND status = 'processing'`,
       [jobIds]
     );
