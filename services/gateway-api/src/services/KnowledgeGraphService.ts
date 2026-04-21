@@ -110,30 +110,39 @@ export async function storeEntities(
   sourceData: { chatId: string; messageId?: string }
 ): Promise<Map<string, string>> {
   const entityIdMap = new Map<string, string>();
+  if (!entities || entities.length === 0) return entityIdMap;
 
   try {
+    const values: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 1;
+
     for (const entity of entities) {
       const id = nanoid();
-      await pool.query(
-        `INSERT INTO kg_entities (id, type, name, description, confidence, created_by, metadata)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
-         ON CONFLICT (name, type) DO UPDATE SET
-           updated_at = CURRENT_TIMESTAMP,
-           metadata = jsonb_merge(kg_entities.metadata, $7)
-         RETURNING id`,
-        [
-          id,
-          entity.type,
-          entity.name,
-          entity.description || null,
-          entity.confidence,
-          userId,
-          JSON.stringify(entity.metadata || {}),
-        ]
+      values.push(
+        `($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}::jsonb)`
       );
-
+      params.push(
+        id,
+        entity.type,
+        entity.name,
+        entity.description || null,
+        entity.confidence,
+        userId,
+        JSON.stringify(entity.metadata || {})
+      );
       entityIdMap.set(entity.name, id);
     }
+
+    await pool.query(
+      `INSERT INTO kg_entities (id, type, name, description, confidence, created_by, metadata)
+       VALUES ${values.join(', ')}
+       ON CONFLICT (name, type) DO UPDATE SET
+         updated_at = CURRENT_TIMESTAMP,
+         metadata = jsonb_merge(kg_entities.metadata, EXCLUDED.metadata)
+       RETURNING id`,
+      params
+    );
   } catch (error) {
     console.error('Failed to store entities:', error);
   }
@@ -150,8 +159,13 @@ export async function storeRelations(
   userId: string
 ): Promise<string[]> {
   const relationIds: string[] = [];
+  if (!relations || relations.length === 0) return relationIds;
 
   try {
+    const values: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 1;
+
     for (const rel of relations) {
       const sourceId = entities.get(rel.source_name);
       const targetId = entities.get(rel.target_name);
@@ -161,21 +175,27 @@ export async function storeRelations(
       }
 
       const id = nanoid();
+      values.push(
+        `($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}::jsonb)`
+      );
+      params.push(
+        id,
+        sourceId,
+        targetId,
+        rel.relation_type,
+        rel.confidence,
+        userId,
+        JSON.stringify(rel.metadata || {})
+      );
+      relationIds.push(id);
+    }
+
+    if (values.length > 0) {
       await pool.query(
         `INSERT INTO kg_relations (id, source_entity_id, target_entity_id, relation_type, confidence, created_by, metadata)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [
-          id,
-          sourceId,
-          targetId,
-          rel.relation_type,
-          rel.confidence,
-          userId,
-          JSON.stringify(rel.metadata || {}),
-        ]
+         VALUES ${values.join(', ')}`,
+        params
       );
-
-      relationIds.push(id);
     }
   } catch (error) {
     console.error('Failed to store relations:', error);
@@ -199,40 +219,62 @@ export async function storeEvidence(
 ): Promise<void> {
   try {
     // Store entity evidence
+    const entityValues: string[] = [];
+    const entityParams: any[] = [];
+    let entityParamIndex = 1;
+
     for (const [entityName, entityId] of entityIds) {
       const quote = extractQuote(source.text, entityName);
       if (quote) {
-        await pool.query(
-          `INSERT INTO kg_evidence (id, entity_id, content_type, source_id, source_chat_id, quote, context, extraction_method)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-          [
-            nanoid(),
-            entityId,
-            source.type,
-            source.id,
-            source.chatId,
-            quote,
-            source.text.substring(0, 500),
-            'llm',
-          ]
+        entityValues.push(
+          `($${entityParamIndex++}, $${entityParamIndex++}, $${entityParamIndex++}, $${entityParamIndex++}, $${entityParamIndex++}, $${entityParamIndex++}, $${entityParamIndex++}, $${entityParamIndex++})`
+        );
+        entityParams.push(
+          nanoid(),
+          entityId,
+          source.type,
+          source.id,
+          source.chatId,
+          quote,
+          source.text.substring(0, 500),
+          'llm'
         );
       }
     }
 
+    if (entityValues.length > 0) {
+      await pool.query(
+        `INSERT INTO kg_evidence (id, entity_id, content_type, source_id, source_chat_id, quote, context, extraction_method)
+         VALUES ${entityValues.join(', ')}`,
+        entityParams
+      );
+    }
+
     // Store relation evidence
+    const relationValues: string[] = [];
+    const relationParams: any[] = [];
+    let relationParamIndex = 1;
+
     for (const relationId of relationIds) {
+      relationValues.push(
+        `($${relationParamIndex++}, $${relationParamIndex++}, $${relationParamIndex++}, $${relationParamIndex++}, $${relationParamIndex++}, $${relationParamIndex++}, $${relationParamIndex++})`
+      );
+      relationParams.push(
+        nanoid(),
+        relationId,
+        source.type,
+        source.id,
+        source.chatId,
+        source.text.substring(0, 500),
+        'llm'
+      );
+    }
+
+    if (relationValues.length > 0) {
       await pool.query(
         `INSERT INTO kg_evidence (id, relation_id, content_type, source_id, source_chat_id, context, extraction_method)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [
-          nanoid(),
-          relationId,
-          source.type,
-          source.id,
-          source.chatId,
-          source.text.substring(0, 500),
-          'llm',
-        ]
+         VALUES ${relationValues.join(', ')}`,
+        relationParams
       );
     }
   } catch (error) {
