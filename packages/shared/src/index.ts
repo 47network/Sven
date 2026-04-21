@@ -1,6 +1,6 @@
 export * from './types/events.js';
 export * from './types/models.js';
-export * from './types/nats-subjects.js';
+
 export * from './types/api.js';
 export * from './logger.js';
 export * from './health.js';
@@ -36,3 +36,4 @@ export * from './anti-distillation.js';
 export * from './background-session.js';
 export * from './personality-engine.js';
 export * from './visual-companion.js';
+export * from './types/nats-subjects.js';

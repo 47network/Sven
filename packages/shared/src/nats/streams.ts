@@ -31,10 +31,11 @@ export async function ensureStreams(connection: NatsConnection): Promise<void> {
   const manager = await connection.jetstreamManager();
   const streamApi = manager.streams;
   for (const config of Object.values(STREAM_CONFIGS)) {
+    if (!config.name) continue;
     try {
       const info = await streamApi.info(config.name);
       const existingSubjects = info.config.subjects ?? [];
-      const desiredSubjects = Array.from(new Set(config.subjects));
+      const desiredSubjects = Array.from(new Set(config.subjects ?? []));
       const subjectsDiffer =
         existingSubjects.length !== desiredSubjects.length ||
         desiredSubjects.some((subject) => !existingSubjects.includes(subject));
@@ -46,12 +47,12 @@ export async function ensureStreams(connection: NatsConnection): Promise<void> {
         try {
           const updateConfig = { ...info.config, subjects: desiredSubjects };
           if (retentionDiffers) {
-            updateConfig.retention = config.retention;
+            updateConfig.retention = config.retention as any;
             if ('max_age' in config && config.max_age !== undefined) {
               updateConfig.max_age = config.max_age;
             }
           }
-          await streamApi.update(config.name, updateConfig);
+          await streamApi.update(config.name, updateConfig as any);
         } catch (updateErr) {
           if (isSubjectsOverlapError(updateErr)) {
             console.warn('Cannot update stream subjects because they overlap with another stream, skipping:', config.name);
@@ -61,7 +62,7 @@ export async function ensureStreams(connection: NatsConnection): Promise<void> {
             console.warn('Cannot change retention policy to/from workqueue, deleting and recreating stream:', config.name);
             try {
               await streamApi.delete(config.name);
-              await streamApi.add(config);
+              await streamApi.add(config as any);
               console.log('Stream recreated successfully:', config.name);
             } catch (recreateErr) {
               console.error('Failed to recreate stream:', config.name, recreateErr);
@@ -76,7 +77,7 @@ export async function ensureStreams(connection: NatsConnection): Promise<void> {
     } catch (err) {
       if (isStreamNotFoundError(err)) {
         try {
-          await streamApi.add(config);
+          await streamApi.add(config as any);
         } catch (addErr) {
           if (isSubjectsOverlapError(addErr)) {
             console.warn('Stream subjects overlap with existing stream, skipping:', config.name);
