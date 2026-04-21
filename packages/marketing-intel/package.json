@@ -1,0 +1,20 @@
+{
+  "name": "@sven/marketing-intel",
+  "version": "0.1.0",
+  "description": "Marketing intel module stub",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./competitive-intel": "./dist/competitive-intel/index.js",
+    "./brand-voice": "./dist/brand-voice/index.js",
+    "./content-generator": "./dist/content-generator/index.js",
+    "./campaign-planner": "./dist/campaign-planner/index.js",
+    "./communication-coach": "./dist/communication-coach/index.js",
+    "./analytics": "./dist/analytics/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "jest --passWithNoTests"
+  }
+}

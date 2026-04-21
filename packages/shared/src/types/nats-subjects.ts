@@ -1,6 +1,53 @@
 import type { StreamConfig } from 'nats';
 
 export enum NatsSubject {
+  AGENT_RUN = 'agent_run',
+  TOOL_RUN_REQUEST = 'tool_run_request',
+  TOOL_RUN_RESULT = 'tool_run_result',
+  INBOUND_MESSAGE = 'inbound_message',
+  APPROVAL_CREATED = 'approval_created',
+  APPROVAL_UPDATED = 'approval_updated',
+  NOTIFY_PUSH = 'notify_push',
+  RAG_INDEX_REQUEST = 'rag_index_request',
+  RAG_INDEX_RESULT = 'rag_index_result',
+  OUTBOX_ENQUEUE = 'outbox_enqueue',
+  TTS_OUTBOX_ENQUEUE = 'tts_outbox_enqueue',
+  AUDIO_INGEST = 'audio_ingest',
+  WAKE_WORD_DETECTED = 'wake_word_detected',
+  RUNTIME_DISPATCH = 'runtime_dispatch',
+  MESH_DEVICE_REGISTER = 'mesh_device_register',
+  MESH_DEVICE_HEARTBEAT = 'mesh_device_heartbeat',
+  MESH_DEVICE_DEREGISTER = 'mesh_device_deregister',
+  MODEL_VRAM_ALERT = 'model_vram_alert',
+  MODEL_FLEET_HEALTH = 'model_fleet_health',
+  MODEL_REGISTERED = 'model_registered',
+  MODEL_UNREGISTERED = 'model_unregistered',
+  MODEL_STATUS_CHANGED = 'model_status_changed',
+  MODEL_ROUTE_DECISION = 'model_route_decision',
+  MODEL_HOTSWAP_RESULT = 'model_hotswap_result',
+  MODEL_BENCHMARK_COMPLETE = 'model_benchmark_complete',
+  MODEL_DEPLOY_STATUS = 'model_deploy_status',
+  SECURITY_SAST_COMPLETE = 'security_sast_complete',
+  SECURITY_SECRET_SCAN_COMPLETE = 'security_secret_scan_complete',
+  SECURITY_SECRET_FOUND = 'security_secret_found',
+  SECURITY_DEP_AUDIT_COMPLETE = 'security_dep_audit_complete',
+  SECURITY_INFRA_AUDIT_COMPLETE = 'security_infra_audit_complete',
+  SECURITY_PENTEST_COMPLETE = 'security_pentest_complete',
+  SECURITY_POSTURE_GENERATED = 'security_posture_generated',
+  SECURITY_CRITICAL_FINDING = 'security_critical_finding',
+  DOCUMENT_OCR_COMPLETE = 'document_ocr_complete',
+  DOCUMENT_PIPELINE_COMPLETE = 'document_pipeline_complete',
+  DOCUMENT_PIPELINE_FAILED = 'document_pipeline_failed',
+  DOCUMENT_BATCH_COMPLETE = 'document_batch_complete',
+  DOCUMENT_ENTITIES_EXTRACTED = 'document_entities_extracted',
+  DOCUMENT_SUMMARY_GENERATED = 'document_summary_generated',
+  DOCUMENT_PII_DETECTED = 'document_pii_detected',
+  NOTIFY_PROACTIVE = 'notify_proactive',
+  NOTIFY_PROACTIVE_FEEDBACK = 'notify_proactive_feedback',
+  QUANTUM_JOB_COMPLETED = 'quantum_job_completed',
+  QUANTUM_JOB_FAILED = 'quantum_job_failed',
+  QUANTUM_JOB_SUBMIT = 'quantum_job_submit',
+  QUANTUM_JOB_CANCEL = 'quantum_job_cancel',
   MARKETING_INTEL_RELOAD = 'marketing_intel_reload',
   MARKETING_INTEL_UPDATE = 'marketing_intel_update',
   ADMIN_RELOAD = 'admin_reload',
@@ -8,8 +55,12 @@ export enum NatsSubject {
   MODEL_ROUTER_RELOAD = 'model_router_reload'
 }
 
-export const NATS_SUBJECTS = {
-  ...NatsSubject
+export const NATS_SUBJECTS: any = {
+  ...NatsSubject,
+  inboundMessage: (orgId: string) => `org.${orgId}.inbound`,
+  meshJobStatus: (jobId: string) => `mesh.job.${jobId}.status`,
+  quantumJobStatus: (jobId: string) => `quantum.job.${jobId}.status`,
+  modelNodeProbe: (nodeId: string) => `model.node.${nodeId}.probe`
 };
 
-export const STREAM_CONFIGS: Record<string, Partial<StreamConfig>> = {};
+export const STREAM_CONFIGS: Record<string, StreamConfig> = {};
