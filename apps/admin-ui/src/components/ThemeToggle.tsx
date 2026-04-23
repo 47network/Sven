@@ -17,6 +17,7 @@ export function ThemeToggle({ size = 'md', showLabel = false }: ThemeToggleProps
     <button
       onClick={toggle}
       className="flex items-center gap-2 rounded-md p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+      aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
     >
       {dark ? (
