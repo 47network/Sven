@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-05-25T08:30:26.197Z",
+  "generated_at": "2026-05-25T08:31:41.209Z",
   "source_branch": "dependabot/npm_and_yarn/services/gateway-api/npm_and_yarn-1862b2a9e3",
   "source_head_sha": "64d23517f446fd80a4e7125b586806f21c75c2f5",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-05-25T08:30:25.535Z",
+    "captured_at": "2026-05-25T08:31:40.502Z",
     "branch": "dependabot/npm_and_yarn/services/gateway-api/npm_and_yarn-1862b2a9e3",
     "total_runs": 13
   },
@@ -37,18 +37,17 @@
   "security_baseline_ci": false,
   "gate_provenance": {
     "final_dod_ci": {
-      "run_id": 26391221694,
+      "run_id": 26391223111,
       "head_sha": "64d23517f446fd80a4e7125b586806f21c75c2f5",
       "head_branch": "dependabot/npm_and_yarn/services/gateway-api/npm_and_yarn-1862b2a9e3",
-      "event": "push",
-      "status": "in_progress",
-      "conclusion": null,
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "failure",
       "workflow_id": 261310863,
       "workflow_name": "final-dod-e2e",
       "matched_target_sha": true,
       "gate_key": "final_dod_e2e_ci",
-      "decision": "pending_non_final_target_sha",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "parity_e2e_ci": {
       "run_id": 26391223073,
@@ -90,7 +89,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-05-25T08:30:22.482Z"
+      "generated_at": "2026-05-25T08:31:37.197Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -120,7 +119,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-05-25T08:30:23.929Z"
+      "generated_at": "2026-05-25T08:31:38.748Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -135,7 +134,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-05-25T08:30:25.117Z"
+      "generated_at": "2026-05-25T08:31:40.060Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -357,7 +356,7 @@
       "matched_target_sha": false,
       "gate_key": "ops_shell_ci",
       "decision": "not_required_scope_clean",
-      "previous_gate_value": false,
+      "previous_gate_value": true,
       "scope_source": "no_changed_files_detected",
       "scope_globs": [
         "scripts/ops/**/*.sh",
@@ -404,14 +403,13 @@
       "head_sha": "64d23517f446fd80a4e7125b586806f21c75c2f5",
       "head_branch": "dependabot/npm_and_yarn/services/gateway-api/npm_and_yarn-1862b2a9e3",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "workflow_id": 261310894,
       "workflow_name": "security-baseline",
       "matched_target_sha": true,
       "gate_key": "security_baseline_ci",
-      "decision": "pending_non_final_target_sha",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     }
   },
   "required_workflow_manifest": {
@@ -442,18 +440,17 @@
     "final-dod-e2e": {
       "pass": false,
       "provenance": {
-        "run_id": 26391221694,
+        "run_id": 26391223111,
         "head_sha": "64d23517f446fd80a4e7125b586806f21c75c2f5",
         "head_branch": "dependabot/npm_and_yarn/services/gateway-api/npm_and_yarn-1862b2a9e3",
-        "event": "push",
-        "status": "in_progress",
-        "conclusion": null,
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310863,
         "workflow_name": "final-dod-e2e",
         "matched_target_sha": true,
         "gate_key": "final_dod_e2e_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "final_dod_e2e_ci"
     },
@@ -657,14 +654,13 @@
         "head_sha": "64d23517f446fd80a4e7125b586806f21c75c2f5",
         "head_branch": "dependabot/npm_and_yarn/services/gateway-api/npm_and_yarn-1862b2a9e3",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310894,
         "workflow_name": "security-baseline",
         "matched_target_sha": true,
         "gate_key": "security_baseline_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "security_baseline_ci"
     },
