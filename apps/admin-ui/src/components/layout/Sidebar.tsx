@@ -276,6 +276,9 @@ export default function Sidebar() {
       <button
         onClick={toggle}
         className="hidden md:flex h-10 items-center justify-center border-t border-slate-800/80 text-slate-400 hover:bg-slate-900 hover:text-cyan-300"
+        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        aria-expanded={!collapsed}
+        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
       </button>
