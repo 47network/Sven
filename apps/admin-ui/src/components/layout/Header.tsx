@@ -170,6 +170,8 @@ export default function Header() {
           <button
             onClick={() => setSearchOpen(true)}
             className="flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm text-slate-400 border-slate-700 hover:border-cyan-400"
+            aria-label="Search commands"
+            title="Search commands"
           >
             <Search className="h-4 w-4" />
             <span className="hidden sm:inline">Search commands…</span>
@@ -250,6 +252,7 @@ export default function Header() {
           <button
             onClick={handleLogout}
             className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-red-500 dark:hover:bg-slate-800"
+            aria-label="Logout"
             title="Logout"
           >
             <LogOut className="h-4 w-4" />
