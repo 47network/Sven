@@ -28,7 +28,7 @@
     "@sven/compute-mesh": "workspace:*",
     "@sven/design-system": "workspace:*",
     "@sven/document-intel": "workspace:*",
-    "@sven/marketing-intel": "workspace:*",
+
     "@sven/model-router": "workspace:*",
     "@sven/quantum-sim": "workspace:*",
     "@sven/security-toolkit": "workspace:*",
