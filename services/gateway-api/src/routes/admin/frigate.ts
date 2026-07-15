@@ -64,7 +64,14 @@ async function frigateRequest(config: FrigateConfig, method: string, path: strin
   if (!config.baseUrl || !config.token) {
     throw new Error(config.error || 'Frigate config unavailable');
   }
-  const res = await fetch(`${config.baseUrl}${path}`, {
+
+  const targetUrl = new URL(path.startsWith('/') ? path : `/${path}`, config.baseUrl);
+  const baseUrlObj = new URL(config.baseUrl);
+  if (targetUrl.origin !== baseUrlObj.origin) {
+    throw new Error('Frigate request URL origin mismatch (potential SSRF)');
+  }
+
+  const res = await fetch(targetUrl.toString(), {
     method,
     headers: {
       Authorization: `Bearer ${config.token}`,
